@@ -1,0 +1,108 @@
+<partner-copy-text data="vm.content.data"></partner-copy-text>
+<script type="text/ng-template" id="partner-copy-text.html">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-question fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Export</span>
+        <button type="button" ng-click="closeModal()" class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body" id="modal-body" >
+        <div ng-if="data.entity.type == 'chat'">
+            <div class="callbox-search-container">
+                <div class="input-group" style="margin-top: 14px;">
+                    <span class="input-group-addon" title="Filter Payments"><i class="fa fa-filter"></i></span>
+                    <input class="form-control" 
+                        type="text" 
+                        ng-focus="showList()"
+                        ng-blur="hideList()"
+                        ng-model="filter.contactSearch" 
+                        placeholder="Search contacts by name or number">
+                    <span class="input-group-addon" 
+                        ng-if="selected" 
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{tips.integration.resetselection}}"
+                        ng-click="resetContactSelection()" 
+                        title="Reset Selection">
+                        <i class="fa fa-repeat"></i>
+                    </span>
+                </div>
+                <div class="contact-options"
+                        ng-show="showContacts">
+                    <div class="list-group">
+                        <div ng-if="!hasParent && (filterData.length + filterUserData.length)===0" class="no-results mdgreyfont">
+                            <i class="fa fa-search fa-2x"></i><br />
+                            <span>No Results Found<br />
+                                Broaden Your Search
+                            </span>
+                        </div>
+                        <div ng-if="(filterData.length + filterUserData.length) > 50" class="partial-search mdgreyfont">
+                            <span>{{(filterData.length + filterUserData.length)}} Results Found<br />
+                                Showing First 50 - Please Narrow Search</span>
+                        </div>
+                        <div ng-if="(filterData.length + filterUserData.length) < 50 && (filterData.length + filterUserData.length) !== 0"
+                                class="partial-search mdgreyfont">
+                            <span>{{(filterData.length + filterUserData.length)}} Results Found</span>
+                        </div>
+                        <div ng-repeat="contactUuid in filterUserData = (contacts() | filter:filterContacts) | limitTo:50"
+                            ng-init="contact = theContact(contactUuid)"
+                            ng-click="selectContact(contact)"
+                            class="list-group-item">
+                            <div class="thread-list-item" ng-if="!isKotterTechUser(contact)">
+                                <div class="thread-list-circle">
+                                    <span ng-bind-html="showContactPhoto(contact, 'small')"></span>
+                                </div>
+                                <div class="thread-list-body">
+                                    <span ng-if="contact.cuuid" style="padding-top: 16px;">
+                                        {{contact.name}}<br />
+                                    </span>
+                                    <span class="recent-message">
+                                        <span ng-if="!contact.cuuid && contact.phone_number"
+                                            class="numbers">
+                                            {{contact.phone_number | tel2}}
+                                        </span>
+                                        <span ng-if="contact.cuuid && phone.phone_number"
+                                            ng-repeat="phone in contact.nums">
+                                            <span 
+                                                ng-show="phone.num" 
+                                                style="margin-right: 10px; ">
+                                                {{phone.lab}}: {{phone.num | tel2}}<br />
+                                            </span>
+                                        </span>
+                                        <span ng-if="contact.ext" >
+                                            Ext: {{contact.ext | tel2}}
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <textarea class="form-control"
+                rows="8" 
+                ng-disabled="true" 
+                ng-model="message">
+            </textarea>
+        </div>
+        <div class="center-text padd10">
+            <button class="btn btn-success"
+                ng-click="copyInfo()">
+                Copy Info & Close
+            </button>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md" 
+                ng-click="closeModal()">
+                <i class="fa fa-remove" 
+                    style="margin-right: 10px;">
+                </i>Cancel
+        </button>
+    </div>
+</script>

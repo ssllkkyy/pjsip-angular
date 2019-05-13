@@ -1,0 +1,131 @@
+<div class="" ng-controller="MainCtrl">
+    <div class="row">
+        <div class="col-sm-12"><h3>Advanced Features </h3></div>
+    </div>
+  <!--  <button class="btn btn-success" ng-click="deleteUser()">Delete User</button>
+    <button class="btn btn-danger" ng-click="deleteDomain()">Delete Agency</button>
+    <button class="btn btn-warning" ng-click="suspendDomain()">Suspend Agency</button>
+    <button class="btn btn-primary" ng-click="enableDomain()">Enable Agency</button>-->
+   <!-- <form name="login" action="http://vtiger.keithgallant.com/CustomerAuthenticate.php" method="post">
+        <input type="hidden" name="__cpftk" value="sid:3298a2a35e9cbfaf2dee107ba7a6cad4ddfd0930,1497451479">
+				<div class="body bg-gray">
+                	<div class="form-group">
+												<input type="text" id="username" name="username" class="form-control" placeholder="Email ID :">
+					</div>
+					<div class="form-group">
+						<input type="password" id="pw" name="pw" class="form-control" placeholder="Password:">
+					</div>
+				</div>
+				<div class="footer">
+					<button type="submit" class="btn bg-light-blue btn-block" onclick="return validateLoginDetails();" style="font-size: 16px; font=weight:500;">Login</button>  
+                    <p><a href="supportpage.php?param=forgot_password" style="font-size:16px;">Forgot Password?</a></p>
+                    <a href="#" class="text-center" style="font-size:16px;">Email ID and Password are case Insensitive.</a>
+            	</div>
+			</form>-->
+    <div class="content-container" id="advfeatures">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">  <!--  showConferenceCalls()  -->
+                <div class="thumbnail" ng-click="goToOption('conferencecall')"
+                     uib-tooltip="{{tips.adv.conference}}" tooltip-placement="top">
+                    <span class="fa-stack fa-5x cls-color-gris2">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <div class="caption">
+                        Conference Calls
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                <div class="thumbnail" uib-tooltip="{{tips.adv.screenshare}}"
+                     ng-click="goToOption('/screenshare');" tooltip-placement="top">
+                    <span class="fa-stack fa-5x cls-color-gris2">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-clone fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <div class="caption">
+                        Screen Share
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                <div class="thumbnail" ng-click="goToOption('/filesharing');" uib-tooltip="{{tips.adv.fileshare}}" tooltip-placement="top">
+                    <span class="fa-stack fa-5x cls-color-gris2">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-files-o fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <div class="caption">
+                        File Sharing
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                <div class="thumbnail" ng-click="goToOption('/fax');" uib-tooltip="{{tips.adv.fax}}" tooltip-placement="top">
+                        <span class="fa-stack fa-5x cls-color-gris2">
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <i class="fa fa-fax fa-stack-1x fa-inverse"></i>
+                        </span>
+                    <div class="caption">
+                        Fax
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                <div class="thumbnail" ng-click="goToOption('/videoconference');" uib-tooltip="{{tips.adv.videocalls}}" tooltip-placement="top">
+                        <span class="fa-stack fa-5x cls-color-gris2">
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <i class="fa fa-video-camera fa-stack-1x fa-inverse"></i>
+                        </span>
+                    <div class="caption">
+                        Video Calling
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                <div class="thumbnail"  ng-click="goToOption('/automatedmessaging');" uib-tooltip="{{tips.adv.automated}}" tooltip-placement="top">
+                    <span class="fa-stack fa-5x cls-color-gris2">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-angle-double-right fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <div class="caption">
+                        Automated Marketing
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                <div class="thumbnail" ng-click="goToOption('/cloudstorage');" uib-tooltip="{{tips.adv.cloudstorage}}" tooltip-placement="top">
+                    <span class="fa-stack fa-5x cls-color-gris2">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-cloud fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <div class="caption">
+                        Cloud Storage
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                <div class="thumbnail" ng-click="goToOption('/callrecording');" uib-tooltip="{{tips.adv.callrecording}}" tooltip-placement="top">
+                    <span class="fa-stack fa-5x cls-color-gris2">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-microphone fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <div class="caption">
+                        Call Recording
+                    </div>
+                </div>
+            </div>
+            <div ng-if="user.accessgroup == 'admin' || user.accessgroup == 'superuser' || (emulationStatus && emulationStatus['callcenter'].manager === 'true')" class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                <div class="thumbnail" ng-click="goToOption('/callcenter');" uib-tooltip="{{tips.adv.callcenter}}" tooltip-placement="top">
+                    <span class="fa-stack fa-5x cls-color-gris2">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-connectdevelop fa-stack-1x fa-inverse"></i>
+                    </span>
+                    <div class="caption">
+                        Call Center
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

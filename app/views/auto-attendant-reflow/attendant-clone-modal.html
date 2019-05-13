@@ -1,0 +1,32 @@
+<md-dialog class="clone-modal attendant-modal">
+    <div class="modal-header">
+        <div class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x" ></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </div>
+        <div class="attendant-modal-title">
+            {{$ctrl.modalTitle}}
+        </div>
+    </div>
+    <div class="modal-body">
+        <attendant-did-select
+            on-dest-change="$ctrl.onDestChange(destUuid, isSet)"
+            hide-order="true"
+            class="dest-table-container">
+        </attendant-did-select>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-md"
+                ng-click="$ctrl.cancel()" >
+            <i class="fa fa-undo"
+               style="margin-right: 10px;">
+            </i>
+            Cancel
+        </button>
+        <button class="btn btn-success"
+                ng-disabled="!$ctrl.cloneable"
+                ng-click="$ctrl.cloneAttendant()">
+            Finish Cloning
+        </button>
+    </div>
+</md-dialog>

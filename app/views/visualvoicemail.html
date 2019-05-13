@@ -1,0 +1,59 @@
+<div class="full-width"
+     ng-controller="VisualVoiceMailCtrl">
+    <div class="no-access-container"
+         ng-if="!packageHasAccess('visualvoicemail')">
+        <div class="alert alert-warning centered no-access">
+            Your current Bridge {{user.package.package_title}}
+            does not have access to {{showFeatureTitle('visualvoicemail')}}.
+        </div>
+    </div>
+    <div ng-if="packageHasAccess('visualvoicemail')">
+        <div class="row content-header padd">
+            <div class="col-sm-8">
+                <h3>
+                    Visual Voicemail
+                    <span ng-if="showTable && emulatedUser()">
+                        - Emulating: {{getUserNameByUUID(emulatedUser())}}
+                    </span>
+                </h3>
+            </div>
+            <div class="col-sm-4"
+                 ng-if="packageHasAccess('emulate') && voicemail.activeTab === 0">
+                <emulate-user emulation-type="'voicemail'"></emulate-user>
+            </div>
+            <div class="col-sm-4 vm-selector" ng-if="voicemail.activeTab === 1">
+                <location-selector boot-loc-change="true"
+                                   type-filter="'dids'"
+                                   on-location-change="changeLocation">
+                </location-selector>
+            </div>
+        </div>
+        <div ng-cloak>
+            <md-content class="voicemail-table">
+                <md-tabs md-dynamic-height
+                         md-border-bottom
+                         md-selected="voicemail.activeTab">
+                    <md-tab label="User Voicemails ({{unreadVoicemails}})">
+                        <md-content class="md-padding">
+                            <voicemail-table ng-if="voicemail.activeTab === 0"
+                                             voicemail="voicemail"
+                                             user-uuid="getUserUuid()">
+                            </voicemail-table>
+                        </md-content>
+                    </md-tab>
+                    <md-tab label="Agency Voicemails ({{domainUnreadVoicemails}})"
+                            ng-if="hasGroups()">
+                        <md-content class="md-padding">
+                            <voicemail-table ng-if="voicemail.activeTab === 1"
+                                             dest-uuid="destUuid"
+                                             voicemail="voicemail"
+                                             groups="myGroups"
+                                             location-uuid="locationUuid">
+                            </voicemail-table>
+                        </md-content>
+                    </md-tab>
+                </md-tabs>
+            </md-content>
+        </div>
+    </div>
+</div>

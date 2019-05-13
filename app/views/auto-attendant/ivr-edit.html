@@ -1,0 +1,129 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-info container-element ">
+            <div class="panel-body">
+                <div class="action-menu"
+                     id="menu-options">
+                    <div class="mainAttendant">
+                        <div>
+                            <div class="ivr-settings">
+                                <div class="ivr-setting">
+                                    <md-input-container>
+                                        <label>IVR Menu Name</label>
+                                        <input
+                                            md-input
+                                            ng-model="ivrModel.ivr_menu_name" />
+                                    </md-input-container>
+                                </div>
+                                <div class="ivr-setting">
+                                    <md-input-container>
+                                        <label> Time out after message plays in seconds </label>
+                                        <input
+                                            type="number"
+                                            ng-model="ivrModel.ivr_menu_timeout" />
+                                    </md-input-container>
+                                </div>
+                                <div class="ivr-setting">
+                                    <md-input-container>
+                                        <label> Max Timeout </label>
+                                        <input
+                                            type="number"
+                                            ng-model="ivrModel.ivr_menu_max_timeouts" />
+                                    </md-input-container>
+                                </div>
+                                <div class="ivr-setting">
+                                    <md-input-container>
+                                        <label> Max Failures </label>
+                                        <input
+                                            type="number"
+                                            ng-model="ivrModel.ivr_menu_max_failures" />
+                                    </md-input-container>
+                                </div>
+                                <div class="ivr-setting greeting-settings">
+                                    <md-input-container>
+                                        <label>Choose IVR Greeting</label>
+                                        <md-select
+                                            ng-disabled="disableGreetingSelector()"
+                                            ng-model="ivrGreetingInfo.ivrGreeting"
+                                            ng-change="onNewIvrGreetingInfo(ivrGreetingInfo.ivrGreeting)"
+                                            class="directoryOptions">
+                                            <md-option ng-repeat="library in audioLibraries"
+                                                       ng-value="library">
+                                                {{library.file_title}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                    <div>
+                                        <audio-play-btn
+                                            audio-file="ivrGreetingInfo.audioFile"
+                                            ng-if="ivrGreetingInfo.ivrGreeting">
+                                            <btn-text>Play greeting</btn-text>
+                                        </audio-play-btn>
+                                        <span ng-if="audioSelectorType !== 'ivr-greeting'">
+                                            or
+                                        </span>
+                                        <span>
+                                            <button
+                                                class="btn btn-sm btn-default"
+                                                ng-if="audioSelectorType !== 'ivr-greeting'"
+                                                ng-click="openAudioSelector('ivr-greeting')">
+                                                <i class="fa fa-microphone"></i>
+                                                Record a new one
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <span ng-if="audioSelectorType === 'ivr-greeting'">
+                                        Please record your greeting below <span> or </span>
+                                        <button
+                                            class="btn btn-sm btn-default"
+                                            ng-click="closeAudioSelector()">
+                                            Choose an existing one instead
+                                        </button>
+                                    </span>
+                                </div>
+                                <div class="ivr-setting timeout-select">
+                                    <attendant-timeout-select
+                                        as-sub-action="true"
+                                        type="ivrModel.ivr_menu_exit_app"
+                                        data="ivrModel.ivr_menu_exit_data"
+                                        chosen-opt="timeoutOption">
+                                    </attendant-timeout-select>
+                                </div>
+                                <div class="ivr-setting dd-container">
+                                    <div>
+                                        <md-checkbox
+                                            ng-model="ivrModel.ivr_menu_direct_dial"
+                                            class="md-warn md-align-top-left permissions"
+                                            flex>
+                                            Direct Dial Enabled
+                                        </md-checkbox>
+                                    </div>
+                                </div>
+                            </div>
+                            <ivr-menu-options-table
+                                ng-if="ivrModel.initialized"
+                                ivr-model="ivrModel"
+                                open-audio-selector="openAudioSelector(optionModel)">
+                            </ivr-menu-options-table>
+                            <div class="row"
+                                 id="audio-selector">
+                                <div class="col-sm-12"
+                                     ng-if="audioSelectorType">
+                                    <attendant-audio-selector
+                                        ng-if="audioSelectorType"
+                                        choose-audio="chooseAudio({resource:
+                                               resource, file: file, voicemailSettings:
+                                               vmInfo})"
+                                        selected-audio="selectedAudio"
+                                        audio-type="audioSelectorType"
+                                        alter-resources="alterAudioResources(resources)">
+                                    </attendant-audio-selector>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

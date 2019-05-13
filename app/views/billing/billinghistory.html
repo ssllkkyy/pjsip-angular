@@ -1,0 +1,110 @@
+<md-content class="package-content">
+    <div ng-if="!display">
+        <div class="row">
+            <div class="col-lg-7">
+                <button class="btn btn-default" ng-click="displayInvoices()" ng-class="{'btn-primary': showInvoices}">
+                    Show Invoices
+                </button>
+                <button class="btn btn-default" ng-click="displayPayments()" ng-class="{'btn-primary': showPayments}">
+                    Show Payment History
+                </button>
+            </div>
+            <div class="col-lg-5">
+                <div class="input-group">
+                    <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+                    <input ng-if="showPayments" class="form-control" type="text" ng-model="filters.searchPayments" placeholder="Filter payments by payment number or amount.">
+                    <input ng-if="showInvoices" class="form-control" type="text" ng-model="filters.searchInvoices" placeholder="Filter invoices by invoice number or amount.">
+                </div>
+            </div>
+        </div>
+        <p ng-if="agencyInfo().oldAgency" class="smfont">NOTE: To view invoices or payment history prior to September 1, 2018, please send a request to <a href="mailto:accounting@kotter.net">accounting@kotter.net</a>.</p>
+        <table ng-if="showInvoices" 
+            class="table table-bordered table-hover table-striped cls-tab-call-history invoice-table">
+            <thead>
+                <tr>
+                    <th>Invoice #</th>
+                    <th>Invoice Date</th>
+                    <th>Details</th>
+                    <th class="right-text">Inv. Total</th>
+                    <th class="right-text">Inv. Balance</th>
+                    <th class="right-text">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="loadingInvoices">
+                    <td colspan="6" class="loading-users mdgreyfont">
+                        <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+                        <span>Loading History<br />
+                        Please Wait</span>
+                    </td>
+                </tr>
+                <tr ng-if="!loadingInvoices && invoice.status !== 'draft'" 
+                    ng-class="{'unpaid' : (invoice.invoice_num && invoice.balance > 0.0)}"
+                    ng-repeat="invoice in filterData = (invoices() | orderBy : ['-status', '-created_at'] | filter : invoiceKeywordFilter | filter : hideCancelled) |  limitTo:paginate.perPage:paginate.perPage*(paginate.currentPage-1)">
+                    <td ng-click="viewInvoice(invoice)">{{invoice.invoice_num}}</td>
+                    <td ng-click="viewInvoice(invoice)">{{invoice.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}</td>
+                    <td ng-click="viewInvoice(invoice)" style="width: auto;">
+                        <span ng-if="invoice.invoice_type === 'monthly'">
+                            Service from {{invoice.service_from | toLocalTime | amDateFormat:'MMM D, YYYY'}} to 
+                            {{invoice.service_to | toLocalTime | amDateFormat:'MMM D, YYYY'}}
+                        </span>
+                        <span ng-if="invoice.invoice_type === 'custom'">
+                            Custom Invoice
+                        </span>
+                    </td>
+                    <td ng-click="viewInvoice(invoice)" class="right-text">{{invoice.total | currency}}</td>
+                    <td ng-click="viewInvoice(invoice)" class="right-text">{{invoice.balance | currency}}</td>
+                    <td class="right-text">
+                        <span ng-if="invoice.refunds.length > 0">
+                            <button class="btn btn-xs btn-default" 
+                                style="margin-right: 10px;" 
+                                tooltip-placement="top-right"
+                                uib-tooltip="{{::tips.billing.refund_details}}"
+                                ng-click="showRefundDetails(invoice)">
+                                {{ sumOfRefunds(invoice)===invoice.total ? 'Refunded' : 'Partially Refunded' }} <i class="fa fa-info-circle"></i>
+                            </button>
+                        </span>
+                        <span ng-if="invoice.status !== 'unpaid'">
+                            {{invoice.status | capitalize}}
+                        </span>
+                        <button ng-if="invoice.status === 'unpaid'" 
+                            class="btn btn-xs btn-success" 
+                            ng-click="submitPayment(invoice)">
+                            Pay Now
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div ng-if="showInvoices" style="text-align: center">
+            <ul uib-pagination
+                class="pagination-sm pagination call-history"
+                total-items="filterData.length"
+                ng-model="paginate.currentPage"
+                previous-text="&lsaquo;"
+                next-text="&rsaquo;"
+                items-per-page="paginate.perPage">
+            </ul>
+        </div>
+        <payment-history ng-if="showPayments" filters="filters"></payment-history>
+    </div>
+    <div ng-if="display==='invoice'">
+        <view-invoice invoice="activeInvoice"></view-invoice>
+    </div>
+    <div ng-if="display==='refund'">
+        <view-refund refund="activeRefund"></view-refund>
+    </div>
+    <div ng-if="display==='payinvoice'">
+        <div class="center-text">
+            <button class="btn btn-default" 
+                ng-click="cancelPayment()">
+                <i class="fa fa-window-close-o"></i> Cancel Payment
+            </button>
+        </div>
+        <billing-payment-tab 
+            domain="domain"
+            invoice="activeInvoice"
+            class="content-box company-setup-user-tab company-setup-tab">
+        </billing-payment-tab>
+    </div>
+</md-content>

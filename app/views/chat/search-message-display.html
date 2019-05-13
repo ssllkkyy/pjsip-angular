@@ -1,0 +1,24 @@
+<div class="chat-search-header">
+    <div class="input-group">
+        <span class="input-group-addon" title="search"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" ng-enter="search.sendSearch(search.searchText)" ng-model="search.searchText" placeholder="Search" tooltip-placement="bottom" uib-tooltip="{{::tips.chatplus.submit_search}}">
+    </div>
+</div>
+<div class="chat-search-subheader">
+    <p class="title" ng-if="search.searchingComplete">Search Results: {{search.results.order.length}} Result(s) Found</p>
+    <i class="fa fa-sign-out md-icon" ng-click="closeDisplay()" tooltip-placement="bottom-right" uib-tooltip="{{::tips.chatplus.close_search}}"></i>
+</div>
+<div class="chat-search-content">
+    <div ng-if="!search.searchingComplete" class="loading-users mdgreyfont">
+        <i class="fa fa-spinner fa-spin fa-4x"></i><br />
+        <span>Searching<br />
+        Please Wait</span>
+    </div>
+    <chat-search-result
+        ng-if="search.searchingComplete"
+        ng-repeat="result in search.results.order"
+        post-id="result"
+        results="search.results"
+        show-post-in-channel="showPostInChannel">
+    </chat-search-result>
+</div>

@@ -1,0 +1,32 @@
+<div ng-controller="ChatPlusCtrl">
+    <div class="modal-member-image">
+        
+    </div>
+    <div class="modal-body" id="modal-body">
+        <div class="settings-avatar">
+            <img ng-src="{{pathImgProfile + vm.content.data.contact.contact_profile_image}}"
+                ng-if="vm.content.data.contact.contact_profile_image"
+                class="settings-avatar-img"
+                alt="" />
+            <div class="cls-settings-img-profile-null"
+                style="background-color: {{ vm.content.data.contact.contact_profile_color }};"
+                ng-if="!vm.content.data.contact.contact_profile_image">
+                <i class="fa fa-user"
+                    style="font-size: 75px; opacity: 0.4;"
+                    aria-hidden="true">
+                </i>
+            </div>
+        </div>
+        <span class="view-member-header">{{vm.content.data.user.first_name}} {{vm.content.data.user.last_name}}</span>
+        <ul class="chat-view-member">
+            <li ng-click="vm.content.data.createDirectChannel(vm.content.data.user)">Direct Message</li>
+            <li ng-click="vm.content.data.makeCall(vm.content.data.contact.user_ext)">Call User at Ext: {{vm.content.data.contact.user_ext}}</li>
+            <li ng-if="vm.content.data.contact.smsnumber" ng-click="vm.content.data.startSmsModal(vm.content.data.contact)">Send SMS ({{vm.content.data.contact.contact_mobile_number | tel}})</li>
+            <li ng-click="vm.content.data.sendEmail(vm.content.data.contact)">Send Email to {{vm.content.data.contact.contact_email_address}}</li>
+            <li>Video Chat (Coming)</li>
+        </ul>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+    </div>
+</div>

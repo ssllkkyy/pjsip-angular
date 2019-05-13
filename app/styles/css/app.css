@@ -1,0 +1,159 @@
+.wizard-nav {
+  color: #2ebaae; }
+
+.companysetup ul li {
+  color: #2ebaae; }
+
+.companysetup ul li a {
+  display: block;
+  color: #2ebaae; }
+
+.companysetup ul li a:hover,
+ul li a:focus {
+  color: #2ebaae; }
+
+.bluecolor {
+  color: #2ebaae; }
+
+.companysetup table tr {
+  color: white;
+  background: #25958B; }
+
+.companysetup table thead th {
+  background: #eee;
+  color: #2ebaae; }
+
+.companysetup table thead th a {
+  color: #2ebaae; }
+
+.companysetup button {
+  border: 1px #7fba00;
+  background: #2ebaae; }
+
+.companysetup button:disabled {
+  border: 1px #7fba00;
+  background: #2ebaae; }
+
+.companysetup button:hover {
+  border: 1px #7fba00;
+  background: #2ebaae; }
+
+.companysetup button:active {
+  border: 1px #7fba00;
+  background: #2ebaae; }
+
+.companysetup button:target {
+  border: 1px #7fba00;
+  background: #2ebaae; }
+
+.companysetup .inputfile {
+  font-size: 1.0em;
+  font-weight: 300;
+  color: white;
+  background-color: #666666;
+  display: inline-block; }
+
+.companysetup table tr td input {
+  color: black; }
+
+.companysetup .table-striped > tbody > tr:nth-child(2n+1) > td,
+.table-striped > tbody > tr:nth-child(2n+1) > th {
+  color: black; }
+
+.companysetup > fa {
+  color: black; }
+
+.companysetup .glyphicon {
+  color: #666666 !important; }
+
+#toolTip {
+  background-color: #ffffff;
+  border: 1px solid #73a7f0;
+  width: 200px;
+  height: 100px;
+  margin-top: 20px;
+  margin-left: 5px;
+  position: relative;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  box-shadow: 0px 0px 8px -1px black;
+  -moz-box-shadow: 0px 0px 8px -1px black;
+  -webkit-box-shadow: 0px 0px 8px -1px black; }
+
+#toolTip p {
+  padding: 10px; }
+
+#tailShadow {
+  background-color: transparent;
+  width: 4px;
+  height: 4px;
+  position: absolute;
+  top: 16px;
+  left: -8px;
+  z-index: -10;
+  box-shadow: 0px 0px 8px 1px black;
+  -moz-box-shadow: 0px 0px 8px 1px black;
+  -webkit-box-shadow: 0px 0px 8px 1px black; }
+
+#tail1 {
+  width: 0px;
+  height: 0px;
+  border: 10px solid;
+  border-color: transparent #73a7f0 transparent transparent;
+  position: absolute;
+  top: 8px;
+  left: -20px; }
+
+#tail2 {
+  width: 0px;
+  height: 0px;
+  border: 10px solid;
+  border-color: transparent #ffffff transparent transparent;
+  position: absolute;
+  left: -18px;
+  top: 8px; }
+
+.broadcast .inputfile {
+  font-size: 1.0em;
+  font-weight: 300;
+  color: white;
+  background-color: #666666;
+  display: inline-block; }
+
+.broadcast button {
+  border: 1px #7fba00;
+  background: #2ebaae;
+  color: white; }
+
+.broadcast button:disabled {
+  border: 1px #7fba00;
+  background: #2ebaae;
+  color: white; }
+
+.companysetup button:hover {
+  border: 1px #7fba00;
+  background: #2ebaae;
+  color: white; }
+
+.broadcast button:active {
+  border: 1px #7fba00;
+  background: #2ebaae;
+  color: white; }
+
+.broadcast button:target {
+  border: 1px #7fba00;
+  background: #2ebaae;
+  color: white; }
+
+.broadcast #radioBtn .notActive {
+  color: #3276b1;
+  background-color: #fff; }
+
+.broadcast .panel-heading {
+  color: #092522;
+  background: #abe3de; }
+
+[data-toggle="buttons"] > .btn > input[type="radio"],
+[data-toggle="buttons"] > .btn > input[type="checkbox"] {
+  clip: rect(1px 10px 1px 1px); }

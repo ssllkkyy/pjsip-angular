@@ -1,0 +1,194 @@
+<div class="tableclass fulltable padd10">
+    <div class="tablecell">
+        <h4>Agency Billing Addresses</h4>
+    </div>
+    <div class="tablecell" style="width: 40%">
+        <div class="input-group" style="margin-top: 14px;">
+            <span class="input-group-addon" title="Filter addresses"><i class="fa fa-filter"></i></span>
+            <input class="form-control" type="text" ng-model="filters.address" placeholder="Filter addresses">
+        </div>
+    </div>
+    <div style="width: 150px; text-align: right;" class="tablecell">
+        <button class="btn btn-success" ng-click="showEditAddress()">Add Address</button>
+    </div>
+</div>
+<table class="table table-bordered table-striped cls-tab-call-history" style="text-align: left !important;">
+    <thead>
+        <tr>
+            <th>Address</th>
+            <th>Phone</th>
+            <th>Location Group</th>
+            <th>Primary User</th>
+            <th>Agency Default</th>
+            <th style="width: 150px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <tr ng-repeat="address in filterData = (addresses() | filter : keywordFilter) | limitTo : paginate.perPage : paginate.perPage*(paginate.currentPage-1)">
+            <td><span ng-bind-html="showAddress(address)"></span></td>
+            <td>{{address.phone | tel2}}</td>
+            <td>{{getLocation(address)}}</td>
+            <td>{{getUser(address)}}</td>
+            <td>
+                <md-switch class="md-warn"
+                    ng-change="togglePrimaryAddress(address)"
+                    ng-model="address.primary"
+                    aria-label="Toggle Primary Address"
+                    ng-true-value="'true'"
+                    ng-false-value="'false'">
+                    {{address.primary == 'true' ? 'True' : 'False'}}
+                </md-switch>
+            </td>
+            <td>
+                <button class="btn btn-xs btn-success"
+                    tooltip-placement="top-right"
+                    uib-tooltip="{{::tips.billing.edit_address}}"
+                    ng-click="showEditAddress(address)">Edit</button>
+                <button class="btn btn-xs btn-danger pull-right"
+                    tooltip-placement="top-right"
+                    uib-tooltip="{{::tips.billing.delete_address}}"
+                    ng-click="deleteAddress(address)">Delete</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div style="text-align: center">
+    <ul uib-pagination
+        class="pagination-sm pagination call-history"
+        total-items="filterData.length"
+        ng-model="paginate.currentPage"
+        previous-text="&lsaquo;"
+        next-text="&rsaquo;"
+        items-per-page="paginate.perPage">
+    </ul>
+</div>
+
+<script type="text/ng-template" id="edit-address-modal.html">
+    <edit-billing-address 
+        address="vm.content.data">
+    </edit-billing-address>
+</script>
+
+<script type="text/ng-template" id="edit-billing-address.html">
+    <form id="editAddress" name="editAddress">
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-dollar fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">{{address.billing_address_uuid ? 'Edit Address' : 'Add Address'}}</span>
+            <button type="button" ng-click="closeInvoiceModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="modal-body address-edit" id="modal-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <md-input-container>
+                        <input type="text"
+                            ng-model="address.address"
+                            required
+                            name="address"
+                            placeholder="address">
+                        <!-- <div ng-messages="editAddress.address.$error" >
+                            <div ng-message="required">This is required!</div>
+                        </div> -->
+                    </md-input-container>
+                </div>
+                <div class="col-md-6">  
+                    <md-input-container>
+                        <input type="text"
+                            ng-model="address.address2"
+                            placeholder="address2">
+                    </md-input-container>
+                </div>
+                <div class="col-md-4">  
+                    <md-input-container>
+                        <input type="text"
+                            ng-model="address.city"
+                            required
+                            name="city"
+                            placeholder="city">
+                        <!-- <div ng-messages="editAddress.city.$error" >
+                            <div ng-message="required">This is required!</div>
+                        </div> -->
+                    </md-input-container>
+                </div>
+                <div class="col-md-4">  
+                    <md-input-container>
+                        <label>State</label>
+                        <md-select ng-model="address.state"
+                            required
+                            name="state"
+                            placeholder="- Choose State -">
+                            <md-option ng-repeat="state in billingStates" ng-value="state.state_abbr">
+                                {{state.state_name}}
+                            </md-option>
+                        </md-select>
+                        <!-- <div ng-messages="editAddress.state.$error" >
+                            <div ng-message="required">This is required!</div>
+                        </div> -->
+                    </md-input-container>
+                </div>
+                <div class="col-md-4">
+                    <md-input-container>
+                        <label>Country</label>
+                        <md-select ng-model="address.country"
+                            required
+                            name="country">
+                            <md-option ng-repeat="country in billingCountries" ng-value="country.abbr">
+                                {{country.name}}
+                            </md-option>
+                        </md-select>
+                        <!-- <div ng-messages="editAddress.country.$error" >
+                            <div ng-message="required">This is required!</div>
+                        </div> -->
+                    </md-input-container>
+                </div>
+                <div class="col-md-4">  
+                    <md-input-container>
+                        <input type="text"
+                            ng-model="address.zip"
+                            required
+                            name="zip"
+                            placeholder="zip">
+                        <!-- <div ng-messages="editAddress.zip.$error" >
+                            <div ng-message="required">This is required!</div>
+                        </div> -->
+                    </md-input-container>
+                </div>
+                <div class="col-md-4">  
+                    <md-input-container>
+                        <input type="text"
+                            phone-input
+                            ng-model="address.phone"
+                            placeholder="phone">
+                    </md-input-container>
+                </div>
+                <div class="col-md-4">
+                    <location-selector 
+                        location-uuid="address.location_group_uuid"
+                        on-location-change="onLocationChange">
+                    </location-selector>
+                </div>
+                <div class="col-md-4">
+                    <md-input-container>
+                        <label>Primary User Contact</label>
+                        <md-select ng-model="address.primary_user"
+                            placeholder="- Choose Primary User -">
+                            <md-option ng-repeat="contact in activeUserContacts()" 
+                                ng-if="!isKotterTechUser(contact)"
+                                ng-value="contact.user_uuid">
+                                {{contact.name}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                
+            </div>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="saveAddress(address)" ng-disabled="editAddress.$invalid"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Address</button>
+        </div>
+    </form>
+</script>

@@ -1,0 +1,90 @@
+<div
+    ng-if="displayLineErrors.length>0"
+    uib-alert
+    ng-class="'alert-warning'"
+    close="closeMessage()"
+    dismiss-on-timeout="15000"
+    ng-bind-html="displayLineErrors">
+</div>
+<div ng-if="limitReached()"
+    uib-alert
+    ng-class="'alert-warning'">
+    You have reached the limit of {{user.usageLimits.contact}} personal contacts allowed while using a Bridge Demo account.
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div
+            class="jumbotron import"
+            ng-show="!gridOptions.data.length && !csv.result">
+            <div class="row">
+                <div class="col-lg-12">
+                    <label
+                        class="btn btn-default btn-file btn-block"
+                        style="border-top-left-radius: 5; border-bottom-left-radius: 5;">
+                        <span class="cls-color-blue-tkg">
+                                <span ng-if="!loadingFile">
+                                    <i class=" fa fa-file-excel-o cls-color-blue-tkg"
+                                        style="margin-right: 10px;"></i>
+                                    Import spreadsheet file
+                                </span>
+                                <span ng-if="loadingFile"><i class="fa fa-spinner fa-spin"></i> Loading File - Please Wait</span>
+                            </span>
+                        <input
+                            type="file"
+                            accept=".xls,.xlsx,.ods"
+                            fileread=""
+                            opts="gridOptions"
+                            ng-disabled="limitReached()"
+                            multiple="false"
+                            style="display: none;" />
+                    </label>
+                    <span
+                        class="smfont">
+                        NOTE: First row of file must contain the headers for the columns.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="jumbotron import"
+             ng-show="!gridOptions.data.length && !csv.result">
+            <div class="row">
+                <div class="col-lg-12">
+                    <ng-csv-import
+                        class="csv-import"
+                        content="csv.content"
+                        separator="csv.separator"
+                        accept="csv.accept"
+                        separator-visible="csv.separatorVisible"
+                        ng-disabled="limitReached()"
+                        result="csv.result"
+                        encoding="csv.encoding">
+                    </ng-csv-import>
+                    <span ng-if="ctrl.loadingCsvFile"><i class="fa fa-spinner fa-spin"></i> Loading File - Please Wait</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="cls-company-setup-mnu">
+    <div
+        class="cls-cont-company-setup"
+        ng-if="gridOptions.data.length">
+        <xlsx-import-processor xlsx="gridOptions"
+                               target="target"
+                               column-defs="gridOptions.columnDefs"
+                               close-message="closeMessage"
+                               common-contact-functions="commonContactFunctions">
+        </xlsx-import-processor>
+    </div>
+    <div
+        class="cls-cont-company-setup"
+        ng-if="csv.result">
+        <csv-import-processor csv="csv.result"
+                              target="target"
+                              close-message="closeMessage"
+                              common-contact-functions="commonContactFunctions">
+        </csv-import-processor>
+    </div>
+</div>

@@ -1,0 +1,180 @@
+.auto-attendant {
+  height: 100%;
+  padding-right: 10px; }
+  .auto-attendant .auto-attendant-container .attendant-bottom-button-bar {
+    padding: 15px;
+    height: 50px; }
+  .auto-attendant .preset-holidays md-switch {
+    margin: 0px !important;
+    white-space: normal;
+    line-height: 18px; }
+  .auto-attendant md-select {
+    margin-bottom: 0 !important; }
+  .auto-attendant .btn-group {
+    width: 50% !important; }
+  .auto-attendant .box1-label {
+    padding-top: 24px; }
+  .auto-attendant .box1-input md-input-container {
+    width: 100%; }
+  .auto-attendant .weekly-timepicker input {
+    height: 20px; }
+  .auto-attendant .weekly-timepicker button {
+    height: 20px;
+    padding: 0px 12px; }
+  .auto-attendant .options-button {
+    margin: 15px 0; }
+  .auto-attendant md-text {
+    min-width: 60px; }
+  .auto-attendant .ringView {
+    height: 80px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center; }
+  .auto-attendant .capital {
+    text-transform: capitalize;
+    padding: 0 10px !important; }
+  .auto-attendant .viewAttendant {
+    position: relative; }
+    .auto-attendant .viewAttendant:hover {
+      color: #337ab7;
+      cursor: pointer; }
+  .auto-attendant .disabled-schedule td {
+    opacity: .6; }
+  .auto-attendant .disabled-schedule .check {
+    opacity: 1 !important; }
+  .auto-attendant ul {
+    list-style: none; }
+  .auto-attendant md-input-container .md-errors-spacer {
+    min-height: 0; }
+  .auto-attendant .panelbox {
+    max-width: 750px; }
+  .auto-attendant .title-bar {
+    color: white;
+    font-size: 1.7rem;
+    text-align: center;
+    padding: 4px; }
+  .auto-attendant table {
+    margin-bottom: 0px; }
+    .auto-attendant table th {
+      text-align: center; }
+    .auto-attendant table tbody tr td {
+      text-align: center;
+      vertical-align: middle; }
+  .auto-attendant .covers {
+    position: absolute;
+    height: 80px;
+    width: 100%;
+    background: rgba(158, 194, 192, 0.33);
+    border: .8px solid gray;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    color: darkgoldenrod; }
+    .auto-attendant .covers:hover {
+      color: blue;
+      font-size: 2.2rem; }
+  .auto-attendant .show {
+    background: lightgray; }
+  .auto-attendant .actions {
+    height: 40px; }
+  .auto-attendant .holiday-button {
+    margin: 15px 0; }
+  .auto-attendant table.aa-progress {
+    background: none; }
+    .auto-attendant table.aa-progress tr td {
+      width: 25%; }
+    .auto-attendant table.aa-progress .fa {
+      font-size: 2.6rem; }
+  .auto-attendant .finished {
+    color: #0c6c2c !important; }
+  .auto-attendant .incomplete {
+    color: #999999 !important; }
+  .auto-attendant .tableclass.action-menu {
+    max-width: 800px; }
+  .auto-attendant .action-menu .tablecell {
+    padding: 0 10px; }
+  .auto-attendant .action-menu .action-column {
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap; }
+    .auto-attendant .action-menu .action-column .main-col {
+      width: 20%; }
+    .auto-attendant .action-menu .action-column .full-width {
+      width: 100%; }
+    .auto-attendant .action-menu .action-column .send-options {
+      width: auto; }
+  .auto-attendant .btn-success {
+    margin-right: 5px; }
+  .auto-attendant .collapsible-content {
+    padding-top: 10px;
+    padding-left: 10px;
+    border: 1px solid rgba(83, 147, 200, 0.1); }
+    .auto-attendant .collapsible-content .md-button {
+      margin: 0;
+      margin-bottom: 4%; }
+    .auto-attendant .collapsible-content .auto-audio-selector-container {
+      width: 100%; }
+    .auto-attendant .collapsible-content .auto-audio-selector {
+      width: 48%;
+      display: inline-block;
+      vertical-align: top; }
+  .auto-attendant .md-select-value span {
+    display: flex;
+    flex-wrap: wrap; }
+    .auto-attendant .md-select-value span .md-text {
+      margin-left: 10px; }
+  .auto-attendant .directoryOptions {
+    min-width: 88px; }
+  .auto-attendant .weekly-panel {
+    width: 50vw; }
+    .auto-attendant .weekly-panel mdp-time-picker .md-icon-button {
+      margin: 0; }
+    .auto-attendant .weekly-panel mdp-time-picker md-input-container {
+      margin: 0; }
+  .auto-attendant .main-panel {
+    width: 60vw; }
+  .auto-attendant table.customize th {
+    text-align: left; }
+  .auto-attendant table.customize tbody tr td {
+    text-align: left; }
+  @media only screen and (max-width: 850px) {
+    .auto-attendant .weekly-panel {
+      width: 85%; }
+    .auto-attendant .main-panel {
+      width: 85%; } }
+  .auto-attendant .date-time label {
+    color: gray; }
+  .auto-attendant .date-time .fa {
+    font-size: 1.7rem; }
+    .auto-attendant .date-time .fa:hover {
+      color: #e30400; }
+  .auto-attendant .date-time .datepicker {
+    width: 200px; }
+  .auto-attendant .caption {
+    margin-bottom: 15px; }
+    .auto-attendant .caption h3 {
+      margin: 0; }
+    .auto-attendant .caption button {
+      margin-right: 15px;
+      margin-bottom: 0; }
+  .auto-attendant .newdidbutton {
+    margin-right: 10px;
+    margin-top: 15px; }
+  .auto-attendant .options {
+    height: auto;
+    overflow: hidden; }
+  .auto-attendant .sendClass {
+    min-height: 800px;
+    overflow: hidden; }
+  .auto-attendant .opt-userlist {
+    overflow-y: scroll;
+    min-height: 100%; }
+  .auto-attendant .attendant-drop ul[dnd-list] {
+    min-height: 42px;
+    padding-left: 0px; }

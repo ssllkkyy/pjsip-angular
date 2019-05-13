@@ -1,0 +1,295 @@
+<div class="no-access-container" ng-if="!packageHasAccess('bridgeanalytics')">
+    <div class="alert alert-warning centered no-access">
+        Your current Bridge <strong>{{user.package.package_title}}</strong> does not have access to <strong>{{showFeatureTitle('bridgeanalytics')}}</strong>.
+    </div>
+</div>
+<div ng-if="packageHasAccess('bridgeanalytics')" style="width: 100%;">
+    <div id="analytics-container" ng-controller="BridgeAnalyticsCtrl">
+        <div>
+            <div class="top-row tableclass">
+                <div class="tablecell">
+                    <h3>Bridge Analytics <span ng-if=dataShowing!=='none'> - {{selectedData.selectedType}} {{dataShowing==='calls' ? 'Calls Summary' : 'Sms Messages Summary'}}</span></h3>
+                    <span class="analytics-subheading">
+                        <span ng-if="locations.length===0">Showing your details </span>
+                        <span ng-if="locations.length>0 && !selectedData.selectedLocation && !selectedData.selectedUser">Showing details for all agency users </span>
+                        <span ng-if="locations.length>0 && selectedData.selectedLocation && !selectedData.selectedUser">Showing details for all users in {{selectedData.selectedLocation.group_name}} </span>
+                        <span ng-if="locations.length>0 && selectedData.selectedUser">Showing details for {{selectedData.selectedUser.contact_name_given}} </span>
+                        <span ng-if="selectedData.fromDate && selectedData.toDate">from {{selectedData.fromDate | amDateFormat: 'MMM D, YYYY'}} to {{selectedData.toDate | amDateFormat: 'MMM D, YYYY'}}</span>
+                    </span>
+                </div>
+                <div class="tablecell" ng-if="dataShowing==='none'">
+                    <div class="type-selector">
+                        <md-input-container>
+                            <label>Type: </label>
+                            <md-select ng-model="selectedData.selectedType" ng-change="loadData()">
+                                <md-option ng-value="null" ng-selected="true">
+                                    All Types
+                                </md-option>
+                                <md-option ng-repeat="type in types" ng-value="type">
+                                    {{type}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                </div>
+                <div class="tablecell" ng-if="dataShowing==='none' && selectedData.selectedType =='Auto Attendant' && autoAttendants.length > 0">
+                    <div class="user-picker">
+                        <md-input-container>
+                            <label ng-show="!selectedData.selectedAA">Selected Auto Attendant: </label>
+                            <md-select ng-model="selectedData.selectedAA" ng-change="loadData()">
+                                <md-option ng-value="null">
+                                        All Auto Attendants
+                                </md-option>
+                                <md-option ng-value="aa" ng-repeat="aa in autoAttendants">
+                                    {{aa.ivr_menu_name}} </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                </div>
+                <div class="tablecell" ng-if="dataShowing==='none' && selectedData.selectedType =='Ring Group'">
+                    <div class="user-picker">
+                        <md-input-container>
+                            <label ng-show="!selectedData.selectedRG">Selected Ring Group: </label>
+                            <md-select ng-model="selectedData.selectedRG" ng-change="loadData()">
+                                <md-option ng-value="null">
+                                        All Ring Groups
+                                </md-option>
+                                <md-option ng-value="rg" ng-repeat="rg in ringGroups">
+                                    {{rg.ring_group_name}} </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                </div>
+                <div class="tablecell" ng-if="dataShowing==='none' && locations.length>0">
+                    <div class="location-selector">
+                        <md-input-container>
+                            <label>Location: </label>
+                            <md-select ng-model="selectedData.selectedLocation" ng-change="loadData()">
+                                <md-option ng-value="null">
+                                    All Locations
+                                </md-option>
+                                <md-option ng-repeat="loc in locations" ng-value="loc" >
+                                    {{loc.group_name}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                </div>
+                <div class="tablecell right-text" ng-if="dataShowing==='none'">
+                    <table>
+                        <tr>
+                            <td class="date-picker">
+                                <div class="input-group">
+                                    <span class="input-group-addon" ng-click="OpenfromDate()">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="selectedData.fromDate" name="fromDate" is-open="fromDatePopup.opened" datepicker-options="fromDateOptions" ng-required="true" close-text="Close" ng-click="OpenfromDate()" ng-change="processFromDate(selectedData.fromDate)"
+                                        placeholder="From" />
+                                </div>
+                            </td>
+                            <td class="date-picker">
+                                <div class="input-group">
+                                    <span class="input-group-addon" ng-click="OpentoDate()"><i class="fa fa-calendar"></i></span>
+                                    <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="selectedData.toDate" name="toDate" is-open="toDatePopup.opened" datepicker-options="toDateOptions" ng-required="true" close-text="Close" ng-click="OpentoDate()" ng-change="processToDate(selectedData.toDate)" placeholder="To"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="charts-container" ng-show="dataShowing==='none'">
+                
+                <div class="detailed-numbers">
+                    <div class="tableclass analytics-detailed">
+                        <div class="tablecell number-box select-user" ng-if="locations.length > 0 && users().length > 1">
+                            <div class="user-picker">
+                                <md-input-container>
+                                    <label ng-show="!selectedData.selectedUser">Selected User: </label>
+                                    <md-select ng-model="selectedData.selectedUser" ng-change="loadData()">
+                                        <md-option ng-value="null">
+                                                All Users
+                                        </md-option>
+                                        <md-option ng-value="user" ng-repeat="user in users()">
+                                            {{user.name}} </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div class="tablecell number-box total" ng-click="openShowDetails('total')">
+                            <div class="title">Total minutes<br />
+                                <span>mm:ss</span>
+                            </div>
+                            <div ng-if="!loadingData" class="numbers">{{formatMinutesFromSec(selectedData.total_min)}}</div>
+                            <div class="loading-users mdgreyfont" ng-if="loadingData">
+                                <i class="fa fa-spinner fa-spin fa-2x" style="color:#666666;"></i><br />
+                            </div>
+                        </div>
+                        <div class="tablecell number-box totalcalls" ng-click="openShowDetails('total')">
+                            <span class="title">Total Calls</span><br/>
+                            <span  ng-if="!loadingData" class="numbers">{{selectedData.totalcalls}}</span>
+                            <div class="loading-users mdgreyfont" ng-if="loadingData">
+                            <i class="fa fa-spinner fa-spin fa-2x" style="color:#0c6c2c;"></i><br />
+                            </div>
+                        </div>
+                        <div class="tablecell number-box outbound" ng-click="openShowDetails('outbound')">
+                            <div class="title">Outbound<br />
+                                <span>mm:ss</span>
+                            </div>
+                            <div  ng-if="!loadingData" class="numbers">{{formatMinutesFromSec(selectedData.outbound_min)}}</div>
+                            <div class="loading-users mdgreyfont" ng-if="loadingData">
+                                <i class="fa fa-spinner fa-spin fa-2x" style="color:#f8a632;"></i><br />
+                            </div>
+                        </div>
+                        <div class="tablecell number-box inbound" ng-click="openShowDetails('inbound')">
+                            <div class="title">Inbound<br />
+                                <span>mm:ss</span>
+                            </div>
+                            <div  ng-if="!loadingData" class="numbers">{{formatMinutesFromSec(selectedData.inbound_min)}}</div>
+                            <div class="loading-users mdgreyfont" ng-if="loadingData">
+                                <i class="fa fa-spinner fa-spin fa-2x" style="color:#0073a5;"></i><br />
+                            </div>
+                        </div>
+                        <div class="tablecell number-box answered" ng-click="openShowDetails('answered')">
+                            <span class="title">Answered</span><br/>
+                            <span  ng-if="!loadingData" class="numbers">{{selectedData.answered}}</span>
+                            <div class="loading-users mdgreyfont" ng-if="loadingData">
+                            <i class="fa fa-spinner fa-spin fa-2x" style="color:#0c6c2c;"></i><br />
+                            </div>
+                        </div>
+                        <div class="tablecell number-box missed" ng-click="openShowDetails('missed')">
+                            <span class="title">Missed</span><br/>
+                            <span  ng-if="!loadingData" class="numbers">{{selectedData.missed}}</span>
+                            <div class="loading-users mdgreyfont" ng-if="loadingData">
+                                <i class="fa fa-spinner fa-spin fa-2x" style="color:#e30400;"></i><br />
+                            </div>
+                        </div>
+                        <div class="tablecell number-box voicemail" ng-click="openShowDetails('sent_to_voicemail')">
+                            <span class="title">Voicemails</span><br/>
+                            <span  ng-if="!loadingData" class="numbers">{{selectedData.voicemails}}</span>
+                            <div class="loading-users mdgreyfont" ng-if="loadingData">
+                                <i class="fa fa-spinner fa-spin fa-2x" style="color:#f58987;"></i><br />
+                            </div>
+                        </div>
+                        <div class="tablecell number-box declined" ng-click="openShowDetails('declined')">
+                            <span class="title">Declined</span><br/>
+                            <span  ng-if="!loadingData" class="numbers">{{selectedData.declined}}</span>
+                            <div class="loading-users mdgreyfont" ng-if="loadingData">
+                                <i class="fa fa-spinner fa-spin fa-2x" style="color:#66b1b2;"></i><br />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cleared"></div>
+                </div>
+                <div class="charts">
+                    <div class="data-charts">
+                        <div class="call-chart" ng-if="!loadingCallsData">
+                            <nvd3 id="calls" options="calls_opt" data="calls_data" config="gral_config" api="api_calls"></nvd3>
+                        </div>
+                        <div class="call-chart" ng-if="loadingCallsData">
+                            <div class="loading-users mdgreyfont" ng-if="loadingCallsData">
+                            <i class="fa fa-spinner fa-spin fa-2x"></i><br />
+                                <span>Loading Calls Chart<br />
+                                            Please Wait</span>
+                            </div>
+                        </div>
+                        <div class="text-chart" ng-if="!loadingTextsData && selectedData.selectedType !='Auto Attendant' && selectedData.selectedType !='Ring Group'">
+                            <nvd3 id="messages"  options="text_messages_opt" data="text_messages_data" config="gral_config" api="api_texts"></nvd3>
+                        </div>
+                        <div class="text-chart" ng-if="loadingTextsData && selectedData.selectedType !='Auto Attendant' && selectedData.selectedType !='Ring Group'">
+                            <div class="loading-users mdgreyfont" ng-if="loadingTextsData">
+                                <i class="fa fa-spinner fa-spin fa-2x"></i><br />
+                                    <span>Loading Texts Chart<br />
+                                                Please Wait</span>
+                            </div>
+                        </div>
+                        <div class="call-length-avg-chart" ng-if="!loadingQuoteSheetsData">
+                            <nvd3 id="calls_avg" options="avg_call_length_opt" data="avg_call_length_data" config="gral_config" api="api_calls_avg"></nvd3>
+                        </div>
+                        <div class="call-length-avg-chart" ng-if="loadingQuoteSheetsData">
+                            <div class="loading-users mdgreyfont" ng-if="loadingQuoteSheetsData">
+                                <i class="fa fa-spinner fa-spin fa-2x"></i><br />
+                                <span>Loading Calls Length Average Chart<br />
+                                                Please Wait</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="average-charts">
+                        <div class="filters tableclass right-text">
+                            <div class="tablecell right-text date-select">
+                                Select Date:
+                            </div>
+                            <div class="tablecell" style="width: 175px;">
+                                <div class="input-group">
+                                    <span class="input-group-addon" ng-click="OpenDay()">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="text" 
+                                        class="form-control" 
+                                        uib-datepicker-popup="{{dateFormat}}" 
+                                        ng-model="selectedData.day" 
+                                        name="day" 
+                                        is-open="dayDatePopup.opened" 
+                                        datepicker-options="toDateOptions" 
+                                        ng-required="true" 
+                                        close-text="Close" 
+                                        ng-click="OpenDay()" 
+                                        ng-change="processDayDate(selectedData.day)" 
+                                        placeholder="Pick a date" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hourly-activity" ng-if="loadingDailyData">
+                            <h4>Hourly Activity</h4>
+                            <i class="fa fa-spinner fa-spin fa-2x orangefont"></i><br />
+                                    <span class="mdgreyfont">Loading Chart<br />
+                                                Please Wait</span>
+                        </div>
+                        <div class="hourly-activity" ng-if="!loadingDailyData">
+                            <nvd3 options="hourly_options" 
+                                data="hourly_activity_data" 
+                                config="config" 
+                                api="api_hourly">
+                            </nvd3>
+                        </div>
+                        <div class="voice-calls-summary" ng-if="loadingDailyData">
+                            <h4>Hourly Activity Detailed</h4>
+                            <i class="fa fa-spinner fa-spin fa-2x dktealfont"></i><br />
+                                    <span class="mdgreyfont">Loading Chart<br />
+                                                Please Wait</span>
+                        </div>
+                        <div class="voice-calls-summary" ng-if="!loadingDailyData">
+                            <nvd3 options="detailed_options" 
+                                data="hourly_detailed_data" 
+                                config="config" 
+                                api="api_detailed">
+                            </nvd3>
+                        </div>
+                    </div>
+                </div> 
+            </div> 
+            <div class="show-calls" ng-show="dataShowing==='calls'">
+                <div ng-if="dataShowing==='calls'" class="go-back-button">
+                    <i class="fa fa-arrow-circle-left fa-3x"  
+                        tooltip-placement="bottom" 
+                        uib-tooltip="{{tips.analytics.backtocharts}}"
+                        ng-click="goBackToCharts()"></i> 
+                </div>
+                <show-detail showing="dataShowing" type="selectedData.selectedType" >
+
+                </show-detail>
+            </div>
+            <div class="show-messages" ng-show="dataShowing==='messages'">
+                <div ng-if="dataShowing==='messages'" class="go-back-button">
+                    <i class="fa fa-arrow-circle-left fa-3x" 
+                        tooltip-placement="bottom" 
+                        uib-tooltip="{{tips.analytics.backtocharts}}"
+                        ng-click="goBackToCharts()"></i> 
+                </div>
+                <show-detail showing="dataShowing">
+
+                </show-detail>
+            </div>
+        </div>
+    </div>
+</div>

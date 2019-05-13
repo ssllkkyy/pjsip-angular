@@ -1,0 +1,96 @@
+<div class="callbox-search-container">
+    <md-input-container class="call-input-container">
+        <label>
+                {{inputPlaceholder}}
+        </label>
+        <input type="text"
+            number-select
+            ng-model="box.callnumber"
+            debounce="500"
+        ng-change="doIndexSearch()"
+            autocomplete="off"
+            class="call-input">
+    </md-input-container>
+    <div class="contact-options"
+         ng-if="showContactSelection || contact.recipients.length>0">
+        <div class="list-group">
+            <div ng-if="!box.callnumber" 
+                ng-repeat="number in availNumbers() | orderBy : 'last_used' : true"
+                class="list-group-item" ng-click="chooseNumber(number.phone_number, number)">
+                <div class="thread-list-item" >
+                    <div class="thread-list-body" >
+                        <span ng-if="number.phone_number" class="previous">
+                                {{number.phone_number | tel2}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="box.callnumber">
+                <div ng-if="!box.short && filterData.length ===0 && !box.searching" class="no-results mdgreyfont">
+                    <i class="fa fa-search fa-2x"></i><br />
+                    <span>No Results Found<br />
+                        Broaden Your Search
+                    </span>
+                </div>
+                <div ng-if="box.short" class="partial-search mdgreyfont">
+                    <span>Search must be 3 chars or more</span>
+                </div>
+                <div ng-if="filterData.length > 50" class="partial-search mdgreyfont">
+                    <span>More than 50 Results Found<br />
+                        Showing First 50 - Please Narrow Search</span>
+                </div>
+                <div ng-if="filterData.length < 51 && filterData.length !== 0"
+                     class="partial-search mdgreyfont">
+                    <span>{{filterData.length}} Results Found</span>
+                </div>
+                <div ng-if="box.searching" class="partial-search mdgreyfont">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i> <span>Searching - Please Wait</span>
+                </div>
+                <div ng-if="!box.searching && filterData.length > 0" 
+                    ng-repeat="contact in filterData = (box.results | filter:filterResults | orderBy: 'type': true)"
+                    class="list-group-item">
+                    <div class="thread-list-item">
+                        <div class="callbox-list-circle">
+                            <span ng-bind-html="showContactPhoto(contact, 'small')"></span>
+                        </div>
+                        <div class="thread-list-body">
+                            <span ng-if="contact.cuuid" style="padding-top: 16px;">
+                                {{contact.name}} <span ng-if="contact.org">({{contact.org}})</span><br />
+                            </span>
+                            <span class="recent-message">
+                                <span ng-if="!contact.contact_uuid && contact.phone_number"
+                                    ng-click="chooseNumber(contact.phone_number, contact)"
+                                    class="numbers">
+                                    {{contact.phone_number | tel2}}
+                                </span>
+                                <span ng-if="contact.cuuid && phone.num"
+                                    ng-repeat="phone in contact.nums" 
+                                    ng-click="chooseNumber(phone.num, contact)">
+                                    <span class="numbers" 
+                                        ng-show="phone.num" 
+                                        style="margin-right: 10px; ">
+                                        {{phone.lab}}: {{phone.num | tel2}}<br />
+                                    </span>
+                                </span>
+                                <span ng-if="contact.ext" 
+                                    class="numbers" 
+                                    ng-click="chooseNumber(contact.ext, contact)">
+                                    Ext: {{contact.ext | tel2}}
+                                </span>
+                                <br />
+                                <span ng-if="contact.ext && getCallType() == 'transfer'"
+                                    class="numbers"
+                                    ng-click="sendToVm(contact.ext, contact)">
+                                        Send to Voicemail
+                                    </span>
+                            </span>
+                        </div>
+                        <div class="callbox-list-edit" ng-if="placement=='main'">
+                            <span ng-click="editContact(contact)"><i class="fa fa-edit fa-lg bridgeorangefont"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

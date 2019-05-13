@@ -1,0 +1,305 @@
+<table ng-show="showTable" class="table page-actions">
+    <tr>
+        <td class="entries-per-page">
+            <div ng-show="!showBtnDelCalls">
+                <label class="bluecolor" for="search">Calls per page:</label>
+                <select class="selectpicker form-control per-page" ng-options="page as page for page in ppOptions" ng-model="pagination.perPage"></select>
+            </div>
+        </td>
+        <td class="date-picker">
+            <div class="input-group">
+                <span class="input-group-addon" ng-click="OpenfromDate()"><i class="fa fa-calendar"></i></span>
+                <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="fromDate" name="fromDate" is-open="fromDatePopup.opened" datepicker-options="fromDateOptions" ng-required="true" close-text="Close" ng-click="OpenfromDate()" ng-change="ChangeToMinDate(fromDate)" placeholder="From" />
+            </div>
+        </td>
+        <td class="date-picker">
+            <div class="input-group">
+                <span class="input-group-addon" ng-click="OpentoDate()"><i class="fa fa-calendar"></i></span>
+                <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="toDate" name="toDate" is-open="toDatePopup.opened" datepicker-options="toDateOptions" ng-required="true" close-text="Close" ng-click="OpentoDate()"
+                placeholder="To" />
+            </div>
+        </td>
+        <td>
+            <div class="input-group">
+                <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+                <input class="form-control" type="text" ng-model="vmSearch" placeholder="Filter Results">
+            </div>
+        </td>
+        <td ng-if="messagesSelectedCount()>0">
+            <button class="btn"
+                ng-class="{'btn-default': messagesSelectedCount() === 0, 'btn-danger': messagesSelectedCount() > 0}"
+                ng-disabled="messagesSelectedCount() === 0" 
+                ng-click="deleteSelectedMessages()">
+                Delete {{messagesSelectedCount()}} Selected
+            </button> 
+        </td>
+    </tr>
+</table>
+<div class="scroll-container-head">
+    <table id="data-table-top" class="table table-bordered table-hover table-striped cls-tab-call-history">
+        <thead>
+            <tr>
+                <th style="width: 125px;"
+                    ng-if="locationUuid"
+                    ng-click="sort_by('inbound_did')">
+                    Inbound DID
+                    <i ng-class="showChevron('inbound_did')"></i>
+                </th>
+                <th style="width: 230px"
+                    ng-click="sort_by('caller_sort')">
+                    Caller
+                    <i ng-class="showChevron('caller_sort')"></i>
+                </th>   
+                <th style="width: 165px;"
+                    ng-click="sort_by('left_at')">
+                    Date/Time
+                    <i ng-class="showChevron('left_at')"></i>
+                </th>
+                <th style="width: 90px;"
+                    ng-click="sort_by('message_length')">
+                    Duration
+                    <i ng-class="showChevron('message_length')"></i>
+                </th>
+                <th >Transcription</th>
+                <th style="width: 100px;"></th>
+                <th ng-if="(!locationUuid && !isEmulating()) || currentLocation().ismanager('dids')" 
+                    style="width: 120px;">
+                    <md-input-container style="margin: 0px;" dir="rtl">
+                        <md-checkbox
+                            class="md-warn"
+                            style="margin-bottom: 0;"
+                            ng-model="messages.selectAll"
+                            ng-change="selectAllMessages(filterData)"
+                            aria-label="Select All Messages">
+                            Check All
+                        </md-checkbox>
+                    </md-input-container>
+                </th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div class="scroll-container" style="height: auto;"
+     ng-style="{'max-height': vvmTableHeight && vvmTableHeight}">
+    <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+        <tbody class="cls-body-table-pos">
+            <tr ng-if="showTable">
+                <td colspan="{{locationUuid ? '7' : '6'}}">
+                    Showing {{filterData.length}} Voicemail Records<span ng-if="fromDate && toDate"> for the period from <strong ng-if="fromDate">{{fromDate | date:'EEE MMM d, y'}}</strong> to <strong ng-if="toDate">{{toDate | date:'EEE MMM d, y'}}</span>.
+                </td>
+            </tr>
+            <tr ng-if="showError">
+                <td colspan="{{locationUuid ? '7' : '6'}}">
+                    Agency voicemail box is not set up. Please contact us at <b>770-717-1777</b> to set up the Voicemail box.
+                </td>
+            </tr>
+            <tr ng-if="!showTable && loadingVoicemail">
+                <td colspan="7" class="loading-users mdgreyfont">
+                    <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+                    <span>Loading Voicemail<br />
+                    Please Wait</span>
+                </td>
+            </tr>
+            <tr ng-if="showTable"
+                ng-class="{boldrow: call.vm_status==='unread'}"
+                ng-repeat="call in filterData = (visualVoicemail.filterVoicemails | orderBy : predicate :reverse | filter : vmSearch) |  limitTo:pagination.perPage:pagination.perPage*(pagination.currentPage-1)">
+                <td ng-if="locationUuid" style="width: 125px;">
+                    {{call.inbound_did | tel}}
+                </td>
+                <td ng-if="callContact(call)" style="width: 230px">
+                    <ul class="profile-display" >
+                        <li ng-if="callContact(call).im" class="profile_display_30">
+                            <img src="{{pathImgProfile}}{{callContact(call).im}}" class="profile_image" />
+                        </li>
+                        <li ng-if="!callContact(call).im" class="profile_display_30">
+                            <label class="profile_icon" style="background-color: {{callContact(call).color}} !important;">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li ng-if="callContact(call)" style="display: inline-block;">
+                            <strong>{{callContact(call).name}}</strong><br />
+                            <span ng-click="makeCall(call.caller_id_number)"
+                                tooltip-placement="bottom"
+                                uib-tooltip="Click to call"
+                                style="font-size: smaller;">
+                                <span ng-if="call.caller_id_number.length<10">
+                                    Ext:
+                                </span>
+                                {{call.caller_id_number | tel}}
+                            </span>
+                        </li>
+                        <li ng-if="!callContact(call)" style="display: inline-block;">
+                            <span ng-if="call.contact_name">
+                                <strong>{{call.contact_name}}</strong><br />
+                            </span>
+                            <span ng-click="makeCall(call.caller_id_number)"
+                                tooltip-placement="bottom"
+                                uib-tooltip="Click to call">
+                                {{call.caller_id_number | tel}}
+                            </span>
+                        </li>
+                        <li style="display: inline-block; padding: 0 3px; font-size: 15px;">
+                            <span style="color: #f8a632;" >
+                                <i tooltip-placement="top"
+                                    uib-tooltip="Text" 
+                                    ng-click="showModalWithData('/sms/sendsmstop.html',{smsnumber : call.caller_id_number, message: ''})" 
+                                    class="fa fa-paper-plane" >
+                                </i>
+                            </span>
+                        </li>
+                        <li  style="display: inline-block; padding: 0 3px; font-size: 15px;" tooltip-placement="top" 
+                            uib-tooltip="open contact in {{user.exportType.partner_name}}" 
+                            ng-click="openContactInManagementSystem(call.caller_id_number, callContact(call))"
+                            ng-if="callContact(call).type != 'user' && ['ams360', 'qqcatalyst'].indexOf(user.exportType.partner_code) > -1">
+                            <i class="lightorangefont fa fa-external-link-square fa-lg"></i>
+                        </li>
+                    </ul>
+                </td>
+                <td ng-if="!callContact(call)" style="width: 230px;">
+                    <ul class="profile-display">
+                        <li class="profile_display_30">
+                            <label class="profile_icon" style="background-color: {{call.noncontact.color}} !important;">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li ng-if="call.noncontact.name" style="display: inline-block;">
+                            <span class="capitalize">
+                                <strong>{{call.noncontact.name !== call.caller_id_number ? call.noncontact.name : call.caller_id_number | tel}}</strong>
+                            </span>
+                            <br />
+                            <span ng-click="makeCall(call.caller_id_number)"
+                                tooltip-placement="bottom"
+                                uib-tooltip="Click to call"
+                                style="font-size: smaller;">
+                                <span ng-if="call.caller_id_number.length<10">
+                                    Ext:
+                                </span>
+                                {{call.caller_id_number | tel}}
+                            </span>
+                        </li>
+                        <li ng-if="!call.noncontact.name" style="display: inline-block;">
+                            <span ng-click="makeCall(call.caller_id_number)"
+                                tooltip-placement="bottom"
+                                uib-tooltip="Click to call">
+                                {{call.caller_id_number | tel}}
+                            </span>
+                        </li>
+                        <li style="display: inline-block;">
+                            <span style="color: #64d76c;">
+                                <i tooltip-placement="top"
+                                    style="float: right; padding-left: 10px;font-size: 18px;"
+                                    uib-tooltip="{{::tips.contacts.addcontact}}"
+                                    ng-if="emulationStatus()['contactgroups'].manager==='true' && !emulatedUser()"
+                                    ng-click="showAddContactForm('visualvoicemail', call)"
+                                    class="fa fa-user-plus">
+                                </i>
+                            </span>
+                        </li>
+                        <li style="display: inline-block;">
+                            <span style="color: #f8a632;" >
+                                <i tooltip-placement="top"
+                                    uib-tooltip="Text" 
+                                    ng-click="showModalWithData('/sms/sendsmstop.html',{smsnumber : call.caller_id_number, message: ''})"
+                                    class="fa fa-paper-plane" >
+                                </i>
+                            </span>
+                        </li>
+                        <li style="display: inline-block; padding: 0 3px; font-size: 15px;" tooltip-placement="top" 
+                            uib-tooltip="open contact in {{user.exportType.partner_name}}" 
+                            ng-click="openContactInManagementSystem(call.caller_id_number, null)"
+                            ng-if="['ams360', 'qqcatalyst'].indexOf(user.exportType.partner_code) > -1">
+                            <i class="lightorangefont fa fa-external-link-square fa-lg"></i>
+                        </li>
+                    </ul>
+
+                </td>
+                <td style="width: 165px;">{{call.left_at | toLocalTime | amDateFormat:'MMM D, YYYY'}} 
+                {{call.left_at | toLocalTime | amDateFormat:'h:mm a'}}<br>
+                    <div class="cleared handled"
+                         ng-if="call.handled_by && locationUuid">
+                        <span>
+                            <small>Handled by {{showUserName(call.handled_by)}}
+                                ({{call.handled_at | toLocalTime | amDateFormat: 'MM/D/YYYY, h:mm a'}})
+                            </small>
+                        </span>
+                    </div>
+                    <div class="cleared handled" ng-if="call.assigned_to && locationUuid">
+                        <span>
+                            <small>Assigned to {{showUserName(call.assigned_to)}}
+                                ({{call.assigned_at | toLocalTime | amDateFormat: 'MM/D/YYYY, h:mm a'}})
+                            </small>
+                        </span>
+                    </div>
+                </td>
+                <td style="width: 90px;">{{call.formatted_time}}</td>
+                <td>
+                    <span ng-if="call.vm_transcript || call.notes" ng-click="copyVmInfoToHawksoft(call)" >
+                        <img ng-show = "user.exportType.partner_code == 'hawksoft'"
+                             src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                             class="voicemail-info-copy-btn"
+                             style="width: 16px; height: 16px;"
+                             tooltip-placement="top"
+                             uib-tooltip="Export Voicemail Transcription to HawkSoft">
+                        <img ng-show = "user.exportType.partner_code != 'hawksoft'"
+                             src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                             class="voicemail-info-copy-btn"
+                             style="width: 16px; height: 16px;"
+                             tooltip-placement="top"
+                             uib-tooltip="Export Voicemail Transcription to Management System">
+                    </span>
+                    {{call.vm_transcript !== null ? '"'+call.vm_transcript+'"' : call.notes}}
+                </td>
+                <td style="width: 100px;">
+                    <div class="tableclass">
+                        <div class="tablecell">
+                            <i class="fa fa-play-circle cls-color-green-tkg mainopt" ng-click="playVoicemail(call)" tooltip-placement="top-right" uib-tooltip="{{::tips.voicemail.playvoicemail}}"></i>
+                        </div>
+                        <div class="tablecell">
+                            <span ng-click="copyVmToHawksoft(call)" >
+                                <img ng-show="user.exportType.partner_code == 'hawksoft'" src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 24px; height: 24px;" tooltip-placement="top-right" uib-tooltip="{{::tips.voicemail.copytohawksoft}}">
+                                <img ng-show="user.exportType.partner_code != 'hawksoft'" src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 24px; height: 24px;" tooltip-placement="top-right" uib-tooltip="{{::tips.voicemail.copytomanagement}}">
+                            </span>
+                        </div>
+                        <div class="tablecell" ng-if="(!locationUuid && !isEmulating()) || currentLocation().ismanager('dids')">
+                            <i class="fa fa-times-circle redfont mainopt" ng-click="removeVoicemail(call)" ng-disabled="emulatedUser()" tooltip-placement="top-right" uib-tooltip="{{::tips.voicemail.remove}}"></i>
+                        </div>
+                        <div class="tablecell" ng-if="locationUuid && currentLocation().ismanager('dids')">
+                            <i class="fa fa-user-circle cls-color-bridge-orange"
+                                ng-click="assignVoicemal(call)"
+                                tooltip-placement="bottom-right"
+                                style="font-size: 1.5em; padding-right: 7px;"
+                                uib-tooltip="{{::tips.voicemail.assign}}"></i>
+                        </div>
+                        <div class="tablecell" ng-if="locationUuid"><span class="icon">
+                                <i class="fa" ng-class="handledIcon(call)"
+                                ng-click="handleVoicemail(call)" style="font-size: 1.5em;"
+                                tooltip-placement="bottom"
+                                uib-tooltip="{{(call.handled_by && call.handled_by === user.id) ? tips.voicemail.unhandle : tips.voicemail.handled}}"></i></span>
+                        </div>
+                    </div>
+                </td>
+
+                <td ng-if="(!locationUuid && !isEmulating()) || currentLocation().ismanager('dids')" 
+                    style="width: 40px;">
+                    <md-checkbox
+                        class="md-warn"
+                        style="margin-bottom: 0;"
+                        ng-model="messages.selectedMessages[call.visual_voicemail_uuid]"
+                        ng-change="selectMessage(call.visual_voicemail_uuid)"
+                        aria-label="Delete This Message">
+                    </md-checkbox>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div ng-show="showTable" style="text-align: center">
+    <ul uib-pagination
+        class="pagination-sm pagination call-history"
+        total-items="filterData.length"
+        ng-model="pagination.currentPage"
+        previous-text="&lsaquo;"
+        next-text="&rsaquo;"
+        items-per-page="pagination.perPage">
+    </ul>
+</div>

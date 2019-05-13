@@ -1,0 +1,35 @@
+<md-input-container class="report-picker">
+    <md-select ng-model="reportType"
+               placeholder="Select a report type">
+        <md-option ng-value="type"
+                   ng-repeat="type in reportTypes">
+            {{ type.title }}
+        </md-option>
+    </md-select>
+</md-input-container>
+<datepicker ng-if="reportType.name === 'quote-details' && !historyQuotes"
+            model="detailsData.datePickerModel"
+            on-change="detailsData.onDateChange"
+            date-disabled="detailsData.dateDisabled">
+</datepicker>
+<div class="close-btn"
+     ng-show="historyQuotes">
+    <md-button class="md-fab md-mini md-warn"
+               ng-click="closeQuotesHistory()">
+        <md-icon> close </md-icon>
+    </md-button>
+</div>
+<entered-report ng-show="reportType.name === 'entered' && !historyQuotes"
+                show-quotes="showQuotes">
+</entered-report>
+<quote-stats-report ng-show="reportType.name === 'quote-stats' && !historyQuotes"
+                    show-quotes="showQuotes">
+</quote-stats-report>
+<quote-details-report ng-show="reportType.name === 'quote-details' && !historyQuotes"
+                      details-data="detailsData"
+                      show-quotes="showQuotes">
+</quote-details-report>
+<quotes-history set-editing-quote="setEditingQuote"
+                ng-if="historyQuotes"
+                quotes="historyQuotes">
+</quotes-history>

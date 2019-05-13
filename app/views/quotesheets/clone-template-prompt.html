@@ -1,0 +1,52 @@
+<div class="material-modal template-clone-container">
+    <div class="header">
+        <p>Cloning the '{{templateToClone.description}}' template</p>
+    </div>
+    <div class="content">
+        <div class="template-title">
+            <md-input-container>
+                <label>Title of template clone</label>
+                <input type="text"
+                       ng-model="templateCloneInfo.title">
+            </md-input-container>
+        </div>
+        <div class="template-type">
+            <div class="type-select">
+                <md-input-container>
+                    <md-select ng-model="templateCloneInfo.type"
+                               placeholder="Select a type">
+                        <md-option ng-value="opt"
+                                   ng-repeat="opt in types">
+                            {{ opt.name }}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+        </div>
+        <div class="template-locations">
+            <p>Template Locations</p>
+            <table class="locations table table-bordered table-hover table-striped">
+                <tbody>
+                    <tr ng-repeat="(key, loc) in availableLocations">
+                        <td>{{loc.group_name}}</td>
+                        <td>
+                            <md-checkbox ng-model="selectedLocations[key]">
+                            </md-checkbox>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="options">
+        <md-button ng-click="resolvePrompt()"
+                   class="md-warn md-raised">
+            Leave
+        </md-button>
+        <md-button ng-click="cloneTemplate(templateToClone)"
+                   ng-disabled="!cloneAllowed()"
+                   class="primary md-raised">
+            Clone
+        </md-button>
+    </div>
+</div>

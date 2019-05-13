@@ -1,0 +1,135 @@
+<div id="public-container">
+    <div id="public-header">
+        <div class="logo-box">
+            <!-- <div class="logo-container"> -->
+                <a href="http://www.kotter.net" title="Visit Kotter.net"><img src="/images/logo.png"></a>
+            <!-- </div> -->
+        </div>
+        <div class="cleared"></div>
+    </div>
+    <div id="public-body">
+        <div ng-if="showNotice" class="alert alert-warning public-alert">
+            <span >{{showNotice}}</span>
+        </div>
+        <div class="share-title" ng-if="linkInfo">
+            File Request from {{linkInfo.usersName}} at {{linkInfo.company}}
+        </div>
+        <div ng-if="!showContactInfo && linkInfo.requireName === 'true'" class="show-edit-contact">
+            <a href ng-click="editContactInfo()">Edit Contact Info</a>
+        </div>
+        <div ng-if="showContactInfo" class="contact-form">
+            <form name="contactInfoForm">
+                <p style="text-align: center">To continue, please enter your information below.</p>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <md-input-container style="width: 100% !important;">
+                            <label>First Name</label>
+                            <input name="firstName" ng-model="contactInfo.firstName" required>
+                            <div ng-messages="contactInfoForm.firstName.$error">
+                                <div ng-message="required">The first name is required!</div>
+                            </div>
+                        </md-input-container>
+                    </div>
+                    <div class="col-sm-6">
+                        <md-input-container style="width: 100% !important;">
+                            <label>Last Name</label>
+                            <input name="lastName" ng-model="contactInfo.lastName" required>
+                            <div ng-messages="contactInfoForm.lastName.$error">
+                                <div ng-message="required">The last name is required!</div>
+                            </div>
+                        </md-input-container>
+                    </div>
+                    <div class="col-sm-6">
+                        <md-input-container style="width: 100% !important;">
+                            <label>Email Address</label>
+                            <input name="emailAddress" type="email" ng-model="contactInfo.emailAddress" required>
+                            <div ng-messages="contactInfoForm.emailAddress.$error">
+                                <div ng-message="required">The email address is required!</div>
+                            </div>
+                        </md-input-container>
+                    </div>
+                    <div class="col-sm-6">
+                        <md-input-container style="width: 100% !important;">
+                            <label>Company</label>
+                            <input name="Company" ng-model="contactInfo.company">
+                        </md-input-container>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-2">
+                        <button form="contactInfoForm"
+                            ng-disabled="contactInfoForm.$invalid"
+                            class="btn btn-success" 
+                            ng-click="showDropZoneArea(contactInfo)">Next</button>
+                    </div>
+                    <div class="col-sm-10">
+                        <md-checkbox
+                            ng-model="contactInfo.rememberMe"
+                            aria-label="Remember Me">
+                            Remember Me
+                        </md-checkbox>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div ng-if="showDropZone" class="well share-drop-zone my-drop-zone" nv-file-drop="" nv-file-over="" uploader="uploader">
+            <div ng-if="messages.length > 0">
+                <div ng-repeat="message in messages" uib-alert ng-class="'alert-{{message.class}}'" class="logoutmsg">{{message.message}}</div>
+            </div>
+            <div ng-if="uploader.queue.length===0">
+                <h1><i class="fa fa-files-o fa-3x"></i></h1>
+                <h2>Drag Your Files Here</h2>
+                <label class="btn btn-default btn-file">
+                    <i class="fa fa-upload"></i> Browse Files
+                    <input type="file" nv-file-select="" uploader="uploader" multiple style="display: none;" />
+                </label>
+            </div>
+            <table ng-if="uploader.queue.length>0" class="table public-cloud-table">
+                <tbody>
+                    <tr>
+                        <td colspan="3">
+                            {{uploader.queue.length}} item<span ng-if="uploader.queue.length>1">s</span> (<a href ng-click="uploader.clearQueue()">Clear All</a>)
+                        </td>
+                        <td colspan="2">
+                            <label class="pull-right btn btn-default btn-file btn-xs">
+                                <i class="fa fa-plus"></i> Add More
+                                <input type="file" nv-file-select="" uploader="uploader" multiple style="display: none;" />
+                            </label>
+                        </td>
+                    </tr>
+                    <tr ng-repeat="item in uploader.queue">
+                        <td style="width: 40px;"><a href ng-click="item.remove()"><i class="fa fa-times"></i></a></td>
+                        <td><img class="cloud-flat-img cloud-{{getFileType(item.file)}}" src="/images/Files/file-48.png"> {{ item.file.name }}</td>
+                        <td style="width: 100px;" ng-show="uploader.isHTML5">
+                            <div class="progress" style="margin-bottom: 0;">
+                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                            </div>
+                        </td>
+                        <td style="width: 40px;" class="text-center">
+                            <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+                            <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
+                            <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+                        </td>
+                        <td style="width: 100px; text-align: right;" ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div ng-if="uploader.queue.length>0">
+                <div ng-if="1==2">
+                    Queue progress:
+                    <div class="progress" style="">
+                        <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploader.progress + '%' }"></div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()" ng-disabled="!uploader.getNotUploadedItems().length">
+                    <span class="glyphicon glyphicon-upload"></span> Upload all
+                </button>
+                <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading">
+                    <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
+                </button>
+            </div>
+        </div>
+            
+    </div>
+</div>

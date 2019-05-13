@@ -1,0 +1,47 @@
+<div class="call-input-box">
+  <form name="frmCall"
+    class="call-input-form">
+    <md-input-container style="display: none;" class="call-input-container">
+      <label>
+        Enter phone number here
+      </label>
+      <input name="phoneNumber"
+        ng-model="inputNumber"
+        call-phone-input
+        class="call-input">
+    </md-input-container>
+    <callbox-selector2 placement="'main'"></callbox-selector2>
+  </form>
+  <div class="call-buttons">
+    <button class="btn btn-default"
+        ng-click="makeCall()"
+        ng-disabled="!inputNumber"
+        ng-show="inputNumber || !hasRedialNumber()">
+        <i class="fa fa-phone cls-color-brown-tkg"></i>
+        Call
+    </button>
+    <button class="btn btn-default"
+        ng-click="redialNumber()"
+        ng-show="!inputNumber && hasRedialNumber()">
+        <i class="fa fa-repeat cls-color-brown-tkg"></i>
+        Redial
+    </button>
+    <button class="btn btn-default"
+      ng-disabled="user.needSmsNumber"
+      ng-click="showSmsModal()">
+      <i class="fa fa-paper-plane cls-color-brown-tkg"></i>
+      Send Text
+    </button>
+    <button class="dial-pad-btn btn btn-default"
+      ng-click="toggleDialPad()()">
+      <div class="dial-pad-icon-container">
+        <md-icon>
+          dialpad
+        </md-icon>
+      </div>
+      <div class="dial-pad-txt" >
+        Dial Pad
+      </div>
+    </button>
+  </div>
+</div>

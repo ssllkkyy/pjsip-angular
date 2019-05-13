@@ -1,0 +1,48 @@
+<div class="row">
+<div class="col-sm-3">
+<div class="input-group">
+<select class="selectpicker form-control" ng-model="label" tooltip-placement="bottom" uib-tooltip="{{tips.contacts.phone_label}}">
+<option value="" selected disabled>- Specify Phone Type -</option>
+<option value="Work">Work</option>
+<option value="Home">Home</option>
+<option value="Mobile">Mobile</option>
+<option value="Main">Main</option>
+<option value="Fax">Fax</option>
+<option value="Pager">Pager</option>
+<option value="Voicemail">Voicemail</option>
+<option value="Text">Text</option>
+<option value="Other">Other</option>
+</select>
+</div>
+</div>
+<div class="col-sm-3">
+<div class="input-group"> 
+<input type="text" class="form-control" ng-model="number" ng-init="phonedata.phone_number" phone-input placeholder="Phone Number" tooltip-placement="bottom" uib-tooltip="{{tips.contacts.phone_number}}">
+</div>
+</div>
+<div class="col-sm-2">
+<div class="input-group"> 
+<input type="text" class="form-control" ng-model="extension" placeholder="Extension" tooltip-placement="bottom" uib-tooltip="{{tips.contacts.phone_extension}}">
+</div>
+</div>
+<div class="col-sm-3">
+<div class="form-check">
+<label class="form-check-label">
+<input class="form-check-input" type="checkbox" ng-model="typevoice" tooltip-placement="bottom" uib-tooltip="{{tips.contacts.phone_type_voice}}">
+Voice
+</label>
+<label class="form-check-label">
+<input class="form-check-input" type="checkbox" ng-model="typevideo" tooltip-placement="bottom" uib-tooltip="{{tips.contacts.phone_type_video}}">
+Video
+</label>
+<label class="form-check-label">
+<input class="form-check-input" type="checkbox" ng-model="typetext" tooltip-placement="bottom" uib-tooltip="{{tips.contacts.phone_type_text}}">
+SMS
+</label>
+<label class="form-check-label">
+<input class="form-check-input" type="checkbox" ng-model="typefax" tooltip-placement="bottom" uib-tooltip="{{tips.contacts.phone_fax}}">
+Fax
+</label>
+</div>
+</div>
+</div>

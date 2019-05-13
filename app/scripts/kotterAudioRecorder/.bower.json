@@ -1,0 +1,28 @@
+{
+  "name": "kotterAudioRecorder",
+  "version": "1.5.1",
+  "homepage": "https://github.com/kottergroup/angular-recorder",
+  "description": "AngularJS audio recorder incorporating rootScope supporting Cordova Media, HTML5 and Flash, forked from https://github.com/logbon72/angular-recorder",
+  "license": "MIT",
+  "dependencies": {
+    "angular": ">=1.4.x",
+    "wavesurfer.js": "~1.0.0"
+  },
+  "ignore": [
+    "bower_components",
+    ".gitignore",
+    "demo"
+  ],
+  "main": [
+    "dist/kotter-audio-recorder.js"
+  ],
+  "_release": "1.5.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.5.1",
+    "commit": "4dc2c21a7a23d3a05d97ba6ece2096f2641e7286"
+  },
+  "_source": "https://github.com/kottergroup/angular-recorder.git",
+  "_target": "^1.5.1",
+  "_originalSource": "kotterAudioRecorder"
+}

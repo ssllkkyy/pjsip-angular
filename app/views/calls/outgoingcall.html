@@ -1,0 +1,27 @@
+<div>  
+    <div class="modal-body" id="modal-body">
+        <div><span class="cls-incomingcall-name">Calling... {{phoneNumber}}</span></div>
+        <div class="cls-cont-img-incomingcall">
+            <center>
+                <span class="cls-color-green-tkg"><i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></span>
+            </center>        
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <center>
+            <div class="cls-oncall-buttons">
+                <!--
+               <button class="btn btn-danger btn-md" ng-click="hangUp();"><i class="fa fa-phone" style="margin-right: 10px;"></i>Hang up</button>
+                -->
+                <div class="btn-group">
+                    <button class="btn btn-link btn-sm" ng-click="hangUp()" onclick="javascript:stopp();" id="unlikCall" tooltip-placement="top" uib-tooltip="Hang Up Call" >
+                        <img src="images/icons/end-call-red-icon.png" width="35" height="35" alt=""/>
+                    </button>
+                </div>
+            </div>
+        </center>
+    </div>
+</div>
+
+

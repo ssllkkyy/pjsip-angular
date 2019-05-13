@@ -1,0 +1,92 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+				<h4>My Team Dashboard</h4>
+	</div>
+</div>
+<div class="input-group">
+    <span class="input-group-addon"><i class="fa fa-search"></i></span>
+    <input class="form-control normal"
+           type="text"
+           ng-model="search.contact_name_full"
+           placeholder="Filter by Name" style="width: 30%; height:36px;">
+    <button class="btn btn-default"
+        ng-click="clearFilter()">
+        Clear Filter
+ 	</button>
+ 	<md-button
+	    ng-click="overtimeHelp()" style="margin: 0px; float: right;">
+	    <i class="fa fa-info-circle fa-lg"></i> How is overtime calculated?
+	</md-button>
+</div>
+
+<div class="table-head-container">
+	<table class="table tk-myteam">
+		<thead>
+			<tr>
+				<th class="employee-name"><a href ng-click="sort_by('contact_name_full')" tooltip-placement="top-left" uib-tooltip="Sort by Name">Employee Name <i class="fa fa-{{!reverse && predicate==='contact_name_full'?'chevron-up':'chevron-down'}}"></i></a></th>
+				<th class="last-active"><a href ng-click="sort_by('lastActive.seconds')" tooltip-placement="top-left" uib-tooltip="Displays time of last screenshot / status change">Last Active <i class="fa fa-{{!reverse && predicate==='lastActive.seconds'?'chevron-up':'chevron-down'}}"></i></a></th>
+				<th class="today"><a href ng-click="sort_by('todaysData.seconds')" tooltip-placement="top-left" uib-tooltip="Sort by Today's Data">Today <i class="fa fa-{{!reverse && predicate==='todaysData.seconds'?'chevron-up':'chevron-down'}}"></i></a></th>
+				<th class="yesterday"><a href ng-click="sort_by('yestData.seconds')" tooltip-placement="top-left" uib-tooltip="Sort by Yesterday's Data">Yesterday <i class="fa fa-{{!reverse && predicate==='yestData.seconds'?'chevron-up':'chevron-down'}}"></i></a></th>
+				<th class="this-week"><a href ng-click="sort_by('weeklyData.seconds')" tooltip-placement="top-left" uib-tooltip="Sort by Weekly Data">This week <i class="fa fa-{{!reverse && predicate==='weeklyData.seconds'?'chevron-up':'chevron-down'}}"></i></a></th>
+				<th class="this-month"><a href ng-click="sort_by('monthlyData.seconds')" tooltip-placement="top-left" uib-tooltip="Sort by Monthly Data">This month <i class="fa fa-{{!reverse && predicate==='monthlyData.seconds'?'chevron-up':'chevron-down'}}"></i></a></th>
+			</tr>
+		</thead>
+	</table>
+</div>
+
+<div ng-show="loadingData">
+	<center><i class="fa fa-spinner fa-spin fa-4x" ></i>
+	<h4>Loading My Team Data. Please Wait.</h4></center>
+ </div>
+
+<div class="table-body-container" ng-if="!loadingData">
+	<table class="table tk-myteam">
+		<tbody>
+
+			<div class="screen-src" ng-if="showSpinner">
+				<center><h4><i class="fa fa-spinner fa-spin" ></i> Loading additional data. Please wait.</h4></center>
+			</div>
+			<tr ng-repeat="user in tkusers | filter:search | orderBy : predicate :reverse">
+				<td class="employee-name">
+					<h4><span class="username" ng-click="showTimeLine(user)">{{user.contact_name_full}}</span></h4>
+				</td>
+				<td ng-click="showTimeLine(user)" class="last-active">
+					<div ng-if="user.lastActive.screenshot && !showSpinner" class="screen-src">
+						<div class="text" ng-if="user.lastActive.timedays">{{user.lastActive.timedays}} days ago</div>
+						<div class="text" ng-if="user.lastActive.timehours > 0">{{user.lastActive.timehours}}h {{user.lastActive.timemins}}m ago</div>
+						<div class="text" ng-if="user.lastActive.timehours == 0">{{user.lastActive.timemins}}m ago</div>
+						<img ng-src="{{thumbnailUrl(user.lastActive.screenshot)}}" style="width: 180px; height: 101px;">
+					</div>
+					<div ng-if="!user.lastActive.screenshot && !showSpinner" class="screen-src">
+						<div class="text" ng-if="user.lastActive.timedays">{{user.lastActive.timedays}} days ago</div>
+						<div class="text" ng-if="user.lastActive.timehours > 0">{{user.lastActive.timehours}}h {{user.lastActive.timemins}}m ago</div>
+						<div class="text" ng-if="user.lastActive.timehours < 1">{{user.lastActive.timemins}}m ago</div>
+						<div>-----</div>
+					</div>
+				</td>
+				<td class="today">
+					<div class="time-data" ng-if="!showSpinner">{{user.todaysData.hours}}h  {{user.todaysData.minutes}}m</div>
+					<div ng-if="user.todaysData.salary && !showSpinner">$ {{user.todaysData.salary}}</div>
+				</td>
+				<td class="yesterday">
+					<div class="time-data" ng-if="!showSpinner">{{user.yestData.hours}}h  {{user.yestData.minutes}}m</div>
+					<div ng-if="user.yestData.salary && !showSpinner">$ {{user.yestData.salary}}</div>
+				</td>
+				<td class="this-week">
+					<div class="time-data" ng-if="!showSpinner">{{user.weeklyData.hours}}h  {{user.weeklyData.minutes}}m</div>
+					<div ng-if="user.weeklyData.salary && !showSpinner">$ {{user.weeklyData.salary}}</div>
+				</td>
+				<td class="this-month">
+					<div class="time-data" ng-if="!showSpinner">{{user.monthlyData.hours}}h  {{user.monthlyData.minutes}}m</div>
+					<div ng-if="user.monthlyData.salary && !showSpinner">$ {{user.monthlyData.salary}}</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div ng-show="false" id="overtime-help">
+    <div class="overtime-help">
+        <p>Overtime pay of 150% of the normal hourly wage begins once an employee has worked more than 40 hours <br>in a given week (from Monday morning through Sunday night). For daily details, click on the employee’s name.</p>
+    </div>
+</div>

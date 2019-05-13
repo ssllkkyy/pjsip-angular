@@ -1,0 +1,110 @@
+<div class="chat-modal">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            Add a New Channel
+        </span>
+        <button type="button"
+                ng-click="vm.content.data.closeModal()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body"
+         id="modal-body">
+        <form name="addChannelForm">
+            <div class="row">
+                <md-radio-group ng-model="addChannel.channel_type"
+                                ng-required="true">
+                    <div class="col-sm-6">
+                        <md-radio-button value="O"
+                                         class="md-primary">
+                            <strong>Public Channel</strong>
+                            <br />
+                            <span class="smfont">
+                                For all organization members
+                            </span>
+                        </md-radio-button>
+                    </div>
+                    <div class="col-sm-6">
+                        <md-radio-button value="P">
+                            <strong>Private Channel</strong>
+                            <br />
+                            <span class="smfont">
+                                Restricted membership
+                            </span>
+                        </md-radio-button>
+                    </div>
+                </md-radio-group>
+            </div>
+            <md-input-container class="md-block"
+                                flex-gt-sm>
+                <label>Channel Name</label>
+                <input ng-model="addChannel.display_name"
+                       required>
+            </md-input-container>
+            <md-input-container class="md-block">
+                <label>
+                    Purpose of the Channel (optional)
+                </label>
+                <textarea ng-model="addChannel.purpose"
+                          md-maxlength="150"
+                          rows="2"
+                          md-select-on-focus>
+                </textarea>
+            </md-input-container>
+            <div ng-if="addChannel.channel_type==='P'">
+                <strong>
+                    Select Members of the Private Channel:
+                </strong>
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="fa fa-question-circle"></i>
+                    </span>
+                    <input class="form-control"
+                        type="text"
+                        ng-model="search.username"
+                        placeholder="Search by contact name">
+                </div>
+                <table id="contact-groups-table"
+                       class="table table-bordered table-hover table-striped">
+                    <tbody>
+                        <tr ng-if="!vm.content.data.isKotterTechByMember(member) && member.id != mmProfile.id && member.roles"
+                            ng-repeat="member in vm.content.data.teamMembers | filter:search | orderBy : 'first_name' :false">
+                            <td class="col-sm-9">
+                                <strong>
+                                    {{member.first_name}} {{member.last_name}} ({{member.username}})
+                                </strong>
+                            </td>
+                            <td class="col-sm-3">
+                                <md-checkbox ng-model="addChannel.channelmember[member.id]"
+                                             ng-init="addChannel.channelmember[member.id]=isChannelMember(members, member.id)"
+                                             aria-label="Member"
+
+                                             class="md-warn md-align-top-left permissions" flex>
+                                </md-checkbox>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md"
+                ng-click="vm.content.data.closeModal()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;"></i>
+            Cancel
+        </button>
+        <button class="btn btn-primary btn-md"
+                ng-click="vm.content.data.createChannel(addChannel)"
+                ng-disabled="addChannelForm.$invalid">
+            <i class="fa fa-save" style="margin-right: 10px;"></i>
+            Create Channel
+        </button>
+    </div>
+</div>

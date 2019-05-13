@@ -1,0 +1,223 @@
+<div id="quotesheets-container">
+    <div class="top-row">
+        <h3>Quote Sheets Settings</h3>
+        <hr>
+    </div>
+    <div class="container">
+
+        <div class="floating-config-table">
+            <div class="top-row">
+                <h3>Status: </h3>
+                <hr>
+            </div>
+            <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+                <thead>
+                    <tr>
+                        <th class="user-name-col">Name</th>
+                        <th class="user-name-col">Description</th>
+                        <th class="user-name-col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-if="loading">
+                        <td colspan="5">
+                            <span class="spinner"
+                                  ng-show="loading">
+                                <i class="fa fa-cog fa-spin fa-lg"></i>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr ng-show="!loading"
+                        ng-repeat="status in statusOptions track by status.quote_sheet_status_uuid">
+                        <td ng-show="!editable || status.quote_sheet_status_uuid !== rowToEdit"
+                            class="user-name-col">
+                            <md-input-container>
+                                {{status.quote_sheet_status_name}}
+                            </md-input-container>
+                        </td>
+                        <td ng-show="!editable || status.quote_sheet_status_uuid !== rowToEdit"
+                            class="user-name-col">
+                            <md-input-container>
+                                {{status.description}}
+                            </md-input-container>
+                        </td>
+                        <td ng-show="!editable || status.quote_sheet_status_uuid !== rowToEdit"
+                            class="user-name-col">
+                            <span class="fa-stack fa-2x"
+                                  ng-click="toggle(status)">
+                                <i class="fa  fa-edit fa-stack-1x iconcolor"></i>
+                            </span>
+                            <span class="fa-stack fa-2x"
+                                  ng-click="deleteStatus(status)">
+                                <i class="fa  fa-remove fa-stack-1x iconcolor"></i>
+                            </span>
+                        </td>
+                        <form name="editStatus">
+                            <td ng-show="editable && status.quote_sheet_status_uuid== rowToEdit"
+                                class="user-name-col">
+                                <md-input-container>
+                                    <input type="text"
+                                           ng-model="editableStatus.name"
+                                           name="editableStatus.name"
+                                           ng-value="status.quote_sheet_status_name"
+                                           placeholder="Status Name"
+                                           required minlength="4">
+                                    <div ng-messages="editStatus.editableStatus.name.$error">
+                                        <div ng-message="required">
+                                            Status name is required.
+                                        </div>
+                                        <div ng-message="minlength">
+                                            Status name must be at least 4 characters long.
+                                        </div>
+                                    </div>
+                                </md-input-container>
+                            </td>
+                            <td ng-show="editable && status.quote_sheet_status_uuid== rowToEdit"
+                                class="user-name-col">
+                                <md-input-container>
+                                    <textarea ng-model="editableStatus.description"
+                                              name="editableStatus.description"
+                                              ng-value="status.description"
+                                              placeholder="Status Description"
+                                              required>
+                                    </textarea>
+                                    <div ng-messages="editStatus.editableStatus.description.$error">
+                                        <div ng-message="required">
+                                            Status description is required.
+                                        </div>
+                                    </div>
+                                </md-input-container>
+                            </td>
+                            <td ng-show="editable && status.quote_sheet_status_uuid== rowToEdit"
+                                class="user-name-col">
+                                <md-button class="md-primary md-raised modal-btn"
+                                           type="submit"
+                                           form="editStatus"
+                                           ng-disabled="editStatus.$invalid"
+                                           ng-click="updateStatus()">
+                                    Save
+                                </md-button>
+                                <input class="invisible"
+                                       ng-model="editableStatus.uuid"
+                                       ng-value="status.quote_sheet_status_uuid">
+                            </td>
+                        </form>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="floating-config-table">
+            <div class="top-row">
+                <h3>New Status: </h3>
+                <hr>
+            </div>
+            <form name="statusForm" class="form-inline">
+                <md-input-container>
+                    <input type="text"
+                           ng-model="statusName"
+                           name="statusName"
+                           placeholder="Status Name"
+                           required>
+                    <div ng-messages="statusForm.statusName.$error">
+                        <div ng-message="required">
+                            Status name is required.
+                        </div>
+                    </div>
+                </md-input-container>
+                <md-input-container>
+                    <textarea ng-model="statusDescription"
+                              name="statusDescription"
+                              placeholder="Status Description"
+                              required>
+                    </textarea>
+                    <div ng-messages="statusForm.statusDescription.$error">
+                        <div ng-message="required">
+                            Status description is required.
+                        </div>
+                    </div>
+                </md-input-container>
+                <md-button class="md-primary md-raised modal-btn"
+                           ng-click="addStatus()"
+                           type="submit"
+                           form="statusForm"
+                           ng-disabled="statusForm.$invalid">Add
+                </md-button>
+            </form>
+        </div>
+        <!-- <div class="floating-config-table"> -->
+        <!-- <div class="top-row"> -->
+        <!-- <h3>Raters: </h3> -->
+        <!-- <hr> -->
+        <!-- </div> -->
+        <!-- <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users"> -->
+        <!-- <thead> -->
+        <!-- <tr> -->
+        <!-- <th class="user-name-col">Name</th> -->
+        <!-- </tr> -->
+        <!-- </thead> -->
+        <!-- <tbody> -->
+        <!-- <tr ng-if="loading"> -->
+        <!-- <td colspan="5"> -->
+        <!-- <span class="spinner" -->
+        <!-- ng-show="loading"> -->
+        <!-- <i class="fa fa-cog fa-spin fa-lg"></i> -->
+        <!-- </span> -->
+        <!-- </td> -->
+        <!-- </tr> -->
+        <!-- <tr ng-show="!loading" -->
+        <!-- ng-repeat="api in APIs track by api.rater_name"> -->
+        <!-- <td> -->
+        <!-- <md-checkbox ng-click="addSelected(api)" -->
+        <!-- ng-checked="api.checked"> -->
+        <!-- {{api.rater_name}} -->
+        <!-- <span ng-show="api.logo_url"> -->
+        <!-- <img src="{{api.logo_url}}" -->
+        <!-- style="width: 25px; height: 25px; margin-left:25px;"> -->
+        <!-- </span> -->
+        <!-- </md-checkbox> -->
+        <!-- </td> -->
+        <!-- </tr> -->
+        <!-- </tbody> -->
+        <!-- </table> -->
+        <!-- </div> -->
+        <!-- <div class="floating-config-table"> -->
+        <!-- <div class="top-row"> -->
+        <!-- <h3> -->
+        <!-- Default Channel: -->
+        <!-- </h3> -->
+        <!-- <hr> -->
+        <!-- </div> -->
+        <!-- <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users"> -->
+        <!-- <thead> -->
+        <!-- <tr> -->
+        <!-- <th class="user-name-col"> -->
+        <!-- Channel name: -->
+        <!-- </th> -->
+        <!-- </tr> -->
+        <!-- </thead> -->
+        <!-- <tbody> -->
+        <!-- <tr ng-show="!loading"> -->
+        <!-- <td> -->
+        <!-- <md-input-container> -->
+        <!-- <md-select class="default-channel-ddl" -->
+        <!-- ng-model="defaultChatChannel"> -->
+        <!-- <md-option ng-value="channel" -->
+        <!-- ng-repeat="channel in channelOptions" -->
+        <!-- ng-click="setDefaultChannel(channel)"> -->
+        <!-- {{ channel.name }} -->
+        <!-- </md-option> -->
+        <!-- </md-select> -->
+        <!-- </md-input-container> -->
+        <!-- </td> -->
+        <!-- </tr> -->
+        <!-- </tbody> -->
+        <!-- </table> -->
+        <!-- </div> -->
+        <!-- <div class="floating-config-table"> -->
+        <!-- <md-button class="md-warn md-raised md-button md-ink-ripple" -->
+        <!-- ng-click="updateSettings()"> -->
+        <!-- Save & Update -->
+        <!-- </md-button> -->
+        <!-- </div> -->
+    </div>
+</div>

@@ -1,0 +1,124 @@
+<div class="company-setup-integration-tab">
+	<div class="integration-settings">
+		<div class="panel panel-default">
+			<div class="panel-heading title" >
+				<h4>Agency Setup for Bridge Desktop Integration</h4>
+			</div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-md-4">
+						<h4 class="box-label">Management System</h4>
+					</div>
+					<div class="col-md-6">
+					<md-input-container class="cms-selector">
+				        <label>Select a Management System </label>
+                            <md-select ng-model="data.management_app_partner_uuid" 
+                                ng-change="changeMngSys(data.management_app_partner_uuid)">
+                                <md-option ng-repeat="system in managementSystems | orderBy: 'partner_code'" 
+                                    ng-value="system.management_app_partner_uuid" >
+					                {{system.partner_name}}
+					            </md-option>
+					        </md-select>
+			    	</md-input-container>
+					</div>
+				</div>
+				<div class="row" ng-show="!isAms360 && !isQQCatalyst">
+					<div class="col-md-4">
+						<h4>Inbox Path</h4>
+					</div>
+					<div class="col-md-6">
+						<md-input-container class="input-selector">
+							<label>Enter file path here.</label>
+							<input type="text" name="filepath" ng-model="data.inbox_path">
+						</md-input-container>
+					</div>
+				</div>
+				<div class="row" ng-show="!isAms360 && !showInputBox && !isQQCatalyst">
+					<div class="col-md-4">
+						<h4>CMS Path</h4>
+					</div>
+					<div class="col-md-6">
+						<md-input-container class="input-selector">
+							<label>Enter file path here.</label>
+							<input type="text" name="filepath" ng-model="data.cms_path">
+						</md-input-container>
+					</div>
+				</div>
+				<form name="idform" id="idform" autocomplete="off" ng-show="!isHawksoft && !showInputBox && !isQQCatalyst">
+					<div class="row">
+						<div class="col-md-4">
+							<h4>User Name</h4>
+						</div>
+						<div class="col-md-6">
+							<md-input-container class="input-selector">
+								<label>Enter User Name.</label>
+								<input type="text" name="fakeusernameremembered"  ng-model="data.user_name" autocomplete="nope">
+							</md-input-container>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-4">
+							<h4>Password</h4>
+						</div>
+						<div class="col-md-6">
+							<md-input-container class="input-selector">
+								<label>Enter Password.</label>
+								<input type="password" name="fakepasswordremembered" ng-model="data.password" autocomplete="new-password">
+							</md-input-container>
+						</div>
+					</div>
+				</form>
+				<div class="row" ng-show="!isHawksoft">
+					<div class="col-md-4">
+						<h4>{{isQQCatalyst ? 'Callback URL' : 'URL'}}</h4>
+					</div>
+					<div class="col-md-6">
+						<md-input-container class="input-selector">
+							<label>Enter URL.</label>
+							<input type="text" name="agencyurl" ng-model="data.api_url">
+						</md-input-container>
+					</div>
+				</div>
+				<div class="row" ng-show="!isHawksoft && !showInputBox">
+					<div class="col-md-4">
+						<h4>{{isQQCatalyst ? 'Client' : 'Agency'}} ID</h4>
+					</div>
+					<div class="col-md-6">
+						<md-input-container class="input-selector">
+							<label>Enter {{isQQCatalyst ? 'Client' : 'Agency'}} ID</label>
+							<input type="text" name="agencyId" ng-model="data.agency_id">
+						</md-input-container>
+					</div>
+				</div>
+				<div class="row" ng-show="isQQCatalyst">
+					<div class="col-md-4">
+						<h4>Client Secret</h4>
+					</div>
+					<div class="col-md-6">
+						<md-input-container class="input-selector">
+							<label>Enter Client Secret</label>
+							<input type="text" name="clientsecret" ng-model="data.password">
+						</md-input-container>
+					</div>
+				</div>
+				<div class="row" ng-show="isAms360">
+					<div class="col-md-4">
+						<h4>Version</h4>
+					</div>
+					<div class="col-md-6">
+						<md-input-container class="input-selector">
+							<label>Enter DB Version</label>
+							<input type="text" name="version" ng-model="data.version">
+						</md-input-container>
+					</div>
+				</div>
+				<div class="row" style="padding-top: 10px;">
+					<div class="col-md-12">
+						<button class="btn btn-primary" ng-click="saveIntegration(data)"> Update Settings</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>

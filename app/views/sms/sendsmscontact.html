@@ -1,0 +1,26 @@
+<div>
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-paper-plane fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Send SMS Text</span>
+        <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <h4>{{vm.content.data.contact_name_given}} {{vm.content.data.contact_name_family}}</h4>
+        <div class="input-group"> 
+            <span class="input-group-addon" title="post content"><i class="fa fa-user"></i></span> 
+            <input type="text" class="form-control" ng-model="vm.content.data.contact_mobile.number">
+        </div>
+        <div class="input-group"> 
+            <span class="input-group-addon" title="post content"><i class="fa fa-paper-plane"></i></span> 
+            <textarea class="form-control" ng-model="vm.content.message" placeholder="Compose your message text here ..."></textarea>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+        <button class="btn btn-primary btn-md" ng-click="sendSmsTop(vm.content)"><i class="fa fa-save" style="margin-right: 10px;"></i>Send Now</button>
+    </div>
+</div>

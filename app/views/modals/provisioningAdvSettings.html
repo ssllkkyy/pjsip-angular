@@ -1,0 +1,74 @@
+<div class="prov-settings">
+    <div class="modal-header"
+         id="modal-screen-share" ng-show="!vm.content.data.error">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            Settings
+        </span>
+        <button type="button"
+                ng-click="closeModal()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body"
+         id="modal-body">
+         <div class="table-head-container">
+             <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+                <thead style="width: 100px">
+                    <tr>
+                        <th style="width: 10%">Keys</th>
+                        <th style="width: 30%">Type</th>
+                        <th style="width: 30%">Name</th>
+                        <th style="width: 30%">Destination</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="table-body-container tablebody" >
+            <table class="table table-bordered table-hover table-striped">
+                <tbody>
+                    <tr ng-repeat="line in vm.content.data.lines">
+                        <td style="width: 10%">Key {{line.key}}</td>
+                        <td style="width: 30%">
+                            <md-select ng-model="line.settings_type">
+                                <md-option ng-value="type" ng-repeat="type in vm.content.data.settingType">
+                                    {{type.name}}
+                                </md-option>
+                           </md-select>
+                        </td>
+                        <td style="width: 30%">
+                            <md-input-container>
+                              <input ng-model="line.settings_label" 
+                                    ng-disabled="line.settings_type.name == 'Line' 
+                                    || line.settings_type.name == 'Park'">
+                           </md-input-container>
+                        </td>
+                        <td style="width: 30%">
+                            <md-input-container>
+                              <input ng-model="line.settings_value" 
+                                    ng-disabled="line.settings_type.name == 'Line' 
+                                    || line.settings_type.name == 'Park'">
+                           </md-input-container>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <button class="btn btn-primary"
+                    ng-click="vm.content.data.saveAdvSettings(vm.content.data)">
+                Save
+            </button>
+
+            <button class="btn btn-danger"
+                    ng-click="closeModal()">
+                Cancel 
+            </button>
+        </div>
+
+    </div>
+</div>

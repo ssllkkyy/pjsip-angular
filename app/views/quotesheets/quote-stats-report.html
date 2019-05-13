@@ -1,0 +1,25 @@
+<div class="table-head-container"
+     ng-class="{'body-has-scrollbar': hasScrollbar}">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead>
+            <tr>
+                <th>Status Name</th>
+                <th>Quote Count</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div class="table-body-container">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <tbody>
+            <tr ng-repeat="statusName in statusNames">
+                <td>{{statusName}}</td>
+                <td>
+                    <a ng-click="showQuotes(quotesGroupedByStatus[statusName])">
+                        {{quotesGroupedByStatus[statusName].length}}
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

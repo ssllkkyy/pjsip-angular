@@ -1,0 +1,64 @@
+<div class="row" >
+    <form name="$ctrl.voicemailFields">
+        <div class="col-sm-4">
+            <md-input-container class="vm-name">
+                <label>Voicemail Name</label>
+                <input type="text"
+                       required
+                       name="voicemail_description"
+                       ng-model="$ctrl.voicemailEditInfo.voicemail_description" />
+                <div ng-messages="$ctrl.voicemailFields.voicemail_description.$error">
+                    <div ng-message="required">This field is required</div>
+                </div>
+            </md-input-container>
+        </div>
+        <div class="col-sm-4">
+            <md-input-container class="vm-password">
+                <input type="password"
+                       name="voicemail_password"
+                       ng-model="$ctrl.voicemailEditInfo.voicemail_password"
+                       required
+                       ng-minlength="4"
+                       maxlength="4"
+                       md-minlength="4"
+                       input-validator="[0-9*]"
+                       placeholder="4-digit PIN">
+                <div ng-messages="$ctrl.voicemailFields.voicemail_password.$error">
+                    <div ng-message="required">This field is required</div>
+                    <div ng-message="minlength">PIN must be 4 digits</div>
+                </div>
+            </md-input-container>
+        </div>
+        <div class="col-sm-4">
+            <md-input-container class="vm-email">
+                <input type="email"
+                       name="voicemail_mail_to"
+                       ng-model="$ctrl.voicemailEditInfo.voicemail_mail_to"
+                       required
+                       placeholder="Forwarding Email">
+                <div ng-messages="$ctrl.voicemailFields.voicemail_mail_to.$error">
+                    <div ng-message="required">This field is required</div>
+                    <div ng-message="email">Must be valid email address</div>
+                </div>
+            </md-input-container>
+        </div>
+        <div class="col-sm-4">
+            <md-input-container>
+                <label>Select a Location</label>
+                <md-select
+                    ng-model="$ctrl.voicemailEditInfo.location_group_uuid"
+                    required
+                    name="location_group_uuid">
+                    <md-option
+                        ng-repeat="location in $ctrl.locationGroups"
+                        ng-value="location.locations_group_uuid">
+                        {{location.group_name}}
+                    </md-option>
+                </md-select>
+                <div ng-messages="$ctrl.voicemailFields.locations_group_uuid.$error">
+                    <div ng-message="required">This field is required</div>
+                </div>
+            </md-input-container>
+        </div>
+    </form>
+</div>

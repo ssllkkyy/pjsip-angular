@@ -1,0 +1,205 @@
+<div class="left-column-user">
+    <div class="left-container">
+        <div class="logo-container">
+            <a href="main">
+                <img src="/images/logo.png">
+            </a>
+        </div>
+        <div class="bottom-controls">
+
+            <div class="tableclass">
+                <div ng-click="gotoMissedCalls()" class="tablecell " tooltip-placement="bottom-left" uib-tooltip="You have missed {{missedCalls}} calls. Click to View.">
+                    <img src="/images/icons/miscall-icon.png" class="missed-call-img">
+                        <span class="badge">{{missedCalls}}</span>
+                </div>
+                <div ng-click="gotoVoicemail('user')" class="tablecell " tooltip-placement="bottom-left" uib-tooltip="You have {{unreadVoicemails}} unread voicemail(s). Click to View.">
+                    <img src="/images/icons/record-icon-teal.png" class="missed-call-img">
+                    <span class="badge">{{unreadVoicemails}}</span>
+                </div>
+                <div ng-if="showAgencyVoicemails()" ng-click="gotoVoicemail('domain')" class="tablecell " tooltip-placement="bottom-left" uib-tooltip="You have {{domainUnreadVoicemails}} unread Agency voicemail(s). Click to View.">
+                    <img src="/images/icons/record-icon-orange.png" class="missed-call-img">
+                    <span class="badge">{{domainUnreadVoicemails}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="right-container">
+        <div class="did-container">
+            {{user.symphony_user_settings.sms_phone_number | tel}}
+        </div>
+        <div class="user-controls-box">
+
+            <section style="display: grid;">
+                <div style="grid-column: 1; margin: auto;">
+                    <div class="profile-avatar-container1"
+                    ng-class="showStatusIcons() ? 'col-sm-7' : 'col-sm-12'"
+                    style="padding: 0;border:0;border-style: solid;" >
+                        <a style="text-decoration: none; cursor: pointer;"
+                        ng-click="goToMyProfile()">
+                            <img ng-if="user.profile_image"
+                                src="{{pathImgProfile + user.profile_image}}"
+                                class="profile-avatar"
+                                alt="" />
+                            <div class="profile-avatar-initials"
+                                style="background-color: {{ user.profile_color ? user.profile_color : '' }};"
+                                ng-show="!user.profile_image">
+                                {{user.contact_name_given.substring(0,1)}} {{user.contact_name_family.substring(0,1)}}
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div style="grid-column: 2;" id="leftbar-grid-col-div-calls-parked">
+                    <div>
+                        <div ng-include="'views/calls/calls-parked.html'" style="display:inline-block; vertical-align: top"></div>
+                    </div>
+                    <div class="col-sm-12 status-icon-container"
+                            ng-if="showStatusIcons()" >
+                        <i ng-if="showTimer"
+                            class = "mdi mdi-timetable status-icon"
+                            ng-class="start_timer ? 'greenfont' : 'redfont'"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Timer {{start_timer ? 'On' : 'Off'}}">
+                        </i>
+
+                        <i ng-if="user.forwarding.ring_group_enabled === 'true'"
+                            class = "mdi mdi-phone-forward status-icon"
+                            ng-class="user.forwarding.ring_group_enabled === 'true' ? 'greenfont' : 'redfont'"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Forwarding {{user.forwarding.ring_group_enabled === 'true' ? 'On' : 'Off'}}">
+                        </i>
+                        
+                    </div>
+                </div>
+
+            </section>
+            
+            <div class="clearfix"></div>
+        </div>
+        <div class="status-dropdown-container">
+            <status-dropdown class="dropdown"></status-dropdown>
+        </div>
+    </div>
+</div>
+<div class="left-column-calling">
+    <div class="call-box-container">
+        <call-box class="call-box"></call-box>
+    </div>
+</div>
+<chat-channels-list class="left-column-chat"
+                    ng-show="showChatContacts && !chatDisabled">
+</chat-channels-list>
+<div class="left-column-contacts" ng-show="showContacts" ng-controller="ContactDetailsCtrl">
+        <div class="input-group filter-contact-group">
+            <span class="clear-contact-search-box">
+                <i class="fa fa-times greyfont clear-search"
+                    ng-if="searchText.length>0"
+                    tooltip-placement="bottom-left"
+                    uib-tooltip="{{tips.contactselect.clearfield}}"
+                    ng-click="clearContactSearch()">
+                </i>
+            </span>
+            <input class="form-control filter-contact"
+                style="padding-left: 30px;"
+                type="text"
+                ng-model="searchText"
+                ng-change="performContactSearch()"
+                placeholder="Filter users">
+            <span class="input-group-addon">
+                <a class="fa fa-sitemap"
+                    ng-click="showManageGroups()"
+                    ng-if="emulationStatus()['contactimports'].manager==='true'"
+                    tooltip-placement="bottom-right"
+                    uib-tooltip="{{::tips.leftbar.manage_groups}}">
+                </a>
+                <a class="fa fa-star"
+                    ng-if="1==2"
+                    ng-class="{'orangefont' : favoritesFilter }"
+                    ng-click="toggleFavoriteFilter()"
+                    tooltip-placement="bottom-right"
+                    uib-tooltip="{{favoritesFilter ? tips.leftbar.show_all_contacts : tips.leftbar.show_favorite_contacts}}">
+                </a>
+                <a class="fa fa-plus"
+                    ng-class="{opcSelFilter : btnFiltAct==='3'}"
+                    href=""
+                    ng-if="emulationStatus()['contactgroups'].manager==='true'"
+                    ng-click="showAddContactForm()"
+                    tooltip-placement="bottom-right"
+                    uib-tooltip="{{::tips.leftbar.add_contact}}">
+                </a>
+            </span>
+        </div>
+        <div class="list-contacts" ng-if="true">
+            <div class="list-group contactsside" ng-if="true">
+                <contact-list 
+                                contact-type="'favorite'"
+                                search-text="searchText"
+                                filter-for-groups="filterForGroups"
+                                contact-list-info="contactListInfo">
+                </contact-list>
+                <contact-list 
+                                contact-type="'group'"
+                                search-text="searchText"
+                                filter-for-groups="filterForGroups"
+                                contact-list-info="contactListInfo">
+                </contact-list>
+                <contact-list 
+                                contact-type="'user'"
+                                search-text="searchText"
+                                filter-for-groups="filterForGroups"
+                                contact-list-info="contactListInfo">
+                </contact-list>
+                <div id="contacts-bottom">&nbsp;</div>
+                <script type="text/ng-template" id="warning-dialog.html">
+                    <div class="modal-header">
+                        <h3>You're Idle. Click or Move your mouse to stay online!</h3>
+                    </div>
+                    <div idle-countdown="countdown" ng-init="countdown=30" class="modal-body">
+                        <uib-progressbar max="30" value="30" animate="false" class="progress-striped active">You'll be logged out in {{countdown}} second(s).</uib-progressbar>
+                    </div>
+
+                </script>
+                <script type="text/ng-template" id="timedout-dialog.html">
+                    <div class="modal-header">
+                        <h3>You've Timed Out!</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            You were idle too long and for security you have been logged out.
+                        </p>
+                    </div>
+                </script>
+            </div>
+        </div>
+</div>
+<div id="ModalContainer"
+        ng-controller="ModalCtrl">
+</div>
+<div ng-if="isDemoAgency()" ng-click="showDemoModal()" class="triangle-1" >
+        <span class="demo-text">Demo</span>
+        <span class="demo-info"><i class="fa fa-info-circle"></i></span>
+</div>
+<div class="contact-imports">
+    <contact-import-status></contact-import-status>
+</div>
+<script type="text/ng-template" id="contact-import-status.html">
+    <div class="import-box" 
+        ng-repeat="import in importingContacts()">
+        <i class="fa fa-times close-icon" ng-click="closeBox(import.import_contact_list_uuid)"></i>
+        Contact Import<br />
+        {{import.completed}}% Complete of {{import.total}}
+    </div>
+    <div class="cleared"></div>
+</script>
+
+<div class="contact-imports">
+    <user-import-status></user-import-status>
+</div>
+<script type="text/ng-template" id="user-import-status.html">
+    <div class="import-box" 
+        ng-repeat="import in importingUsers()">
+        <i class="fa fa-times close-icon" ng-click="closeBox(import.user_import_uuid)"></i>
+        User Importing<br />
+        {{import.completed}}% Complete of {{import.total}}
+    </div>
+    <div class="cleared"></div>
+</script>

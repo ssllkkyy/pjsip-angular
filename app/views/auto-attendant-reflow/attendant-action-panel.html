@@ -1,0 +1,17 @@
+<attendant-resource-table
+    class="action-overview-table"
+    handle-action="$ctrl.scheduleAction(resource)"
+    remove-action="$ctrl.removeAction"
+    resource-table-info="$ctrl.actionTableInfo"
+    handle-action-message="$ctrl.defaultTableActionMessage(resource)"
+    ng-if="$ctrl.actionTableInfo"
+    action-table="true">
+    <table-body-footer>
+        <attendant-timeout-select
+            type="$ctrl.callFlowScheduleModel.defaultAction.actionName"
+            label-text="'Please choose a default option'"
+            data="$ctrl.callFlowScheduleModel.defaultAction.resourceUuid"
+            on-choose-opt="$ctrl.chooseCallFlowTimeout(option)">
+        </attendant-timeout-select>
+    </table-body-footer>
+</attendant-resource-table>

@@ -1,0 +1,302 @@
+<div class="row">
+    <div class="col-md-5">
+        <div class="panel cls-panels-header">
+            <div class="panel-heading">
+                <i class="fa fa-hand-o-up"
+                   style="padding-right: 10px;">
+                </i>
+                <strong class="cls-color-blue-tkg">
+                    Click an Option Below
+                </strong>
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item"
+                    ng-click="setOpcMessageBroadcast(1)">
+                    <i class="fa fa-microphone"
+                       style="margin-right: 10px;">
+                    </i>
+                    Record a New Announcement
+                    <i class="fa fa-bullseye pull-right"
+                       ng-if="opcBroadcast === 'newrecord'">
+                    </i>
+                </li>
+                <li class="list-group-item"
+                    ng-click="setOpcMessageBroadcast(2)">
+                    <i class="fa fa-upload"
+                       style="margin-right: 10px;">
+                    </i>
+                    Upload an Announcement
+                    <i class="fa fa-bullseye pull-right"
+                       ng-if="opcBroadcast === 'uploadfile'">
+                    </i>
+                </li>
+                <li class="list-group-item"
+                    ng-click="setOpcMessageBroadcast(3)">
+                    <i class="fa fa-book"
+                       style="margin-right: 10px;">
+                    </i>
+                    Select from Audio Library
+                    <i class="fa fa-bullseye pull-right"
+                       ng-if="opcBroadcast === 'audiolibrary'">
+                    </i>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div ng-if="!opcBroadcast"
+             class="center-text show-player">
+            <span ng-if="newIvr.vmgreeting">
+                {{newIvr.vmgreeting.greeting_name}}
+            </span>
+            <br />
+            <button class="btn btn-default"
+                    ng-if="recordingInfo.selectedRecording"
+                    ng-click="playCurrentRecording()">
+                <i class="fa fa-play">
+                </i>
+                Play Current Announcement
+            </button>
+        </div>
+        <div class="panel"
+             ng-if="opcBroadcast"
+             style="border: #cfdef0 solid 1px;">
+            <div class="panel-heading">
+                <strong class="cls-color-blue-tkg">
+                    {{opcBroadcastTitle}}
+                </strong>
+                <button class="btn btn-default pull-right"
+                        ng-click="cancelAddAudio()">
+                    <i class="fa fa-undo"></i>
+                    Cancel
+                </button>
+            </div>
+            <div class="panel-body">
+                <div ng-if="opcBroadcast==='newrecord'" >
+                    <div class="jumbotron recording">
+                        <div ng-audio-recorder
+                             id="singleAudio"
+                             myindex="0"
+                             keith="'James'"
+                             audio-model="recordedSingle"
+                             show-player="false"
+                             class="container">
+                            <div ng-if="recorder.isAvailable">
+                                <div class="panel panel-primary">
+                                    <div class="panel-body">
+                                        <div>
+                                            <md-input-container style="width: 100%; text-align: center;" >
+                                                <label>Announcement Description</label>
+                                                <input ng-model="recording.title" />
+                                            </md-input-container>
+                                        </div>
+                                        <div>
+                                            <h3 style="float: right; /*font-family: sans-serif*/; text-align: center; width: 50px; border-radius: 30px; border: solid 2px #333; padding: 10px; margin: 0; background: #337ab7; color: #fff;"
+                                                ng-if="recorder.status.isRecording">
+                                                {{recorder.elapsedTime >= 10 ? recorder.elapsedTime : ('0'+recorder.elapsedTime)}}
+                                            </h3>
+                                            <div class="alert alert-danger"
+                                                 ng-if="recorder.status.isDenied === true">
+                                                Permission to use your microphone was declined, please refresh this page to grant
+                                                permission.
+                                            </div>
+                                            <div class="controls text-center"
+                                                 style="padding-top: 10px;"
+                                                 ng-hide="recorder.status.isDenied === true">
+                                                <button ng-click="recorder.status.isRecording ? recorder.stopRecord() : recorder.startRecord()"
+                                                        type="button" class="btn"
+                                                        ng-class="{'btn-primary': !recorder.status.isRecording, 'btn-danger': recorder.status.isRecording}">
+                                                    <i class="glyphicon glyphicon-record"></i> {{recorder.status.isRecording ? 'Stop' :
+                                                    'Record'}}
+                                                </button>
+                                                <button class="btn"
+                                                        ng-class="{'btn-primary': (recorder.status.isPaused || recorder.status.isStopped), 'btn-warning': recorder.status.isPlaying}"
+                                                        ng-click="recorder.status.isPlaying ? recorder.playbackPause() : recorder.playbackResume()"
+                                                        type="button"
+                                                        ng-disabled="recorder.status.isRecording || !recorder.audioModel">
+                                                    <span ng-if="recorder.status.isPaused || recorder.status.isStopped">
+                                                        <i class="glyphicon glyphicon-play"></i> Play
+                                                    </span>
+                                                    <span ng-if="recorder.status.isPlaying">
+                                                        <i class="glyphicon glyphicon-pause"></i> Pause
+                                                    </span>
+                                                </button>
+                                                <button class="btn btn-success"
+                                                        ng-disabled="recorder.status.isRecording || !recorder.audioModel"
+                                                        ng-click="$parent.$parent.selectAudioFile(recorder.audioModel, recording.title)">
+                                                    <i class="glyphicon glyphicon-download"></i> Save
+                                                </button>
+                                                <button id="btnDownload" style="display: none;"></button>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <br/>
+                                        <div ng-if="recorder.status.isConverting">
+                                            <p class="text-center">
+                                                Please wait while we process your recording
+                                            </p>
+                                        </div>
+                                        <div class="panels"
+                                             canvas-sizer>
+                                            <div ng-if="recorder.status.isRecording">
+                                                <ng-audio-recorder-analyzer></ng-audio-recorder-analyzer>
+                                            </div>
+                                            <div ng-if="!recorder.status.isRecording && recorder.audioModel">
+                                                <ng-audio-recorder-wave-view wave-color="silver"
+                                                                             bar-color="red">
+                                                </ng-audio-recorder-wave-view>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-if="!recorder.isAvailable"
+                                 class="alert alert-warning">
+                                Your browser does not support this feature natively, please use latest version of
+                                <a href="https://www.google.com/chrome/browser"
+                                   target="_blank">
+                                    Google Chrome
+                                </a>
+                                or
+                                <a href="https://www.mozilla.org/en-US/firefox/new/"
+                                   target="_blank">
+                                    Mozilla Firefox
+                                </a>
+                                . If you're on Safari or Internet Explorer, you can install
+                                <a href="https://get.adobe.com/flashplayer/">
+                                    Adobe Flash
+                                </a> to use this feature.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div ng-if="opcBroadcast==='audiolibrary'">
+                    <div class="scroll-container-head">
+                        <table class="table table-bordered table-hover table-striped data-table-top"
+                               style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 45px;">Play</th>
+                                    <th>Description</th>
+                                    <th style="width: 100px;">
+                                        Choose
+                                    </th>
+                                    <th style="width: 90px;"></th>
+                                    <th ng-if="voicemailGreetings.length>4"
+                                        style="width: 10px; padding: 0px; border-left: 0;">
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="scroll-container"
+                         style="height: 225px">
+                        <table class="table table-bordered table-hover table-striped"  style="width: 100%;">
+                            <tbody>
+                                <tr ng-repeat="row in voicemailGreetings">
+                                    <td style="width: 45px;">
+                                        <span ng-if="audioFilePlaying!==row.voicemail_greeting_uuid"
+                                              ng-click="playAudioFile(getGreetingFilepath(row.greeting_filename), row.voicemail_greeting_uuid)"
+                                              tooltip-placement="top"
+                                              uib-tooltip="Listen to Audio File">
+                                            <i class="fa fa-play-circle fa-2x"></i>
+                                        </span>
+                                        <span ng-if="audioFilePlaying===row.voicemail_greeting_uuid"
+                                              ng-click="stopPlaying()"
+                                              tooltip-placement="top"
+                                              uib-tooltip="Stop Playing Audio File">
+                                            <i class="fa fa-stop-circle fa-2x audiofileoption"></i>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span ng-if="!vmGreetingBeingEdited(row)">
+                                            {{row.greeting_name}}
+                                            <span ng-if="currentVoicemailGreeting(row)"
+                                                  aria-hidden="true"
+                                                  tooltip-placement="top"
+                                                  uib-tooltip="This is the current voicemail greeting">
+                                                <i class="fa fa-check" ></i>
+                                            </span>
+                                        </span>
+                                        <md-input-container ng-if="vmGreetingBeingEdited(row)"
+                                                            style="width: 100%; text-align: center;" >
+                                            <label>Greeting Description</label>
+                                            <input ng-model="row.greeting_name" />
+                                        </md-input-container>
+                                    </td>
+                                    <td style="width: 100px;">
+                                        <button class="btn btn-success btn-xs"
+                                                ng-click="selectVoicemailGreeting(row)">
+                                            <i class="fa fa-plus"></i>
+                                            Select
+                                        </button>
+                                    </td>
+                                    <td style="width: 90px;">
+                                        <i ng-if="!vmGreetingBeingEdited(row)"
+                                           class="fa fa-times-circle pull-right {{currentVoicemailGreeting(row) ? 'ltredfont' : 'redfont'}} deleteopt"
+                                           aria-hidden="true"
+                                           ng-click="currentVoicemailGreeting(row) || deleteVmGreeting(row)"
+                                           tooltip-placement="top-right"
+                                           uib-tooltip="{{currentVoicemailGreeting(row) ? 'This is the current greeting so it can not be deleted' : 'Delete Greeting'}}">
+                                        </i>
+                                        <i ng-if="vmGreetingBeingEdited(row)"
+                                           class="fa fa-ban pull-right cancelopt"
+                                           aria-hidden="true"
+                                           ng-click="cancelEditVmGreeting()"
+                                           tooltip-placement="top-right"
+                                           uib-tooltip="Cancel Edit"></i>
+                                        <i ng-if="vmGreetingBeingEdited(row)"
+                                           class="fa fa-save pull-right deleteopt"
+                                           aria-hidden="true"
+                                           ng-click="saveEditVmGreeting(row)"
+                                           tooltip-placement="top-right"
+                                           uib-tooltip="Save Changes">
+                                        </i>
+                                        <i ng-if="!vmGreetingBeingEdited(row)"
+                                           class="fa fa-pencil-square-o pull-right deleteopt"
+                                           aria-hidden="true"
+                                           ng-click="setEditVmGreeting(row)"
+                                           tooltip-placement="top-right"
+                                           uib-tooltip="Edit Greeting">
+                                        </i>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div ng-if="opcBroadcast==='uploadfile'">
+                    <div class="jumbotron center-text">
+                        <div>
+                            <md-input-container style="width: 100%; text-align: center;" >
+                                <label>Greeting Description</label>
+                                <input ng-model="audioRecordingData.name" />
+                            </md-input-container>
+                        </div>
+                        <!-- <span ng-if="audioRecording.name"> -->
+                        <!-- <p> -->
+                        <!-- <strong> -->
+                        <!-- {{audioRecording.name}} -->
+                        <!-- </strong> -->
+                        <!-- </p> -->
+                        <!-- </span> -->
+                        <label class="btn btn-primary btn-file" >
+                            Browse for File
+                            <input class="form-control"
+                                   accept="audio/*"
+                                   type="file"
+                                   name="useravatar"
+                                   style="display: none;"
+                                   file-model-obj="audioRecording">
+                        </label>
+                        <button class="btn btn-success"
+                                ng-disabled="!audioRecording"
+                                ng-click="$parent.$parent.selectAudioFile(audioRecording, audioRecordingData.name)">
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

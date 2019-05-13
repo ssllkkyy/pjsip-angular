@@ -1,0 +1,30 @@
+<div>
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Confirm Dissolution?</span>
+        <button type="button" ng-click="closeThisModal()" class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <h4>Dissolving {{vm.content.data.group.group_name}}?</h4>
+        <div class="cls-title-cont-modal">
+            Are you sure you want to dissolve this group? This is not reversible!
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md"
+                ng-click="closeThisModal()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i>
+            Cancel
+        </button>
+        <button class="btn btn-danger btn-md"
+                ng-click="vm.content.data.dissolveGroup(vm.content.data.group)">
+            <i class="fa fa-times" style="margin-right: 10px;"></i>
+            Confirm Dissolve
+        </button>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+<div id="basic-container3" ng-controller="BasicCtrl">
+    <div id="basic-header">
+        <div class="basic-logo">
+            <a href="main2">
+                <img src="/images/logo-200.png">
+            </a>
+        </div>
+        <div class="basic-menu">
+            <ul class="topnav1">
+                <li ng-class="{lnkActivo : template==='/views/sms.html'}">
+                    <a href ng-click="changeTemplate('/views/sms.html')">
+                        <i class="fa fa-paper-plane fa-lg"></i> Text Messages
+                        <span ng-if="unreadSms() > 0">
+                            ({{unreadSms()}})
+                        </span>
+                    </a>
+                </li>
+                <li ng-class="{lnkActivo : template==='/views/settings/settings.html'}">
+                    <a href ng-click="changeTemplate('/views/settings/settings.html')">
+                        <i class="fa fa-cog fa-lg"></i> Settings
+                    </a>
+                </li>
+                <li>
+                    <a href="https://kotter.net/training" target="_blank">
+                        <i class="fa fa-info-circle fa-lg"></i> Help
+                    </a>
+                </li>
+                <li>
+                    <a href="/login?action=logout">
+                        <i class="fa fa-sign-out fa-lg"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div id="element2">
+            <div class="support-actions-container">
+                <div class="support-actions-body">
+                    <md-button class="support-btn feedback-btn"
+                                ng-click="triggerFeedbackEmail()"
+
+                                uib-tooltip="Email us feedback about Bridge."
+                                tooltip-placement="left">
+                        <md-icon>email</md-icon>
+                        <p>Bridge <br /> Feedback</p>
+                    </md-button>
+                    <md-button class="support-btn talk-support-btn"
+                                ng-click="callSupport()"
+                                uib-tooltip="Talk to our support team"
+                                tooltip-placement="bottom">
+                        <md-icon>phone_in_talk</md-icon>
+                        <p>Talk To <br /> Support</p>
+                    </md-button>
+                    <md-button class="support-btn chat-support-btn"
+                                ng-click="toggleChat()"
+                                uib-tooltip="Chat with our support team"
+                                tooltip-placement="bottom">
+                        <md-icon>chat</md-icon>
+                        <p>Chat With <br /> Support</p>
+                    </md-button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="basic-content" ng-include="template"></div>
+</div>    
+    

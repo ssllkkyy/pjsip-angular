@@ -1,0 +1,149 @@
+<md-toolbar id="contact-groups-toolbar">
+    <div class="md-toolbar-tools">
+        <h2 md-truncate flex>Bridge Invoices</h2>
+    </div>
+</md-toolbar>
+<md-content class="package-content">
+    <div ng-if="!activeInvoice">
+        <div class="tableclass fulltable padd10">
+            <div class="tablecell">
+                <h4>Invoices</h4>
+            </div>
+            <div class="tablecell right-text">
+                <!-- <button ng-if="!loadingDomains" class="btn btn-primary" ng-click="showEditInvoice()">New Custom Invoice</button> -->
+            </div>
+        </div>
+        <div class="row invoice-filters">
+            <div class="col-lg-4 agency-col">
+                <md-input-container>
+                    <label>Filter by Agency</label>
+                    <md-select ng-model="filters.agency">
+                        <md-option ng-value="null">Select an Agency</md-option>
+                        <md-option ng-if="domain.domain_description" ng-repeat="domain in availAgencies() | orderBy : 'domain_description' : false"
+                            ng-value="domain">
+                            {{domain.domain_description}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div class="col-lg-2">
+                <div class="input-group" style="margin-top: 14px;">
+                    <span class="input-group-addon" ng-click="OpenfromDate()">
+                        <i class="fa fa-calendar"></i>
+                    </span>
+                    <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="dateSelector.fromDate" name="dateSelector.fromDate" is-open="fromDatePopup.opened" datepicker-options="fromDateOptions" ng-required="true" close-text="Close" ng-click="OpenfromDate()" ng-change="processFromDate(dateSelector.fromDate)"
+                        placeholder="From" />
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="input-group" style="margin-top: 14px;">
+                    <span class="input-group-addon" ng-click="OpentoDate()"><i class="fa fa-calendar"></i></span>
+                    <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="dateSelector.toDate" name="dateSelector.toDate" is-open="toDatePopup.opened" datepicker-options="toDateOptions" ng-required="true" close-text="Close" ng-click="OpentoDate()" ng-change="processToDate(dateSelector.toDate)" placeholder="To"
+                    />
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="input-group" style="margin-top: 14px;">
+                    <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+                    <input class="form-control" type="text" ng-model="filters.searchInvoices" placeholder="Filter invoices by invoice number, amount or agency">
+                </div>
+            </div>
+        </div>
+        <table class="table table-bordered table-striped cls-tab-call-history">
+            <thead>
+                <tr>
+                    <th style="width: 100px;" ng-click="sort_by('invoice_num')">
+                        Invoice Number
+                        <i ng-class="showChevron('invoice_num')"></i>
+                    </th>
+                    <th ng-click="sort_by('agency')">
+                        Agency
+                        <i ng-class="showChevron('agency')"></i>
+                    </th>
+                    <th ng-click="sort_by('created_at')">
+                        Invoice Date
+                        <i ng-class="showChevron('created_at')"></i>
+                    </th>
+                    <th ng-click="sort_by('total')">
+                        Total
+                        <i ng-class="showChevron('total')"></i>
+                    </th>
+                    <th ng-click="sort_by('balance')">
+                        Balance
+                        <i ng-class="showChevron('balance')"></i>
+                    </th>
+                    <th ng-click="sort_by('status')">
+                        Status
+                        <i ng-class="showChevron('status')"></i>
+                    </th>
+                    <th style="width: 150px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="loadingInvoices">
+                    <td colspan="7" class="loading-users mdgreyfont">
+                        <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+                        <span>Loading Invoices<br />
+                        Please Wait</span>
+                    </td>
+                </tr>
+                <tr ng-if="!loadingInvoices" ng-repeat="invoice in filterData = (availInvoices | orderBy : predicate :reverse | filter : keywordFilter | filter : agencyFilter) | limitTo : paginate.perPage : paginate.perPage*(paginate.currentPage-1)">
+                    <td ng-click="viewInvoice(invoice)">{{invoice.invoice_num}}</td>
+                    <td ng-click="viewInvoice(invoice)">{{showAgency(invoice.domain_uuid)}}</td>
+                    <td ng-click="viewInvoice(invoice)">{{invoice.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}</td>
+                    <td ng-click="viewInvoice(invoice)">{{invoice.total | currency}}</td>
+                    <td ng-click="viewInvoice(invoice)">{{invoice.balance | currency}}</td>
+                    <td>
+                        <span ng-if="invoice.status !== 'unpaid'">
+                            {{invoice.status | capitalize}}
+                        </span>
+
+                        <span ng-if="invoice.refunds.length>0">
+                            <br /><button class="btn btn-xs btn-default" 
+                                tooltip-placement="top-right"
+                                uib-tooltip="{{::tips.billing.refund_details}}"
+                                ng-click="showRefundDetails(invoice)">
+                                {{sumOfRefunds(invoice) | currency}} Refunded <i class="fa fa-info-circle"></i>
+                            </button>
+                        </span>
+                    </td>
+                    <td class="invoice-buttons">
+                        <button class="btn btn-xs btn-success"
+                            ng-if="invoiceRefundable(invoice)"
+                            tooltip-placement="top-right"
+                            uib-tooltip="{{::tips.billing.refund}}"
+                            ng-click="showRefundInvoice(invoice)">Refund</button>
+                        <button class="btn btn-xs btn-default"
+                            tooltip-placement="top-right"
+                            uib-tooltip="{{::tips.billing.edit_invoice}}"
+                            ng-if="invoice.invoice_type === 'custom' && invoice.status === 'draft'"
+                            ng-click="showEditInvoice(invoice)">Edit</button>
+                        <button class="btn btn-xs btn-danger pull-right"
+                            ng-if="invoice.status !== 'cancelled'"
+                            tooltip-placement="top-right"
+                            uib-tooltip="{{::tips.billing.cancel_invoice}}"
+                            ng-click="confirmCancelInvoice(invoice)">Cancel</button>
+                        <i class="fa fa-trash redfont pull-right"
+                            tooltip-placement="top-right"
+                            ng-if="isKeithUser()"
+                            uib-tooltip="{{::tips.billing.delete_invoice}}"
+                            ng-click="deleteInvoice(invoice)"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="text-align: center">
+            <ul uib-pagination
+                class="pagination-sm pagination call-history"
+                total-items="filterData.length"
+                ng-model="paginate.currentPage"
+                previous-text="&lsaquo;"
+                next-text="&rsaquo;"
+                items-per-page="paginate.perPage">
+            </ul>
+        </div>
+    </div>
+    <div ng-if="activeInvoice">
+        <view-invoice invoice="activeInvoice"></view-invoice>
+    </div>
+</md-content>

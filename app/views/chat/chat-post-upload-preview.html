@@ -1,0 +1,34 @@
+<div class="chat-post-create-footer">
+    <div class="chat-post-upload-preview" ng-show="show">
+        <div class="light-font">
+            Type a message above describing the files and hit enter. -- or --
+            <button class="btn btn-default btn-xs" ng-click="sendMessage()">
+                Send Files
+            </button>
+            <span class="uploaderWarning" ng-show="exceededFiles">  Problem Adding File: Max amount of 5 files per post.</span>
+        </div>
+        <uib-progressbar max="max"
+                         value="progressBarPercentage"
+                         type="success"
+                         class="cloud-progress-bar"
+                         ng-show="progressBarPercentage > 0">
+            <span style="color:white; white-space:nowrap; font-weight: bold;">
+                {{progressBarPercentage}}%
+            </span>
+        </uib-progressbar>
+        <div ng-repeat="item in uploader.queue" class="chat-file-preview">
+            <div ng-if="!uploadIsImage(item._file)"
+                 class="file-icon file-icon-lg"
+                 data-type="{{item._file.name | extension}}">
+            </div>
+            <div ng-if="uploadIsImage(item._file)"
+                 ng-thumb="{ file: item._file, height: 100, width: 120 }"
+                 tooltip-placement="top"
+                 uib-tooltip="{{::tips.chatplus.remove_temp_upload}}">
+            </div>
+            <span class="file-preview-remove" ng-click="item.remove()">
+                <i class="fa fa-remove"></i>
+            </span>
+        </div>
+    </div>
+</div>

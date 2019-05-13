@@ -1,0 +1,130 @@
+<div class="tableclass fulltable padd10">
+    <div class="tablecell">
+        <h4>Users</h4>
+    </div>
+    <div class="tablecell" style="width: 40%">
+        <div class="input-group" style="margin-top: 14px;">
+            <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+            <input class="form-control" type="text" ng-model="filters.user" placeholder="Filter user by name or extension">
+        </div>
+    </div>
+    <div style="width: 150px; text-align: right;" class="tablecell">
+        <button class="btn btn-success" ng-click="addUser()">Add User</button>
+    </div>
+</div>
+<table class="table table-bordered table-striped cls-tab-call-history" style="text-align: left !important;">
+    <thead>
+        <tr>
+            <th ng-click="sort_by('contact.contact_name_given')">
+                First Name
+                <i ng-class="showChevron('contact.contact_name_given')"></i>
+            </th>
+            <th ng-click="sort_by('contact.contact_name_family')">
+                Last Name
+                <i ng-class="showChevron('contact.contact_name_family')"></i>
+            </th>
+            <th ng-click="sort_by('email_address')">
+                Email
+                <i ng-class="showChevron('email_address')"></i>
+            </th>
+            <th ng-click="sort_by('ext.extension')">
+                Extension
+                <i ng-class="showChevron('ext.extension')"></i>
+            </th>
+            <th ng-click="sort_by('ext.user_enabled')">
+                Enabled/Disabled
+                <i ng-class="showChevron('ext.user_enabled')"></i>
+            </th>
+            <th>
+                Is Admin
+            </th>
+            <th>
+                Free User
+            </th>
+            <th style="width: 150px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <tr ng-class="{'userdisabled': user.user_enabled !== 'true', 'kotteruser': isKotterTechUser(user)}"
+            ng-repeat="user in filterData = (domain.registeredUsers | orderBy : predicate :reverse | filter : keywordFilter) | limitTo : paginate.perPage : paginate.perPage*(paginate.currentPage-1)" 
+            >
+            <td>
+                <span ng-if="editingUserUuid!==user.user_uuid">{{user.contact.contact_name_given}}</span>
+                <input ng-if="editingUserUuid===user.user_uuid" class="form-control" type="text" ng-model="editingUser.contact.contact_name_given" />
+            </td>
+            <td>
+                <span ng-if="editingUserUuid!==user.user_uuid">{{user.contact.contact_name_family}}</span>
+                <input ng-if="editingUserUuid===user.user_uuid" class="form-control" type="text" ng-model="editingUser.contact.contact_name_family" />
+            </td>
+            <td>
+                <span ng-if="editingUserUuid!==user.user_uuid">{{user.email_address}} <i class="fa fa-copy" tooltip-placement="top" uib-tooltip="Copy Email" ng-click="copy(user.email_address)"></i></span>
+                <input ng-if="editingUserUuid===user.user_uuid" class="form-control" type="text" ng-model="editingUser.email_address" />
+            </td>
+            <td>{{user.ext.extension}}</td>
+            <td>
+                <md-switch class="md-warn"
+                    ng-change="toggleUserStatus(user)"
+                    ng-model="user.user_enabled"
+                    aria-label="Toggle User Admin Status"
+                    ng-true-value="'true'"
+                    ng-false-value="'false'">
+                    {{user.user_enabled == 'true' ? 'Enabled' : 'Disabled'}}
+                </md-switch>
+            </td>
+            <td>
+                <md-switch class="md-warn"
+                    ng-change="toggleAdminStatus(user)"
+                    ng-model="user.userIsAdmin"
+                    aria-label="Toggle User Admin Status"
+                    ng-true-value="'true'"
+                    ng-false-value="'false'">
+                    {{user.userIsAdmin == 'true' ? 'Admin' : 'User'}}
+                </md-switch>
+            </td>
+            <td>
+                <md-switch class="md-warn"
+                    ng-change="toggleUserBillingStatus(user)"
+                    ng-model="user.freeUser"
+                    aria-label="Toggle User Billing Status"
+                    ng-true-value="'true'"
+                    ng-false-value="'false'">
+                    {{user.freeUser == 'true' ? 'Yes' : 'No'}}
+                </md-switch>
+            </td>
+            <td>
+                <button class="btn btn-xs btn-success"
+                    ng-if="editingUserUuid===user.user_uuid && !saving"
+                    tooltip-placement="top-right"
+                    uib-tooltip="{{::tips.blue.edit_user}}"
+                    ng-click="saveEditUser(editingUser)">Save</button>
+                <span ng-if="editingUserUuid===user.user_uuid && saving"><i class="fa fa-cog fa-spin"></i>Saving</span>
+                <button class="btn btn-xs btn-default"
+                    ng-if="editingUserUuid===user.user_uuid"
+                    tooltip-placement="top-right"
+                    uib-tooltip="{{::tips.blue.edit_user}}"
+                    ng-click="cancelEditUser()">Cancel</button>
+                <button class="btn btn-xs btn-success"
+                    ng-if="editingUserUuid!==user.user_uuid"
+                    tooltip-placement="top-right"
+                    uib-tooltip="{{::tips.blue.edit_user}}"
+                    ng-click="showEditUser(user)">Edit</button>
+                <button class="btn btn-xs btn-danger pull-right"
+                    ng-if="editingUserUuid!==user.user_uuid"
+                    tooltip-placement="top-right"
+                    uib-tooltip="{{::tips.blue.delete_user}}"
+                    ng-click="deleteUser(user)">Delete</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div style="text-align: center">
+    <ul uib-pagination
+        class="pagination-sm pagination call-history"
+        total-items="filterData.length"
+        ng-model="paginate.currentPage"
+        previous-text="&lsaquo;"
+        next-text="&rsaquo;"
+        items-per-page="paginate.perPage">
+    </ul>
+</div>

@@ -1,0 +1,467 @@
+<div class="template-type-choices"
+     ng-show="!editing()">
+    <md-radio-group ng-model="templateType">
+        <md-radio-button value="personal"
+                         class="md-primary">
+            Personal
+        </md-radio-button>
+        <md-radio-button value="commercial">
+            Commercial
+        </md-radio-button>
+    </md-radio-group>
+</div>
+<div class="autocomplete-container"
+     ng-show="!editing()">
+    <div class="personal-autocomplete"
+         ng-show="templateType === 'personal'">
+        <md-autocomplete md-search-text="personalSearchText"
+                         ng-if="templateType === 'personal'"
+                         md-items="template in queryTemplateSearch(personalSearchText, 'personal')"
+                         md-min-length="0"
+                         md-select-on-match="true"
+                         md-no-cache="true"
+                         md-clear-button="true"
+                         md-match-case-insensitive="true"
+                         md-selected-item="$parent.selectedTemplate"
+                         md-floating-label="{{personalFloatingLabel}}"
+                         placeholder="Choose Personal Quote Template"
+                         md-item-text="template.description">
+            <span>{{template.description}}</span>
+        </md-autocomplete>
+    </div>
+    <div class="commercial-autocomplete"
+         ng-show="templateType === 'commercial'">
+        <md-autocomplete md-search-text="commercialSearchText"
+                         md-items="template in queryTemplateSearch(commercialSearchText, 'commercial')"
+                         md-min-length="0"
+                         md-select-on-match="true"
+                         md-no-cache="true"
+                         md-clear-button="true"
+                         md-match-case-insensitive="true"
+                         md-selected-item="selectedTemplate"
+                         md-floating-label="{{commercialFloatingLabel}}"
+                         md-item-text="template.description">
+            <span>{{template.description}}</span>
+        </md-autocomplete>
+    </div>
+</div>
+<div class="options" >
+    <div class="save-btn">
+        <md-button class="md-primary md-raised modal-btn"
+                   ng-disabled="!saveAllowed()"
+                   ng-click="saveQuote()">
+            Save
+        </md-button>
+    </div>
+    <div class="type-select">
+        <md-input-container ng-show="selectedTemplate">
+            <md-select ng-model="selectedStatus"
+                       placeholder="Choose status">
+                <md-option ng-value="option"
+                           ng-repeat="option in statuses">
+                    {{ option.quote_sheet_status_name }}
+                </md-option>
+            </md-select>
+        </md-input-container>
+    </div>
+    <div class="close-btn"
+         ng-show="showCloseBtn()">
+        <md-button class="md-fab md-mini md-warn"
+                   uib-tooltip="Close Without Saving"
+                   ng-click="closeQuote()">
+            <md-icon> close </md-icon>
+        </md-button>
+    </div>
+</div>
+<hr>
+<div class="quote-container">
+    <div class="input-items" ng-if="selectedTemplate.questions && !quote">
+            <div class="header-element" ng-if="selectedTemplate.questions.header_fields.Logo || selectedTemplate.questions.header_fields.Title || selectedTemplate.questions.header_fields.Subtitle">
+                <p ng-show="selectedTemplate.questions.header_fields.Logo">{{selectedTemplate.questions.header_fields.Logo.position ? 'Your Logo will appear at the ' + selectedTemplate.questions.header_fields.Logo.position + ' on your Quote Sheet' : ''}}</p>
+                    <div class="header-logo" ng-show="selectedTemplate.questions.header_fields.Logo">
+                        <div class="image-box">
+                            <button class="btn btn-primary btn-sm" ng-click="triggerUpload()" ng-if="!logoPath">
+                                Upload Logo
+                            </button>
+                            <img ng-src="{{logoPath}}"
+                                ng-show="logoPath"
+                                class="logo-img"
+                                style="height: 8vmax; width: 8vmax; object-fit: fill;"
+                                alt="" />
+                            <input type="file"
+                                nv-file-select
+                                uploader="uploader"
+                                id="cloud-upload"
+                                style="display: none;">
+                        </div>
+                    </div>
+                <!-- <button class="btn btn-primary btn-sm" ng-click="triggerUpload()" ng-if="logoPath">
+                    Update Logo
+                </button> -->
+                <div class="header-info">
+                    <div class="row" ng-if="selectedTemplate.questions.header_fields.Title">
+                        <div class="col-md-3">
+                            <span>Title</span>
+                        </div>
+                        <div class="col-md-9">
+                            <md-input-container>
+                                <label>
+                                    Enter a Title
+                                </label>
+                                <input type="text" ng-model="selectedTemplate.questions.header_fields.Title.model">
+                            </md-input-container>
+                        </div>
+                    </div>   
+                    <div class="row" ng-if="selectedTemplate.questions.header_fields.Subtitle">
+                            <div class="col-md-3">
+                                <span>Sub Title</span>
+                            </div>
+                            <div class="col-md-9">
+                                <md-input-container>
+                                    <label>
+                                        Enter Sub Title
+                                    </label>
+                                    <textarea ng-model="selectedTemplate.questions.header_fields.Subtitle.model"></textarea>
+                                </md-input-container>
+                            </div>
+                        </div>   
+                </div>
+            </div>
+            <div class="base-template" ng-if="selectedTemplate.questions.basic_fields">
+                <h4>Basic Client Information</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <span>First Name:</span>
+                        <md-input-container>
+                            <label>
+                                Enter First Name
+                            </label>
+                            <input type="text"
+                                ng-model="basic_questions.first_name"
+                                required>
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-4">
+                        <span>Middle Name:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Middle Name
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.middle_name">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-4">
+                        <span>Last Name:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Last Name
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.last_name"
+                                    required>
+                        </md-input-container>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <span>Address:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Address
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.address">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+                        <span>City:</span>
+                        <md-input-container>
+                            <label>
+                                Enter City
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.city">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+                        <span>State:</span>
+                        <md-input-container style="margin-bottom: 20px !important;">
+                            <label>State</label>
+                            <md-select name="type" ng-model="basic_questions.state">
+                                <md-option><em>None</em></md-option>
+                                <md-option ng-repeat="state in statesUS" value="{{state.state_abbr}}">
+                                    {{state.state_name}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-2">
+                        <span>Zip:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Zipcode
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.zip">
+                        </md-input-container>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <span>Email:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Email Address
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.email">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-4">
+                        <span>Cell Phone:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Cell Phone
+                            </label>
+                            <input type="text"
+                                    md-input
+                                    phone-input
+                                    ng-model="basic_questions.cell_phone">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-4">
+                        <span>Work Phone</span>
+                        <md-input-container>
+                            <label>
+                                Enter Work Phone
+                            </label>
+                            <input type="text"
+                                    md-input
+                                    phone-input
+                                    ng-model="basic_questions.work_phone">
+                        </md-input-container>
+                    </div>
+                </div>
+            </div>
+            <div ng-repeat="(key,value) in selectedTemplate.questions.added_fields" class="element-info">
+                <hr>
+                <h4 ng-if="key != 'Client'">{{key}} Information</h4>
+                <h4 ng-if="key == 'Client'">Additional {{key}} Information</h4>
+
+                <div class = "element-contents">
+                <div ng-repeat="(input_key, input_value) in value" ng-show="!input_value.hide && input_key != 'repeat'" class="row new-inputs">
+                    <div class="col-md-3" style="padding:20px;">
+                        <span>{{input_value.label}}</span>
+                    </div>
+                    <div class="col-md-9">
+                            <md-input-container uib-tooltip="{{input_value.tooltip ? input_value.tooltip  : ''}}"
+                                tooltip-placement="top">
+                                <label>
+                                    {{input_value.placeholder ? input_value.placeholder : 'Enter ' + input_value.label}}
+                                </label>
+                                <input type="text"
+                                        ng-model="input_value.model" ng-if="input_value.typeData.type != 'textarea'">
+                                <textarea ng-model="input_value.model" ng-if="input_value.typeData.type == 'textarea'"></textarea>
+                            </md-input-container>
+                    </div>
+                </div> 
+                </div>
+            </div>
+        </div>
+
+        <div class="input-items" ng-if="quote && quote.answers">
+            <div class="header-element" ng-if="quote.answers.header_fields.Logo || quote.answers.header_fields.Title || quote.answers.header_fields.Subtitle">
+                <p ng-show="quote.answers.header_fields.Logo">{{quote.answers.header_fields.Logo.position ? 'Your Logo will appear at the ' + quote.answers.header_fields.Logo.position + ' on your Quote Sheet' : ''}}</p>
+                    <div class="header-logo" ng-show="quote.answers.header_fields.Logo">
+                        <div class="image-box">
+                            <button class="btn btn-primary btn-sm" ng-click="triggerUpload()" ng-if="!logoPath">
+                                Upload Logo
+                            </button>
+                            <img ng-src="{{logoPath}}"
+                                ng-show="logoPath"
+                                class="logo-img"
+                                style="height: 8vmax; width: 8vmax; object-fit: fill;"
+                                alt="" />
+                            <input type="file"
+                                nv-file-select
+                                uploader="uploader"
+                                id="cloud-upload"
+                                style="display: none;">
+                        </div>
+                    </div>
+                <!-- <button class="btn btn-primary btn-sm" ng-click="triggerUpload()" ng-if="logoPath">
+                    Update Logo
+                </button> -->
+                <div class="header-info">
+                    <div class="row" ng-if="quote.answers.header_fields.Title">
+                        <div class="col-md-3">
+                            <span>Title</span>
+                        </div>
+                        <div class="col-md-9">
+                            <md-input-container>
+                                <label>
+                                    Enter a Title
+                                </label>
+                                <input type="text" ng-model="quote.answers.header_fields.Title.model">
+                            </md-input-container>
+                        </div>
+                    </div>   
+                    <div class="row" ng-if="quote.answers.header_fields.Subtitle">
+                            <div class="col-md-3">
+                                <span>Sub Title</span>
+                            </div>
+                            <div class="col-md-9">
+                                <md-input-container>
+                                    <label>
+                                        Enter Sub Title
+                                    </label>
+                                    <textarea ng-model="quote.answers.header_fields.Subtitle.model"></textarea>
+                                </md-input-container>
+                            </div>
+                        </div>   
+                </div>
+            </div>
+            <div class="base-template" ng-if="quote.answers.basic_fields">
+                <h4>Basic Client Information</h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <span>First Name:</span>
+                            <md-input-container>
+                                <label>
+                                    Enter First Name
+                                </label>
+                                <input type="text"
+                                    ng-model="basic_questions.first_name"
+                                    required>
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-4">
+                            <span>Middle Name:</span>
+                            <md-input-container>
+                                <label>
+                                    Enter Middle Name
+                                </label>
+                                <input type="text"
+                                        ng-model="basic_questions.middle_name">
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-4">
+                            <span>Last Name:</span>
+                            <md-input-container>
+                                <label>
+                                    Enter Last Name
+                                </label>
+                                <input type="text"
+                                        ng-model="basic_questions.last_name"
+                                        required>
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <span>Address:</span>
+                            <md-input-container>
+                                <label>
+                                    Enter Address
+                                </label>
+                                <input type="text"
+                                        ng-model="basic_questions.address">
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-3">
+                            <span>City:</span>
+                            <md-input-container>
+                                <label>
+                                    Enter City
+                                </label>
+                                <input type="text"
+                                        ng-model="basic_questions.city">
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-3">
+                            <span>State:</span>
+                            <md-input-container style="margin-bottom: 20px !important;">
+                                <label>State</label>
+                                <md-select name="type" ng-model="basic_questions.state">
+                                    <md-option><em>None</em></md-option>
+                                    <md-option ng-repeat="state in statesUS" value="{{state.state_abbr}}">
+                                        {{state.state_name}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-2">
+                            <span>Zip:</span>
+                            <md-input-container>
+                                <label>
+                                    Enter Zipcode
+                                </label>
+                                <input type="text"
+                                        ng-model="basic_questions.zip">
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <span>Email:</span>
+                            <md-input-container>
+                                <label>
+                                    Enter Email Address
+                                </label>
+                                <input type="text"
+                                        ng-model="basic_questions.email">
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-4">
+                            <span>CellPhone:</span>
+                            <md-input-container>
+                                <label>
+                                    Enter Cell Phone
+                                </label>
+                                <input type="text"
+                                        md-input
+                                        phone-input
+                                        ng-model="basic_questions.cell_phone">
+                            </md-input-container>
+                        </div>
+                        <div class="col-md-4">
+                            <span>Work:</span>
+                            <md-input-container>
+                                <label>
+                                    Enter Work Phone
+                                </label>
+                                <input type="text"
+                                        md-input
+                                        phone-input
+                                        ng-model="basic_questions.work_phone">
+                            </md-input-container>
+                        </div>
+                    </div>
+            </div>
+            <div ng-repeat="(key,value) in quote.answers.added_fields" class="element-info">
+                <hr>
+                <h4 ng-if="key != 'Client'">{{key}} Information</h4>
+                <h4 ng-if="key == 'Client'">Additional {{key}} Information</h4>
+
+                <div class = "element-contents">
+                <div ng-repeat="(input_key, input_value) in value" ng-if="!input_value.hide && input_key != 'repeat'" class="row new-inputs">
+                    <div class="col-md-3" style="padding:20px;">
+                        <span>{{input_value.label}}</span>
+                    </div>
+                    <div class="col-md-9">
+                            <md-input-container uib-tooltip="{{input_value.tooltip ? input_value.tooltip  : ''}}"
+                                tooltip-placement="top">
+                                <label>
+                                    {{input_value.placeholder ? input_value.placeholder : 'Enter ' + input_value.label}}
+                                </label>
+                                <input type="text"
+                                        ng-model="input_value.model" ng-if="input_value.typeData.type != 'textarea'">
+                                <textarea ng-model="input_value.model" ng-if="input_value.typeData.type == 'textarea'"></textarea>
+                            </md-input-container>
+                    </div>
+                </div> 
+                </div>
+            </div>
+        </div>
+</div>

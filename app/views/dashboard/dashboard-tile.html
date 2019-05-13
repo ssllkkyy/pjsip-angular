@@ -1,0 +1,16 @@
+<div class="tile"
+     ng-dblclick="openPage()">
+    <div ng-if="!packageHasAccess()" class="ribbon"><span>{{showRequiredPackage()}}</span></div>
+    <!-- This is for the notification badges. Hidden for now. Will be used DTR. Because of the badges on the right side now, I've moved the ribbon on the left. (Requirement from Adam.) - Neha.
+     <div class="noti-badge"><span class="badge">{{unreadMsg()}}</span></div> 
+    -->
+    <div class="tile-image fa-stack fa-5">
+        <i class="{{faClass}} iconcolor"
+           ng-if="!showTransclude">
+        </i>
+        <div ng-transclude="tileImageContents"></div>
+    </div>
+    <div class="title">
+        {{tileTitle}}
+    </div>
+</div>

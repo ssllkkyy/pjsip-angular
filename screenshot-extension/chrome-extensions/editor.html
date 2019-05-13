@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Screenshot Editor</title>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link href="css/style.css" rel="stylesheet"/>
+  <link href="libs/colors.css" rel="stylesheet"/>
+  <script src="libs/jquery.js"></script>
+  <script src="settings.js"></script>
+
+  <script src="libs/colors.js"></script>
+  <script src="js/pluginLib.js"></script>
+  <script src="js/plugin.js"></script>
+  <script src="js/pluginsBuiltIn.js"></script>
+  <script src="oauth2/oauth2.js"></script>
+
+  <script src="extension.js"></script>
+  <script src="js/pdf.js"></script>
+  <script src="js/thumbnail.js"></script>
+  <script src="editor.js"></script>
+  <script src="libs\svgcanvas.js"></script>
+</head>
+<body id="page-editor">
+<div id="header">
+  <div class="editor-toolbar" id="toolbar" style="height: 50px;">
+    <span class="logo">
+      <img src="logoicon.png" style = "max-width: 100px; max-height: 70px;">
+    </span>
+    <div class="tools">
+      <button tag="highlight" class="button highlight" status="on"><span></span></button>
+      <button tag="free" class="button curved-line" status="on"><span></span></button>
+      <button tag="text" class="button text" status="on"><span></span></button>
+      <button tag="crop" class="button crop last" status="on"><span></span></button>
+    </div>
+    <div class="tools">
+      <button tag="undo" class="button undo disable"><span></span></button>
+      <button tag="redo" class="button last redo disable"><span></span></button>
+    </div>
+    <div class="tools" id="wColorPicker2_3">
+    </div>
+    <div class="buttons">
+      <button title="Save Local" class="save"> Save </button>
+      <!-- <button title="Export as PDF" class="pdf save-to-pdf"> Save as PDF</button> -->
+      <!-- <div id="toolbarContainer" style="width: 250px;"></div> -->
+      <button id="export">Export</button>
+    </div>
+  </div>
+</div>
+<div id="screenshot-area">
+  <div dir="ltr" id="divCanvasData">
+    <div id="clipper">
+      <img id="imgFixForLong" />
+      <canvas style="position:absolute" id="cborder"></canvas>
+      <canvas style="background:url(images/editor-background.png) repeat;display:none" id="canvasId"></canvas>
+    </div>
+  </div>
+</div>
+<div id="displaypopup">
+  <div id="popuplogin">
+    <form action="#" id="form" method="post" name="form">
+      <img src="images/close.png" id="close">
+      <br>
+      <h3>Please Login with your Bridge Account</h3>
+      <input type="text" name="email" id="email" placeholder="Email">
+      <br>
+      <input type="password" name="password" id="password" placeholder="password">
+      <br>
+      <span id="error">Login was unsuccessful. Please try again.</span>
+      <br>
+      <a href="#" id="submit">Login</a>
+    </form>
+  </div>
+</div>
+<div id="displaypopuplogout">
+  <div id="popuplogout">
+    <form action="#" id="form" method="post" name="form">
+      <img src="images/close.png" id="close1">
+      <br>
+      <h3>You are Logged in as
+      <span id="emailid"></span></h3>
+      <a href="#" id="logout">Logout</a>
+      <a href="#" id="continue">Continue</a>
+    </form>
+  </div>
+</div>
+<div id="successmsg">
+  <div id="popupsuccess">
+    <div id="back">
+      <h2>Screenshot Exported Successfully.</h2>
+    </div>
+  </div>
+</div>
+</body>
+</html>

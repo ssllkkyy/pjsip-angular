@@ -1,0 +1,81 @@
+<div class="condition-title-container">
+    Time Condition
+</div>
+<div class="condition-options">
+    <md-input-container class="condition-opt">
+        <label>Time condition</label>
+        <md-select
+            ng-model="$ctrl.condition.conditionType"
+            ng-change="$ctrl.onCondTypeChange($ctrl.condition.conditionType)">
+            <md-option
+                ng-repeat="condType in $ctrl.conditionTypes"
+                ng-value="condType">
+                {{condType.display}}
+            </md-option>
+        </md-select>
+    </md-input-container>
+    <!-- Despite defaulting to false, I think uib -->
+    <!-- sometimes shows seconds when it shouldn't be -->
+    <div ng-if="$ctrl.condition.conditionType.value === 'minute-of-day'"
+         ng-model="$ctrl.condition.minuteOfDayStart"
+         ng-change="$ctrl.setMinuteOfDayStart($ctrl.condition, $ctrl.condition.minuteOfDayStart)"
+         show-seconds="false"
+         uib-timepicker>
+    </div>
+    <!-- Despite defaulting to false, I think uib -->
+    <!-- sometimes shows seconds when it shouldn't be -->
+    <div ng-if="$ctrl.condition.conditionType.value === 'minute-of-day'"
+         ng-model="$ctrl.condition.minuteOfDayEnd"
+         ng-change="$ctrl.setMinuteOfDayEnd($ctrl.condition, $ctrl.condition.minuteOfDayEnd)"
+         show-seconds="false"
+         uib-timepicker>
+    </div>
+    <md-input-container
+        class="condition-opt"
+        ng-if="$ctrl.condition.conditionType.value !== 'minute-of-day'">
+        <label>Start</label>
+        <md-select ng-model="$ctrl.condition.startOpt">
+            <md-option ng-repeat="opt in $ctrl.condition.conditionType.opts"
+                       ng-disabled="!$ctrl.condition.conditionType"
+                       style="{{!$ctrl.condition.conditionType && 'style: hidden;'}}"
+                       ng-value="opt" >
+                {{opt.display}}
+            </md-option>
+        </md-select>
+    </md-input-container>
+    <md-input-container
+        class="condition-opt"
+        ng-if="$ctrl.condition.conditionType.value !== 'minute-of-day'">
+        <label>End</label>
+        <md-select ng-model="$ctrl.condition.endOpt"
+                style="{{!$ctrl.condition.conditionType && 'style: hidden;'}}"
+                ng-disabled="!$ctrl.condition.conditionType">
+            <md-option ng-repeat="opt in $ctrl.condition.conditionType.opts"
+                    ng-value="opt" >
+                {{opt.display}}
+            </md-option>
+        </md-select>
+    </md-input-container>
+    <div ng-if="!$ctrl.showAddBtn"
+        class="condition-action">
+        <i class="fa fa-trash-o redfont mainopt"
+            ng-click="$ctrl.removeCondition({condition: $ctrl.condition})"
+            tooltip-placement="top"
+            uib-tooltip="Remove this condition">
+        </i>
+    </div>
+    <div ng-if="$ctrl.showAddBtn"
+         class="condition-action">
+        <i class="fa fa-plus-circle dktealfont mainopt"
+           ng-click="$ctrl.add($ctrl.condition)"
+           tooltip-placement="top"
+           uib-tooltip="Add this condition">
+        </i>
+        <i class="fa fa-ban orangefont mainopt"
+           ng-if="$ctrl.condition.conditionType"
+           ng-click="$ctrl.condition = {}"
+           tooltip-placement="top"
+           uib-tooltip="Clear condition fields">
+        </i>
+    </div>
+</div>

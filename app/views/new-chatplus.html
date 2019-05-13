@@ -1,0 +1,292 @@
+<!-- <div class="no-access-container" ng-if="!packageHasAccess('chatplus')">
+    <div class="alert alert-warning centered no-access">
+        Your current Bridge <strong>{{user.package.package_title}}</strong> does not have access to <strong>{{showFeatureTitle('chatplus')}}</strong>.
+    </div>
+</div>
+<div ng-if="packageHasAccess('chatplus')"> -->
+    <div class="chat-container"
+        ng-class="getClassObj()"
+        nv-file-drop=""
+        nv-file-over=""
+        uploader="uploader">
+            <div class="chat-header"
+                ng-class="{'two-col-header' : (search.showSearch || showThreadedMessagePanel)}">
+                <div ng-if="chatData.currentChannel.type!='D'"
+                    class="channeloptions btn-group header-title">
+                    <span>
+                        <button class="btn btn-default dropdown-toggle"
+                                type="button"
+                                id="dropdownMenu"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="true">
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu"
+                            aria-labelledby="dropdownMenu">
+                            <li ng-class="{hideentity : channel.display_name == '' }"
+                                ng-repeat="channel in publicChannels()">
+                                <a ng-click="setChannel(channel)">
+                                    <i class="fa fa-globe fa-lg channeltype"></i>
+                                    {{channel.display_name}}
+                                </a>
+                            </li>
+                            <li ng-class="{hideentity : channel.display_name == '' }"
+                                ng-repeat="channel in privateChannels()">
+                                <a ng-click="setChannel(channel)">
+                                    <i class="fa fa-lock fa-lg channeltype"></i>
+                                    {{channel.display_name}}
+                                </a>
+                            </li>
+                        </ul>
+                    </span>
+                    <span>
+                        <i class="fa fa-{{chatData.currentChannel.type === 'P' ? 'lock' : 'globe'}}
+                                fa-lg channeltype">
+                        </i>
+                        {{chatData.currentChannel.display_name}}
+                    </span>
+                </div>
+                <div ng-if="chatData.currentChannel.type =='D'"
+                    class="channeloptions btn-group header-title">
+                    <span>
+                        <button class="btn btn-default dropdown-toggle"
+                                type="button"
+                                id="dropdownMenu1"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="true">
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu"
+                            aria-labelledby="dropdownMenu1">
+                            <li ng-if="channel.showDirect"
+                                ng-repeat="channel in directChannels()">
+                                <a ng-click="setChannel(channel)">
+                                    <i class="fa fa-wechat fa-lg channeltype" >
+                                    </i>
+                                    {{channel.display_name}}
+                                    <i ng-class="showChatStatus(teamMembers[channel.partner_id])"
+                                    style="opacity: 0.6; font-size: 16px;"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </span>
+                    <span>
+                        Direct Message: {{chatData.currentChannel.display_name }}
+                    </span>
+                    <span ng-if="chatData.currentChannel && (chatData.currentChannel.members|numKeys)>0">
+                        ({{showMemberCount()}})
+                    </span>
+                </div>
+
+                <div class="header-options">
+                    <ul class="header-icons">
+                        <li ng-if="enableCopyMode"
+                                ng-click="cancelCopyMessages()">
+                            <i class="fa fa-undo" style="font-size: 26px;"
+                                tooltip-placement="bottom-right"
+                                uib-tooltip="{{::tips.chatplus.cancel_copy}}">
+                            </i>
+                        </li>
+                        <li ng-if="(copySelected | objLength)>0"
+                                ng-click="saveCopiedMessages()">
+                            <i ng-if = "user.exportType.partner_code == 'hawksoft'"
+                                class="fa fa-floppy-o " style="font-size: 26px;"
+                                tooltip-placement="bottom-right"
+                                uib-tooltip="{{::tips.chatplus.copy_to_hawksoft}}">
+                            </i>
+                            <i ng-if= "user.exportType.partner_code != 'hawksoft'"
+                                class="fa fa-floppy-o" style="font-size: 26px;"
+                                tooltip-placement="bottom-right"
+                                uib-tooltip="{{::tips.chatplus.copy_to_management}}">
+                            </i>
+                        </li>
+                        <li ng-if="!enableCopyMode || (copySelected | objLength)===0"
+                                ng-click="toggleCopyMode()">
+                            <img ng-show = "user.exportType.partner_code == 'hawksoft'"
+                                src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                                style="width: 26px; height: 26px;"
+                                tooltip-placement="bottom-right"
+                                uib-tooltip="{{::tips.chatplus.toggle_hawksoft_copy}}" >
+                            <img ng-show = "user.exportType.partner_code != 'hawksoft'"
+                                src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                                style="width: 26px; height: 26px;"
+                                tooltip-placement="bottom-right"
+                                uib-tooltip="{{::tips.chatplus.toggle_generic_export}}" >
+                        </li>
+                        <li>
+                            <manage-channel></manage-channel>
+                        </li>
+                    </ul>
+                </div>
+                <div class="header-search"
+                    ng-if="(!search.showSearch && !showThreadedMessagePanel) || enableCopyMode">
+                    <div ng-show="enableCopyMode && user.exportType.partner_code == 'hawksoft'">
+                        Select the chat messages you want to export to HawkSoft Inbox<br />
+                        <span ng-show="(copySelected | objLength)>0">
+                            {{copySelected | objLength}} item{{(copySelected | objLength)>1 ? 's' : ''}}
+                            selected - Click Save Icon to send to HawkSoft Inbox
+                        </span>
+                    </div>
+                    <div ng-show="enableCopyMode && user.exportType.partner_code != 'hawksoft'">
+                        Select the chat messages you want to export to Management System Inbox<br />
+                        <span ng-show="(copySelected | objLength)>0">{{copySelected | objLength}}
+                            item{{(copySelected | objLength)>1 ? 's' : ''}} selected - Click Save
+                            Icon to send to Management System Inbox
+                        </span>
+                    </div>
+                    <div ng-show="!search.showSearch && !enableCopyMode && !showThreadedMessagePanel">
+                        <div class="input-group">
+                            <span class="input-group-addon" title="search">
+                                <i class="fa fa-search"></i>
+                            </span>
+                            <input class="form-control"
+                                type="text"
+                                ng-enter="sendSearch()"
+                                ng-model="search.searchText"
+                                placeholder="Search"
+                                tooltip-placement="bottom"
+                                uib-tooltip="{{::tips.chatplus.submit_search}}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="posts-container"
+                ng-class="{'pad-posts-container' : hasSearchResults()}">
+                <div class="posts-top">
+                    <h4 class="channel-name">{{chatData.currentChannel.display_name}}</h4>
+                    <p class="channel-purpose">{{chatData.currentChannel.purpose}}</p>
+                    <a href
+                        class="previous-messages"
+                        ng-if="showLoadEarlierButton()"
+                        ng-click="showMorePosts()">
+                        Load Earlier Messages
+                    </a>
+                </div>
+                <chat-post ng-if="!hasSearchResults() && getOrderPost(order) && !isKotterTechPost(order)"
+                    ng-repeat="order in chatData.currentChannel.postInfo.order"
+                    ng-class="{'is-consecutive-post': getOrderPost(order).isConsecutive,
+                            'sub-thread-post': !!getOrderPost(order).root_id,
+                            'copy-highlight': copySelected[order]}"
+                    channel="chatData.currentChannel"
+                    scroll-to-bottom="scrollToBottom"
+                    data-post-id="{{getOrderPost(order).id}}"
+                    open-thread="openThread"
+                    highlight-post="search.highlightPost"
+                    ng-click="enableCopyMode && copyMessage(order)"
+                    post="getOrderPost(order)">
+                </chat-post>
+                <chat-post ng-if="hasSearchResults() && !isKotterTechPost(order)"
+                        ng-class="{'is-consecutive-post': getSearchOrderPost(order).isConsecutive,
+                                'sub-thread-post': !!getSearchOrderPost(order).root_id,
+                                'copy-highlight': copySelected[order]}"
+                        ng-repeat="order in chatData.currentChannel.searchInfo.order"
+                        channel="chatData.currentChannel"
+                        data-post-id="{{getSearchOrderPost(order).id}}"
+                        is-search="1==1"
+                        id="post-{{order}}"
+                        open-thread="openThread"
+                        ng-click="enableCopyMode && copyMessage(order)"
+                        highlight-post="search.highlightPost"
+                        post="getSearchOrderPost(order)">
+                </chat-post>
+            <div id="bottom-scroll-anchor"></div>
+            </div>
+            <div ng-if="hasSearchResults()" ng-click="goToRecentMessages()" class="go-to-current">
+                Click Here to jump to recent messages. <i class="fa fa-down-arrow"></i>
+            </div>
+            <chat-macro-suggestion-list
+                ng-if="showMacrosList && mainChatInput"
+                input-element="mainChatInput"
+                parent-data="macrosListData" >
+            </chat-macro-suggestion-list>
+            <chat-channels-suggestion-list
+                ng-if="showChannelList && mainChatInput"
+                input-element="mainChatInput"
+                parent-data="channelListData">
+            </chat-channels-suggestion-list>
+            <chat-people-suggestion-list
+                ng-if="showPeopleList && mainChatInput"
+                input-element="mainChatInput"
+                parent-data="peopleListData">
+            </chat-people-suggestion-list>
+            <div class="input-container">
+                <span class="chat-input">
+                    <textarea
+                        class="include-emojis"
+                        name="chatMessage"
+                        key-press-chat
+                        key-press-event-fns="keyPressChatFns"
+                        send-post="sendPost"
+                        rows="2"
+                        placeholder="Write a message"
+                        uploader="uploader"
+                        people-data="peopleListData"
+                        channel-data="channelListData"
+                        macro-data="macrosListData"
+                        chat-view="chatView"
+                        chat-data="chat"
+                        id="chatInput">
+                    </textarea>
+                </span>
+                <span class="chat-upload">
+                    <label tooltip-placement="left"
+                           uib-tooltip="{{enableFileUploader ? tips.chatplus.upload_files_to_channel:tips.chatplus.max_amount_of_files}}">
+                        <i class="fa fa-paperclip"></i>
+                        <input ng-if="uploader"
+                               type="file"
+                               nv-file-select=""
+                               multiple
+                               uploader="uploader"
+                               required
+                               ng-disabled="!enableFileUploader"
+                               style="display: none;" />
+                    </label>
+                </span>
+                <span class="chat-send">
+                    <button class="btn btn-default btn-xs"
+                            chat-send-button
+                            send-post="sendPost"
+                            input-element="mainChatInput">
+                        Send
+                    </button>
+                </span>
+                <p class="users-currently-typing">{{currentTypingMessage()}}</p>
+                <div class="post-uploading"
+                    ng-if="showUploadingFiles">
+                    <chat-post-upload-preview
+                        show="showUploadingFiles"
+                        sendMessage="sendMessage"
+                        uploader="uploader"
+                        files-limit-exceeded="maxFilesLimit">
+                    </chat-post-upload-preview>
+                </div>
+            </div>
+            <emoji-popup></emoji-popup>
+        <div class="side-panel"
+            ng-show="search.showSearch || threadPost"
+            ng-if="uploader"
+            nv-file-drop=""
+            nv-file-over=""
+            uploader="uploader">
+            <threaded-message-display
+                ng-show="threadPost"
+                ng-class="threadedClassObj"
+                class-obj="threadedClassObj"
+                get-key-press-fns="getKeyPressChatFns"
+                send-post="sendPost"
+                close-display="closeThreadedDisplay"
+                select-current-selection="selectCurrentSelection"
+                select-macro-selection="selectMacroSelection"
+                root-post="threadPost">
+            </threaded-message-display>
+            <search-message-display
+                ng-show="search.showSearch"
+                search="search"
+                close-display="closeSearchDisplay()"
+                root-post="threadPost">
+            </search-message-display>
+        </div>
+    </div>
+<!-- </div> -->

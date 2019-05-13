@@ -1,0 +1,46 @@
+<div class="modal-header quotesheet-assign-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x">
+            </i>
+            <i class="fa fa-paper-plane fa-stack-1x fa-inverse">
+            </i>
+        </span>
+        <span class="cls-header-modal">
+            Select Input Fields for {{vm.content.data.name}}
+        </span>
+        <button type="button"
+                ng-click="closeModal()"
+                class="close">
+            <i class="fa fa-times">
+            </i>
+        </button>
+    </div>
+    <div class="modal-body"
+         id="modal-body">
+         <div class="input-list">
+                <div ng-repeat="input in vm.content.data.elements.inputs" ng-if="!input.hide">
+                    <md-checkbox
+                        ng-model="input.checked"
+                        aria-label="Include First Row">
+                        {{input.label}}
+                    </md-checkbox>
+                </div>
+         </div>       
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md"
+                ng-click="closeModal()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;">
+            </i>
+            Cancel
+        </button>
+        <button class="btn btn-danger btn-md"
+                ng-click="vm.content.data.addInputs(vm.content.data.elements)">
+            <i class="fa fa-check"
+               style="margin-right: 10px;">
+            </i>
+            Add
+        </button>
+    </div>
+    

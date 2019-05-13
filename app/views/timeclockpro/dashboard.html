@@ -1,0 +1,56 @@
+<div class="no-access-container" ng-if="!packageHasAccess('timeclockpro')">
+    <div class="alert alert-warning centered no-access">
+        Your current Bridge <strong>{{user.package.package_title}}</strong> does not have access to <strong>{{showFeatureTitle('timeclockpro')}}</strong>.
+    </div>
+</div>
+<div ng-if="packageHasAccess('timeclockpro')" class="inner-content-container" ng-controller="TimeKeeperCtrl">
+    <div id="timekeeper-container">
+        <div class="dashboard-menu"
+            ng-show="isTkUserOrGreater()">
+            <md-tabs active="activeTab"
+                    md-selected="activeTimekeeperTab"
+                    justified="false"
+                    class="timekeeper-tabs">
+                <md-tab index="0"
+                        label="My Team">
+                        <my-team>
+                        </my-team>
+                </md-tab>
+                <md-tab index="1"
+                        label="Timeline">
+                    <timeline-view>
+                    </timeline-view>
+                </md-tab>
+                <md-tab index="2"
+                        label="Teams"
+                        ng-if="isAdmin()">
+                    <team-settings>
+                    </team-settings>
+                </md-tab>
+                <md-tab index="3"
+                        label="Individual Settings"
+                        ng-if="isAdminOrManager()">
+                    <admin-view>
+                    </admin-view>
+                </md-tab>
+                <md-tab index="4"
+                        label="Time Cards"
+                        ng-if="isAdminOrManager()">
+                    <time-cards>
+                    </time-cards>
+                </md-tab>
+                <md-tab index="5"
+                        label="My Time Card"
+                        ng-if="!isAdminOrManager()">
+                    <my-time-card>
+                    </my-time-card>
+                </md-tab>
+            </md-tabs>
+        </div>
+        <div ng-show="!isTkUserOrGreater()">
+            <h1 ng-show="message" style="text-align: center">
+                Admin has not enabled this feature for you.
+            </h1>
+        </div>
+    </div>
+</div>

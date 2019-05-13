@@ -1,0 +1,561 @@
+<div>
+    <md-toolbar >
+        <div class="md-toolbar-tools">
+            <div class="row" style="width: 100%">
+                <div class="col-md-8">
+                    <h2>{{title()}}<span ng-if="selectedDomain"> - {{selectedDomain.domain_description}}</span></h2>
+                    <md-button ng-if="1===2" ng-click="showEditCode()"
+                            class="md-primary md-raised">
+                    Create New Agency
+                    </md-button>
+                </div>
+                <div class="col-md-4">
+                        <md-autocomplete
+                        ng-show="!loadingAgencies"
+                        class="company-emulate"
+                        md-selected-item="filter.selectedItem"
+                        md-search-text-change="filter.searchTextChange(filter.searchText)"
+                        md-search-text="filter.searchText"
+                        md-selected-item-change="filter.selectedItemChange(item)"
+                        md-items="item in filter.querySearch(filter.searchText) | filter: emptyFilter | orderBy : 'domain_description'"
+                        md-item-text="item.domain_description"
+                        md-min-length="0"
+                        placeholder="Choose an Agency to Display?"
+                        style="color:black">
+                        <md-item-template>
+                            <span md-highlight-text="filter.searchText" md-highlight-flags="^i">
+                                {{item.domain_description}} {{item.domain_enabled === 'false' ? '(Disabled)' : ''}}
+                            </span>
+                        </md-item-template>
+                        <md-not-found>
+                            No agencies matching "{{filter.searchText}}" were found.
+                        </md-not-found>
+                    </md-autocomplete>
+                    <div class="tableclass loading-agencies pull-right" ng-show="loadingAgencies">
+                        <div class="tablecell">
+                            <i class="fa fa-spinner fa-spin"></i>
+                        </div>
+                        <div class="tablecell">
+                            Loading Agencies
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </md-toolbar>
+    <md-content class="agency-content">
+        <div class="loading-info" ng-if="loadingAgency">
+            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+            <span>Loading Agency Info<br />
+            Please Wait</span>
+        </div>
+        <div class="default-choice" ng-if="!selectedDomain && !loadingAgency">
+            <span>Choose an agency above.</span>
+        </div>
+        <div class="user-edit agency" ng-if="selectedDomain">
+            <h4>Summary</h4>
+            <div class="billing-settings">
+                <table class="table table-bordered table-striped cls-tab-call-history" ng-if="selectedDomain.customer_info && selectedDomain.domain_enabled === 'true'">
+                    <thead>
+                        <tr>
+                            <th>
+                                Company Name 
+                            </th>
+                            <th>
+                                Domain 
+                            </th>
+                            <th>
+                                Kotter Tech User
+                            </th>
+                            <th>
+                                Group Code
+                            </th>
+                            <th>
+                                Package
+                            </th>
+                            <th>
+                                AA Visibility
+                            </th>
+                            <th>
+                                Active Users
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{selectedDomain.domain_description}}</td>
+                            <td >{{selectedDomain.domain_name}}</td>
+                            <td>
+                                <span ng-if="selectedDomain.kotter_tech && (!creatingKotter || creatingKotter !== selectedDomain.domain_uuid)">
+                                    {{selectedDomain.kotter_tech}} <i class="fa fa-copy" tooltip-placement="top" uib-tooltip="Copy Email" ng-click="copyKotterTech(selectedDomain.kotter_tech)"></i>
+                                </span>
+                                <button ng-if="!selectedDomain.kotter_tech && (!creatingKotter || creatingKotter !== domain.domain_uuid)" 
+                                    class="btn btn-default btn-xs"
+                                    ng-click="createKotterTech(selectedDomain)">
+                                    Create KotterTech User
+                                </button>
+                                <span ng-if="creatingKotter && creatingKotter === selectedDomain.domain_uuid">
+                                    <i class="fa fa-spinner fa-spin"></i> Working
+                                </span>
+                            </td>
+                            <td>{{selectedDomain.billing_settings.group_code}}</td>
+                            <td class="capitalize">{{selectedDomain.billing_settings.package_name}}</td>
+                            <td>
+                                <md-switch class="md-warn"
+                                    ng-model="selectedDomain.customer_info.auto_attendant_visibility"
+                                    ng-change="updateAAVisibility(selectedDomain)"
+                                    aria-label="Auto Attendant Enable/Disable" 
+                                    ng-true-value="'true'" 
+                                    ng-false-value="'false'">
+                                    {{ selectedDomain.customer_info.auto_attendant_visibility === 'true' ? 'Visible' : 'Hidden'}}
+                                </md-switch>
+                            </td>
+                            <td>{{selectedDomain.activeUsers.length}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr />
+            <h4>Settings</h4>
+            <div class="billing-settings">
+                <div class="user-edit-content" ng-if="loadingDomain">
+                    <div class="loading-users mdgreyfont">
+                            <i class="fa fa-spinner fa-spin fa-5x"></i><br />
+                            <span>Loading Agency Settings<br />
+                            Please Wait</span>
+                    </div>
+                </div>
+            
+                <div class="user-edit-content" ng-if="!loadingDomain">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <md-input-container>
+                                <input type="text"
+                                        ng-change="userInfoChanged = true"
+                                        ng-model="thedomain.domain_description"
+                                        placeholder="Company Name">
+                            </md-input-container>
+                        </div>
+                        <div class="col-sm-2">
+                            <md-input-container>
+                                <label>Time zone</label>
+                                <md-select ng-model="thedomain.timeZone">
+                                    <md-option ng-repeat="timezone in timeZones"
+                                               ng-value="timezone.display">
+                                        {{timezone.display}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                        <div class="col-sm-4">
+                            <md-button ng-click="updateDomain(thedomain)"
+                                        class="md-primary md-raised">
+                                Update Information
+                            </md-button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div  ng-if="!loadingDomain" class="col-sm-3">
+                            <md-button ng-click="toggleEditFaxLocation(selectedDomain)"
+                                class="md-warn md-raised">
+                                <span ng-if="!editFaxLocation" >Assign/Swap Fax Numbers</span>
+                                <span ng-if="editFaxLocation">Cancel Assign/Swap</span>    
+                            </md-button>
+                            
+                        </div>
+                        <div class="loading-users mdgreyfont"ng-if="loadingEditFax">
+                            <span>Loading Locations...</span>
+                            <div>
+                                <center><i class="fa fa-spinner fa-spin fa-5x"></i><br /></center>
+                            </div>
+                        </div>
+                        
+                        <div ng-if="editFaxLocation" class="col-sm-8" >
+                            <h4>Assign/Swap Fax Number by Location: <i class="fa fa-question-circle" tooltip-placement="bottom-right"
+                                uib-tooltip="{{tips.vfax.swapfaxnumbers}}"></i></h4>
+                            
+                            <!-- selector for location group -->
+                                <md-input-container class="col-sm-4">
+
+                                    <md-select class="col-sm-5"
+                                        placeholder="Select a Location"
+                                        ng-model="locationSelected"
+                                        uib-tooltip="{{tips.vfax.activeFaxLocations}}">
+                                        <md-option ng-value="location"
+                                            ng-repeat="location in locations">
+                                            {{showLocation(location.locations_group_uuid)}}
+                                        </md-option>
+                                        <md-option  ng-value="false">None</md-option>
+                                    </md-select>
+                                </md-input-container>
+                            
+                                <!-- selector for number option -->
+                                <md-input-container class="col-sm-4">
+                                    <md-select class="col-sm-5"
+                                    ng-disabled="!locationSelected.vfax"
+                                    placeholder = "Select an Agency Fax Number"
+                                    ng-model="replacementNumber"
+                                    uib-tooltip="{{tips.vfax.activeFaxNumbers}}">
+
+                                        <md-option ng-value="locationSelected.vfax.fax_number">
+                                            <span ng-if="locationSelected.vfax.fax_number">
+                                                Current Number: {{locationSelected.vfax.fax_number | tel}}</span>
+                                            <span ng-if="!locationSelected.vfax || !locationSelected.vfax.fax_number">
+                                                Goto Fax Feature to Enable Faxing
+                                            </span>
+                                        </md-option>
+                                        <md-option ng-value="faxNumber"
+                                            ng-if="faxNumber.number !== locationSelected.vfax.fax_number"
+                                            ng-repeat="faxNumber in faxAllowableNumbers()">
+                                            {{faxNumber.number | tel}}
+                                        </md-option>
+                                        <!-- <md-option ng-value="locationSelected">
+                                            Order a New Number
+                                        </md-option> -->
+                                    </md-select>
+                                    
+                                </md-input-container>
+                                <md-button ng-disabled="!replacementNumber" ng-click="submitFaxNumberChange(locationSelected, replacementNumber)"
+                                    class="md-warn md-raised">
+                                    <span>Confirm Changes</span>    
+                                </md-button>
+                        </div>   
+                        
+                    </div>
+                    <br>
+                    
+                    <!-- <hr />
+                    <h4>Package Addon: 
+                        <md-button ng-click="showNewAddon()"
+                                    class="pull-right md-default md-raised">
+                            <i class="fa fa-plus"></i> Add Package Addon
+                        </md-button>
+                    </h4>
+                    <table class="table table-bordered table-striped cls-tab-call-history">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Details</th>
+                                <th>Monthly Cost</th>
+                                <th>Date Added</th>
+                                <th>Manage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td ng-if="domainAddons.length===0" colspan="5">There are no addons for this agency at this time.</td>
+                            </tr>
+                            <tr ng-repeat="addon in domainAddons | orderBy : 'created_at'">
+                                <td>{{addon.addon.title}}</td>
+                                <td>{{addon.addon.quantity}} {{addon.addon.units}}</td>
+                                <td>{{addon.cost | currency}}</td>
+                                <td>{{addon.created_at | toLocalTime | amDateFormat: 'MMM D, YYYY'}}</td>
+                                <td>
+                                    <i ng-click="cancelAddon(addon)" 
+                                        class="fa fa-times-circle redfont mainopt" 
+                                        tooltip-placement="top-right" 
+                                        ib-tooltip="{{tips.numberporting.canceladdon}}"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table> -->
+                    <hr />
+                    <div>
+                        <h4>Porting Numbers:
+                            <md-button ng-click="showNewPort()"
+                                        class="pull-right md-default md-raised">
+                                <i class="fa fa-plus"></i> Add New Port
+                            </md-button>
+                        </h4>
+                    </div>
+                    <p ng-if="portingNumbers.length === 0">No active ports to display.</p>
+                    
+                    <table ng-if="portingNumbers.length > 0" class="table table-bordered table-striped cls-tab-call-history">
+                        <thead>
+                            <tr>
+                                <th ng-click="portSortBy('number')">
+                                    <span class="colsort" 
+                                        tooltip-placement="top" 
+                                        uib-tooltip="{{tips.numberporting.sortbynumber}}">
+                                        Number 
+                                        <i style="font-size: 14px;" ng-class="showPortChevron('number')" ></i>    
+                                    </span>
+                                </th>
+                                <th ng-click="portSortBy('created_at')">
+                                    <span class="colsort" 
+                                        tooltip-placement="top" 
+                                        uib-tooltip="{{tips.numberporting.sortbydate}}">
+                                        Started 
+                                        <i style="font-size: 14px;" ng-class="showPortChevron('created_at')" ></i>    
+                                    </span>
+                                </th>
+                                <th>Description</th>
+                                <th ng-click="portSortBy('type')">
+                                    <span class="colsort" 
+                                        tooltip-placement="top" 
+                                        uib-tooltip="{{tips.numberporting.sortbynumbertype}}">
+                                        Type 
+                                        <i style="font-size: 14px;" ng-class="showPortChevron('type')" ></i>    
+                                    </span>
+                                </th>
+                                <th ng-click="portSortBy('port_status')">
+                                    <span class="colsort" 
+                                        tooltip-placement="top" 
+                                        uib-tooltip="{{tips.numberporting.sortbyportstatus}}">
+                                        Status 
+                                        <i style="font-size: 14px;" ng-class="showPortChevron('port_status')" ></i>    
+                                    </span>
+                                </th>
+                                <th>Manage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            <tr ng-repeat="port in portingNumbers | orderBy : portpredicate :portreverse">
+                                <td>{{port.number | tel}}</td>
+                                <td>{{port.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                                    {{port.created_at | toLocalTime | amDateFormat:'h:mm a'}}</td>
+                                <td>{{port.description}}</td>
+                                <td class="capitalize">{{port.number_type}}</td>
+                                <td class="capitalize">
+                                    <span ng-if="port.port_status === 'porting'" 
+                                        ng-click="activatePortingNumber(port)"
+                                        tooltip-placement="top" 
+                                        uib-tooltip="{{tips.numberporting.porting}}">
+                                        <i class="fa fa-arrow-up dktealfont mainopt"></i> {{port.port_status}}
+                                    </span>
+                                    <span ng-if="port.port_status === 'ported'">
+                                        <i class="fa fa-check orangefont mainopt"></i> {{port.port_status}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <i ng-click="deletePortingNumber(port)" 
+                                        ng-if="port.port_status === 'porting'"
+                                        class="fa fa-times-circle redfont mainopt" 
+                                        tooltip-placement="top" 
+                                        uib-tooltip="{{tips.numberporting.cancelport}}"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr />
+                    <h4>Domain Numbers: </h4>
+                    <table class="table table-bordered table-striped cls-tab-call-history">
+                        <thead>
+                            <tr>
+                                <th ng-click="numSortBy('number')">
+                                    <span class="colsort" 
+                                        tooltip-placement="top" 
+                                        uib-tooltip="{{tips.numberporting.sortbynumber}}">
+                                        Number 
+                                        <i style="font-size: 14px;" ng-class="showNumChevron('number')" ></i>    
+                                    </span>    
+                                </th>
+                                <th ng-click="numSortBy('type')">
+                                    <span class="colsort" 
+                                        tooltip-placement="top" 
+                                        uib-tooltip="{{tips.numberporting.sortbynumbertype}}">
+                                        Type 
+                                        <i style="font-size: 14px;" ng-class="showNumChevron('type')" ></i>    
+                                    </span>    
+                                </th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Manage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="number in domainNumbers | orderBy : numpredicate :numreverse">
+                                <td>{{number.number | tel}}
+                                    <span class="greyfont capitalize"
+                                            ng-if="number.port">
+                                        - {{number.port.port_status}}
+                                    </span>
+                                </td>
+                                <td class="capitalize">{{number.type}}</td>
+                                <td>{{showNumberDescription(number)}}</td>
+                                <td>{{showNumberStatus(number)}}</td>
+                                <td>
+                                    <i ng-if="showNumberStatus(number) === 'Inactive'" 
+                                        ng-click="deleteDid(number)" 
+                                        class="fa fa-times-circle redfont mainopt" 
+                                        tooltip-placement="top-right" 
+                                        ib-tooltip="{{tips.numberporting.deletedid}}"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr />
+                    <div ng-show="thedomain.customer_info.auto_attendant_visibility === 'false'">
+                        <h4>Auto Attendant Greetings:</h4>
+                        <div class="scroll-container-head">
+                            <table class="table table-bordered table-hover table-striped data-table-top" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 45px;">Play</th>
+                                        <th>File</th>
+                                        <th style="width: 100px;">Download</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="scroll-container" ng-if="audioLibrary.length == 0"> <h5>No Auto Attendant Greetings uploaded.</h5></div>
+                        <div class="scroll-container" style="max-height: 225px" ng-if="audioLibrary.length > 0">
+                            <table class="table table-bordered table-hover table-striped"  style="width: 100%;">
+                                <tbody>
+                                    <tr ng-repeat="row in audioLibrary">
+                                        <td style="width: 45px;">
+                                            <span ng-if="audioFilePlaying!==row.audio_library_uuid" 
+                                                ng-click="playAudioFile(row.filepath, row.audio_library_uuid)" tooltip-placement="top" 
+                                                uib-tooltip="Listen to Audio File">
+                                                <i class="fa fa-play-circle fa-2x"></i>
+                                            </span>
+                                            <span ng-if="audioFilePlaying===row.audio_library_uuid" 
+                                                ng-click="stopPlaying()" 
+                                                tooltip-placement="top" 
+                                                uib-tooltip="Stop Playing Audio File">
+                                                <i class="fa fa-stop-circle fa-2x"></i>
+                                            </span>
+                                        </td>
+                                        <td><span ng-if="!greetingBeingEdited(row)">{{row.file_title}} <span ng-if="row.used ==='true'" aria-hidden="true" tooltip-placement="top" uib-tooltip="This greeting is being used in an Auto Attendant"><i class="fa fa-check" ></i></span></span>
+                                            <md-input-container ng-if="greetingBeingEdited(row)" style="width: 100%; text-align: center;" >
+                                                <label>Recording Title</label>
+                                                <input ng-model="row.file_title" />
+                                            </md-input-container>
+                                        </td>
+                                        <td style="width: 100px;">
+                                            <a href="{{downloadAudioLibraryFile(row)}}" 
+                                                ng-if="row.original_filename !== 'ivrgreeting_default.mp3'" 
+                                                class="btn btn-primary btn-xs" download>
+                                                <i class="fa fa-download"></i>
+                                                Download
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <hr />
+                    <h4>Assign Custom Extensions to Location Group (to be included in Bridge Analytics): </h4>
+                    <table id="custom-extensions" class="table table-bordered table-striped cls-tab-call-history">
+                        <thead>
+                            <tr>
+                                <th>Extension</th>
+                                <th>DID</th>
+                                <th>Description</th>
+                                <th>Location Group</th>
+                                <th>Manage <i class="fa fa-plus-circle mainopt whitefont" ng-click="addCustomExtension()"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-if="domainExtensions.length===0 && !addExt">
+                                <td colspan="5">
+                                    There are no Custom Extensions at this time.
+                                </td>
+                            </tr>
+                            <tr ng-if="addExt">
+                                <td>
+                                    <md-input-container>
+                                        <label>Enter Extension Number</label>
+                                        <input ng-model="editExt.extension" />
+                                    </md-input-container>
+                                </td>
+                                <td>
+                                    <md-input-container>
+                                        <label>Enter DID Number</label>
+                                        <input ng-model="editExt.did" phone-input />
+                                    </md-input-container>
+                                </td>
+                                <td class="capitalize">
+                                    <md-input-container>
+                                        <label>Enter Description</label>
+                                        <input ng-model="editExt.description" />
+                                    </md-input-container>
+                                </td>
+                                <td>
+                                    <md-input-container>
+                                        <label>Select a Location</label>
+                                        <md-select ng-model="editExt.location_group_uuid">
+                                            <md-option ng-repeat="location in locationGroups" ng-value="location.locations_group_uuid">
+                                                {{location.group_name}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </td>
+                                <td>
+                                    <i class="fa fa-floppy-o mainopt primaryfont" 
+                                        tooltip-placement="top-right" 
+                                        uib-tooltip="{{::tips.numberporting.savelocation}}" 
+                                        ng-click="saveCustomExtension(editExt)"></i>
+                                    <i class="fa fa-undo mainopt orangefont" 
+                                        tooltip-placement="top-right" 
+                                        uib-tooltip="{{::tips.numberporting.cancellocationedit}}" 
+                                        ng-click="cancelEditCustomExtension()"></i>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="ext in domainExtensions | orderBy : ext.extension">
+                                <td>
+                                    {{ext.extension}}
+                                </td>
+                                <td>
+                                    <span ng-if="editingExt !== ext.custom_extension_uuid">{{ext.did | tel}}</span>
+                                    <span ng-if="editingExt === ext.custom_extension_uuid">
+                                        <md-input-container>
+                                            <label>Enter DID Number</label>
+                                            <input ng-model="editExt.did" phone-input />
+                                        </md-input-container>
+                                    </span>
+                                </td>
+                                <td class="capitalize">
+                                    <span ng-if="editingExt !== ext.custom_extension_uuid">{{ext.description}}</span>
+                                    <span ng-if="editingExt === ext.custom_extension_uuid">
+                                        <md-input-container>
+                                            <label>Enter Description</label>
+                                            <input ng-model="editExt.description" />
+                                        </md-input-container>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span ng-if="editingExt !== ext.custom_extension_uuid">{{showLocation(ext.location_group_uuid)}}</span>
+                                    <span ng-if="editingExt === ext.custom_extension_uuid">
+                                        <md-input-container>
+                                            <label>Select a Location</label>
+                                            <md-select ng-model="editExt.location_group_uuid">
+                                                <md-option ng-repeat="location in locationGroups" ng-value="location.locations_group_uuid">
+                                                    {{location.group_name}}
+                                                </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </span>
+                                </td>
+                                <td>
+                                    <i class="fa fa-pencil-square-o mainopt bridgebluefont" 
+                                        ng-if="editingExt !== ext.custom_extension_uuid"
+                                        tooltip-placement="top-right" 
+                                        uib-tooltip="{{::tips.numberporting.editlocation}}" 
+                                        ng-click="editCustomExtension(ext)"></i>
+                                    <i class="fa fa-floppy-o mainopt primaryfont" 
+                                        ng-if="editingExt === ext.custom_extension_uuid"
+                                        tooltip-placement="top-right" 
+                                        uib-tooltip="{{::tips.numberporting.savelocation}}" 
+                                        ng-click="saveCustomExtension(editExt)"></i>
+                                    <i class="fa fa-undo mainopt orangefont" 
+                                        ng-if="editingExt === ext.custom_extension_uuid"
+                                        tooltip-placement="top-right" 
+                                        uib-tooltip="{{::tips.numberporting.cancellocationedit}}" 
+                                        ng-click="cancelEditCustomExtension()"></i>
+                                    <i ng-click="deleteCustomExtension(ext)" 
+                                        ng-if="editingExt !== ext.custom_extension_uuid"
+                                        class="fa fa-times-circle redfont mainopt" 
+                                        tooltip-placement="top-right" 
+                                        ib-tooltip="{{tips.numberporting.deletecustomextension}}"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </md-content>
+</div>

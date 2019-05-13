@@ -1,0 +1,24 @@
+<div class="draggable-tile"
+     ng-repeat="tile in tiles"
+     context-menu="tileOptions($index, false)"
+     dnd-draggable="tile"
+     dnd-callback="removeTileFromList(tiles, tile, targetList)">
+    <dashboard-tile go-to="tile.goToUrl"
+                    fa-class="tile.faClass"
+                    title="tile.title"
+                    show-transclude="tile.shouldTransclude">
+        <tile-image-contents>
+            <img src="/images/icons/fbmsg.png"
+                 class="messengerimg"
+                 ng-if="isFbTile(tile)"/>
+            <!--span class="fa-stack fa-stack voicemail-icon"
+                  ng-if="isVVTile(tile)">
+                <i style="transform: scale(2.1,1);"
+                   class="fa fa-minus fa-stack-2x">
+                </i>
+                <i class="fa fa-circle-o fa-stack-2x left-circle"></i>
+                <i class="fa fa-circle-o fa-stack-2x right-circle"></i>
+            </span-->
+        </tile-image-contents>
+    </dashboard-tile>
+</div>

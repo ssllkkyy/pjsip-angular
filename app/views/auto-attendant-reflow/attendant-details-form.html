@@ -1,0 +1,84 @@
+<uib-accordion close-others="true">
+    <div uib-accordion-group
+         is-open="status.open">
+        <uib-accordion-heading>
+            <h3>{{editing ? "Edit" : "Create"}} Call Flow
+                <span class="series-status-box edit">
+                    <i class="glyphicon"
+                       ng-class="{'glyphicon-chevron-down': status.open,
+                              'glyphicon-chevron-right': !status.open}">
+                    </i>
+                </span>
+            </h3>
+        </uib-accordion-heading>
+        <div class="collapsible-content">
+            <div class="panel panel-primary panelbox">
+                <div class="panel-heading title-bar">
+                    {{newAttendant.description ? newAttendant.description : "Call Flow Name"}}
+                </div>
+                <div uib-collapse="isCollapsedVertical"
+                     class="collapsible-content">
+                    <div class="row">
+                        <div class="col-sm-3 box1-label">
+                            Set Call Flow:
+                        </div>
+                        <div class="col-sm-3 box1-input">
+                            <md-input-container>
+                                <label>Enter a Name</label>
+                                <input ng-model="newAttendant.description"
+                                       type="text"
+                                       maxlength="70"
+                                       placeholder="Name your Call Flow">
+                            </md-input-container>
+                        </div>
+                        <div class="col-sm-3 box1-input">
+                            <md-input-container>
+                                <label>Timezone: </label>
+                                <md-select ng-model="newAttendant.timezone">
+                                    <md-option ng-repeat="timezone in timezones"
+                                               ng-value="timezone">
+                                        {{timezone}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3 box1-label">
+                            Select phone numbers for this Call Flow
+                            <br>
+                            <br>
+                            <p ng-if="!orderingNumber">
+                                Or
+                                <br>
+                                <br>
+                                <button class="btn btn-default btn-xs newdidbutton"
+                                        ng-click="orderNewNumber()">
+                                    Order a New Number
+                                </button>
+                                <button class="btn btn-default btn-xs newdidbutton"
+                                        ng-click="orderTestNumber()">
+                                    Order a Test Number
+                                </button>
+                            </p>
+                        </div>
+                        <div class="col-sm-9 box1-input">
+                            <span class="spinner"
+                                  ng-if="orderingNumber">
+                                <i class="fa fa-cog fa-spin fa-sm"></i>
+                            </span>
+                            <div>
+                                <attendant-did-select
+                                    on-dest-change="onDestChange(destUuid, isSet)"
+                                    hide-order="true"
+                                    attendant="attendant"
+                                    class="dest-table-container">
+                                </attendant-did-select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</uib-accordion>

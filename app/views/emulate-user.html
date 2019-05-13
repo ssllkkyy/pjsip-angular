@@ -1,0 +1,17 @@
+<div class="input-group" ng-if="emulationStatus()[emulationType].manager==='true'">
+    <md-select ng-model="selectEmulateUser"
+                class="emulate"
+                placeholder="- Emulate User -"
+                tooltip-placement="bottom"
+                uib-tooltip="{{::tips.emulate.choose_emulate_user}}"
+                ng-change="setEmulationUser(selectEmulateUser, emulationType)">
+        <md-option ng-value="user.id">
+            <strong>{{user.contact_name_full}}</strong>
+        </md-option>
+        <md-option ng-repeat="emUser in emulationStatus()[emulationType].watched"
+            ng-if="emUser.user_uuid !== user.id && !isKotterTechUserByUuid(emUser.user_uuid) && getNameByUUID(emUser.user_uuid) !== null"
+                    ng-value="emUser.user_uuid"> 
+            {{getNameByUUID(emUser.user_uuid)}}
+        </md-option>
+    </md-select>
+</div>

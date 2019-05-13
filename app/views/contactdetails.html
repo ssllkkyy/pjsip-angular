@@ -1,0 +1,47 @@
+<div class="cls-profile-contact-sel" ng-repeat="contSel in contactSelected">
+
+        <div class="cls-name-contact-sel">
+            <strong style="color: grey;">{{contSel.name}}</strong>
+            <i ng-class="funcPutIcon(contSel.status)" style="font-size: 25px; margin-top: 5px;"></i>       
+            <button tooltip-placement="right" uib-tooltip="add favorite" ng-show="contSel.favorite===0" class="btn btn-link btn-lg" style="border: none !important"><i class="fa fa-star-o fa-lg"></i></button>
+            <button tooltip-placement="right" uib-tooltip="remove favorite" ng-show="contSel.favorite===1" class="btn btn-link btn-lg" style="color: orangered; border: none !important"><i class="fa fa-star fa-lg"></i></button>
+        </div>
+
+        <div class=" cls-contact-btn-options">
+            <div>
+                <a href="chatcontact/{{contSel.cntID}}" type="button" class="btn btn-warning btn-sm" tooltip-placement="bottom" uib-tooltip="chat plus"><i class="fa fa-comments"></i></a>
+                <a href="sms/{{contSel.cntID}}" type="button" class="btn btn-warning btn-sm" tooltip-placement="bottom" uib-tooltip="send SMS"><i class="fa fa-paper-plane"></i></a>
+                
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success btn-sm" tooltip-placement="bottom" uib-tooltip="call phone set default"><i class="fa fa-phone"></i></button>
+                    <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <span class="caret"></span>
+                      <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" ng-init="searchPhones(contSel.cntID)">
+                        <li ng-repeat="contSelPhones in contactSelectedPhones"><a href=""><i ng-class="funcPutIconPhones(contSelPhones.type)" style="margin-top: 5px;"></i>{{contSelPhones.number}}<i class="fa fa-asterisk cls-color-blue-tkg" style="margin-left: 5px;" ng-if="contSelPhones.default===1"></i></a></li>
+                    </ul>
+                </div> 
+                
+                <button type="button" class="btn btn-success btn-sm" tooltip-placement="bottom" uib-tooltip="start video call"><i class="fa fa-video-camera"></i></button>
+                
+                <div class="btn-group">
+                    <button type="button" class="btn btn-info btn-sm" tooltip-placement="bottom" uib-tooltip="send email set default"><i class="fa fa-envelope-o"></i></button>
+                    <button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <span class="caret"></span>
+                      <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" ng-init="seachEmails(contSel.cntID)">
+                        <li ng-repeat="contSelEmails in contactSelectedEmails"><a ng-click="startEmailClient(contSelEmails.email)">{{contSelEmails.email}}<i class="fa fa-asterisk cls-color-blue-tkg" style="margin-left: 5px;" ng-if="contSelEmails.default===1"></i></a></li>
+                    </ul>
+                </div>
+                
+                <div class="btn-group">
+                    <label class="btn btn-default btn-sm disabled" ng-model="radioModel" uib-btn-radio="'Left'" tooltip-placement="bottom" uib-tooltip="listen"><i class="fa fa-headphones" style="font-size: 17px;"></i></label>
+                    <label class="btn btn-default btn-sm disabled" ng-model="radioModel" uib-btn-radio="'Middle'" tooltip-placement="bottom" uib-tooltip="barge"><i class="fa fa-bullhorn" style="font-size: 17px;"></i></label>
+                    <label class="btn btn-default btn-sm disabled" ng-model="radioModel" uib-btn-radio="'Right'" tooltip-placement="bottom" uib-tooltip="whisper"><i class="fa fa-assistive-listening-systems" style="font-size: 17px;"></i></label>                
+                </div>
+            </div>
+        </div>
+</div>
+

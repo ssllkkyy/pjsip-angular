@@ -1,0 +1,183 @@
+<div class="audio-selector">
+    <div class="panel cls-panels-header">
+        <div class="panel-heading">
+            <i class="fa fa-hand-o-up"
+               style="padding-right: 10px;">
+            </i>
+            <strong class="cls-color-blue-tkg">
+                Click an Option Below
+            </strong>
+        </div>
+        <ul class="list-group">
+            <li class="list-group-item"
+                ng-click="$ctrl.setSelectType('newrecord')">
+                <i class="fa fa-microphone"
+                   style="margin-right: 10px;">
+                </i>
+                Record a New Message
+                <i class="fa fa-bullseye pull-right"
+                   ng-show="$ctrl.isCurrentSelectType('newrecord')">
+                </i>
+            </li>
+            <li class="list-group-item"
+                ng-click="$ctrl.setSelectType('uploadfile')">
+                <i class="fa fa-upload"
+                   style="margin-right: 10px;">
+                </i>
+                Upload an Audio File
+                <i class="fa fa-bullseye pull-right"
+                   ng-show="$ctrl.isCurrentSelectType('uploadfile')">
+                </i>
+            </li>
+            <li class="list-group-item"
+                ng-click="$ctrl.setSelectType('audiolibrary')">
+                <i class="fa fa-book"
+                   style="margin-right: 10px;">
+                </i>
+                Select from Audio Library
+                <i class="fa fa-bullseye pull-right"
+                   ng-show="$ctrl.isCurrentSelectType('audiolibrary')">
+                </i>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="audio-selector-options">
+    <div ng-if="$ctrl.recording && !$ctrl.selectTypeChosen()"
+         class="center-text show-player">
+        <button class="btn btn-default"
+                ng-click="showAudioModal(recordingFile, 'robocall-recording')">
+            <i class="fa fa-play"></i>
+            Play Current Recording
+        </button>
+    </div>
+    <div class="panel"
+         ng-if="$ctrl.selectTypeChosen()"
+         style="border: #cfdef0 solid 1px;">
+        <div class="panel-heading">
+            <strong class="cls-color-blue-tkg">
+                {{$ctrl.selectTypeToTitle[$ctrl.getCurrentSelectType()]}}
+            </strong>
+        </div>
+        <div class="panel-body">
+            <div ng-if="$ctrl.isCurrentSelectType('newrecord')" >
+                <div class="jumbotron recording">
+                    <audio-recorder
+                        ng-if="$ctrl.isCurrentSelectType('newrecord')"
+                        save-recording="$ctrl.uploadAudioFile(recording)"
+                        title="$ctrl.getCurrentSelectType().title">
+                    </audio-recorder>
+                </div>
+            </div>
+            <div ng-if="$ctrl.isCurrentSelectType('audiolibrary')">
+                Audio Library...
+                <table class="table table-bordered table-hover table-striped"
+                       id="voicemail-audio-recordings-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 45px;"></th>
+                            <th>File</th>
+                            <th style="width: 90px;">Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="lib in $ctrl.audioLibraries">
+                            <td>
+                                <span ng-click="$ctrl.selectFile(lib)"
+                                      ng-if="$ctrl.user.voicemail.greeting_id !== lib.greeting_id"
+                                      tooltip-placement="top"
+                                      uib-tooltip="Set Audio File as Greeting">
+                                    <i class="fa fa-plus-circle fa-2x audiofileoption greenfont"></i>
+                                </span>
+                                <span ng-if="$ctrl.user.voicemail.greeting_id === lib.greeting_id"
+                                      tooltip-placement="top"
+                                      uib-tooltip="Current Greeting">
+                                    <i class="fa fa-check-circle fa-2x audiofileoption primaryfont">
+                                    </i>
+                                </span>
+                            </td>
+                            <td>
+                                <i class="fa fa-edit"
+                                   ng-click="$ctrl.toggleEditGreeting(lib, $event)">
+                                </i>
+                                <p ng-if="!lib.editing"
+                                   style="display: inline-block;">
+                                    {{lib.greeting_name}}
+                                </p>
+                                <input type="text"
+                                       ng-show="lib.editing"
+                                       ng-model="lib.editing_greeting_name"
+                                       ng-enter="$ctrl.onEditGreetingEnter(lib, $event)"
+                                       ng-blur="$ctrl.toggleEditGreeting(lib)">
+                                <i class="fa fa-save"
+                                   ng-if="lib.editing"
+                                   ng-click="$ctrl.updateEditGreeting(lib)">
+                                </i>
+                            </td>
+                            <td>
+                                <audio-play-btn
+                                    style="display: inline-block;"
+                                    ng-init="playBtnLink = {}"
+                                    link="playBtnLink"
+                                    audio-file="$ctrl.getGreetingFilepath(lib.greeting_filename)">
+                                    <btn-body>
+                                        <span ng-if="!playBtnLink.isPlaying()"
+                                              ng-click="playBtnLink.toggle()"
+                                              tooltip-placement="top"
+                                              uib-tooltip="Listen to Audio File">
+                                            <i class="fa fa-play-circle fa-2x"></i>
+                                        </span>
+                                        <span ng-if="playBtnLink.isPlaying()"
+                                              ng-click="playBtnLink.toggle()"
+                                              tooltip-placement="top"
+                                              uib-tooltip="Stop Playing Audio File">
+                                            <i class="fa fa-stop-circle fa-2x"></i>
+                                        </span>
+                                    </btn-body>
+                                </audio-play-btn>
+                                <span ng-click="$ctrl.removeGreeting(lib)"
+                                      tooltip-placement="top"
+                                      uib-tooltip="Remove Audio File">
+                                    <i class="fa fa-times-circle fa-2x redfont"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div ng-if="$ctrl.isCurrentSelectType('uploadfile')">
+                <div class="jumbotron center-text">
+                    <span ng-if="audioRecording.name">
+                        <p>
+                            <strong>
+                                {{audioRecording.name}}
+                            </strong>
+                        </p>
+                    </span>
+                    <file-browse-btn
+                        class="btn btn-primary btn-file"
+                        accept="audio/*"
+                        file-model-obj="audioRecording">
+                        <btn-text>Browse for File</btn-text>
+                    </file-browse-btn>
+                    <button class="btn btn-success"
+                            ng-click="$ctrl.uploadAudioFile(audioRecording, robocallScheduleUuid)">
+                        Upload File
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-if="$ctrl.successMessage"
+         uib-alert
+         ng-class="'alert-success'"
+         close="$ctrl.closeLogout()">
+        {{$ctrl.successMessage}}
+    </div>
+    <div ng-if="$ctrl.errorMessage"
+         uib-alert
+         ng-class="'alert-failure'"
+         close="closeLogout()">
+        {{$ctrl.errorMessage}}
+    </div>
+</div>

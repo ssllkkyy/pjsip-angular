@@ -1,0 +1,38 @@
+<div>
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Showing Contacts for Campaign</span>
+        <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+       <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+            <thead>
+                <tr>
+                    <!-- <td><input type="checkbox"/> </td>-->
+                    <td>First Name</td>
+                    <td>Last Name</td>
+                    <td>Phone</td>
+                    <td>Email</td>
+                    <td>Notes</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="contact in broadcast.contacts">
+                    <td>{{contact.firstname}}</td>
+                    <td>{{contact.lastname}}</td>
+                    <td>{{contact.contact_phone1 | tel}}</td>
+                    <td>{{contact.email_address}}</td>
+                    <td>{{contact.notes}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+    </div>
+</div>

@@ -1,0 +1,96 @@
+<div class="transfer-container">
+    <div class="on-call-with">
+        <span>On call with: </span>
+        <strong class="contact-name cls-color-blue-tkg">
+            {{call.contact.name}}
+        </strong>
+        <strong class="cls-color-blue-tkg"
+                ng-show="!call.contact.name">
+            {{call.params.remote_caller_id_name | callerId}}
+        </strong>
+    </div>
+    <div class="transfer-controls-container">
+        <div class="frmTransfer">
+            <div class="cls-opt-transfer">
+                <label ng-hide = "showIncomingCallThreeWay()">
+                    <input type="radio"
+                           ng-model="type"
+                           ng-value="'supervised'">
+                    Supervised transfer
+                </label>
+                <label>
+                    <input type="radio"
+                           ng-model="type"
+                           ng-value="'blind'">
+                    Blind transfer
+                </label>
+            </div>
+            <md-input-container style="display: none;">
+                <label>Enter phone number here</label>
+                <input name="phoneNumber"
+                       ng-model="inputNumber"
+                       style="text-align: center;"
+                       required>
+            </md-input-container>
+            <callbox-selector2 placement="'transfer'" ng-show="!isCalling() && !callConnected()"></callbox-selector2>
+            <div class="transfer-interim" ng-if="callConnected()">
+                Connected To: <span ng-if="transferringTo().length<0">
+                Ext:
+                </span>
+                {{transferringTo() | tel}}
+            </div>
+            <div class="transfer-interim" ng-if="isCalling()">
+                <i class="fa fa-phone faa-ring animated"
+                   style="font-size: 15px; margin-right: 10px;">
+                </i>
+                Calling:
+                <span ng-if="transferringTo().length<0">
+                    Ext:
+                </span>
+                {{transferringTo() | tel}}
+            </div>
+            <div class="call-action-buttons-container">
+                <button class="btn btn-default btn-sm"
+                        ng-click="transferCall()"
+                        ng-disabled="!inputNumber"
+                        ng-show="!callServiceData().transferringCall">
+                    <i class="fa fa-phone"
+                       style="margin-right: 10px;">
+                    </i>
+                    Transfer Call
+                </button>
+                <button class="btn btn-default btn-sm"
+                        ng-show="1==2 && isCalling()"
+                        ng-disabled="supervisedTransferCalling"
+                        tooltip-placement="top"
+                        uib-tooltip="Calling Transfer">
+                    <i class="fa fa-phone faa-ring animated"
+                       style="font-size: 15px; margin-right: 10px;">
+                    </i>
+                    Calling
+                </button>
+                <button class="btn btn-default btn-sm"
+                        ng-show="!isCalling() && callConnected()"
+                        ng-disabled="supervisedTransferCalling"
+                        ng-click="confirmTransfer()"
+                        tooltip-placement="top"
+                        uib-tooltip="Transfer Call">
+                    <i class="fa fa-check"
+                       style="margin-right: 10px;">
+                    </i>
+                    Confirm
+                </button>
+                <button type="button"
+                        class="btn btn-default btn-sm cls-color-blue-tkg"
+                        ng-click="cancelTransfer()"
+                        tooltip-placement="top"
+                        uib-tooltip="Cancel">
+                    Cancel
+                    <i class="fa fa-times cls-color-red-tkg"
+                       style="margin-left: 10px;">
+                    </i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

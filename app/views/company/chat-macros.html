@@ -1,0 +1,81 @@
+<div class="chat-macros-table table-head-container">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead>
+            <tr>
+                <th class="hot-keys-header">Hot Keys</th>
+                <th class="text-choices-header">Text Choices</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div class="chat-macros-table table-body-container">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <tbody>
+            <tr class="cls-table-comp-setting-status">
+                <td class="hot-keys-header">
+                    <md-input-container>
+                        <input type="text"
+                               ng-model="hotKeyText"
+                               placeholder="Add hot key text">
+                    </md-input-container>
+                </td>
+                <td class="text-choice-cell">
+                    <div class="text-choice-container">
+                        <md-input-container class="text-choice-text">
+                            <input type="text"
+                                   ng-model="textChoiceText"
+                                   placeholder="Text choice">
+                        </md-input-container>
+                        <i class="fa fa-lg fa-check-square"
+                           ng-click="createFullMacro()"
+                           ng-show="hotKeyText && textChoiceText"></i>
+                    </div>
+                </td>
+            </tr>
+            <tr class="cls-table-comp-setting-status"
+                ng-repeat="(key, value) in chatMacros">
+                <td ng-repeat = "(subkey, macroHotKey) in value">
+                    <md-input-container>
+                        <input type="text"
+                               on-value-change="setHotKeyToEditing(macroHotKey[0].hot_key_text, $event)"
+                               ng-value="macroHotKey[0].hot_key_text">
+                    </md-input-container>
+                    <i class="fa fa-lg fa-check-square"
+                       ng-show="editingHotKeys[macroHotKey[0].hot_key_text]"
+                       ng-click="updateHotKeyText(macroHotKey[0].hot_key_text)"
+                       uib-tooltip="Update this hot key text">
+                    </i>
+                </td>
+                <td class="text-choice-cell"
+                    ng-repeat="(subkey, macroHotKey) in value">
+                    <div class="text-choice-container"
+                         ng-repeat="macro in macroHotKey">
+                        <md-input-container class="text-choice-text">
+                            <input type="text"
+                                   my-ng-change="setMacroToEditing(macro)"
+                                   ng-blur="updateMacro(macro)"
+                                   ng-model="macro.text_choice_text">
+                        </md-input-container>
+                        <i class="fa fa-lg fa-check-square"
+                           ng-show="macro.editing"
+                           uib-tooltip="Update this text choice"></i>
+                        <i class="fa fa-lg fa-window-close"
+                           ng-click="removeMacro(macro)"
+                           ng-show="!macro.editing"
+                           uib-tooltip="Delete this text choice"></i>
+                    </div>
+                    <div class="text-choice-container">
+                        <md-input-container class="text-choice-text">
+                            <input type="text"
+                                   ng-model="newTextChoiceBranch"
+                                   placeholder="Text choice">
+                        </md-input-container>
+                        <i class="fa fa-lg fa-check-square"
+                           ng-click="createTextChoiceMacro(macroHotKey[0].hot_key_text, this)"
+                           uib-tooltip="Add new text choice to macro"></i>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

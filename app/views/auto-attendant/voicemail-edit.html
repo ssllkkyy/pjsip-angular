@@ -1,0 +1,117 @@
+<div class="main-announcement-edit-container">
+    <div class="col-md-12 creation-container"
+         ng-if="editing">
+        <div class="announcement-info-edit">
+            <div class="row" >
+                <voicemail-options-edit
+                    ng-if="editing"
+                    voicemail-edit-info="voicemailEditInfo"
+                    voicemail="voicemail">
+                </voicemail-options-edit>
+                <div class="col-sm-6 playback-controls">
+                    <md-button
+                        ng-if="voicemail.greeting"
+                        class="md-default md-raised vm-button">
+                        <audio-play-btn
+                            audio-file="voicemail.greeting"
+                            contents-only="true"
+                            ng-init="btnLink = {}"
+                            ng-click="btnLink.toggle()"
+                            style="display: block;"
+                            link="btnLink">
+                            <btn-text>
+                                <span class="play-label">
+                                    {{btnLink.isPlaying() ? "Pause Greeting" : "Play Greeting"}}
+                                </span>
+                            </btn-text>
+                        </audio-play-btn>
+                    </md-button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 creation-container"
+         ng-show="!editing">
+        <voicemail-options-edit
+            ng-if="!editing"
+            voicemail-edit-info="voicemailEditInfo"
+            voicemail="voicemail">
+        </voicemail-options-edit>
+        <md-radio-group ng-model="selectedOpc"
+                        ng-change="setSelectedOpc(selectedOpc)"
+                        ng-show="selectedOpc !== true">
+            <div class="tablecell"
+                 ng-repeat="opc in opcOpts">
+                <md-radio-button ng-value="opc"
+                                 class="md-primary">
+                    <strong>
+                        {{opc.title}}
+                    </strong>
+                </md-radio-button>
+            </div>
+        </md-radio-group>
+        <div class="panel"
+             ng-show="selectedOpc"
+             style="border: #cfdef0 solid 1px;">
+            <div class="panel-heading">
+                <strong class="cls-color-blue-tkg">
+                    {{selectedOpc.title}}
+                </strong>
+            </div>
+            <div class="panel-body">
+                <md-button ng-if="voicemailEditInfo.selectedRecording && selectedOpc"
+                           class="md-default md-raised vm-button">
+                    <audio-play-btn
+                        audio-file="voicemailEditInfo.selectedRecording"
+                        contents-only="true"
+                        ng-init="btnLink = {}"
+                        ng-click="btnLink.toggle()"
+                        style="display: block;"
+                        link="btnLink">
+                        <btn-text>
+                            {{recordingInfo.selectedRecording.loading ? "Loading" : "Play"}}
+                            Current Voicemail Greeting
+                        </btn-text>
+                    </audio-play-btn>
+                </md-button>
+                <md-button class="md-default md-raised vm-button"
+                           ng-if="voicemailEditInfo.selectedRecording && selectedOpc === true"
+                           ng-click="changeVoicemailGreeting()">
+                    <i class="fa fa-edit"></i>
+                    Change Voicemail Greeting
+                </md-button>
+                <div ng-show="selectedOpc.name === 'newrecord'">
+                    <audio-recorder
+                        title="'Voicemail Greeting'"
+                        save-recording="saveRecording(recording, voicemailSettings)">
+                    </audio-recorder>
+                </div>
+                <div ng-show="selectedOpc.name==='uploadfile'">
+                    <div class="jumbotron center-text">
+                        <div>
+                            <md-input-container style="width: 100%; text-align: center;" >
+                                <label>Greeting Description</label>
+                                <input ng-model="audioRecordingData.title" />
+                            </md-input-container>
+                        </div>
+                        <file-browse-btn
+                            class="btn btn-primary btn-file"
+                            accept="audio/*"
+                            file-model-obj="audioRecordingData">
+                            <btn-text>Browse for File</btn-text>
+                        </file-browse-btn>
+                        <button class="btn btn-success"
+                                ng-disabled="!audioRecordingData.name"
+                                ng-click="saveRecording(audioRecordingData, voicemailSettings)">
+                            Save
+                        </button>
+                    </div>
+                </div>
+                <div ng-if="selectedOpc.name === 'synthesize'" >
+                    <text-synthesizer save-synth="saveSynth(text, file)">
+                    </text-synthesizer>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

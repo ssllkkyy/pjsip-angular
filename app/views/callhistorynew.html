@@ -1,0 +1,39 @@
+<div class="full-width" ng-if="!packageHasAccess('callhistory')">
+    <div class="no-access-container">
+        <div class="alert alert-warning centered no-access">
+            Your current Bridge <strong>{{user.package.package_title}}</strong> does not have access to <strong>{{showFeatureTitle('callhistory')}}</strong>.
+        </div>
+    </div>
+</div>
+<div ng-if="packageHasAccess('callhistory')" class="fullwidth">
+    <div style="padding-bottom: 0 !important;" ng-controller="CallHistoryCtrl">
+        <div class="row content-header padd">
+            <div class="col-sm-8">
+                <h3>Call History <span ng-if="emulatedUser()">- Emulating: {{getUserNameByUUID(emulatedUser())}}</span></h3>
+            </div>
+            <div class="col-sm-4" ng-if="packageHasAccess('emulate') && callHistory.activeTab===0">
+                <emulate-user emulation-type="'callhistory'"></emulate-user>
+            </div>
+        </div>
+        <div ng-cloak>
+            <md-content class="voicemail-table">
+                <md-tabs md-dynamic-height
+                    md-border-bottom
+                    md-selected="callHistory.activeTab">
+                    <md-tab label="My Call History">
+                        <md-content class="md-padding">
+                            <my-callhistory-table>
+                            </my-callhistory-table>
+                        </md-content>
+                    </md-tab>
+                    <md-tab label="Agency call History">
+                        <md-content class="md-padding">
+                            <agency-callhistory-table>
+                            </agency-callhistory-table>
+                        </md-content>
+                    </md-tab>
+                </md-tabs>
+            </md-content>
+        </div>
+    </div>
+</div>

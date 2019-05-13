@@ -1,0 +1,323 @@
+<div class="no-access-container" ng-if="!packageHasAccess('callrecording')">
+    <div class="alert alert-warning centered no-access">
+        Your current Bridge <strong>{{user.package.package_title}}</strong> does not have access to <strong>{{showFeatureTitle('callrecording')}}</strong>.
+    </div>
+</div>
+<div ng-if="packageHasAccess('callrecording')" class="fullwidth">
+    <div id="call-recording-container"
+        ng-controller="CallRecordingCtrl">
+        <div class="row content-header padd">
+            <div class="col-sm-8">
+                <h3>Call Recordings</h3>
+            </div>
+        </div>
+        <table ng-show="showTable"
+            class="table page-actions">
+            <tr>
+                <td class="entries-per-page">
+                    <div>
+                        <label class="bluecolor"
+                            for="search"
+                            style="width: 50%;">
+                            Recordings per page:
+                        </label>
+                        <select class="selectpicker form-control per-page"
+                                ng-options="page for page in ppOptions"
+                                ng-model="perPage"
+                                style="vertical-align: top;">
+                        </select>
+                    </div>
+                </td>
+                <td class="date-picker">
+                    <div class="input-group">
+                        <span class="input-group-addon"
+                            ng-click="OpenfromDate()">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                        <input type="text"
+                            class="form-control"
+                            uib-datepicker-popup="{{dateFormat}}"
+                            ng-model="fromDate"
+                            name="fromDate"
+                            is-open="fromDatePopup.opened"
+                            datepicker-options="fromDateOptions"
+                            ng-required="true"
+                            close-text="Close"
+                            ng-click="OpenfromDate()"
+                            ng-change="processFromDate(fromDate)"
+                            placeholder="From"/>
+                    </div>
+                </td>
+                <!-- CONFIRMATION {{displayFromDate}} -->
+                <td class="date-picker">
+                    <div class="input-group">
+                        <span class="input-group-addon"
+                            ng-click="OpentoDate()">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                        <input type="text"
+                            class="form-control"
+                            uib-datepicker-popup="{{dateFormat}}"
+                            ng-model="toDate"
+                            name="toDate"
+                            is-open="toDatePopup.opened"
+                            datepicker-options="toDateOptions"
+                            ng-required="true"
+                            close-text="Close"
+                            ng-click="OpentoDate()"
+                            ng-change="processToDate(toDate)"
+                            placeholder="To"/>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div class="results-filter">
+            <div class="input-group">
+                <span class="input-group-addon"
+                    title="Filter calls">
+                    <i class="fa fa-filter"></i>
+                </span>
+                <input class="form-control"
+                    type="text"
+                    ng-model="filterSearch"
+                    placeholder="Filter Results">
+            </div>
+        </div>
+        <div class="scroll-container-head">
+            <table id="data-table-top"
+                class="table table-bordered table-hover table-striped cls-tab-call-history">
+                <thead>
+                    <tr>
+                        <th style="width: 24%;"
+                            ng-click="sort_by('caller_name')">
+                            Caller
+                            <i ng-class="showChevron('caller_name')"></i>
+                        </th>
+                        <th style="width: 12%;"
+                            ng-click="sort_by('start_stamp')">
+                            Date/Time
+                            <i ng-class="showChevron('start_stamp')"></i>
+                        </th>
+                        <th style="width: 11%;"
+                            ng-click="sort_by('message_length')">
+                            Call Duration
+                            <i ng-class="showChevron('message_length')"></i>
+                        </th>
+                        <th class="button-column">Play</th>
+                        <th class="button-column">Download</th>
+                        <th class="button-column">Copy</th>
+                        <th class="button-column">Remove</th>
+                    </tr>
+                </thead>
+                <tbody ng-if="showTable" class="cls-body-table-pos">
+                    <tr ng-if="dateSearched">
+                        <td colspan="6">
+                            Showing {{totalResults}} Call Recording Records for the period from
+                            <strong>{{fromDate | date:'EEE MMM d, y'}}</strong>
+                            to
+                            <strong>{{toDate | date:'EEE MMM d, y'}}</strong>.
+                            <button ng-if="customSearch"
+                                    class="btn btn-default btn-xs"
+                                    ng-click="clearDateSearch()">
+                                Clear Custom Date Search
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="scroll-container" style="height: auto;"
+            ng-style="{'max-height': vvmTableHeight && vvmTableHeight}">
+            <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                <tbody class="cls-body-table-pos">
+                    <tr ng-if="!showTable">
+                        <td colspan="6" class="loading-users mdgreyfont">
+                            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+                            <span>Loading Call Recordings<br />
+                            Please Wait</span>
+                    </tr>
+                    <tr ng-if="showTable && callRecordings.length==0">
+                        <td colspan="6">You do not have any saved recordings for the selected range from 
+                            <span style="font-weight: bold;">{{fromDate | date}}</span> to 
+                            <span style="font-weight: bold;">{{toDate | date}}.</span>
+                        </td>
+                    </tr>
+                    <tr ng-if="showTable" 
+                        ng-class="{boldrow: recording.vm_status==='unread'}"
+                        ng-repeat="recording in filterData = (callRecordings | orderBy : predicate :reverse | filter : searchRecording | filter : dateFilter) |  limitTo:perPage:perPage*(currentPage-1)">
+                        <td style="width: 24%;" ng-if="callContact(recording)">
+                            <ul class="profile-display">
+                                <li ng-if="callContact(recording).im"
+                                    class="profile_display_30">
+                                    <img src="{{pathImgProfile+callContact(recording).im}}"
+                                        class="profile_image" />
+                                </li>
+                                <li ng-if="!callContact(recording).im"
+                                    class="profile_display_30">
+                                    <label class="profile_icon"
+                                        ng-style="{'background-color': callContact(recording).color && (callContact(recording).color + '!important;')}">
+                                        <i class="fa fa-user"></i>
+                                    </label>
+                                </li>
+                                <li style="display: inline-block;">
+                                    <strong ng-if="callContact(recording)">
+                                        {{showContactName(recording)}}
+                                    </strong>
+                                    <br />
+                                    <span ng-click="makeCall(recording.caller_id_number)"
+                                        tooltip-placement="bottom"
+                                        uib-tooltip="Click to call">
+                                        <span ng-if="recording.contact_number.length<10">
+                                            Ext:
+                                        </span>
+                                        {{recording.contact_number | tel}}
+                                    </span>
+                                    <span ng-if="call.description.length>0">
+                                        {{call.description}}
+                                    </span>
+                                </li>
+                                <li style="display: inline-block; padding: 0 3px; font-size: 15px;" tooltip-placement="top" 
+                                    uib-tooltip="open contact in {{user.exportType.partner_name}}" 
+                                    ng-click="openContactInManagementSystem(recording.contact_number, callContact(recording))"
+                                    ng-if="callContact(recording).contact_type != 'user' && ['ams360', 'qqcatalyst'].indexOf(user.exportType.partner_code) > -1">
+                                    <i class="lightorangefont fa fa-external-link-square fa-lg"></i>
+                                </li>
+                            </ul>
+                        </td>
+                        <td style="width: 24%;" ng-if="!callContact(recording)">
+                            <ul class="profile-display">
+                                <li class="profile_display_30">
+                                    <label class="profile_icon"
+                                        ng-style="{'background-color': recording.noncontact.color && (recording.noncontact.color + '!important;')}">
+                                        <i class="fa fa-user"></i>
+                                    </label>
+                                </li>
+                                <li ng-if="recording.contact_name"
+                                    style="display: inline-block;">
+                                    <strong>{{recording.contact_name}}</strong>
+                                    <br />
+                                    <span ng-click="makeCall(recording.contact_number)"
+                                        tooltip-placement="bottom"
+                                        uib-tooltip="Click to call">
+                                        <span ng-if="recording.contact_number.length<10">
+                                            Ext:
+                                        </span>{{recording.contact_number | tel}}</span>
+                                </li>
+                                <li ng-if="!recording.contact_name"
+                                    style="display: inline-block;">
+                                    <span ng-click="makeCall(recording.contact_number)"
+                                        tooltip-placement="bottom"
+                                        uib-tooltip="Click to call">
+                                        <span ng-if="recording.contact_number.length<10">
+                                            Ext:
+                                        </span>
+                                        {{recording.contact_number | tel}}
+                                    </span>
+                                </li>
+                                <li><span style="color: #64d76c;" style="display: inline-block;"
+                                        ng-if="recording.contact_name!=='Conference Call'">
+                                    <i tooltip-placement="top"
+                                        style="float: right; padding-left: 10px;font-size: 18px;"
+                                        uib-tooltip="{{tips.contacts.addcontact}}"
+                                        ng-click="showAddContactForm('callrecording', recording)"
+                                        class="fa fa-user-plus">
+                                    </i>
+                                    </span>
+                                </li>
+                                <li style="display: inline-block; padding: 0 3px; font-size: 15px;" tooltip-placement="top" 
+                                    uib-tooltip="open contact in {{user.exportType.partner_name}}" 
+                                    ng-click="openContactInManagementSystem(recording.contact_number, null)"
+                                    ng-if="['ams360', 'qqcatalyst'].indexOf(user.exportType.partner_code) > -1">
+                                    <i class="lightorangefont fa fa-external-link-square fa-lg"></i>
+                                </li>
+                            </ul>
+                            
+                        </td>
+                        <td style="width: 12%;">
+                            {{recording.start_stamp | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                            {{recording.start_stamp | toLocalTime | amDateFormat:'h:mm a'}}
+                        </td>
+                        <td style="width: 11%;">
+                            {{formatTime(recording.duration)}}
+                        </td>
+                        <td class="button-column">
+                            <span ng-if="recording.recording_filepath"
+                                ng-click="showAudioModal(recording, 'call-recording', callContact(recording))">
+                                <i class="fa fa-play-circle fa-2x cls-color-green-tkg"
+                                tooltip-placement="top"
+                                uib-tooltip="{{::tips.recording.playautorecording}}">
+                                </i>
+                            </span>
+                            <span ng-if="recording.manual_recording_filepath"
+                                ng-click="showMultipleAudioModal(recording, 'call-recording-manual')">
+                                <i class="fa fa-play-circle fa-2x cls-color-green-tkg"
+                                tooltip-placement="top"
+                                uib-tooltip="{{::tips.recording.playmanualrecording}}">
+                                </i>
+                            </span>
+                        </td>
+                        <td class="button-column">
+                            <a ng-if="recording.recording_filepath"
+                            href="{{audioUrl(recording)}}"
+                            target="_blank">
+                                <i class="fa fa-download fa-2x"
+                                tooltip-placement="top"
+                                uib-tooltip="{{::tips.recording.downloadauto}}">
+                                </i>
+                            </a>
+                            <a ng-if="recording.manual_recording_filepath"
+                            href="{{downloadRecordingUrl(recording)}}"
+                            target="_blank">
+                                <i class="fa fa-download fa-2x"
+                                tooltip-placement="top"
+                                uib-tooltip="{{::tips.recording.downloadmanual}}">
+                                </i>
+                            </a>
+                        </td>
+                        <td class="button-column">
+                            <span ng-show="user.exportType.partner_code == 'hawksoft'"
+                                    ng-click="copyRecordingToHawksoft(recording)"
+                                    tooltip-placement="top"
+                                    uib-tooltip="{{::tips.recording.copytohawksoft}}">
+                                <img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                                    style="width: 24px; height: 24px;" >
+                            </span>
+                            <span ng-show="user.exportType.partner_code != 'hawksoft' && user.exportType.partner_code != 'e-agent'"
+                                    ng-click="copyRecordingToHawksoft(recording)"
+                                    tooltip-placement="top"
+                                    uib-tooltip="{{::tips.recording.copytomanagement}}">
+                                <img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                                    style="width: 24px; height: 24px;" >
+                            </span>
+                            <span ng-show="user.exportType.partner_code == 'e-agent'"
+                                    ng-click="copyRecordingToHawksoft(recording)"
+                                    tooltip-placement="top"
+                                    uib-tooltip="{{::tips.recording.copytomanagement}}">
+                                <img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                                    style="width: 30px; height: 30px;" >
+                            </span>
+                        </td>
+                        <td class="button-column">
+                            <i ng-click="removeRecording(recording.call_history_fs_uuid)"
+                            class="fa fa-minus-circle fa-2x redfont"
+                            tooltip-placement="top"
+                            uib-tooltip="{{::tips.recording.remove}}">
+                            </i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div ng-show="showTable"
+            style="text-align: center">
+            <ul uib-pagination
+                class="pagination-sm pagination call-history"
+                total-items="filterData.length"
+                ng-model="currentPage"
+                previous-text="&lsaquo;"
+                next-text="&rsaquo;"
+                items-per-page="perPage">
+            </ul>
+        </div>
+    </div>
+</div>

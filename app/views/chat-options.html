@@ -1,0 +1,78 @@
+<button class="btn btn-default btn-sm postactiongroup"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false"
+        tooltip-placement="bottom-right"
+        uib-tooltip="show message actions...">
+    <i class="fa fa-ellipsis-h"></i>
+</button>
+<ul class="dropdown-menu pull-right">
+    <li ng-if="isCurrentUsersPost()">
+        <a ng-click="showModalWithData('/chat/editpost.html',posts[item])">
+            <i class="fa fa-pencil fa-lg"
+               style="color: #0c6c2c">
+            </i>
+            Edit Message
+        </a>
+    </li>
+    <li ng-if="isCurrentUsersPost()">
+        <a ng-click="deletePost(post)">
+            <i class="fa fa-minus-circle fa-lg"
+               style="color: #e30400">
+            </i>
+            Delete Message
+        </a>
+    </li>
+    <li tooltip-placement="top"
+        uib-tooltip="Text"
+        ng-if="getContact().smsnumber"
+        ng-click="startSmsModal()">
+        <a>
+            <i class="fa fa-paper-plane fa-lg" style="color: #f8a632;"></i>
+            Send Text
+        </a>
+    </li>
+    <li tooltip-placement="top"
+        ng-if="!getContact().contact_mobile_number"
+        uib-tooltip="No Mobile Number Available" >
+        <a>
+            <i class="fa fa-paper-plane fa-lg" style="color: grey;"></i>
+            Send Text
+        </a>
+    </li>
+    <li ng-repeat="phone in getContact().phones"
+        class="dropdown-item chat-option"
+        ng-click="makeCall(phone.phone_number)"
+        ng-if="phone.phone_label && phone.phone_number">
+        <a>
+            <i class="fa fa-phone " style="color: #8adbf6"></i>
+            {{phone.phone_number | tel}}
+        </a>
+    </li>
+    <li ng-if="getContact().contact_email_address && getContact().contact_email_address!=''"
+        tooltip-placement="top"
+        uib-tooltip="{{::getContact().contact_email_address}}"
+        ng-click="startEmailClient()"
+        class="dropdown-item chat-option">
+        <a>
+            <i class="fa fa-envelope-o fa-lg" style="color: #64d76c;"></i>
+            Send Email
+        </a>
+    </li>
+    <li tooltip-placement="top"
+        style="display: inline-block;"
+        ng-if="getContact().contact_type=='user'"
+        uib-tooltip="Videoconference"
+        ng-click="sendVideoInvite(getContact())">
+        <a>
+            <i class="fa fa-video-camera fa-lg" style="color: #f8a632;"></i>
+            Send Video Invite
+        </a>
+    </li>
+</ul>
+<button class="btn btn-default btn-sm postactiongroup"
+        ng-click="openThread()(post)"
+        tooltip-placement="bottom-right"
+        uib-tooltip="{{isThreadPost(posts[item]) ? 'Reply to Thread' : 'Start a Thread'}}">
+    <i class="fa fa-mail-reply"></i>
+</button>

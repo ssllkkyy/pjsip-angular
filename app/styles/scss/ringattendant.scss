@@ -1,0 +1,141 @@
+ .action-pad {
+     .default-bottom,
+     .default-top {
+         text-align: center;
+     }
+     .default-bottom {
+         border-top: dotted 1px lightblue;
+         padding-top: 14px;
+         input {
+             //  width:40px;
+             text-align: center;
+         }
+     }
+     .action-contact {
+         overflow: scroll;
+         max-height: 500px;
+         margin-top: 4px;
+     }
+     .attend-row {
+         display: flex;
+         justify-content: space-between;
+     }
+     .no-select {
+         user-select: none;
+     }
+     .no-float {
+         float: none !important;
+     }
+     md-input-container {
+        margin-bottom: 6px;
+     }
+     md-input-container .md-errors-spacer {
+         min-height: 0;
+     }
+ }
+
+ /***************************** Dropzone Styling *****************************/
+ 
+ .container-label {}
+ 
+ //  The dnd-list should always have a min-height,
+ //  otherwise you can't drop to it once it's empty
+ .attendant-drop {
+     .dropzone ul[dnd-list] {
+         min-height: 42px !important;
+         margin: 0px;
+         padding-left: 0px;
+     }
+     // Boxing Elements
+     ul[dnd-list] li {
+         background-color: #fff;
+         border: 1px solid #ddd;
+         border-top-right-radius: 4px;
+         border-top-left-radius: 4px;
+         // display: block;
+         padding: 10px 15px;
+         margin-bottom: -1px;
+     }
+     .dropzone li {
+         display: block;
+     }
+     // Placeholder When dragging to position
+     ul[dnd-list] .dndPlaceholder {
+         display: block;
+         background-color: #ddd;
+         padding: 10px 15px;
+         min-height: 42px;
+     }
+     .dndPlaceholder1 {
+         display: block;
+         padding: 10px 15px;
+         min-height: 42px;
+     }
+     // When dragging both source and copy
+     .dndDragging {
+         opacity: 0.7;
+         color: gray;
+     }
+     // Just source
+     .dndDraggingSource {
+         opacity: 0.5;
+     }
+ }
+ /***************************** Element type specific styles *****************************/
+ 
+ .dnd-services {
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: space-between;
+ }
+ 
+ .dnd-box {
+     // height:60px;
+     width: 30%;
+     text-align: center;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+ }
+ /***************************** Trashcan *****************************/
+ 
+ .trashbox {
+     position: relative;
+     .trash {
+         list-style: none;
+         padding-left: 0px;
+     }
+     .fa-trash {
+         display: none;
+         position: fixed;
+         bottom: 40%;
+         left: 40%;
+         font-size: 7rem;
+         color: red;
+         z-index: 999;
+     }
+     .dndDragover {
+         // z-index: -999;
+         background: gray;
+         opacity: .4;
+         width: 100%;
+         height: 100%;
+         .fa-trash {
+             display: block;
+         }
+     }
+     .dndPlaceholder {
+         display: none;
+     }
+     .holder {
+         min-height: 42px !important;
+         margin: 0px;
+         padding-left: 0px;
+         list-style: none;
+         padding-left: 0px;
+         .itemlist {
+             min-height: 42px !important;
+             list-style: none;
+         }
+     }
+ }

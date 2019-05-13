@@ -1,0 +1,229 @@
+<div>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <div class="row" style="width: 100%">
+                <div class="col-sm-6">
+                    <h2>Bluewave Sales Admin<span ng-if="agencyLoaded()"> - {{agencyLoaded().domain_description}}</span></h2>
+                    <!-- <button class="btn btn-xs btn-success" ng-click="processCards()">Import</button> 
+                    <button class="btn btn-xs btn-success" ng-click="processAch()">Import ACH</button> -->
+                </div>
+                <div ng-if="!loadingAgencies" class="col-sm-2" style="color: grey; font-size: 13px;">
+                    <md-input-container style="margin: 0;" dir="rtl">
+                        <md-checkbox ng-model="filter.hideActive">Hide Active</md-checkbox>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-autocomplete
+                        ng-if="!loadingAgencies && filter.hideActive"
+                        class="company-emulate bluewave pull-right"
+                        md-selected-item="filter.selectedItem"
+                        md-search-text-change="filter.searchTextChange(filter.searchText)"
+                        md-search-text="filter.searchText"
+                        md-selected-item-change="filter.selectedItemChange(item)"
+                        md-items="item in filter.querySearch(filter.searchText)  | orderBy : 'domain_description'"
+                        md-item-text="item.domain_description"
+                        md-min-length="0"
+                        placeholder="Choose an Agency to Display?">
+                        <md-item-template>
+                            <span md-highlight-text="filter.searchText" md-highlight-flags="^i">{{item.domain_description}}</span>
+                        </md-item-template>
+                        <md-not-found>
+                            No agencies matching "{{filter.searchText}}" were found.
+                        </md-not-found>
+                    </md-autocomplete>
+                    <md-autocomplete
+                        ng-if="!loadingAgencies && !filter.hideActive"
+                        class="company-emulate bluewave pull-right"
+                        md-selected-item="filter.selectedItem"
+                        md-search-text-change="filter.searchTextChange(filter.searchText)"
+                        md-search-text="filter.searchText"
+                        md-selected-item-change="filter.selectedItemChange(item)"
+                        md-items="item in filter.querySearch(filter.searchText)  | orderBy : 'domain_description'"
+                        md-item-text="item.domain_description"
+                        md-min-length="0"
+                        placeholder="Choose an Agency to Display?">
+                        <md-item-template>
+                            <span md-highlight-text="filter.searchText" md-highlight-flags="^i">{{item.domain_description}}</span>
+                        </md-item-template>
+                        <md-not-found>
+                            No agencies matching "{{filter.searchText}}" were found.
+                        </md-not-found>
+                    </md-autocomplete>
+                    <div class="tableclass loading-agencies pull-right" ng-show="loadingAgencies">
+                        <div class="tablecell">
+                            <i class="fa fa-spinner fa-spin"></i>
+                        </div>
+                        <div class="tablecell">
+                            Loading Agencies
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </md-toolbar>
+    <md-content class="agency-content">
+        <div class="loading-info" ng-if="loadingAgency">
+            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+            <span>Loading Agency Info<br />
+            Please Wait</span>
+        </div>
+        <div class="default-choice" ng-if="!agencyLoaded() && !loadingAgency">
+            <span>Choose an agency above.</span>
+        </div>
+        <div class="" ng-if="agencyLoaded()">
+            <div ng-if="!showInvoice && !showPayment">
+                <h4>Summary</h4>
+                <div class="blue-billing-settings">
+                    <div class="blue-settings-col col-sm-3">
+                        <strong>Monthly Invoice:</strong> {{monthyInvoice() | currency}}*
+                    </div>
+                    <div class="blue-settings-col col-sm-3">
+                        <strong>Bridge Package:</strong> {{agencyLoaded().billingSettings.package_name | capitalize}} ({{packagePrice() | currency}})
+                    </div>
+                    <div class="blue-settings-col col-sm-3">
+                        <strong>Code:</strong> {{agencyLoaded().billingSettings.group_code | capitalize}} ({{groupDiscount()}}%)
+                    </div>
+                    <div class="blue-settings-col col-sm-3">
+                        <strong>Number of Users:</strong> {{agencyLoaded().registeredUsers.length}}
+                    </div>
+                    <div class="blue-settings-col col-sm-3">
+                        <strong>Bridge Renewal:</strong> {{agencyLoaded().billingSettings.renewal_day}}th of the month
+                    </div>
+                    <div class="blue-settings-col col-sm-3">
+                        <strong>Renewal Frequency:</strong> {{agencyLoaded().billingSettings.renew_cycle | capitalize}}
+                    </div>
+                    <div class="blue-settings-col col-sm-3">
+                        <strong>Bluewave Bill Date:</strong> {{agencyLoaded().billingSettings.blue_bill_date | toLocalTime | amDateFormat:'MMM D, YYYY'}}
+                    </div>
+                    <div class="cleared"></div>
+                </div>
+                <div class="row" style="margin-bottom: 20px;">
+                    <div class="col-sm-8">
+                        <span class="smfont">* {{agencyLoaded().registeredUsers.length}} users x {{packagePrice() | currency}}/user + {{agencyLoaded().registeredUsers.length}} users x {{agencyLoaded().billingProps.recovery_fee | currency}} <a href ng-click="showTaxes()">CRF</a>/user</span>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h4>Settings</h4>
+                    </div>
+                    <div class="col-sm-8 right-text">
+                        <button class="btn" 
+                            ng-class="{'btn-success' : agencyLoaded().voicemails, 'btn-danger' : !agencyLoaded().voicemails }"
+                            style="margin-bottom: 5px; margin-right: 10px;" 
+                            ng-click="toggleVoicemail()">
+                            Toggle Voicemails {{agencyLoaded().voicemails ? 'Off' : 'On'}}
+                        </button>
+                        <button class="btn btn-success" 
+                            style="margin-bottom: 5px; margin-right: 10px;" 
+                            ng-click="copyBillingLink()">
+                            Copy Billing Link
+                        </button>
+                    </div>
+                </div>
+                
+                    
+                </h4>
+                <div class="billing-settings" style="margin-top: 10px;">
+                    <div class="settings">
+                        <div class="thumbnail">
+                            <div class="caption">
+                                <div class="agency-col">
+                                    Company Name
+                                    <md-input-container>
+                                        <input type="text" 
+                                            ng-model="agencyLoaded().domain_description">
+                                    </md-input-container>
+                                </div>
+                                <div class="agency-col status">
+                                    Billing Status (Monthly Automated Billing): 
+                                    <md-switch class="md-warn"
+                                        ng-model="agencyLoaded().billingSettings.billing_active"
+                                        ng-change="toggleBillingStatus(agencyLoaded().billingSettings.billing_active)"
+                                        aria-label="Billing Enable/Disable" 
+                                        ng-true-value="'true'" 
+                                        ng-false-value="'false'">
+                                        {{agencyLoaded().billingSettings.billing_active === 'true' ? 'Active' : 'In-Active'}}
+                                    </md-switch>
+                                </div>
+                                <div class="agency-col day">
+                                    Account Renewal Day
+                                    <md-radio-group layout="row" ng-model="agencyLoaded().billingSettings.renewal_day" class="md-primary">
+                                        <md-radio-button value="5" >5th of the month </md-radio-button>
+                                        <md-radio-button value="20">20th of the month </md-radio-button>
+                                    </md-radio-group>
+                                </div>
+                                <div class="agency-col">
+                                    Group Code
+                                    <md-input-container>
+                                        <md-select ng-model="agencyLoaded().billingSettings.group_code"
+                                            placeholder="- Choose Group Code -">
+                                            <md-option ng-if="code.enabled" ng-repeat="code in customerGroupCodes()"
+                                                        ng-value="code.customer_group_code">
+                                            {{code.customer_group_code}} (Discount: {{code.discount}}%)
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                                <div class="agency-col">
+                                    Bridge Package
+                                    <md-input-container>
+                                        <md-select ng-model="agencyLoaded().billingSettings.package_name"
+                                            placeholder="- Choose Package -">
+                                            <md-option ng-if="item.enabled" ng-repeat="item in availPackages() | orderBy:'level'"
+                                                        ng-value="item.package_name">
+                                            {{item.package_title}} (Monthly: {{item.package_price | currency}})
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                                <div class="agency-col" ng-if="isKeithUser()">
+                                    Fixed Billing Amount
+                                    <md-input-container>
+                                        <input type="text" 
+                                            ng-model="agencyLoaded().billingSettings.blue_sept_invoice">
+                                    </md-input-container>
+                                </div>
+                                <div class="cleared"></div>
+                                <button ng-if="!savingSettings" ng-click="updateAgency()" class="btn btn-success">Update Settings</button>
+                                <span ng-if="savingSettings"><i class="fa fa-cog fa-spin"></i> Saving settings</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings">
+                        <div class="thumbnail">
+                            <div class="caption">
+                                <h4>Payment Methods Available</h4>
+                                <payment-methods 
+                                    radios="false"
+                                    domain="agencyLoaded()">
+                                </payment-methods>
+                                <h4>Billing Contacts</h4>
+                                <p>All billing related emails (ie invoices, upgrades, payments, etc.) will be sent to the emails below. Please enter one email per line.</p>
+                                <div class="input-group"> 
+                                    <textarea id="am-sms-message" 
+                                        class="form-control" 
+                                        ng-change="contactsChanged=true"
+                                        rows="5"
+                                        ng-model="agencyLoaded().billingSettings.billing_contacts">
+                                    </textarea>
+                                </div>
+                                <div class="right-text">
+                                    <button class="btn btn-primary" 
+                                        ng-click="updateContacts()"
+                                        ng-disabled="!contactsChanged">
+                                        <i class="fa fa-floppy-o"></i> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <billing-user-setup domain="agencyLoaded()" bluewave="true"></billing-user-setup>
+                <hr />
+                <toll-free-number-setup domain="agencyLoaded()"></toll-free-number-setup>
+            </div>
+        </div>
+    </md-content>
+</div>

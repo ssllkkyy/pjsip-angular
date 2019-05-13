@@ -1,0 +1,36 @@
+<div id="public-container">
+    <div id="public-header">
+        <div class="logo-container">
+            <a href="http://www.kotter.net"
+               title="Visit Kotter.net">
+                <img src="/images/logo.png">
+            </a>
+        </div>
+    </div>
+    <div id="public-body">
+        <div class="share-title">
+            Quote Sheet File View
+        </div>
+        <div ng-if="!showContactInfo && linkInfo.requireName === 'true'"
+             class="show-edit-contact">
+            <a href ng-click="editContactInfo()">
+                Edit Contact Info
+            </a>
+        </div>
+        <div class="quote-view-form">
+            <h4>
+                Click below to open the quote
+            </h4>
+            <md-button class="md-primary md-raised login-login-btn"
+                       ng-click="openQuotePdf()">
+                <span class="spinner"
+                      ng-show="fileViewLoading">
+                    <i class="fa fa-cog fa-spin fa-lg"></i>
+                </span>
+                <span ng-show="!fileViewLoading">
+                    Open Quote
+                </span>
+            </md-button>
+        </div>
+    </div>
+</div>

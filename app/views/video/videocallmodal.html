@@ -1,0 +1,61 @@
+<div ng-controller="VideoConferenceCtrl">
+    <div>  
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-video-camera fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Video Conference</span>
+            <button type="button" ng-click="closeVideoCallModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+
+        <div class="modal-body" id="modal-body" ng-show="!emailsSent">
+            <div class="cls-title-cont-modal">Add People to your Video Conference Room</div>
+            
+            <p><strong>Choose Contacts to Send to</strong><br />
+            <span class="smfont">Start typing a contact name to search and select.</span></p>
+            <tags-input ng-model="delivery.messageContacts" display-property="contact_name_full" key-property="contact_uuid" placeholder="Select contacts" replace-spaces-with-dashes="false">
+                <auto-complete source="loadTags($query)" min-length="0" load-on-focus="false" load-on-empty="false" max-results-to-show="10" template="autocomplete-template"></auto-complete> 
+            </tags-input>
+                
+            <script type="text/ng-template" id="autocomplete-template">
+                <div class="autocomplete-template">
+                    <span ng-bind-html="$highlight($getDisplayText())"></span> <span ng-if="data.contact_email_address!=''" class="smfont">(Email: {{data.contact_email_address}})</span><span ng-if="data.contact_email_address==''" class="smfont">(No Email Address Available)</span>
+                </div>
+            </script>
+            <hr />
+            <p><strong>Send to Non-Contacts</strong><br />
+            <span class="smfont">Enter a name and email and click Include to add to the Invitee List.</span></p>
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="input-group"> 
+                        <span class="input-group-addon"><i class="fa fa-user"></i></span> 
+                        <input class="form-control" type="text" ng-model="invitee.name" placeholder="Invitee Name">
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="input-group"> 
+                        <span class="input-group-addon"><i class="fa fa-envelope"></i></span> 
+                        <input class="form-control" type="text" ng-model="invitee.email" placeholder="Invitee Email">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-success btn-sm" ng-click="addNonContactInvitee(invitee)"><i class="fa fa-plus-circle"></i> Include</button>
+                </div>
+            </div>
+            <table ng-if="addedInvitees.length>0" class="table table-bordered table-hover table-striped">
+                <thead><tr><th>Name</th><th>Email</th><th></th></tr></thead>
+                <tbody>
+                <tr ng-repeat="person in addedInvitees"><td>{{person.name}}</td><td>Email: {{person.email}}</td><td><button class="btn btn-danger btn-xs" ng-click="removeInvitee($index)"><i class="fa fa-times"></i> Remove</button></tr>
+                </tbody>
+            </table>
+            
+            <p><strong>Include a message to your invitees</strong> <span class="light-font">Optional</span></p>
+            <textarea class="form-control" ng-model="delivery.videoInviteBody" style="height: 100px; resize: none;" placeholder="Write a message here..." ></textarea>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-default btn-md" ng-click="closeVideoCallModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+            <button class="btn btn-primary btn-md" ng-click="sendVideoInvites(delivery)"><i class="fa fa-paper-plane-o" style="margin-right: 10px;" ></i>Send Invites</button>
+        </div>
+    </div>
+</div>

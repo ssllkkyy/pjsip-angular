@@ -1,0 +1,20 @@
+<div class="md-dialog-container" id="functionality">
+            <md-dialog aria-label="Dialog">
+                <md-dialog-content class="md-dialog-content">
+                    <h2 class="md-title ng-binding">Where should the contacts be imported to?</h2>
+                    <div class="md-dialog-content-body">
+                        <p>{{validMessage}}</p>
+                        <p ng-if="invalidMessage.length>0">{{invalidMessage}}</p>
+                        <md-select ng-model="contactTarget">
+                            <md-option ng-value="undefined">{{'Import To Contacts List'}}</md-option>
+                            <md-option ng-value="group.group_uuid" ng-repeat="group in MyParam.groups">
+                            Import to {{group.group_name}} Group</md-option>
+                        </md-select>
+                    </div>
+                </md-dialog-content>
+                <md-dialog-actions>
+                    <md-button class="md-raised md-default" ng-click="cancelDialog()" style="">Cancel Import</md-button>
+                    <md-button class="md-raised md-primary" type="button" ng-transclude="" ng-click="answer(contactTarget)">Complete Import</md-button>
+                </md-dialog-actions>
+            </md-dialog>
+        </div>

@@ -1,0 +1,18 @@
+
+<div class="btn-group">
+    <span data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tooltip-placement="bottom-right" uib-tooltip="{{::tips.chatplus.manage_channel}}">
+        <i class="fa fa-gear fa-2x" style="opacity: 0.5;"></i>
+    </span>
+    <ul class="dropdown-menu">
+        <li ng-if="chatData.currentChannel.isAdmin"><a ng-click="editChannel()"><i class="fa fa-edit" ></i>Edit Channel</a></li>
+        <!-- <li ng-if="chatData.currentChannel.isAdmin"><a ng-click="addMembers()"><i class="fa fa-plus" ></i> Add Members</a></li> -->
+        <li ng-if="chatData.currentChannel.isAdmin"><a ng-click="manageMembers()"><i class="fa fa-users" ></i> Manage Members</a></li>
+        <li ng-if="!chatData.currentChannel.isAdmin">
+            <a ng-if="chatData.currentChannel.name !== 'town-square'" ng-click="leaveChannel()">
+                <i class="fa fa-external-link" ></i>Leave {{chatData.currentChannel.type=='D' ? 'Direct Message' : 'Channel'}}
+            </a>
+            <span ng-if="chatData.currentChannel.name === 'town-square'">Can Not Leave Town Square</span>
+        </li>
+        <li ng-if="chatData.currentChannel.isAdmin"><a ng-click="deleteChannel(chatData.currentChannel)"><i class="fa fa-trash redfont"></i>Delete Channel</a></li>
+    </ul>
+</div>

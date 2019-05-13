@@ -1,0 +1,38 @@
+<ul class="channellist">
+    <li ng-if="channel.showDirect && (!favoritesOnly || (favoritesOnly && isFavoriteChannel(channel)))"
+        ng-repeat="channel in channels() | orderBy: 'display_name'"
+        ng-class="{channelbold : channel.getUnreadCount() > 0 }"
+        ng-click="setChannel(channel)">
+        <i ng-class="showChatStatus(teamMembers[channel.partner_id])"
+           style="opacity: 0.6; font-size: 16px;"></i>
+        <span >
+            {{showPartnerName(channel.partner_id)}}
+        </span>
+        <span ng-if="channel.getUnreadCount() > 0">
+            ({{channel.getUnreadCount()}})
+        </span>
+        <span ng-click="hideDirectMessage(channel)">
+            <i class="fa fa-times showonhover"
+               style="color: #888; float: right; padding: 4px 10px;"
+               tooltip-placement="top-right"
+               uib-tooltip="Hide this Direct Message channel">
+            </i>
+        </span>
+        <span ng-click="toggleFavoriteChannel(channel)">
+            <span class="fa-stack"
+                  ng-if="!isFavoriteChannel(channel)"
+                  tooltip-placement="top"
+                  uib-tooltip="Add to Favorites">
+                <i class="fa fa-star-o fa-stack-1x showonhover"></i>
+                <i class="fa fa-star fa-stack-1x bg-icon"></i>
+            </span>
+            <span class="fa-stack"
+                  ng-if="isFavoriteChannel(channel)"
+                  tooltip-placement="top"
+                  uib-tooltip="Remove from Favorites">
+                <i class="fa fa-star fa-stack-1x showonhover"></i>
+                <i class="fa fa-star fa-stack-1x bg-icon"></i>
+            </span>
+        </span>
+    </li>
+</ul>

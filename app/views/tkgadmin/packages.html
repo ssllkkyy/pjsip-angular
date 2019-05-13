@@ -1,0 +1,469 @@
+<md-toolbar id="contact-groups-toolbar">
+    <div class="md-toolbar-tools">
+        <h2 md-truncate flex>Package Info</h2>
+    </div>
+</md-toolbar>
+<md-content class="package-content">
+    <div class="alert alert-warning">
+        Warning: DO NOT change anything on this page without CEO approval. These are pricing and marketing decisions. To make changes for a specific agency, go to the Agencies tab.
+    </div>
+    <div class="tableclass fulltable padd10">
+        <div class="tablecell">
+            <h4>Packages</h4>
+        </div>
+        <div class="tablecell right-text">
+            <button class="btn btn-primary" ng-click="showEditPackage()">Create New Package</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-5 pull-right">
+            <div class="input-group">
+                <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+                <input class="form-control" type="text" ng-model="codeSearch" placeholder="Filter group codes by keyword">
+            </div>
+        </div>
+    </div>
+    <table class="table table-bordered table-striped cls-tab-call-history">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Details</th>
+                <th>Uses</th>
+                <th>Status</th>
+                <th>Manage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-if="availPackages().length === 0">
+                <td colspan="5">There are no Packages created yet.</td>
+            </tr>
+            <tr ng-if="availPackages().length>0" ng-repeat="brpackage in availPackages() | orderBy:['enabled','level']">
+                <td>{{brpackage.package_title}}</td>
+                <td>{{brpackage.package_price | currency}}</td>
+                <td>
+                    <button 
+                        class="btn btn-default btn-xs" 
+                        ng-click="showPackageInfo(brpackage)">
+                        View Details
+                    </button>
+                </td>
+                <td>{{brpackage.usecount}}</td>
+                <td>
+                    <span ng-if="brpackage.enabled==='true'">Enabled</span>
+                    <span ng-if="brpackage.enabled==='false'">Disabled</span>
+                    <span ng-if="brpackage.enabled==='grandfathered'">Grandfathered</span>
+                </td>
+                <td>
+                    <button
+                        ng-if="isBillingAdminOrGreater()"
+                        class="btn btn-xs btn-success" 
+                        ng-click="showEditPackage(brpackage)">Edit
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="tableclass fulltable padd10">
+        <div class="tablecell">
+            <h4>Package Add-ons</h4>
+        </div>
+        <div class="tablecell right-text">
+            <button class="btn btn-primary" 
+                ng-if="isBillingAdminOrGreater()" 
+                ng-click="showEditAddon()">
+                Create Add-on
+            </button>
+        </div>
+    </div> 
+    <table class="table table-bordered table-striped cls-tab-call-history">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Details</th>
+                <th>Cost</th>
+                <th>Uses</th>
+                <th>Status</th>
+                <th>Manage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-if="packageAddons().length === 0">
+                <td colspan="4">There are no add-ons created yet.</td>
+            </tr>
+            <tr ng-if="packageAddons().length>0" ng-repeat="addon in packageAddons() | orderBy:'title'">
+                <td>{{addon.title}}</td>
+                <td>{{addon.quantity}} {{addon.units}}</td>
+                <td>{{addon.cost | currency}}</td>
+                <td>{{addon.usecount}}</td>
+                <td>
+                    <md-switch ng-model="addon.enabled" ng-disabled="!isBillingAdminOrGreater()" aria-label="isOn" class="capital" ng-change="isBillingAdminOrGreater() && changeAddonStatus(addon)">
+                        {{ addon.enabled ? "Enabled":"Disabled" }}
+                    </md-switch>
+                </td>
+                <td>
+                    <button
+                        class="btn btn-xs btn-success" 
+                        ng-click="showEditAddon(addon)">Edit
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="tableclass fulltable padd10">
+        <div class="tablecell">
+            <h4>Package Options</h4>
+            <p>NOTE: Enabling a feature below will allow that feature to be turned on and off based on the purchased package.  Disabling a feature will allow all users to access that feature because it will be available globally and not just in certain packages. DO NOT enable or disable features without CEO approval. These are pricing and marketing decisions.</p>
+        </div>
+    </div>
+    <table class="table table-bordered table-striped cls-tab-call-history">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Manage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-if="packageOptions().length === 0">
+                <td colspan="4">There are no options created yet.</td>
+            </tr>
+            <tr ng-if="packageOptions().length>0" ng-repeat="option in packageOptions() | orderBy:'option_title'">
+                <td>{{option.option_title}}</td>
+                <td>
+                    <button 
+                        class="btn btn-default btn-xs" 
+                        ng-click="showOptionInfo(option)">
+                        View Description
+                    </button>
+                </td>
+                <td>
+                    <md-switch ng-model="option.enabled" ng-disabled="!isBillingAdminOrGreater()" aria-label="isOn" class="capital" ng-change="changeOptionStatus(option)">
+                        {{ option.enabled ? "Enabled":"Disabled" }}
+                    </md-switch>
+
+                </td>
+                <td>
+                    <button
+                        class="btn btn-xs btn-success" 
+                        ng-if="isBillingAdminOrGreater()"
+                        ng-click="showEditOption(option)">Edit
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</md-content>
+
+<script type="text/ng-template" id="managepackage.html">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-key fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Manage Package</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <edit-package brpackage="vm.content.data"></edit-package>
+    </div>
+</script>
+
+<script type="text/ng-template" id="managepackageoption.html">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-key fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Manage Package Option</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <edit-package-option option="vm.content.data"></edit-package-option>
+    </div>
+</script>
+
+<script type="text/ng-template" id="managepackageaddon.html">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-key fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Manage Addon</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <edit-package-addon addon="vm.content.data"></edit-package-addon>
+    </div>
+</script>
+
+<script type="text/ng-template" id="editpackage.html">
+    <form id="addPackage" name="addPackage">
+        <div class="modal-body package-edit" id="modal-body">
+            <div class="row">
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Package Title</label>
+                        <input name="package_title" ng-model="brpackage.package_title" required>
+                        <div ng-messages="addPackage.package_title.$error">
+                            <div ng-message="missing">The package title is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4" ng-if="!brpackage.package_uuid">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Package Slug</label>
+                        <input name="package_name" ng-model="brpackage.package_name" required>
+                        <div ng-messages="addPackage.package_name.$error">
+                            <div ng-message="missing">The package name is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Package Price</label>
+                        <input ng-model="brpackage.package_price" currency-formatter required>
+                        <div ng-messages="addPackage.package_price.$error">
+                            <div ng-message="missing">The Price is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+            <!-- </div>
+            <div class="row"> -->
+                <div class="col-sm-8">
+                    Package Status # {{brpackage.enabled}}
+                    <md-radio-group layout="row" ng-model="brpackage.enabled" class="md-primary">
+                        <md-radio-button ng-value="'true'" >Enabled </md-radio-button>
+                        <md-radio-button ng-value="'grandfathered'">Grandfathered </md-radio-button>
+                        <md-radio-button ng-value="'false'">Disabled </md-radio-button>
+                    </md-radio-group>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Sort Order (10,20,30)</label>
+                        <input ng-model="brpackage.level" required>
+                        <div ng-messages="addPackage.level.$error">
+                            <div ng-message="missing">The Level is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+            <!-- </div>
+            <div class="row"> -->
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>User Storage (MB)</label>
+                        <input ng-model="brpackage.storage_limit" required>
+                        <div ng-messages="addPackage.storage_limit.$error">
+                            <div ng-message="missing">The Storage Limit is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Fax Line</label>
+                        <input ng-model="brpackage.per_fax_line" currency-formatter required>
+                        <div ng-messages="addPackage.per_fax_line.$error">
+                            <div ng-message="missing">The price Per Fax Line is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Conference Room</label>
+                        <input ng-model="brpackage.per_conference" currency-formatter required>
+                        <div ng-messages="addPackage.per_conference.$error">
+                            <div ng-message="missing">The price per Conference Room is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+            <!-- </div>
+            <div class="row"> -->
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>E911 Reg</label>
+                        <input ng-model="brpackage.per_e911" currency-formatter required>
+                        <div ng-messages="addPackage.per_e911.$error">
+                            <div ng-message="missing">The price Per E911 Number is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Toll Free Num</label>
+                        <input ng-model="brpackage.per_tollfree_num" currency-formatter required>
+                        <div ng-messages="addPackage.per_tollfree_num.$error">
+                            <div ng-message="missing">The price per Toll Free Num is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Toll Free Minute</label>
+                        <input ng-model="brpackage.per_tollfree_min" currency-formatter required>
+                        <div ng-messages="addPackage.per_tollfree_min.$error">
+                            <div ng-message="missing">The price per Toll Free Minute is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Int. Minute</label>
+                        <input ng-model="brpackage.per_inter_min" currency-formatter required>
+                        <div ng-messages="addPackage.per_inter_min.$error">
+                            <div ng-message="missing">The price per International Minute is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-8">
+                    <p>#NOTE: Enabled = Active on registration form; Grandfathered = Active for existing agencies but not on registration form; Disabled = Not in use</p>
+                </div>
+            </div>
+            <label>Package Options</label>
+            <div class="row">
+                <div class="col-sm-6" ng-if="option.enabled" ng-repeat="option in packageOptions()">
+                    <md-checkbox
+                        ng-model="brpackage.selectedOptions[option.option_name]"
+                        ng-init="!!brpackage.option_list[contact.option.option_name]">
+                        {{option.option_title}}
+                    </md-checkbox>
+                </div>
+            </div>
+            <label>Package Description</label>
+            <ng-wig ng-model="brpackage.package_description"></ng-wig>
+            
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="savePackage(brpackage)" ng-disabled="addPackage.$invalid"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Package</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/ng-template" id="editpackageoption.html">
+    <form id="addOption" name="addOption">
+        <div class="modal-body package-edit" id="modal-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Option Title</label>
+                        <input name="package_title" ng-model="option.option_title" required>
+                        <div ng-messages="addOption.option_title.$error">
+                            <div ng-message="missing">The package title is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Option Video Url</label>
+                        <input ng-model="option.option_video" placeholder="https://www.youtube.com/embed/9P-mk-x7OOc">
+                    </md-input-container>
+                </div>
+            </div>
+            <label>Option Description</label>
+            <ng-wig ng-model="option.option_description"></ng-wig>
+            
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="saveOption(option)" ng-disabled="addOption.$invalid"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Option</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/ng-template" id="editpackageaddon.html">
+    <form id="addPackage" name="addPackage">
+        <div class="modal-body package-edit" id="modal-body">
+            <div class="row">
+                <div class="col-sm-8">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Add-on Title</label>
+                        <input name="package_title" ng-model="addon.title" required>
+                        <div ng-messages="addPackage.title.$error">
+                            <div ng-message="missing">The add-on title is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Add-on Price</label>
+                        <input ng-model="addon.cost" currency-formatter required>
+                        <div ng-messages="addPackage.cost.$error">
+                            <div ng-message="missing">The Price is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Description</label>
+                        <input ng-model="addon.description">
+                    </md-input-container>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Quantity</label>
+                        <input ng-model="addon.quantity" required>
+                        <div ng-messages="addPackage.quantity.$error">
+                            <div ng-message="missing">The Quantity is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-9">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Type of Add-on</label>
+                        <md-select ng-model="addon.type" ng-change="changeUnits(addPackage.type)">
+                            <md-option ng-repeat="type in addonTypes()" ng-value="type.code" >
+                                {{type.name}} (in {{type.units}}) {{type.code}}
+                            </md-option>
+                        </md-select>
+                        <div ng-messages="addPackage.type.$error">
+                            <div ng-message="missing">The Type of Add-on is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="saveAddon(addon)" ng-disabled="addPackage.$invalid"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Add-on</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/ng-template" id="feature-detail-preview.html">
+    <div class="modal-header">
+        <span class="cls-header-modal">
+            <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+            <center>{{vm.content.data.tileTitle}}</center>
+        </span>
+    </div>
+    <div class="modal-body">
+        <div class="option-modal-description">
+            {{vm.content.data.description}}
+        </div>
+        <div ng-if="vm.content.data.isAdminGroupOrGreater()" class="option-modal-upgrade-button center-text fullwidth">
+            <button 
+                class="btn btn-danger btn-md" 
+                ng-click="vm.content.data.doUpgrade()">
+                <i class="fa fa-times" style="margin-right: 10px;"></i>
+                Upgrade Now
+            </button>
+        </div>
+        <div ng-if="vm.content.data.videoUrl">
+            <iframe width="560" height="315" ng-src="{{vm.content.data.videoUrl}}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+    </div>
+</script>

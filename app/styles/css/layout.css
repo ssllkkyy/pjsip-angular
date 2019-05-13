@@ -1,0 +1,207 @@
+#main-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  flex-direction: row; }
+  #main-container.login-main {
+    padding: 0;
+    background-color: #edecf0; }
+  #main-container #leftbar {
+    width: 25%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-right: 10px; }
+    #main-container #leftbar .left-column-calling {
+      flex: 1 0 auto;
+      margin-bottom: 0.5rem; }
+    #main-container #leftbar .left-column-user {
+      flex: 1 0 auto;
+      margin-bottom: 0.5rem; }
+    #main-container #leftbar .left-column-contacts, #main-container #leftbar .left-column-chat {
+      flex: 90 1 auto;
+      overflow-y: auto; }
+  #main-container #right-container {
+    border: lavender solid 1px;
+    flex: 7.6 1 0;
+    display: flex;
+    flex-direction: column; }
+    #main-container #right-container.login-right {
+      width: 100%;
+      margin: 0px !important;
+      padding: 0px;
+      border-width: 0px;
+      max-width: 100% !important; }
+    #main-container #right-container.full-width-page {
+      max-width: 100% !important; }
+    #main-container #right-container #header {
+      flex: 6 1 0;
+      z-index: 3; }
+    #main-container #right-container #content-container {
+      display: flex;
+      flex: 93 1 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-width: 452px; }
+    #main-container #right-container .padded-content-container {
+      padding: 1%; }
+    #main-container #right-container .content-header {
+      padding-top: 10px;
+      border-bottom: 1px solid #ddd; }
+      #main-container #right-container .content-header.padd {
+        padding: 25px 15px 5px 15px; }
+      #main-container #right-container .content-header .vm-selector {
+        padding-top: 25px; }
+        #main-container #right-container .content-header .vm-selector md-input-container {
+          margin-bottom: 0px !important;
+          margin-top: 0px !important; }
+
+#try-mobile {
+  display: none !important; }
+
+#login-page-container {
+  width: 100%;
+  max-width: 1400px;
+  display: flex;
+  flex-direction: row;
+  margin: 0 auto;
+  font-family: 'Open Sans', sans-serif; }
+  #login-page-container .tableclass {
+    height: 100%;
+    width: 100%;
+    max-width: none; }
+    #login-page-container .tableclass .tablecell {
+      width: 50%; }
+  #login-page-container md-select {
+    border-width: 0 0 1px 0;
+    border-style: solid;
+    border-color: #ccc;
+    border-radius: 0;
+    box-shadow: none;
+    transition: none;
+    padding: 0; }
+  #login-page-container .login-left {
+    flex: 1 1 55%;
+    display: flex;
+    flex-direction: column; }
+    #login-page-container .login-left .login-logo {
+      flex: 0 0 160px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center; }
+    #login-page-container .login-left .login-feature-image {
+      flex: 1 1 auto;
+      margin-top: 40px;
+      background-image: url("/images/Bridge+Background+Girl.png");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center bottom; }
+  #login-page-container .login-right {
+    flex: 1 1 45%;
+    display: flex;
+    flex-direction: column; }
+    #login-page-container .login-right .relationships {
+      flex: 0 0 160px;
+      font-family: 'Open Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center; }
+      #login-page-container .login-right .relationships .primary {
+        font-size: 34px;
+        font-weight: 900;
+        color: #f15922;
+        line-height: 60px; }
+      #login-page-container .login-right .relationships .secondary {
+        font-size: 24px;
+        color: #3e7b7d;
+        line-height: 28px;
+        font-weight: 600; }
+    #login-page-container .login-right .bridge-logo {
+      margin: 20px 0 10px;
+      flex: 0 1 200px;
+      min-height: 125px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-image: url("/images/logo.png");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center center; }
+    #login-page-container .login-right .form-container {
+      flex: 1 1 auto;
+      overflow-y: scroll; }
+      #login-page-container .login-right .form-container md-input-container {
+        margin: 6px 0;
+        width: 32%; }
+        #login-page-container .login-right .form-container md-input-container label {
+          margin: 0; }
+      #login-page-container .login-right .form-container .bridge-logo-box {
+        text-align: center;
+        padding: 10px;
+        width: 100%; }
+      #login-page-container .login-right .form-container .login-container input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 1000px white inset; }
+      #login-page-container .login-right .form-container .login-container md-input-container {
+        width: 49%; }
+      #login-page-container .login-right .form-container .forgot-container md-input-container {
+        width: 100%; }
+      #login-page-container .login-right .form-container .form-wrapper {
+        padding: 20px;
+        background-color: #f2f2f5; }
+        #login-page-container .login-right .form-container .form-wrapper .panel {
+          background: none;
+          border: 1px solid #3e7b7d; }
+        #login-page-container .login-right .form-container .form-wrapper .pricing {
+          padding-top: 10px; }
+      #login-page-container .login-right .form-container md-checkbox {
+        margin-bottom: 2rem; }
+      #login-page-container .login-right .form-container md-input-container.card-num {
+        width: 48%; }
+      #login-page-container .login-right .form-container md-input-container.card-exp {
+        width: 24% !important; }
+      #login-page-container .login-right .form-container md-input-container.card-cvc {
+        width: 22% !important; }
+      #login-page-container .login-right .form-container md-input-container.signup-select {
+        margin-bottom: 32px; }
+        #login-page-container .login-right .form-container md-input-container.signup-select md-select {
+          border-width: 0 0 1px 0;
+          border-style: solid;
+          border-color: #ccc;
+          border-radius: 0;
+          box-shadow: none;
+          transition: none;
+          padding: 0; }
+
+.contact-imports {
+  position: absolute;
+  left: 10px;
+  bottom: 0;
+  z-index: 999999999; }
+  .contact-imports .import-box {
+    border: lavender solid 1px;
+    border-bottom: none;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 10px 10px 15px 10px;
+    font-size: 18px;
+    border-radius: 5px 5px 0 0;
+    margin: 5px 10px 0 10px;
+    float: left; }
+    .contact-imports .import-box .close-icon {
+      color: #999999;
+      float: right; }
+
+@media (max-width: 1269px) {
+  #leftbar {
+    flex-basis: 30%; } }
+
+@media (max-width: 1049px) {
+  #leftbar {
+    flex-basis: 32%; } }
+
+@media (max-height: 739px) {
+  #chat-channel-header {
+    height: 20% !important; } }

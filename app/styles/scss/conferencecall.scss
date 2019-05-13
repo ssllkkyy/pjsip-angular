@@ -1,0 +1,173 @@
+@import "variables";
+
+
+.conference-call-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    .startbtn {
+        background-color: $primary-color;
+        border-color: $drkteal;
+    }
+    .conf-available {
+        font-size: 18px;
+        color: $drkteal;
+    }
+    .conf-in-use {
+        font-size: 18px;
+        color: $bridgeorange;
+    }
+    .topoptions {
+        .tablecell {
+            padding: 0 15px;
+        }
+        .conf-counter {
+            color: $drkteal; 
+            font-size: 30px;
+        }
+    }
+    .event-creator {
+        font-size: 14px;
+        color: $drkteal;
+    }
+    .scheduled-events {
+        z-index: 1;
+    }
+
+    .btn-link {
+        color: $primary-color !important;
+        border: lavender solid 1px;
+        &.btnREC {
+            background: $red-color;
+            color: #fff !important;
+            border: lavender solid 1px;
+            &:hover {
+                background: darken( $red-color, 10% ) !important;
+            }
+        }
+    }
+
+    ._md .md-altTheme-theme{
+        min-height: 13rem;
+        height:auto;
+    }
+
+    .content {
+        padding: 1.6rem;
+        background-color: #FAFAFA;
+        .conference-call-options {
+            width: 100%;
+            min-height: 12rem;
+            .start-conf-container {
+                vertical-align: top;
+                display: inline-block;
+                padding-right: 2rem;
+            }
+
+            .phone-enter-container {
+                display: inline-block;
+                width: 35%;
+                padding-top: 0.5rem;
+
+                md-input-container {
+                    margin-bottom: 0;
+                }
+            }
+
+            .cls-round-buttons {
+                vertical-align: top;
+                display: inline-block;
+                .btnREC {
+                    background-color: red;
+                    color: #fff;
+                }
+            }
+        }
+    }
+    .download-button {
+        float: right;
+        padding: 15px 30px;
+        width: 120px;
+        text-align: right;
+        &:hover {
+            color: $bridgeorange;
+        }
+        button {
+            border: none;
+        }
+    }
+    .conference-subheading {
+        font-size: 15px;
+        color: $bridgeblue;
+    }
+    .fullwidth {
+        width: 100%
+    }
+    .new-conf-button {
+        padding: 10px;
+        text-align: right;
+    }
+    .top-row {
+        flex: 0 0 auto;
+        // height: 100px;
+        width: 100%;
+        padding: 15px;
+        background: #fff;
+        border-bottom: solid 1px #e1e1e1;
+        h3 { 
+            margin-bottom: 4px;
+        }
+        .selector, .dial-in, .title-box {
+            // display: inline-block;
+            // vertical-align: middle;
+            float: right;
+            height: 80px;
+        }
+        .title-box {
+            float: left;
+            padding-top: 10px;
+            h3 {
+                margin-top: 0;
+            }
+        }
+        .selector {
+            padding: 10px;
+            width: 200px;
+            padding-top: 20px;
+            &.callerid {
+                width: 190px;
+            }
+            md-input-container {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+        .dial-in {
+            text-align: right;
+            padding-top: 20px;
+            padding-right: 30px;
+            width: 170px;
+            .dial-in-title {
+                font-size: 15px;
+            }
+            .dial-in-number {
+                font-size: 18px;
+                font-weight: 600;
+            }
+        }
+    }
+    .call-container{
+        flex: 1 1 auto;
+        position: relative;/* need this to position inner content */
+        overflow-y: auto;
+        width: 100%;
+        background-color: $ltgreybackground;
+        .conf-call-box {
+            padding: 20px;
+        }
+        .padd15 {
+            padding: 15px;
+        }
+    }
+
+}

@@ -1,0 +1,94 @@
+<scrollable-table column-names="tableControls.columnNames"
+                  resource-length="filteredTypesLength()">
+        <table-data>
+            <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+                <tbody>
+                    <tr ng-repeat="type in types">
+                        <td class="{{column.className}}-col"
+                            data-type-id="{{type.quote_sheet_type_uuid}}"
+                            ng-show="!column.hidden"
+                            ng-repeat="column in tableControls.columnNames">
+                            <p ng-click="toggleEditField(type, column.name)"
+                               ng-show="!editingTypeField(type, column.name) &&
+                                         column.editable">
+                                {{ getFieldDisplayValue(type, column.name) }}
+                            </p>
+                            <input type="text"
+                                   ng-model="type[editedFieldName(column.name)]"
+                                   ng-blur="toggleEditField(type, column.name)"
+                                   ng-show="editingTypeField(type, column.name) &&
+                                         column.editable">
+                            <md-input-container ng-show="column.name === 'type'">
+                                <md-select ng-model="type[editedFieldName(column.name)]">
+                                    <md-option ng-value="'personal'">
+                                        Personal
+                                    </md-option>
+                                    <md-option ng-value="'commercial'">
+                                        Commercial
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                            <md-button ng-show="column.name === 'action' && typeHasBeenEdited(type)"
+                                       class="md-raised"
+                                       ng-click="updateType(type)">
+                                Save
+                            </md-button>
+                            <md-button ng-show="column.name === 'action'&& !typeHasBeenEdited(type)"
+                                       class="md-raised"
+                                       ng-click="deleteType(type)">
+                                Delete
+                            </md-button>
+                            <label ng-if="isKotterTech && column.name === 'global'">
+                                Global
+                                <md-checkbox ng-model="type[editedFieldName(column.name)]">
+                                </md-checkbox>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="type-name-col">
+                            <md-input-container>
+                                <input type="text"
+                                       ng-model="newTypeData.quote_sheet_type_name"
+                                       placeholder="Type Name">
+                            </md-input-container>
+                        </td>
+                        <td class="type-description-col">
+                            <md-input-container>
+                                <input type="text"
+                                       ng-model="newTypeData.description"
+                                       placeholder="Type Description">
+                            </md-input-container>
+                        </td>
+                        <td class="type-type-col">
+                            <md-input-container>
+                                <md-select ng-model="newTypeData.type"
+                                           placeholder="Select a type type">
+                                    <md-option ng-value="'personal'">
+                                        Personal
+                                    </md-option>
+                                    <md-option ng-value="'commercial'">
+                                        Commercial
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </td>
+                        <td class="global-col" ng-if="isKotterTech">
+                            <label>
+                                Global
+                                <md-checkbox ng-model="newTypeData.global">
+                                </md-checkbox>
+                            </label>
+                        </td>
+                        <td class="action-col">
+                            <md-button ng-click="createType(newTypeData)"
+                                       class="md-raised"
+                                       ng-show="newTypeDataIsValid()">
+                                Create
+                            </md-button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </table-data>
+</scrollable-table>

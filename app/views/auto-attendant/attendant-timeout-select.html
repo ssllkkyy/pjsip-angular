@@ -1,0 +1,24 @@
+<md-input-container
+    style="max-width: 100%;">
+    <label>{{$ctrl.labelText}}</label>
+    <md-autocomplete class="xLimit"
+        md-selected-item="$ctrl.selectedOpt"
+        md-selected-item-change="$ctrl.chooseOpt($ctrl.selectedOpt)"
+        md-min-length="0"
+        md-clear-button="false"
+        md-search-text="searchText"
+        md-items="option in $ctrl.options | filter : searchText"
+        md-item-text="option.display">
+        <span md-highlight-text="searchText">
+            {{option.display}}
+        </span>
+    </md-autocomplete>
+</md-input-container>
+<md-input-container ng-if="$ctrl.selectedOpt.isExternal">
+    <label>Enter a Number</label>
+    <input
+        md-input
+        phone-input
+        ng-change="$ctrl.updateExternalOpt($ctrl.selectedOpt, $ctrl.externalDid)"
+        ng-model="$ctrl.externalDid"/>
+</md-input-container>

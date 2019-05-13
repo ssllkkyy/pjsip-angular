@@ -1,0 +1,41 @@
+<div ng-controller="ModalCtrl">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Select Contacts</span>
+        {{contactsSelected.length}}/{{userContacts().length}} Contacts Selected
+        <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="audio-body">
+        <div id="contact-list" class="scrollable-content">
+            <div class="list-group">
+            <a ng-repeat="contact in userContacts() | orderBy : name" href="" ng-click="selectContact(contact)" class="list-group-item">
+                <div class="thread-list-item">
+                    <div class="thread-list-checkbox">
+                        <md-checkbox
+                        ng-click="selectContact(contact)" 
+                            ng-model="selectedContacts[contact.cuuid]"
+                            ng-init=""
+                            aria-label="Contact"
+                            class="md-warn md-align-top-left permissions" flex>
+                        </md-checkbox>
+                    </div>
+                    <div class="thread-list-circle">
+                        <span ng-bind-html="showContactPhoto(contact, 'small')"></span>
+                    </div>
+                    <div class="thread-list-body">
+                        <span style="padding-top: 16px;">{{contact.name}}<br /></span>
+                        <span class="recent-message"><span ng-repeat="phone in contact.nums">{{phone.lab}}: {{phone.num | tel2}} </span></span>
+                    </div>
+                </div>
+            </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+    </div>
+</div>

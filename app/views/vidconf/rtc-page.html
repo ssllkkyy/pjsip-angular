@@ -1,0 +1,177 @@
+<div class="alert alert-warning centered no-access"
+     ng-if="!$ctrl.packageHasAccess($ctrl.packageName)">
+    <!-- ng-if="!$ctrl.packageHasAccess($ctrl.packageName)"> -->
+    Your current Bridge Package ({{$ctrl.user.package.package_title}}) does not have access to this section.
+</div>
+<!-- <div ng-if="$ctrl.packageHasAccess($ctrl.packageName)"> -->
+<div ng-if="$ctrl.packageHasAccess($ctrl.packageName)">
+    <div class="row top-row">
+        <div class="col-sm-8">
+            <h3>
+                {{$ctrl.pageTitle}}
+            </h3>
+        </div>
+    </div>
+    <div ng-if="!$ctrl.showTable()"
+         style="width: 250px; text-align: center; opacity: 0.6; margin: 40px;">
+        <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+        <br />
+        Loading...
+    </div>
+    <div ng-if="$ctrl.showTable()">
+        <div class="row proposal-controls">
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <span class="input-group-addon"
+                          id="basic-addon3">
+                        {{$ctrl.externalUrl}}
+                    </span>
+                    <input class="form-control"
+                           type="text"
+                           ng-keyup="$ctrl.isRoomAvailable($ctrl.roomData.roomName)"
+                           id="conferenceroom"
+                           ng-model="$ctrl.roomData.roomName"
+                           placeholder="Choose a custom conference room name"
+                           aria-describedby="basic-addon3">
+                    <span class="input-group-addon"
+                          ng-if="$ctrl.urlNotAvailable">
+                        {{$ctrl.availMessage}}
+                    </span>
+                    <span class="input-group-addon"
+                          ng-if="!$ctrl.urlNotAvailable">
+                        <i class="fa fa-check"
+                           style="color: green"
+                           tooltip-placement="top"
+                           uib-tooltip="{{::$ctrl.tips.videoconference.roomsuccess}}">
+                        </i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <button class="btn btn-primary startbtn"
+                        ng-disabled="$ctrl.urlNotAvailable"
+                        ng-click="$ctrl.joinConference()">
+                    {{$ctrl.joinConfText}}
+                </button>
+            </div>
+        </div>
+        <div class="table-controls">
+            <div class="table-back"
+                 ng-click="$ctrl.backToAllArchives()"
+                 ng-if="$ctrl.tableMode.isArchiveInspect">
+                <span class="back-icon">
+                    <img src="images/Folders/up_left-48.png"
+                         ng-center-anchor="true">
+                </span>
+                <span class="back-label">
+                    <b>Back to recordings</b>
+                </span>
+            </div>
+        </div>
+        <scrollable-table class="archives-table"
+                          column-names="$ctrl.tableControls.columnNames"
+                          resource-length="$ctrl.archives.length"
+                          current-page="$ctrl.tableControls.currentPage"
+                          sorting-opts="$ctrl.tableControls.sortingOpts">
+            <table-body>
+                <table>
+                    <tbody class="cls-body-table-pos">
+                        <tr ng-if="$ctrl.archives.length===0">
+                            <td colspan="5">
+                                There are no video recordings available at this time.
+                            </td>
+                        </tr>
+                        <tr ng-repeat="record in $ctrl.tableMode.records | orderBy : $ctrl.tableControls.sortingOpts.selectedColumn : $ctrl.tableControls.sortingOpts.sortDirection">
+                            <td class="created-at-col">
+                                {{::record.created_at | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                            </td>
+                            <td class="ip-addr-col"
+                                ng-if="$ctrl.tableMode.isArchiveInspect">
+                                {{::record.ip_addr}}
+                            </td>
+                            <td class="city-col"
+                                ng-if="$ctrl.tableMode.isArchiveInspect">
+                                {{::record.geoloc_data.city}}
+                            </td>
+                            <td class="region-col"
+                                ng-if="$ctrl.tableMode.isArchiveInspect">
+                                {{::record.geoloc_data.region}}
+                            </td>
+                            <td class="country-name-col"
+                                ng-if="$ctrl.tableMode.isArchiveInspect">
+                                {{::record.geoloc_data.country_name}}
+                            </td>
+                            <td class="name-col"
+                                ng-if="$ctrl.tableMode.isAllArchives">
+                                {{::record.name}}
+                            </td>
+                            <td class="view-col"
+                                ng-if="$ctrl.tableMode.isAllArchives">
+                                <button class="btn btn-primary btn-xs"
+                                        ng-click="$ctrl.viewArchive(record)"
+                                        tooltip-placement="top"
+                                        uib-tooltip="{{::$ctrl.tips.videoconference.playrecording}}">
+                                    <i class="fa fa-eye"
+                                       style="margin-right: 10px;"></i>
+                                    View Recording
+                                </button>
+                            </td>
+                            <td class="copy-link-col"
+                                ng-if="$ctrl.tableMode.isAllArchives">
+                                <span style=""
+                                      ng-click="$ctrl.copyLinkToClipboard(record)">
+                                    <i class="fa fa-clipboard fa-lg">
+                                    </i>
+                                </span>
+                            </td>
+                            <td class="last-viewed-col"
+                                ng-if="$ctrl.tableMode.isAllArchives">
+                                <span ng-click="$ctrl.inspectArchiveViewings(record)">
+                                    <a>{{record.viewings[0].created_at | toLocalTime |
+                                        amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                                    </a>
+                                </span>
+                            </td>
+                            <td class="email-col"
+                                ng-if="$ctrl.tableMode.isAllArchives">
+                                <span style="color: #64d76c;"
+                                      ng-click="$ctrl.sendProposalEmail(record)">
+                                    <i class="fa fa-envelope-o fa-lg">
+                                    </i>
+                                </span>
+                            </td>
+                            <td class="date-emailed-col"
+                                ng-if="$ctrl.tableMode.isAllArchives">
+                                {{record.date_emailed | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                            </td>
+                            <td class="copy-col button-column-md"
+                                ng-if="$ctrl.tableMode.isAllArchives">
+                                <span ng-click="$ctrl.copyConferenceToHawksoft(record)" >
+                                    <img ng-show = "$ctrl.user.exportType.partner_code == 'hawksoft'"
+                                         src="{{$ctrl.onescreenBaseUrl}}{{$ctrl.user.exportType.partner_icon}}"
+                                         style="width: 24px; height: 24px;"
+                                         tooltip-placement="top"
+                                         uib-tooltip="{{::$ctrl.tips.videoconference.copytohawksoft}}">
+                                    <img ng-show = "$ctrl.user.exportType.partner_code != 'hawksoft'"
+                                         src="{{$ctrl.onescreenBaseUrl}}{{$ctrl.user.exportType.partner_icon}}"
+                                         style="width: 24px; height: 24px;"
+                                         tooltip-placement="top"
+                                         uib-tooltip="{{::$ctrl.tips.videoconference.copytomanagement}}">
+                                </span>
+                            </td>
+                            <td class="remove-col button-column-md"
+                                ng-if="$ctrl.tableMode.isAllArchives">
+                                <i ng-disabled="emulatedUser()"
+                                   ng-click="$ctrl.removeArchive(record)"
+                                   class="fa fa-minus-circle fa-2x redfont"
+                                   tooltip-placement="top"
+                                   uib-tooltip="{{::$ctrl.tips.videoconference.remove}}">
+                                </i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </table-body>
+        </scrollable-table>
+    </div>
+</div>

@@ -1,0 +1,11 @@
+<span
+    ng-transclude="btnText"
+    ng-click="$ctrl.triggerUpload"
+    class="btn-text">
+</span>
+<input
+    class="form-control"
+    type="file"
+    style="display: none;"
+    on-file-change="$ctrl.updateFileModel($ctrl.fileModelObj)"
+    file-model="$ctrl.fileModelObj">

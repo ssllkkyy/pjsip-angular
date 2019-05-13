@@ -1,0 +1,18 @@
+<div class="input-addon">
+    <div class="icon"
+         ng-if="!withoutIcon"
+         ng-click="state.picker.open()">
+        <i class="fa fa-calendar"></i>
+    </div>
+    <div class="input">
+        <input type="text"
+               uib-datepicker-popup
+               class="form-control"
+               ng-click="state.picker.open()"
+               ng-model="state.picker.date"
+               is-open="state.picker.opened"
+               datepicker-options="state.dateOptions"
+               ng-required="true"
+               close-text="Close" />
+    </div>
+</div>

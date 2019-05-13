@@ -1,0 +1,115 @@
+<div class="call-stats-panel panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Total Calls <span ng-show="showingStat.name != 'Average'">for </span> <span>{{showingStat.name}}</span>
+    </h3>
+    <div id="stats-icons" >
+      <i class="fa fa-file-pdf-o" aria-hidden="true" ng-click="generate()"></i>
+      <i class="fa fa-file-excel-o" aria-hidden="true" ng-csv="getDataArray()" filename="statistics.csv"></i>
+    </div>
+  </div>
+  <div class="panel-body">
+    <table class="call-stats-table table table-bordered table-hover table-striped">
+      <tbody>
+        <tr>
+          <td>Number of Received Calls:</td>
+          <td class="stat-data-col">{{showingStat.receivedCalls | number : 3}}</td>
+        </tr>
+        <tr>
+          <td>Number of Answered Calls:</td>
+          <td class="stat-data-col">{{showingStat.answered | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>Number of Unanswered Calls:</td>
+          <td class="stat-data-col">{{showingStat.unanswered | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>Number of Abandoned Calls:</td>
+          <td class="stat-data-col">{{showingStat.abandoned | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>Number of Transferred Calls:</td>
+          <td class="stat-data-col">{{showingStat.transferred | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>Abandon Rate:</td>
+          <td class="stat-data-col">{{showingStat.abandonRate | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>Number of Agent Logins:</td>
+          <td class="stat-data-col">{{showingStat.agentLogins | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>Number of Agent Logoffs:</td>
+          <td class="stat-data-col">{{showingStat.agentLogouts | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>Avg Talk:</td>
+          <td class="stat-data-col">{{showingStat.avgTalk | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>% Answered:</td>
+          <td class="stat-data-col">{{showingStat.pctAnswered | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>% Unanswered:</td>
+          <td class="stat-data-col">{{showingStat.pctUnanswered | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>Answered Talk Time:</td>
+          <td class="stat-data-col">{{showingStat.talkTime | number : 3 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="call-stats-panel panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Outbound Calls</h3>
+  </div>
+  <div class="panel-body">
+    <table class="call-stats-table table table-bordered table-hover table-striped">
+      <tbody>
+        <tr>
+          <td>Number of Outbound Calls:</td>
+          <td class="stat-data-col">{{showingStat.outboundCalls | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>Number of Answered Calls:</td>
+          <td class="stat-data-col">{{showingStat.outboundAnswered | number : 3 }}</td>
+        </tr>
+        <tr>
+          <td>Number of Unanswered Calls:</td>
+          <td class="stat-data-col">{{showingStat.outboundUnanswered | number : 3 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- <div id="queue-stats-panel" class="call-stats-panel panel panel-default"> -->
+<!-- <div class="panel-heading"> -->
+<!-- <i ng-show="true" class="fa fa-arrow-up" aria-hidden="true"></i> -->
+<!-- <i ng-show="true" class="fa fa-arrow-down" aria-hidden="true"></i> -->
+<!-- <h3 class="panel-title">Distribution by Queue</h3> -->
+<!-- </div> -->
+<!-- <div class="panel-body"> -->
+<!-- <table class="call-stats-table table table-bordered table-hover table-striped"> -->
+<!-- <tbody> -->
+<!-- <tr ng-repeat="queue in queueStats"> -->
+<!-- <td>{{queue.received}}</td> -->
+<!-- <td>{{queue.answered}}</td> -->
+<!-- <td>{{queue.unanswered}}</td> -->
+<!-- <td>{{queue.abanonded}}</td> -->
+<!-- <td>{{queue.transferred}}</td> -->
+<!-- <td>{{queue.avgWait}}</td> -->
+<!-- <td>{{queue.avtTalk}}</td> -->
+<!-- <td>{{queue.maxCallers}}</td> -->
+<!-- <td>{{queue.pctAnswered}}</td> -->
+<!-- <td>{{queue.pctUnanswered}}</td> -->
+<!-- <td>{{queue.answeredTalkTime}}</td> -->
+<!-- </tr> -->
+<!-- </tbody> -->
+<!-- </table> -->
+<!-- </div> -->
+<!-- </div> -->

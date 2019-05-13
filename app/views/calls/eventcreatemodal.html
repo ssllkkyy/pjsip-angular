@@ -1,0 +1,180 @@
+<md-content class="user-settings-content">
+    <div>
+        <div class="modal-header"
+             id="modal-screen-share">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-mobile fa-stack-1x fa-inverse"
+                   style="color: white;">
+                </i>
+            </span>
+            <span class="cls-header-modal">
+                {{vm.content.data.edited ? 'Edit' : 'Add New'}}  Event
+            </span>
+            <button type="button"
+                    ng-click="vm.content.data.closeCreateEvent()"
+                    class="close">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="eventTable">
+                <div class="tableclass fulltable eventScheduler">
+                    <div class="tablecell event-name">
+                        <md-input-container>
+                            <input type="text"
+                                   style="font-weight: bold;"
+                                   ng-model="vm.content.data.event_title"
+                                   placeholder="Event Title" >
+                        </md-input-container>
+                    </div>
+                    <div class="tablecell event-date">
+                        <md-input-container>
+                            <input type="date"
+                                   ng-model="eventDate"
+                                   placeholder="Event Date"
+                                   readonly >
+                        </md-input-container>
+                    </div>
+                    <div class="tablecell conference-room">
+                        <md-input-container>
+                            <label>Conference Room: </label>
+                            <md-select ng-model="vm.content.data.conference_room_uuid">
+                                <md-option ng-repeat="conference in vm.content.data.conferences"
+                                           ng-value="conference.conference_room_uuid" >
+                                    {{conference.conference_title}} -
+                                    {{vm.content.data.locations[conference.location_group_uuid].group_name}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                </div>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>Start Time</label>
+                            </td>
+                            <td>
+                                <label>End Time</label>
+                            </td>
+                            <td>
+                                <table>Send Reminder before</table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="tableclass2"
+                                     uib-timepicker ng-model="vm.content.data.time.start_stamp"
+                                     hour-step="vm.content.data.hstep"
+                                     minute-step="vm.content.data.mstep"
+                                     show-meridian="vm.content.data.ismeridian">
+                                </div>
+
+                            </td>
+                            <td>
+                                <div class="tableclass2"
+                                     uib-timepicker ng-model="vm.content.data.time.end_stamp"
+                                     hour-step="vm.content.data.hstep"
+                                     minute-step="vm.content.data.mstep"
+                                     show-meridian="vm.content.data.ismeridian">
+                                </div>
+                            </td>
+                            <td>
+                                <input class="form-control"
+                                       type="number"
+                                       min="1"
+                                       max="60"
+                                       ng-model="vm.content.data.reminder_time"
+                                       style="margin-top: 20px; display: inline; width: 70%;">
+                                Min(s)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="eventScheduler">
+                                    <md-input-container >
+                                        <label>Conference Caller-ID</label>
+                                        <md-select ng-model="vm.content.data.didNumber">
+                                            <md-option ng-repeat="contact in vm.content.data.didContacts"
+                                                       ng-value="contact">
+                                                {{contact | tel}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                            </td>
+                            <td colspan="2">
+                                <div class="eventScheduler">
+                                    <md-input-container style="width: 100%;" >
+                                        <label>Text a reminder to me at this number</label>
+                                        <input type="text"
+                                               minLength="14"
+                                               maxlength="14"
+                                               phone-input
+                                               ng-model="vm.content.data.reminder_from_did"
+                                               style="text-align: center;">
+                                    </md-input-container>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="eventScheduler">
+                <label>Participants</label>
+                <contact-selector type="'conference'"></contact-selector>
+            </div>
+            <div class="eventScheduler">
+                <textarea class="form-control"
+                          ng-model="vm.content.data.event_memo"
+                          maxlength="500"
+                          placeholder="Notes for the Conference">
+                </textarea>
+            </div>
+        </div>
+        <div lass="modal-footer cls-incomingcall-buttons"
+             style="float: right; padding: 10px;">
+            <div class="eventNotify"
+                 ng-show="(!vm.content.data.edited)">
+                <small>
+                    A text notification will be sent to the participants once the event is created as well as before the event starts informing them of the event title, date, and time of the call.
+                </small>
+                <br/>
+                <small>
+                    You must
+                    <b><u>manually</u></b>
+                    start the conference in Bridge at the designated time by clicking on
+                    the phone icon on the schedule.
+                </small>
+            </div>
+            <button class="btn btn-danger"
+                    ng-click="vm.content.data.deleteConferenceEvent(vm.content.data.events_schedule_uuid, closeModal)"
+                    ng-show="(vm.content.data.edited)"
+                    type="submit"
+                    style="float: right;">
+                Delete Event
+            </button>
+            <button class="btn btn-primary"
+                    ng-show="(!vm.content.data.edited)"
+                    ng-click="vm.content.data.addConferenceEvent(eventDate,closeModal,vm.content.data)"
+                    type="submit"
+                    style="float: right;">
+                Add Event
+            </button>
+            <button class="btn btn-primary"
+                    ng-show="(vm.content.data.edited)"
+                    ng-click="vm.content.data.updateConferenceEvent(eventDate,closeModal,vm.content.data)"
+                    type="submit"
+                    style="float: right; margin-right: 10px;">
+                Save Event
+            </button>
+            <button class="btn btn-default button-pad-right"
+                    ng-click="vm.content.data.closeCreateEvent()"
+                    type="submit"
+                    style="float: right;">
+                Cancel Edit
+            </button>
+        </div>
+    </div>
+</md-content>

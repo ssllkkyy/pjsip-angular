@@ -1,0 +1,50 @@
+<div ng-controller="VideoConferenceCtrl">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-video-camera fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal" ng-if="">
+                {{vm.content.data.name ? 'Incoming Video Call' : 'Playing Video Message'}}
+            </span>
+            <span class="cls-header-modal"
+                  ng-if="vm.content.data.screenshareArchive">
+                Screen Share Recording
+            </span>
+            <span class="cls-header-modal"
+                  ng-if="vm.content.data.videoArchive">
+                Videoconference Recording
+            </span>
+            <span class="cls-header-modal"
+                  ng-if="vm.content.data.smsVideo">
+                Sms Video Message
+            </span>
+            <button type="button" ng-click="closeModal()" class="close">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <p ng-if="vm.content.data.name">
+                <strong>Room: </strong>
+                {{vm.content.data.name}},
+                <strong>Date: </strong>
+                {{vm.content.data.created_at | amDateFormat:'MMM D, YYYY h:mm a'}}
+            </p>
+            <video controls="" autoplay="" name="media">
+                <source src="{{vm.content.data.publicurl}}">
+            </video>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-default btn-md"
+                    ng-click="closeVideoCallModal()">
+                <i class="fa fa-remove" style="margin-right: 10px;"></i>
+                Close
+            </button>
+            <a href="{{apiUrl}}/videorecording/download/{{vm.content.data.tokbox_conference_archive_uuid}}?token={{getUserToken()}}" 
+                class="btn btn-primary btn-md">
+                <i class="fa fa-download" style="margin-right: 10px;"></i> Download
+            </a>
+        </div>
+    </div>
+</div>

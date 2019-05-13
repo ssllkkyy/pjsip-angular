@@ -1,0 +1,50 @@
+<div ng-controller="VideoConferenceCtrl">
+    <div class="modal-header"
+         id="modal-screen-share" ng-show="!vm.content.data.error">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            Search Ams360 Contacts
+        </span>
+        <button type="button"
+                ng-click="closeModal()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body"
+         id="modal-body" ng-show="!vm.content.data.error">
+
+			<input class="form-control filter-contact"
+                    style="padding-left: 30px;"
+                    type="text"
+                    ng-model="searchText"
+                    ng-change="performContactSearch()"
+                    placeholder="Filter contacts">
+
+            <div class="ams_contacts">
+			<ams-contact-list2 search-text="searchText"
+								data="vm.content.data">
+                    </ams-contact-list2>
+            </div>
+    </div>
+
+    <div class="modal-body"
+         id="modal-body" ng-show="vm.content.data.error">
+            <button type="button"
+                    ng-click="closeModal()"
+                    class="close">
+                <i class="fa fa-times"></i>
+            </button>
+            <h4>Uh-Oh :(</h4>
+            <div style="margin-top:35px; ">
+                <h4>{{vm.content.data.error}}</h4>
+            </div>
+            <br>
+            <button class="btn btn-primary" ng-click="vm.content.data.error = null"><i class="fa fa-refresh"></i> Load Ams360 Contacts</button>
+            <button class="btn btn-primary" ng-click="closeModal()" style="float: right;"><i class="fa fa-times"></i> Close</button>
+    </div>
+
+</div>

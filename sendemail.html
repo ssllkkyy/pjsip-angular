@@ -1,0 +1,26 @@
+<script>
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+    var to = getParameterByName('from');
+    var subject = getParameterByName('subject');
+    var body = getParameterByName('body');
+    var href = '';
+    if (to) {
+        href += 'mailto:'+to;
+        if (subject) href += '?subject='+subject;
+        if (body && subject) href += '&body='+body;
+        if (body && !subject) href += '?body='+body;
+    }
+    console.log(href);
+    if (href !== '') {
+        window.open('mailto:'+to+'?subject='+subject+'&body='+body);
+        window.close();
+    }
+</script>

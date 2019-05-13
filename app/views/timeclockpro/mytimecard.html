@@ -1,0 +1,87 @@
+<div class="panel panel-default timecard">
+		<div class="panel-heading">
+			<h4>Time Cards</h4>
+
+			<div class="date-picker">
+		        <div class="input-group">
+		            <span class="input-group-addon" ng-click="OpentoDate()"><i class="fa fa-calendar"></i></span>
+		            <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="toDate" name="toDate" is-open="toDatePopup.opened" datepicker-options="toDateOptions" ng-required="true" close-text="Close" ng-click="OpentoDate()" ng-change="processToDate(toDate)" placeholder="To"
+		            />
+		        </div>
+		    </div>
+			<div class="date-picker">
+		        <div class="input-group">
+		            <span class="input-group-addon" ng-click="OpenfromDate()">
+		                <i class="fa fa-calendar"></i>
+		            </span>
+		            <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="fromDate" name="fromDate" is-open="fromDatePopup.opened" datepicker-options="fromDateOptions" ng-required="true" close-text="Close" ng-click="OpenfromDate()" ng-change="processFromDate(fromDate)"
+		                placeholder="From" />
+		        </div>
+		    </div>
+		</div>
+</div>
+<div class="timecard-details">
+	<h3 class="timecard-title" style="display: inline-block;">TimeCard Details</h3>
+	<md-button
+	    ng-click="overtimeHelp()" style="margin: 0px; float: right;">
+	    <i class="fa fa-info-circle fa-lg"></i> How is overtime calculated?
+	</md-button>
+	<div class="table-head-container">
+		<table class="table tk-userdetails">
+			<thead>
+				<tr>
+					<th class="date">Date</th>
+					<th class="intime">IN</th>
+					<th class="outtime">OUT</th>
+					<th class="hours">Hours Worked</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div class="table-body-container">
+		<table class="table tk-userdetails">
+			<tbody>
+				<tr ng-repeat="record in user.records">
+					<td class="date"><span>{{record.date}}</span></td>
+					<td class="intime"><div ng-repeat="int in record.daydetails">{{int.intime | toLocalTime | amDateFormat: 'hh:mm a'}}</div></td>
+					<td class="outtime"><div ng-repeat="outt in record.daydetails">{{outt.outtime | toLocalTime | amDateFormat: 'hh:mm a'}}</div></td>
+					<td class="hours">{{record.time}}</td>		
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="table-footer-container">
+		<table class="table tk-userdetails">
+			<thead>
+				<tr>
+					<th class="date"></th>
+					<th class="intime">REG</th>
+					<th class="outtime">OT1</th>
+					<th class="hours">Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="date">Total Hours</td>
+					<td class="intime">{{user.totalRecords.regtime}}</td>
+					<td class="outtime">{{user.totalRecords.totalottime}}</td>
+					<td class="hours">{{user.totalRecords.totaltime}}</td>
+					
+				</tr>
+				<tr>
+					<td class="date">Gross Pay</td>
+					<td class="intime">$ {{user.totalRecords.regSalary}}</td>
+					<td class="outtime">$ {{user.totalRecords.ot1Salary}}</td>
+					<td class="hours">$ {{user.totalRecords.totalSalary}}</td>
+					
+				</tr>
+
+			</tbody>
+		</table>
+	</div>
+</div>
+<div ng-show="false" id="overtime-help3">
+    <div class="overtime-help">
+        <p>Overtime pay of 150% of the normal hourly wage begins once you have worked more than 40 hours <br>in a given week (from Monday morning through Sunday night). For daily details, click on your name <br>in the My Team Dashboard tab.</p>
+    </div>
+</div>

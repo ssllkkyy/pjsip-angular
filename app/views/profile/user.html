@@ -1,0 +1,60 @@
+<div id="profileUpdate">
+    <div ng-material-collapse
+         ng-if="true"
+         open="true">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2 md-truncate
+                    flex>
+                    My Profile Info
+                </h2>
+            </div>
+        </md-toolbar>
+        <div uib-collapse="isCollapsedVertical"
+             class="collapsible-content">
+            <user-info-settings></user-info-settings>
+        </div>
+    </div>
+    <div ng-material-collapse
+         ng-if="true">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2 md-truncate
+                    flex>
+                    Change Password
+                </h2>
+            </div>
+        </md-toolbar>
+        <div uib-collapse="isCollapsedVertical"
+             class="collapsible-content">
+            <change-password-settings></change-password-settings>
+        </div>
+    </div>
+    <div ng-material-collapse
+         ng-if="true">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2 md-truncate flex>Voicemail</h2>
+            </div>
+        </md-toolbar>
+        <div uib-collapse="isCollapsedVertical"
+             class="collapsible-content">
+            <voicemail-settings></voicemail-settings>
+        </div>
+    </div>
+    <div ng-material-collapse
+         ng-if="true">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2 md-truncate
+                    flex>
+                    Notifications
+                </h2>
+            </div>
+        </md-toolbar>
+        <div uib-collapse="isCollapsedVertical"
+             class="collapsible-content">
+            <ringtone-settings></ringtone-settings>
+        </div>
+    </div>
+</div>

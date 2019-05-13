@@ -1,0 +1,75 @@
+<div class="row">
+    <div class="col-lg-12">
+        <div class="jumbotron" style="margin: 0px;">
+            <form name="frmRobocall">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="panel" style="min-height: 180px">
+                                <div class="panel-heading cls-panels-header"><i class="fa fa-check-circle-o" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Campaign Name</strong></div>
+                                    <div class="panel-body">
+                                        <md-input-container style="width: 100% !important;">
+                                            <label>Campaign name</label>
+                                            <input name="nameRC" ng-model="broadcast.robocall_name" required>
+                                            <div ng-messages="frmRobocall.nameRC.$error">
+                                            <div ng-message="required">The name is required!</div>
+                                            </div>
+                                        </md-input-container>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="panel" style="min-height: 180px">
+                                <div class="panel-heading cls-panels-header"><i class="fa fa-check-circle-o" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Delivery Method</strong></div>
+                                    <div class="panel-body">
+                                        <md-radio-group ng-model="broadcast.message_type" class="md-primary">
+                                            <md-radio-button value="Voice" ><i class="fa fa-phone" style="margin-right: 10px"></i>Voice </md-radio-button>
+                                                <md-radio-button value="Text"><i class="fa fa-paper-plane" style="margin-right: 10px"></i> Text </md-radio-button>
+                                                <md-radio-button value="Email"><i class="fa fa-envelope-o" style="margin-right: 10px"></i> Email </md-radio-button>
+                                        </md-radio-group>
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="panel" style="min-height: 180px">
+                                <div class="panel-heading cls-panels-header"><i class="fa fa-check-circle-o" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Broadcast Type</strong></div>
+                                <div class="panel-body">
+                                    <md-radio-group ng-model="broadcast.robocall_type" class="md-primary">
+                                        <md-radio-button value="Announcement" ><i class="fa fa-bullhorn" style="margin-right: 10px"></i>Announcement </md-radio-button>
+                                        <md-radio-button value="Survey" ng-disabled="1==1"><i class="fa fa-edit" style="margin-right: 10px"></i> Survey (Coming soon) </md-radio-button>
+                                    </md-radio-group>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="panel"  style="min-height: 180px">
+                                <div class="panel-heading cls-panels-header"><i class="fa fa-check-circle-o" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Campaign Type</strong></div>
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                <md-radio-group ng-model="broadcast.schedule_type" class="md-primary">
+                                    <md-radio-button value="One">One-Time Message</md-radio-button>
+                                    <md-radio-button value="Series">Series of Messages</md-radio-button>
+                                </md-radio-group>
+                                    </li></ul>
+                            </div>
+                        </div>
+                    </div>
+            </form>
+        </div>
+        
+
+    </div>
+    
+    
+    
+    <div class="col-lg-3" ng-if="1==2">
+        
+        <div class="panel panel-warning">
+            <div class="panel-heading"><i class="fa fa-question-circle-o" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Useful tips or Help</strong></div>
+            <div class="panel-body">
+                Content...
+            </div>
+            </div>
+    </div>
+
+</div>

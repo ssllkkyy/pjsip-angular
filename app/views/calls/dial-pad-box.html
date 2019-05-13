@@ -1,0 +1,75 @@
+<div class="dial-pad">
+  <md-input-container class="dial-pad-input">
+    <input name="phoneNumber"
+      ng-model="inputNumber"
+      phone-input
+      ng-disabled="true">
+  </md-input-container>
+  <div class="phone">
+    <table class="table">
+      <tr ng-repeat="row in pad">
+        <td ng-repeat="key in row">
+          <button class="btn btn-dial-pad"
+            ng-mousedown="press(key)"
+            ng-mouseleave="release(key)"
+            ng-mouseup = "release(key)"
+            ng-click="addNumber(key)">
+            <span>
+              {{key}}
+            </span>
+            <p ng-repeat="val in lttBtn"
+              ng-if="key===val.id">
+              {{val.val}}
+            </p>
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <center>
+            <button class="btn btn-success option-btn"
+              ng-click="makeCall()"
+              ng-disabled="!inputNumber"
+              tooltip-placement="top"
+              uib-tooltip="Call">
+              <i class="fa fa-phone"></i>
+            </button>
+          </center>
+        </td>
+        <td>
+          <center>
+            <button class="btn btn-warning option-btn"
+              ng-click="redialNumber()"
+              tooltip-placement="top"
+              uib-tooltip="Redial">
+              <i class="fa fa-repeat"></i>
+            </button>
+          </center>
+        </td>
+        <td>
+          <center>
+            <button class="btn btn-primary"
+              ng-click="removeNumber()"
+              tooltip-placement="top"
+              uib-tooltip="Erase the numbers ">
+              <i class="fa fa-eraser"></i>
+            </button>
+          </center>
+        </td>
+        <td>
+          <center>
+            <button class="btn btn-default"
+              ng-click="toggleDialPad()()"
+              tooltip-placement="top"
+              uib-tooltip="Hide dial pad">
+              <img src="images/icons/dial-pad.png"
+                width="20"
+                height="20"
+                alt=""/>
+            </button>
+          </center>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

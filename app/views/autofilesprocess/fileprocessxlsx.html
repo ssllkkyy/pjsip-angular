@@ -1,0 +1,55 @@
+<div ng-if="gridOptions.data.length">
+    <p>Match the columns to your data and then click Import Recipients to add them to your Recipient List.</p>
+    <div class="jumbotron">
+        <div class="csv-container">
+            <div
+                ng-if="displayImportErrors.length>0"
+                uib-alert
+                ng-class="'alert-warning'"
+                close="closeMessage()"
+                ng-bind-html="displayImportErrors">
+            </div>
+            <table class="csv-table table table-bordered table-hover table-striped cls-tab-call-history">
+                <thead>
+                    <tr>
+                        
+                        <th
+                            ng-repeat="n in [] |  range:gridOptions.columnDefs.length">
+                            <select 
+        ng-model="colSelect[n]">
+        <option value="">Ignore</option>
+        <option ng-repeat="item in colOptions | arrayDiff:colSelect:colSelect[n]" ng-value="item">{{item.value}}</option>
+        
+        </select>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in gridOptions.data">
+                        <td ng-repeat="col in gridOptions.columnDefs">
+                            {{row[col.field]}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="button-box right-text" ng-show="!importing">
+            <button
+                class="btn btn-default"
+                ng-click="cancelXlsxUpload()">
+                <i class="fa fa-times"></i>
+                Cancel Import
+            </button>
+            <button
+                class="btn btn-success"
+                ng-show="gridOptions.data.length"
+                ng-click="importXlsContacts(colSelect, gridOptions)">
+                <i class="fa fa-upload"></i>
+                Import Recipients
+            </button>
+        </div>
+        <div class="button-box right-text" ng-show="importing">
+            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+        </div>
+    </div>
+</div>

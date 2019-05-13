@@ -1,0 +1,58 @@
+<div>
+    <div ng-controller="ChatPlusCtrl">  
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-file fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Upload a File?</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+
+        <div class="modal-body" id="modal-body">
+            <div class="row clearfix">
+                <div class="col-sm-12">
+                    <div ng-show="showBrowse">
+                        <div class="input-group"> 
+                            <span class="input-group-addon" title="File"><i class="fa fa-file"></i></span> 
+                            <label class="btn btn-primary btn-file">
+                                Browse for File <input class="form-control" accept="image/*" type="file" multiple 
+                                name="files" style="display: none;" onchange="angular.element(this).scope().uploadPostFile(this.files)">
+                            </label>
+                        </div>
+                    </div>
+                    <div ng-show="!showBrowse">
+                        <i ng-show="showSpinner" class="fa fa-spinner fa-spin fa-6x"></i>
+                        <div ng-show="!showSpinner">
+                            <div class="col-md-4">
+                                <img ng-if="fileUpload.has_preview_image" src="{{chatApiUrl}}/teams/{{teamId}}/files/get{{fileUpload.fullpath}}" style="max-height:150px;">
+                                <span ng-if="!fileUpload.has_preview_image"><i class="fa fa-fle-{{fileUpload.extension}}-o fa-4x"></i></span>
+                            </div>
+                            <div class="col-md-8">
+                            <span >File Size: {{fileUpload.size/1000 | number:0}}kb<br />
+                            File Type: {{fileUpload.extension}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                Add Comment (optional):
+                <div class="input-group"> 
+                    <span class="input-group-addon"><i class="fa fa-comments"></i></span> 
+                    <textarea class="form-control" type="text" ng-model="chat.addfile.comments" placeholder="Add Comments if desired"></textarea>
+                </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        
+
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="submitPostWithFile(chat.addfile.comments, fileUpload)"><i class="fa fa-upload" style="margin-right: 10px;"></i>Upload File</button>
+        </div>
+    </div>
+</div>

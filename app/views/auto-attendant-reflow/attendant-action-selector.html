@@ -1,0 +1,47 @@
+<md-radio-group ng-model="selectedAction"
+                layout="row"
+                ng-change="onSelectedActionChange(selectedAction)">
+    <div class="tablecell" style="font-size: 13px !important;"
+         ng-if="action.isSelectable"
+         ng-repeat="action in actions">
+        <md-radio-button ng-value="action" class="md-primary">
+            {{action.title}}
+        </md-radio-button>
+    </div>
+</md-radio-group>
+<attendant-resource-table
+    ng-show="selectedAction.manageableResource"
+    selected-action="selectedAction"
+    create-new-resource="createNewResource()"
+    edit-resource="editResource(resource)"
+    handle-action="addAction(resource)"
+    show-handle-action="showAddScheduleForResource(resource)"
+    register-new-resource-trigger="registerNewResourceTrigger(trigger)"
+    cancel-table="cancelActionSelect()">
+</attendant-resource-table>
+<div class="non-manageable-resource-actions"
+     ng-if="selectedAction && !selectedAction.manageableResource">
+    <div class="panel-body">
+        <extension-edit
+            ng-if="selectedAction.name === 'extension'"
+            add-action="addAction(resource)">
+        </extension-edit>
+        <external-did-edit
+            ng-if="selectedAction.name === 'external-did'"
+            add-action="addAction(resource)">
+        </external-did-edit>
+    </div>
+</div>
+<div class="attendant-bottom-button-bar"
+     ng-if="selectedAction || showAddActionBtn()">
+    <div class="abbb-btns">
+        <button
+            class="btn btn-success"
+            uib-tooltip="Add Action"
+            ng-if="selectedAction.isSimpleAction"
+            ng-click="addAction()" >
+            <i class="fa fa-save"></i>
+            Add Action
+        </button>
+    </div>
+</div>

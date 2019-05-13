@@ -1,0 +1,90 @@
+<div class="modal-body" id="modal-body">
+    <md-content class="user-settings-content ringtones">
+        <md-input-container class="ringtone-select-container">
+            <label>Call Ringtone</label>
+            <md-select ng-model="callRingtone" class="modal-ringtone-select">
+                <md-option ng-repeat="ringtone in ringtones()" ng-value="ringtone">
+                    {{ringtone.file_title}}
+                </md-option>
+            </md-select>
+            <i class="fa fa-lg fa-play-circle ringtone-play-btn"
+               ng-show="ringtonePlaying != 'call'"
+               ng-click="playRingtone(callRingtone, 'call')">
+            </i>
+            <i class="fa fa-lg fa-stop-circle ringtone-stop-btn"
+               ng-show="ringtonePlaying == 'call'"
+               ng-click="stopRingtone()">
+            </i>
+            <rzslider rz-slider-model="callRingtoneVolume"
+                      rz-slider-options="{floor: 0, ceil: 10}"
+                      class="ringtone-slider">
+            </rzslider>
+        </md-input-container>
+        <br>
+        <md-input-container class="ringtone-select-container">
+            <label>Text Ringtone</label>
+            <md-select ng-model="textRingtone" class="modal-ringtone-select">
+                <md-option ng-repeat="ringtone in ringtones()" ng-value="ringtone">{{ringtone.file_title}}</md-option>
+            </md-select>
+            <i class="fa fa-lg fa-play-circle ringtone-play-btn"
+               ng-show="ringtonePlaying != 'text'"
+               ng-click="playRingtone(textRingtone, 'text')">
+            </i>
+            <i class="fa fa-lg fa-stop-circle ringtone-stop-btn"
+               ng-show="ringtonePlaying == 'text'"
+               ng-click="stopRingtone()">
+            </i>
+            <rzslider rz-slider-model="textRingtoneVolume"
+                      rz-slider-options="{floor: 0, ceil: 10}"
+                      class="ringtone-slider">
+            </rzslider>
+        </md-input-container>
+        <br>
+        <md-input-container class="ringtone-select-container">
+            <label>Chat Ringtone</label>
+            <md-select ng-model="chatRingtone" class="modal-ringtone-select">
+                <md-option ng-repeat="ringtone in ringtones()" ng-value="ringtone">{{ringtone.file_title}}</md-option>
+            </md-select>
+            <i class="fa fa-lg fa-play-circle ringtone-play-btn"
+               ng-show="ringtonePlaying != 'chat'"
+               ng-click="playRingtone(chatRingtone, 'chat')">
+            </i>
+            <i class="fa fa-lg fa-stop-circle ringtone-stop-btn"
+               ng-show="ringtonePlaying == 'chat'"
+               ng-click="stopRingtone()">
+            </i>
+            <rzslider rz-slider-model="chatRingtoneVolume"
+                      rz-slider-options="{floor: 0, ceil: 10}"
+                      class="ringtone-slider">
+            </rzslider>
+        </md-input-container>
+        <br>
+        <md-input-container class="ringtone-select-container">
+            <label>Video Invite Ringtone</label>
+            <md-select ng-model="videoInviteRingtone" class="modal-ringtone-select">
+                <md-option ng-repeat="ringtone in ringtones()"
+                           ng-value="ringtone">
+                    {{ringtone.file_title}}
+                </md-option>
+            </md-select>
+            <i class="fa fa-lg fa-play-circle ringtone-play-btn"
+               ng-show="ringtonePlaying != 'videoInvite'"
+               ng-click="playRingtone(videoInviteRingtone, 'videoInvite')">
+            </i>
+            <i class="fa fa-lg fa-stop-circle ringtone-stop-btn"
+               ng-show="ringtonePlaying == 'videoInvite'"
+               ng-click="stopRingtone()">
+            </i>
+            <rzslider rz-slider-model="videoInviteRingtoneVolume"
+                      rz-slider-options="{floor: 0, ceil: 10}"
+                      class="ringtone-slider">
+            </rzslider>
+        </md-input-container>
+        
+    </md-content>
+</div>
+<div class="modal-footer cls-incomingcall-buttons">
+    <md-button class="md-primary md-raised" ng-click="updateRingtones()">
+        Update Information
+    </md-button>
+</div>

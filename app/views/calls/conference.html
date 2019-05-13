@@ -1,0 +1,279 @@
+<div class="conference-call-container"
+     ng-controller="ConferenceCallCtrl">
+    <div class="row audio-conference-row">
+        <h3 class="audio-conference-header">Conference Calls</h3>
+        <md-input-container style="margin-left:30px; margin-right: 30px;">
+            <label>Conference Caller-ID</label>
+            <md-select ng-model="didNumber">
+                <md-option ng-repeat="contact in didContacts()"
+                    ng-value="contact">
+                    {{contact | tel}}
+                </md-option>
+            </md-select>
+        </md-input-container>
+        <p class="cls-dial-number">Your dial-in number is {{dialInNumber | tel2}}</p>
+    </div>
+    <span ng-if="conferenceCallActive()">Testing</span>
+    <md-content md-theme="altTheme">
+        <md-subheader class="md-primary">
+            <div class="row">
+                <div class="col-md-2"
+                     style="margin-top: 5px;">
+                    <button class="btn btn-primary btn-md startbtn"
+                            ng-click="showCalendarModal()"
+                            tooltip-placement="bottom-left"
+                            uib-tooltip="add conference event">
+                        <strong>Add/Edit Event</strong>
+                    </button>
+                </div>
+                <div class="col-md-2"
+                     style="margin-top: 5px;">
+                    <button class="btn btn-primary btn-md startbtn"
+                            ng-click="startConference()"
+                            ng-disabled="shouldDisableConfButton()"
+                            tooltip-placement="bottom-left"
+                            uib-tooltip="{{startStopConfToolTip}}">
+                        <i class="fa {{iconStartConf()}}"></i>
+                        <strong>
+                            {{conferenceCallActive() ? "Stop Conference" : "Start Conference"}}
+                        </strong>
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <contact-selector></contact-selector>
+                </div>
+                <div class="col-md-4 cls-round-buttons">
+                    <button class="btn btn-link {{shakingIcon}}"
+                            ng-class="{btnActive : clickBtn1}"
+                            ng-click="buttonsAction(1)"
+                            ng-disabled="!onConferenceCall || !contactsSelected"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Dial participants">
+                    </button>
+                    <button class="btn btn-link"
+                            ng-class="{btnActive : clickBtn2}"
+                            ng-click="buttonsAction(2)"
+                            ng-disabled="!onConferenceCall || confMembers.length<2"
+                            tooltip-placement="bottom"
+                            uib-tooltip="{{toolTipScreenS}}">
+                        <i class="mdi mdi-vector-arrange-above mdi-24px"></i>
+                    </button>
+                    <button class="btn btn-link"
+                            ng-class="{btnREC : clickBtn3}"
+                            ng-click="buttonsAction(3)"
+                            ng-disabled="!onConferenceCall || confMembers.length<2"
+                            tooltip-placement="bottom"
+                            uib-tooltip="{{toolRecording}}"
+                            style="text-decoration: none; font-weight: bold;">
+                        REC
+                    </button>
+                    <button class="btn btn-link"
+                            ng-class="{btnActive : clickBtn4}"
+                            ng-click="buttonsAction(4)"
+                            ng-disabled="!onConferenceCall || confMembers.length<2"
+                            tooltip-placement="bottom"
+                            uib-tooltip="{{muteAll ? tips.conferencecalls.unmuteall :
+                                   tips.conferencecalls.muteall }}">
+                        <i class="mdi {{iconMuteCC}}"></i>
+                    </button>
+                    <button class="btn btn-link"
+                            ng-class="{btnActive : clickBtn5}"
+                            ng-click="buttonsAction(5)"
+                            ng-disabled="!onConferenceCall || confMembers.length<1"
+                            tooltip-placement="bottom"
+                            uib-tooltip="{{toolLock}}">
+                        <i class="mdi {{iconLock}}"></i>
+                    </button>
+                </div>
+            </div>
+            <dir class="row">
+                <div class="col-md-4">
+                    <center ng-show="showCounterTime">
+                        <strong style="color: gray; font-size: 30px;">
+                            <timer interval="1000"
+                                   start-time="eventTimer.startConf">
+                                {{hhours}}:{{mminutes}}:{{sseconds}}
+                            </timer>
+                        </strong>
+                    </center>
+                </div>
+            </dir>
+            <div class="row"
+                 ng-show="showScreenShare">
+                <md-list-item class="md-3-line"
+                              ng-controller="ScreenShareCtrl" >
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="input-group">
+                                <span class="input-group-addon"
+                                      id="basic-addon3">
+                                    {{ssUrl}}
+                                </span>
+                                <input class="form-control"
+                                       type="text"
+                                       ng-keyup="isRoomAvailable(conference.room)"
+                                       id="conferenceroom"
+                                       ng-model="conference.room"
+                                       ng-init="conference.room=videoConference.name"
+                                       placeholder="Choose a custom conference room name"
+                                       aria-describedby="basic-addon3">
+                                <span class="input-group-addon"
+                                      ng-if="urlNotAvailable">
+                                    {{availMessage}}
+                                </span>
+                                <span class="input-group-addon"
+                                      ng-if="!urlNotAvailable">
+                                    <i class="fa fa-check"
+                                       style="color: green"
+                                       tooltip-placement="top"
+                                       uib-tooltip="{{tips.video.roomsuccess}}"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 cls-round-buttons">
+                            <button class="btn btn-link"
+                                    ng-disabled="urlNotAvailable"
+                                    ng-click="clickHandler()"
+                                    tooltip-placement="bottom"
+                                    uib-tooltip="Copy link to Clipboard"
+                                    style="margin-top: -10px;">
+                                <i class="mdi mdi-clipboard mdi-24px"></i>
+                            </button>
+                            <button class="btn btn-link"
+                                    ng-disabled="urlNotAvailable"
+                                    ng-click="joinConference()"
+                                    tooltip-placement="bottom"
+                                    uib-tooltip="Start screen share"
+                                    style="margin-top: -10px;">
+                                <i class="mdi mdi-vector-difference-ba mdi-24px"></i>
+                            </button>
+                        </div>
+                    </div>
+                </md-list-item>
+            </div>
+        </md-subheader>
+        <md-list layout-padding >
+            <md-list-item class="md-3-line">
+                <table class="table" >
+                    <thead >
+                        <tr style=" font-weight: bold; font-size: 17px">
+                            <th>Name</th>
+                            <th>Caller Id #</th>
+                            <th>Mute</th>
+                            <th>Hangup</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="member in confMembers"
+                            style=" font-size: 15px;">
+                            <td>
+                                <span ng-if="theContact(member.cidNumber)">
+                                    {{theContact(member.cidNumber).name}}
+                                </span>
+                                <span ng-if="!theContact(member.cidNumber)">
+                                    'Contact unregistered'
+                                </span>
+                            </td>
+                            <td>{{cleanFormat(member.cidNumber) | tel}}</td>
+                            <td style="font-size: 22px !important">
+                                <span class="fa-stack"
+                                      ng-click="toggleUserMute(member)"
+                                      style=" margin-bottom: 15px;">
+                                    <i class="fa fa-volume-off fa-stack-1x"></i>
+                                    <i class="fa fa-ban fa-stack-2x text-danger"
+                                       ng-show="userIsMuted(member)">
+                                    </i>
+                                </span>
+                            </td>
+                            <td>
+                                <i class="fa fa-2x fa-phone end-conf-call-ico"
+                                   ng-if="member.cidNumber !== user.user_ext"
+                                   ng-click="hangupUser(member.userNumber)">
+                                </i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-list-item>
+        </md-list>
+    </md-content>
+    <div class="panel panel-success">
+        <div class="panel-heading container-fluid">
+            <h4 style="display: inline-block;">Scheduled Events</h4>
+            <span style="float: right;">
+            <button class="btn btn-primary btn-sm"
+                    ng-click="getTodaysSchedule()">
+                Today
+            </button>
+            <button class="btn btn-primary btn-sm"
+                    ng-click="getWeeksSchedule()">
+                This Week
+            </button>
+            <button class="btn btn-primary btn-sm"
+                    ng-click="getMonthsSchedule()">
+                This Month
+            </button>
+            <button class="btn btn-primary btn-sm"
+                    ng-click="getAllEvents()">
+                Show All
+            </button>
+            </span>
+        </div>
+        <div class="container-fluid"
+             ng-show="todaysSchedule.length > 0">
+            <div class="row"
+                 style=" font-weight: bold; font-size: 17px;
+                        border-bottom: 1px solid #d6e9c6; padding: 8px;">
+                <div class="col-md-2">Title</div>
+                <div class="col-md-2">Time</div>
+                <div class="col-md-3">Notes</div>
+                <div class="col-md-3">Participants</div>
+                <div class="col-md-2">Start Event</div>
+            </div>
+            <div class="row"
+                 ng-repeat="event in todaysSchedule"
+                 style=" border-bottom: 1px solid #d6e9c6;  padding: 5px;">
+                <div class="col-md-2">{{event.event_title}}</div>
+                <div class="col-md-2"
+                     ng-show="showdate">
+                    {{event.start_at | toLocalTime | amDateFormat: 'MMM D, YYYY'}}
+                    <br>
+                    {{event.start_at | toLocalTime | amDateFormat: 'h:mm a'}}-
+                    {{event.end_at | toLocalTime | amDateFormat: 'h:mm a'}}
+                </div>
+                <div class="col-md-2" ng-show="!showdate">
+                    {{event.start_at | toLocalTime | amDateFormat: 'h:mm a'}}-
+                    {{event.end_at | toLocalTime | amDateFormat: 'h:mm a'}}
+                </div>
+                <div class="col-md-3">
+                    {{event.event_memo}}
+                </div>
+                <div class="col-md-3">
+                    {{event.participants}}
+                </div>
+                <div class="col-md-2">
+                    <span class="fa-stack"
+                          ng-click="startEvent(event)"
+                          style=" margin-bottom: 15px;">
+                        <i class="fa fa-2x fa-phone"
+                           aria-hidden="true"
+                           tooltip-placement="bottom-left"
+                        uib-tooltip="Start Event" ></i>
+                    </span>
+                    <span style="float: right;"
+                          ng-click="deleteEvent(event)">
+                        <i class="fa fa-2x fa-times-circle redfont"
+                           aria-hidden="true"
+                           tooltip-placement="bottom-left"
+                        uib-tooltip="Delete Event"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div ng-show="todaysSchedule.length <= 0">
+            <center>
+                <h3>There are no Events Scheduled {{textDisplay}}.</h3>
+            </center>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+<button class="btn btn-sm" ng-class="state==='ringtones' ? 'btn-active' : 'btn-primary'" ng-click="state = 'ringtones'">
+    Company Ringtones
+</button>
+<button class="btn btn-sm" ng-class="state==='music-on-hold' ? 'btn-active' : 'btn-primary'" ng-click="state = 'music-on-hold'">
+    Music On Hold
+</button>
+<audio-manage-table
+    access-levels="['company']"
+    domain="domain"
+    option="'ringtone'"
+    categories="['ringtones']"
+    ng-if="state === 'ringtones'">
+</audio-manage-table>
+<music-on-hold-manage-table
+    domain="domain"
+    ng-if="state === 'music-on-hold'">
+</music-on-hold-manage-table>

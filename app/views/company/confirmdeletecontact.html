@@ -1,0 +1,22 @@
+<div>
+    <div>  
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Confirm Removal of Contact?</span>
+            <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+
+        <div class="modal-body" id="modal-body">
+            <div class="cls-title-cont-modal">Are you sure you want to delete this contact? This is not reversible!<br />
+            <strong>{{vm.content.data.contact_name_given+' '+vm.content.data.contact_name_family}}</strong></div>
+        </div>
+        
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-danger btn-md" ng-click="removeContact(vm.content.data.contact_uuid)"><i class="fa fa-times" style="margin-right: 10px;"></i>Confirm Delete</button>
+        </div>
+    </div>
+</div>

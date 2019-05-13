@@ -1,0 +1,33 @@
+<div>  
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Add Members</span>
+        <button type="button" ng-click="vm.content.data.closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <h4>{{vm.content.data.channel.display_name}}</h4>
+        <div class="input-group"> 
+            <span class="input-group-addon"><i class="fa fa-question-circle"></i></span> 
+            <input class="form-control" type="text" ng-model="search.username" placeholder="Search by name">
+        </div>
+        
+        <table class="table table-bordered table-hover table-striped">
+            <tr ng-if="!vm.content.data.isMemberOf(member.id)" ng-repeat="member in vm.content.data.teamMembers | filter:search" >
+                <td class="col-sm-8">
+                    {{member.first_name}} {{member.last_name}}<br />
+                    {{member.email}}
+                </td>
+                <td class="col-sm-4">
+                    <button class="btn btn-success btn-xs" ng-click="vm.content.data.doAddMember(vm.content.data.channel.id, member)"><i class="fa fa-plus"></i> Add Member</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md" ng-click="vm.content.data.closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+    </div>
+</div>

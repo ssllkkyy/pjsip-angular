@@ -1,0 +1,220 @@
+<div class="container" ng-controller="AutoDialingCtrl">
+
+    <div class="row">
+        
+        <div class="col-lg-3 col-md-3">
+            <div class="panel cls-panels-header">
+                <div class="panel-heading"><i class="fa fa-hand-o-up" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Click an Option Below</strong></div>
+                <ul class="list-group">
+                    <li class="list-group-item"><a href="" ng-click="setOpcMessageBroadcast(1)" ><i class="fa fa-microphone" style="margin-right: 10px;"></i>Record a New Message</a> <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'newrecord'"></i></li>
+                    <li class="list-group-item"><a href="" ng-click="setOpcMessageBroadcast(2)"><i class="fa fa-upload" style="margin-right: 10px;"></i>Upload an Audio File</a>       <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'uploadfile'"></i></li>
+                    <li class="list-group-item"><a href="" ng-click="setOpcMessageBroadcast(3)"><i class="fa fa-book" style="margin-right: 10px;"></i> Select from Audio Library </a>   <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'audiolibrary'"></i></li>
+                    <li class="list-group-item"><a href="" ng-click="setOpcMessageBroadcast(4)"><i class="fa fa-edit" style="margin-right: 10px;"></i>Type Your Message</a>                <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'messagetyped'"></i></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 col-md-5">
+            <div class="panel" style="border: #cfdef0 solid 1px;">
+                <div class="panel-heading"><strong class="cls-color-blue-tkg">{{opcBroadcastTitle}}</strong></div>
+                <div class="panel-body">
+                    <div ng-if="opcBroadcast==='audiolibrary'">
+                        <div class="jumbotron">
+    <label></label>
+    <div>
+        Audio Library...
+    </div>
+
+        <button class="btn btn-default" style="margin-top: 20px;"><i class="fa fa-save"></i>  Save  </button>
+
+    </div>
+                    </div>
+                    <div ng-if="opcBroadcast==='messagetyped'">
+                        <div class="jumbotron">
+    <label>Type a message not more 120 characters</label>
+    <div>
+        <textarea cols="55" rows="5" style="resize: none;"></textarea>
+    </div>
+
+        <button class="btn btn-default" style="margin-top: 20px;"><i class="fa fa-save"></i>  Save  </button>
+
+    </div>
+                    </div>
+                    <div ng-if="opcBroadcast==='newrecord'" >
+                        <div class="jumbotron">
+
+
+<div ng-audio-recorder id="mainAudio" audio-model="yup" show-player="false" class="container">
+    <div ng-if="recorder.isAvailable">
+
+
+        <div class="panel panel-primary">
+
+            <div class="panel-body">
+                <div ng-controller="AutoDialingCtrl">
+                    <div>
+                        <h3 style="float: right; /*font-family: sans-serif*/; text-align: center; width: 50px; border-radius: 30px; border: solid 2px #333; padding: 10px; margin: 0; background: #337ab7; color: #fff;"
+                            ng-if="recorder.status.isRecording">
+                            {{recorder.elapsedTime >= 10 ? recorder.elapsedTime : ('0'+recorder.elapsedTime)}}
+                        </h3>
+
+                        <div class="alert alert-danger" ng-if="recorder.status.isDenied === true">
+                            Permission to use your microphone was declined, please refresh this page to grant
+                            permission.
+                        </div>
+
+                        <div class="controls text-center" style="padding-top: 10px;"
+                             ng-hide="recorder.status.isDenied === true">
+                            <button ng-click="recorder.status.isRecording ? recorder.stopRecord() : recorder.startRecord()"
+                                    type="button" class="btn"
+                                    ng-class="{'btn-primary': !recorder.status.isRecording, 'btn-danger': recorder.status.isRecording}">
+                                <i class="glyphicon glyphicon-record"></i> {{recorder.status.isRecording ? 'Stop' :
+                                'Start'}} Recording
+                            </button>
+
+                            <button class="btn"
+                                    ng-class="{'btn-primary': (recorder.status.isPaused || recorder.status.isStopped), 'btn-warning': recorder.status.isPlaying}"
+                                    ng-click="recorder.status.isPlaying ? recorder.playbackPause() : recorder.playbackResume()"
+                                    type="button"
+                                    ng-disabled="recorder.status.isRecording || !recorder.audioModel">
+                                <span ng-if="recorder.status.isPaused || recorder.status.isStopped">
+                                    <i class="glyphicon glyphicon-play"></i> Play
+                                </span>
+
+                                <span ng-if="recorder.status.isPlaying">
+                                    <i class="glyphicon glyphicon-pause"></i> Pause
+                                </span>
+                            </button>
+
+                            <button class="btn btn-success" 
+                               ng-disabled="recorder.status.isRecording || !recorder.audioModel" 
+                               ng-click="oldsaveToServer(recordedBlob, recorder.blob)"
+                               >
+                                <i class="glyphicon glyphicon-download"></i> Save to Server
+                            </button>
+
+                            <!--<a class="btn btn-success" 
+                               href="" download="recording.mp3" 
+                               ng-disabled="recorder.status.isRecording || !recorder.audioModel" 
+                               id="btnDownload"
+                               >
+                                <i class="glyphicon glyphicon-download"></i> Download
+                            </a>-->
+
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+
+                </div>
+                <br/>
+                
+                <div ng-if="recorder.status.isConverting">
+                    <p class="text-center">
+                        Please wait while we process your recording
+                    </p>
+                </div>
+                <div class="panels" canvas-sizer>
+                    <div ng-show="recorder.status.isRecording">
+                        <ng-audio-recorder-analyzer></ng-audio-recorder-analyzer>
+                    </div>
+
+                    <div ng-show="!recorder.status.isRecording && recorder.audioModel">
+                        <ng-audio-recorder-wave-view wave-color="silver"
+                                                     bar-color="red"></ng-audio-recorder-wave-view>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div ng-if="!recorder.isAvailable" class="alert alert-warning">
+        Your browser does not support this feature natively, please use latest version of <a
+            href="https://www.google.com/chrome/browser" target="_blank">Google Chrome</a> or <a
+            href="https://www.mozilla.org/en-US/firefox/new/" target="_blank">Mozilla Firefox</a>. If you're on
+        Safari or Internet Explorer, you can install <a href="https://get.adobe.com/flashplayer/">Adobe Flash</a> to
+        use this feature.
+    </div>
+</div>
+
+
+
+
+</div>
+
+
+ <style>
+    canvas {
+        display: inline-block;
+        background: #202020;
+        width: 100%;
+        /*height: 45%;*/
+        box-shadow: 0px 0px 10px blue;
+    }
+
+    .float-rt {
+        float: right;
+    }
+
+</style>
+
+
+
+
+                    </div>
+                    <div ng-if="opcBroadcast==='uploadfile'">
+<div class="jumbotron">
+
+    <div ng-controller="AutoDialingCtrl">
+            <form name="frmFileShare">
+
+                    <label class="btn btn-default btn-file btn-block" ng-show="!msgEmailSent" style="border-top-left-radius: 5; border-bottom-left-radius: 5;">
+                        <span ng-hide="uploader.queue.length >= 1" class="cls-color-blue-tkg">Click to select a file</span>
+                        <input type="file" class="form-control" ng-if="uploader.queue.length < 1" ng-click="chargerVal(contactsUsr, contentEmail)" accept="audio/*" nv-file-select=""  uploader="uploader" style="display: none;"  ng-disabled="frmFileShare.$invalid">
+                        <span ng-repeat="item in uploader.queue" ng-show="uploader.queue.length >= 1">
+                            <strong>{{ item.file.name.length > 75 ? item.file.name.substring(0, 35) + ' ... ' + item.file.name.substring(item.file.name.length-35) : item.file.name }}</strong>
+
+                            <span class="progress" style="margin-bottom: 0;">
+                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                            </span>
+
+                        </span>
+                    </label>
+
+                    <div ng-repeat="item in uploader.queue" ng-show="uploader.queue.length >= 1" style="margin-top: 10px">
+                        <button  class="btn btn-danger btn-sm" ng-click="item.remove()" ng-show="uploader.queue.length >= 1" ng-disabled="item.isReady || item.isUploading || item.isSuccess"><i class="fa fa-trash" style="margin-right: 10px;"></i>Remove file selected</button>
+                        <button  class="btn btn-primary btn-sm" ng-click="item.upload(); " ng-hide="msgFileUpload" ng-disabled="item.isReady || item.isUploading || item.isSuccess"><i class="fa fa-upload" style="margin-right: 10px;"></i>Upload file</button>
+                        
+                        
+                        <div class="alert alert-success" role="alert" ng-show="msgFileUpload">
+                            <i class="fa fa-check-circle-o fa-2x" style="margin-right: 15px;"></i>
+                            <strong>Your file has been uploaded succefull </strong>
+                        </div>
+
+                    </div>
+
+            </form>
+
+    </div>
+
+</div>
+                    </div>
+                </div>
+              </div>
+            
+        </div> 
+        
+        
+        
+        <div class="col-lg-3 col-md-2">
+            <div class="panel panel-warning">
+                <div class="panel-heading"><i class="fa fa-question-circle-o" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Useful tips or Help</strong></div>
+                <div class="panel-body">
+                  Content...
+                </div>
+              </div>
+        </div>
+        
+    </div>
+</div>

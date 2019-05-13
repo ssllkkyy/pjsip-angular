@@ -1,0 +1,1641 @@
+<div class="auto-attendant" id="edit-auto-attendant" ng-controller="ctrlAutoAttendant">
+    <!--Create Attendant Shell-->
+    <div class="auto-attendant-container" ng-if="menu.create">
+        <div class="createAttendant">
+            <div class="caption">
+                <h3>Create New Auto Attendant</h3>
+            </div>
+            <div class="panel panel-primary panelbox">
+                
+                <div class="panel-heading title-bar">
+                    {{newIvr.ivr_menu_name ? newIvr.ivr_menu_name:"Auto Attendant Name"}}
+                </div>
+            
+                <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+                    <div class="row">
+                        <div class="col-sm-3 box1-label">
+                            Set Auto Attendant:
+                        </div>
+                        <div class="col-sm-4 box1-input">
+                            <md-input-container>
+                                <label>Enter a Name</label>
+                                <input ng-model="newIvr.ivr_menu_name" />
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3 box1-label">Location:</div>
+                        <div class="col-sm-5 box1-input">
+                            <md-input-container>
+                                <label>Select a Location</label>
+                                <md-select ng-model="newIvr.location_group_uuid">
+                                    <md-option ng-repeat="location in locationGroups" ng-value="location.locations_group_uuid">
+                                        {{location.group_name}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3 {{!ordered ? 'box1-label' : ''}}">Responds to this number:</div>
+                        <div class="col-sm-5 box1-input">
+                            <!--<span ng-show="editing"> <b>{{newIvr.did.phone | tel}}</b><br></span>--> 
+                            <md-input-container>
+                                <label>Select a Number</label>
+                                <md-select ng-model="newIvr.did" ng-change="checkIfExisting()">
+                                    <md-option ng-repeat="user in userList.items | orderBy: 'ext' : false" ng-value="user">
+                                        {{user.ext}} - {{user.name}} - {{user.phone | tel}}
+                                    </md-option>
+                                    <md-option ng-repeat="user in reusableDids" ng-value="user">
+                                        {{user.phone | tel}} - External Number {{user.port ? '- ' + user.port : ''}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                        <div class="col-sm-3">
+                            <button ng-show="!editing && !orderingNumber" class="pull-right btn btn-default btn-xs newdidbutton" ng-click ="newNumber()">Order a new Number</button>
+                            <div ng-if="orderingNumber"><i class="fa fa-spinner fa-spin fa-2x"></i><br />Please Wait</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-3 box1-label">
+                            Specify Time Zone:
+                        </div>
+                        <div class="col-sm-5 box1-input">
+                            <md-input-container>
+                                <label>Time Zone</label>
+                                <md-select name="type" ng-model="newIvr.timezone">
+                                    <md-option ng-repeat="timeZone in timeZones" ng-value="timeZone.timezone">
+                                        {{timeZone.display}} - {{timeZone.timezone}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="attendant-bottom-button-bar">
+            <div class="pull-right">
+                <button class="btn btn-success" uib-tooltip="Create attendant" ng-click="sendNewAutoAttendant()"><i class="fa fa-save"></i> Create Auto Attendant</button>
+                <button class="btn btn-danger" ng-click="cancelEditAttendant($event)" uib-tooltip="Cancel creation"><i class="fa fa-undo"></i> Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div ng-if="aaEnabled">
+        <div class="auto-attendant-container" ng-if="menu.main">
+            <div class="row caption">
+                <div class="col-sm-4">
+                    <h3>Auto Attendant</h3>
+                </div>
+                <div class="col-sm-8 right-text">
+                    <button class="btn btn-primary" ng-click="manageRingGroups()">Manage Ring Groups</button>
+                    <button class="btn btn-primary" ng-click="createNewAttendant()">Create New Attendant</button>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="scroll-container-head">
+                    <table id="data-table-top" class="table table-bordered table-hover table-striped cls-tab-call-history">
+                        <thead>
+                            <tr>
+                                <th style="width: 32%">Auto Attendant Title</th>
+                                <th style="width: 16%">Responds To</th>
+                                <th style="width: 13%">On/Off</th>
+                                <th>Progress</th>
+                                <th style="width: 18%">Delete</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="scroll-container">
+                    <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                        <tbody class="cls-body-table-pos">
+                            <tr ng-if="!loadingAttendants && myAttendants.length === 0">
+                                <td colspan="5">You have not created an Auto Attendant yet.</td>
+                            </tr>
+                            <tr ng-if="loadingAttendants">
+                                <td colspan="5"
+                                    class="loading-users mdgreyfont">
+                                    <i class="fa fa-spinner fa-spin fa-4x"></i><br />
+                                    <span>Loading Attendants<br />
+                                    Please Wait</span>
+                                </td>
+                            </tr>
+                            <tr ng-if="!loadingAttendants && myAttendants.length > 0" ng-repeat="attendant in myAttendants | orderBy : 'ivr_menu_name' : false" class="viewAttendant">
+                                <td style="width: 32%" class="capital" ng-click="editAttendant(attendant)">
+                                    {{attendant.ivr_menu_name}}<br />
+                                    <span class="smfont">Target Type: {{showTargetType(attendant)}}</span><br />
+                                    <span class="smfont">Location: {{attendant.location.group_name}}</span>
+                                </td>
+                                <td style="width: 16%" class="capital" ng-click="editAttendant(attendant)">{{attendant.did.phone | tel}}<br />({{attendant.did.name ? attendant.did.name + ' - ' + attendant.did.ext : 'External Number'}})</td>
+                                <td style="width: 13%">
+                                    <md-switch ng-model="attendant.ivr_menu_enabled" aria-label="isOn" class="capital" ng-change="toggleEnable(attendant)">
+                                        {{ attendant.ivr_menu_enabled ? "On":"Off" }}
+                                    </md-switch>
+                                </td>
+                                <td>
+                                    <table class="table aa-progress">
+                                        <tr>
+                                            <td><i class="fa fa-calendar-o {{checkBuildStatus(attendant, 'weekly_schedule') ? 'finished' : 'incomplete'}}" 
+                                                aria-hidden="true" tooltip-placement="top" uib-tooltip="{{checkBuildStatus(attendant, 'weekly_schedule') ? 'Schedule has been set' : 'Schedule has not been set'}}"></i></td>
+                                            <td><i class="fa fa-list-ul {{checkBuildStatus(attendant, 'customize_menu') ? 'finished' : 'incomplete'}}" 
+                                                aria-hidden="true" tooltip-placement="top" uib-tooltip="{{checkBuildStatus(attendant, 'customize_menu') ? 'Menu options created' : 'Menu option not created'}}"></i></td>
+                                            <td ng-if="attendant.auto_attendant.target_type === 'ivr_menu'"><i class="fa fa-microphone {{checkBuildStatus(attendant, 'greeting') ? 'finished' : 'incomplete'}}" 
+                                                aria-hidden="true" tooltip-placement="top" uib-tooltip="{{checkBuildStatus(attendant, 'greeting') ? 'Greeting has been set' : 'Greeting has not been set'}}"></i></td>
+                                            <td><i class="fa fa-volume-down {{checkBuildStatus(attendant, 'voicemail') ? 'finished' : 'incomplete'}}" 
+                                                aria-hidden="true" tooltip-placement="top" uib-tooltip="{{checkBuildStatus(attendant, 'voicemail') ? 'Voicemail has been setup' : 'Voicemail has not been setup'}}"></i></td>
+                                            <td ng-if="attendant.auto_attendant.target_type !== 'ivr_menu'"><br /></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                
+                                <td style="width: 18%">
+                                    <i ng-click="editAttendant(attendant)" class="fa fa-pencil-square-o primaryfont mainopt" aria-hidden="true" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.editattendant}}"></i>
+                                    <i ng-click="changeRespondsTo(attendant)" class="fa fa-hashtag orangefont mainopt" aria-hidden="true" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.changerespondsto}}"></i>
+                                    <i ng-click="cloneAttendant(attendant)" class="fa fa-clone ltbluefont mainopt" aria-hidden="true" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.cloneattendant}}"></i>
+                                    <i ng-click="deleteAttendant(attendant)" class="fa fa-times-circle redfont mainopt" aria-hidden="true" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.deleteattendant}}"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="auto-attendant-container" ng-if="menu.ringgroups">
+            <div class="row caption">
+                <div class="col-sm-4">
+                    <h3>Ring Groups</h3>
+                </div>
+                <div class="col-sm-8 right-text">
+                    <button class="btn btn-primary" ng-click="manageAttendants()">Manage Auto Attendants</button>
+                    <button class="btn btn-primary" ng-click="createNewRinggroup()">Create New Ring Group</button>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <table id="data-table-top" class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Extension</th>
+                            <th>Ring Pattern</th>
+                            <th style="width: 18%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-if="!loadingRinggroups && availRinggroups.length === 0">
+                            <td colspan="4">You have not created a Ring Group yet.</td>
+                        </tr>
+                        <tr ng-if="loadingRinggroups">
+                                <td colspan="5"
+                                    class="loading-users mdgreyfont">
+                                    <i class="fa fa-spinner fa-spin fa-4x"></i><br />
+                                    <span>Loading Ring Groups<br />
+                                    Please Wait</span>
+                                </td>
+                            </tr>
+                        <tr ng-if="!loadingRinggroups && availRinggroups.length > 0" ng-repeat="ringgroup in availRinggroups | orderBy : 'queue_name' : false">
+                            <td class="capital" ng-click="editRinggroup(ringgroup)">{{ringgroup.queue_name}}</td>
+                            <td ng-click="editRinggroup(ringgroup)">{{ringgroup.queue_extension}}</td>
+                            <td ng-click="editRinggroup(ringgroup)">{{showStrategy(ringgroup)}}</td>
+                            <td style="width: 18%">
+                                <i ng-click="editRinggroup(ringgroup)" class="fa fa-pencil-square-o primaryfont mainopt" aria-hidden="true" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.editringgroup}}"></i>
+                                <i ng-click="restartRinggroup(ringgroup)" class="fa fa-refresh orangefont mainopt" aria-hidden="true" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.restartringgroup}}"></i>
+                                <i ng-click="deleteRinggroup(ringgroup)" class="fa fa-times-circle redfont mainopt" aria-hidden="true" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.deleteringgroup}}"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!--Create Attendant Shell-->
+        <!--<div class="auto-attendant-container" ng-if="menu.create">
+            <div class="createAttendant">
+                <div class="caption">
+                    <h3>Create New Auto Attendant</h3>
+                </div>
+                <div class="panel panel-primary panelbox">
+                    
+                    <div class="panel-heading title-bar">
+                        {{newIvr.ivr_menu_name ? newIvr.ivr_menu_name:"Auto Attendant Name"}}
+                    </div>
+                
+                    <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+                        <div class="row">
+                            <div class="col-sm-3 box1-label">
+                                Set Auto Attendant:
+                            </div>
+                            <div class="col-sm-4 box1-input">
+                                <md-input-container>
+                                    <label>Enter a Name</label>
+                                    <input ng-model="newIvr.ivr_menu_name" />
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 box1-label">Location:</div>
+                            <div class="col-sm-5 box1-input">
+                                <md-input-container>
+                                    <label>Select a Location</label>
+                                    <md-select ng-model="newIvr.location_group_uuid">
+                                        <md-option ng-repeat="location in locationGroups" ng-value="location.locations_group_uuid">
+                                            {{location.group_name}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 {{!ordered ? 'box1-label' : ''}}">Responds to this number:</div>
+                            <div class="col-sm-5 box1-input">
+                                <span ng-show="editing"> <b>{{newIvr.did.phone | tel}}</b><br></span>
+                               <md-input-container>
+                                    <label>Select a Number</label>
+                                    <md-select ng-model="newIvr.did" ng-change="checkIfExisting()">
+                                        <md-option ng-repeat="user in userList.items | orderBy: 'ext' : false" ng-value="user">
+                                            {{user.ext}} - {{user.name}} - {{user.phone | tel}}
+                                        </md-option>
+                                        <md-option ng-repeat="user in reusableDids" ng-value="user">
+                                            {{user.phone | tel}} - External Number {{user.port ? '- ' + user.port : ''}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                            <div class="col-sm-3">
+                                <button ng-show="!editing && !orderingNumber" class="pull-right btn btn-default btn-xs newdidbutton" ng-click ="newNumber()">Order a new Number</button>
+                                <div ng-if="orderingNumber"><i class="fa fa-spinner fa-spin fa-2x"></i><br />Please Wait</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3 box1-label">
+                                Specify Time Zone:
+                            </div>
+                            <div class="col-sm-5 box1-input">
+                                <md-input-container>
+                                    <label>Time Zone</label>
+                                    <md-select name="type" ng-model="newIvr.timezone">
+                                        <md-option ng-repeat="timeZone in timeZones" ng-value="timeZone.timezone">
+                                            {{timeZone.display}} - {{timeZone.timezone}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="attendant-bottom-button-bar">
+                <div class="pull-right">
+                    <button class="btn btn-success" uib-tooltip="Create attendant" ng-click="sendNewAutoAttendant()"><i class="fa fa-save"></i> Create Auto Attendant</button>
+                    <button class="btn btn-danger" ng-click="cancelEditAttendant($event)" uib-tooltip="Cancel creation"><i class="fa fa-undo"></i> Cancel</button>
+                </div>
+            </div>
+        </div>-->
+    <!-- Do create Clone -->
+        <div class="system-working" ng-if="aaWorking.status"><i class="fa fa-spinner fa-spin fa-5x"></i><br />
+            <span>{{aaWorking.message}}<br />
+            Please Wait</span>
+        </div>
+        <div class="auto-attendant-container" ng-if="menu.clone">
+            <div class="createAttendant">
+                <div class="caption">
+                    <h3>Clone Auto Attendant</h3>
+                </div>
+                <!--Title-->
+                <div class="panel panel-primary panelbox">
+                    
+                    <div class="panel-heading title-bar">
+                        {{newIvr.ivr_menu_name ? newIvr.ivr_menu_name:"Auto Attendant Name"}}
+                    </div>
+                
+                    <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+                        <div class="row">
+                            <div class="col-sm-3 box1-label">
+                                Set Auto Attendant:
+                            </div>
+                            <div class="col-sm-6 box1-input">
+                                <md-input-container>
+                                    <label>Enter a Name</label>
+                                    <input ng-model="newIvr.ivr_menu_name" />
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 box1-label">Location:</div>
+                            <div class="col-sm-5 box1-input">
+                                <md-input-container>
+                                    <label>Select a Location</label>
+                                    <md-select ng-model="newIvr.location_group_uuid">
+                                        <md-option ng-repeat="location in locationGroups" ng-value="location.locations_group_uuid">
+                                            {{location.group_name}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 {{!ordered ? 'box1-label' : ''}}">Responds to this number:</div>
+                            <div class="col-sm-6 box1-input">
+                                <!--<span ng-show="ordered"> <b>{{newIvr.newdid.phone | tel}}</b><br></span>-->
+                                
+                                <md-input-container >
+                                    <label>Select a New Number</label>
+                                    <md-select ng-model="newIvr.newdid">
+                                        <md-option ng-repeat="user in userList.items | orderBy: 'ext' : false" ng-selected="user.ext == newIvr.newdid.ext ? true : false" ng-value="user">
+                                            {{user.ext}} - {{user.name}} - {{user.phone | tel}}
+                                        </md-option>
+                                        <md-option ng-repeat="user in reusableDids" ng-selected="user.ext == newIvr.newdid.ext ? true : false" ng-value="user">
+                                            {{user.phone | tel}} - External Number {{user.port ? '- ' + user.port : ''}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                            <div class="col-sm-3">
+                                <button ng-show="!editing && !orderingNumber" class="pull-right btn btn-default btn-xs newdidbutton" ng-click ="newNumberForClone()">Order a new Number</button>
+                                <div ng-if="orderingNumber"><i class="fa fa-spinner fa-spin fa-2x"></i><br />Please Wait</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="attendant-bottom-button-bar">
+                <div class="pull-right">
+                    <button class="btn btn-default" ng-click="cancelEditAttendant($event)" uib-tooltip="Cancel creation"><i class="fa fa-undo"></i> Cancel</button>
+                    <button class="btn btn-success" uib-tooltip="Clone attendant" ng-click="postCloneAttendant()"><i class="fa fa-save"></i> Clone Auto Attendant</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Responds to -->
+        <div class="auto-attendant-container" ng-if="menu.respondsto">
+            <div class="createAttendant">
+                <div class="caption">
+                    <h3>Change Auto Attendant Number</h3>
+                </div>
+                <!--Title-->
+                <div class="panel panel-primary panelbox">
+                    
+                    <div class="panel-heading title-bar">
+                        {{newIvr.ivr_menu_name ? newIvr.ivr_menu_name:"Auto Attendant Name"}}
+                    </div>
+                
+                    <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+                        <div class="row">
+                            <div class="col-sm-3 box1-label">
+                                Set Auto Attendant:
+                            </div>
+                            <div class="col-sm-6 box1-input">
+                                <md-input-container>
+                                    <label>Enter a Name</label>
+                                    <input ng-model="newIvr.ivr_menu_name" />
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 box1-label">Location:</div>
+                            <div class="col-sm-5 box1-input">
+                                <md-input-container>
+                                    <label>Select a Location</label>
+                                    <md-select ng-model="newIvr.location_group_uuid">
+                                        <md-option ng-repeat="location in locationGroups" ng-value="location.locations_group_uuid">
+                                            {{location.group_name}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 {{!ordered ? 'box1-label' : ''}}">
+                                Responds to this number: <br />
+                                <button class="btn btn-default btn-xs" ng-click="addSecondaryNumber()"><i class="fa fa-plus"></i> Add Secondary Number</button>
+                            </div>
+                            <div class="col-sm-6 box1-input">
+                                <!--<span ng-show="ordered"> <b>{{newIvr.newdid.phone | tel}}</b><br></span>-->
+                                <md-input-container>
+                                    <label>Select a New Number</label>
+                                    <md-select ng-model="newIvr.newdid">
+                                        <md-option ng-repeat="user in userList.items | orderBy: 'ext' : false" ng-selected="user.ext == newIvr.newdid.ext ? true : false" ng-value="user">
+                                            {{user.ext}} - {{user.name}} - {{user.phone | tel}}
+                                        </md-option>
+                                        <md-option ng-repeat="user in reusableDids" ng-selected="user.ext == newIvr.newdid.ext ? true : false" ng-value="user">
+                                            {{user.phone | tel}} - External Number {{user.port ? '- ' + user.port : ''}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                            <div class="col-sm-3">
+                                <button ng-show="!editing && !orderingNumber" class="pull-right btn btn-default btn-xs newdidbutton" ng-click ="newNumberForRespondsTo()">Order a new Number</button>
+                                <div ng-if="orderingNumber"><i class="fa fa-spinner fa-spin fa-2x"></i><br />Please Wait</div>
+                            </div>
+                        </div>
+
+                        <div class="row" ng-if="addSecondary || newIvr.secondaryNumbers.length > 0">
+                            <div class="col-sm-3 {{!ordered ? 'box1-label' : ''}}">
+                                Secondary number<span ng-if="newIvr.secondaryNumbers.length > 1">s</span>:
+                            </div>
+                            <div class="col-sm-9 box1-input">
+                                <div class="tableclass"  ng-repeat="number in newIvr.secondaryNumbers">
+                                    <div class="tablecell">
+                                        {{number.did_number | tel}} - {{number.did_ext}}<span ng-if="number.did_name"> - {{number.did_name}}</span>
+                                    </div>
+                                    <div class="tablecell">
+                                        <i ng-if="!did.auto_attendant_did_uuid" 
+                                            class="fa fa-times-circle redfont mainopt" 
+                                            tooltip-placement="top" 
+                                            uib-tooltip="{{::tips.autoattendant.deletesecondary}}"]
+                                            ng-click="deleteSecondaryNumber(number)"></i>
+                                    </div>
+                                </div>
+                                <div class="tableclass" ng-if="addSecondary">
+                                    <div class="tablecell">
+                                        <md-input-container >
+                                            <label>Select a Number</label>
+                                            <md-select ng-model="newSecondary">
+                                                <md-option ng-repeat="did in availDids | orderBy: 'info.ext' : false" ng-if="usableAaDid(did)" ng-value="did" ng-selected="did.destination_number == newSecondary.destination_number ? true : false">
+                                                    {{did.destination_number | tel}} - {{did.info.ext}}<span ng-if="did.port" class="ltgreyfont capitalize"> - {{did.port.port_status}}</span>
+                                                </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                    <div class="tablecell">
+                                        <span ng-if="!orderingSecondaryNumber && !savingSecondaryNumber">
+                                            <i class="fa fa-hashtag orangefont mainopt" 
+                                                tooltip-placement="top" 
+                                                uib-tooltip="{{::tips.autoattendant.ordernewsecondary}}"
+                                                ng-click="orderNewSecondaryNumber()"></i>
+                                            <i class="fa fa-floppy-o dktealfont mainopt" 
+                                                tooltip-placement="top" 
+                                                uib-tooltip="{{::tips.autoattendant.savenewsecondary}}"
+                                                ng-click="saveNewSecondaryNumber(newSecondary)"></i>
+                                            <i class="fa fa-times-circle redfont mainopt" 
+                                                tooltip-placement="top" 
+                                                uib-tooltip="{{::tips.autoattendant.cancelnewsecondary}}"
+                                                ng-click="cancelNewSecondaryNumber()"></i>
+                                        </span>
+                                        <span ng-if="savingSecondaryNumber"><i class="fa fa-spinner fa-spin mainopt"></i> Saving</span>
+                                        <span ng-if="orderingSecondaryNumber"><i class="fa fa-spinner fa-spin mainopt"></i> Please Wait</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="attendant-bottom-button-bar">
+                <div class="pull-right">
+                    <button class="btn btn-default" ng-click="cancelEditAttendant()"><i class="fa fa-undo"></i> Cancel</button>
+                    <button class="btn btn-success" ng-click="saveChangeAaNumber()"><i class="fa fa-save"></i> Save New Number</button>
+                </div>
+            </div>
+        </div>
+
+        <!--Edit Attendant-->
+        <div ng-show="!aaWorking.status">
+            <div class="auto-attendant-container" ng-if="menu.edit">
+                <div class="createAttendant">
+                    <div class="caption">
+                        <h3>{{newIvr.ivr_menu_uuid ? 'Edit' : 'Create New'}} Auto Attendant</h3>
+                    </div>
+                    <!--Title-->
+                    <div class="panel panel-primary panelbox">
+                        
+                        <div class="panel-heading title-bar">
+                            {{newIvr.ivr_menu_name ? newIvr.ivr_menu_name:"Auto Attendant Name"}}
+                        </div>
+                    
+                        <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+                            <div class="row">
+                                <div class="col-sm-4 box1-label">
+                                    Set Auto Attendant:
+                                </div>
+                                <div class="col-sm-5 box1-input">
+                                    <md-input-container>
+                                        <label>Enter a Name</label>
+                                        <input ng-model="newIvr.ivr_menu_name" />
+                                    </md-input-container>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 box1-label">Location:</div>
+                                <div class="col-sm-5 box1-input">
+                                    <md-input-container>
+                                        <label>Select a Location</label>
+                                        <md-select ng-model="newIvr.location_group_uuid">
+                                            <md-option ng-repeat="location in locationGroups" ng-value="location.locations_group_uuid">
+                                                {{location.group_name}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 box1-label">
+                                    Specify Time Zone:
+                                </div>
+                                <div class="col-sm-5 box1-input">
+                                    <!-- {{newIvr.timezone}} -->
+                                    <md-input-container>
+                                        <label>Time Zone</label>
+                                        <md-select name="type" ng-model="newIvr.timezone">
+                                            <md-option ng-repeat="timeZone in timeZones" ng-value="timeZone.timezone">
+                                                {{timeZone.display}} - {{timeZone.timezone}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                            </div>
+
+                            <div class="row" style="padding-bottom: 15px;">
+                                <div class="col-sm-4">
+                                    Responds to <span ng-if="!newIvr.secondaryNumbers || newIvr.secondaryNumbers.length==0">this number:</span><span ng-if="newIvr.secondaryNumbers.length > 0">these numbers:</span>
+                                </div>
+                                <div class="col-sm-8 box1-input">
+                                    <div>
+                                        <b>{{newIvr.did.phone | tel}}</b>
+                                        <span ng-if="newIvr.did.name">({{newIvr.did.name}} - Ext. {{newIvr.did.ext}})<br /></span>
+                                        <span ng-if="!newIvr.did.name">(External Number)</span>
+                                    </div>
+                                    <div ng-repeat="number in newIvr.secondaryNumbers">
+                                        {{number.did_number | tel}} - Ext: {{number.did_ext}}<span ng-if="number.did_name"> - {{number.did_name}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Weekly Schedule-->
+                    <div id="aa-editing">
+                <uib-accordion close-others="oneAtATime">
+                    <div uib-accordion-group is-open="tabStatus.isWeeklyOpen">
+                        <uib-accordion-heading>
+                            <h3>Weekly Schedule</h3>
+                        </uib-accordion-heading>
+                    <!-- <div ng-material-collapse ng-if="true"> -->
+                        <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+                            <div class="weekly-panel panel panel-default">
+                                <div class="scroll-container-head">
+                                    <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 28%;">Week Day</th>
+                                                <th style="width: 28%">Start Time</th>
+                                                <th style="width: 28%">End Time</th>
+                                                <th style="width:16%">Disable</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="cls-body-table-pos">
+                                            <tr ng-repeat="week in scheduleType.weekly" ng-class="{'disabled-schedule':week.disabled}">
+                                                <td style="text-transform:capitalize;">{{week.day}}</td>
+                                                <td class="weekly-timepicker">
+                                                    <div class="disabled" ng-if="week.disabled">Disabled</div>
+                                                    <div ng-if="!week.disabled" uib-timepicker ng-change="checkForChars(week.times.start)" ng-model="week.times.start" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian"> </div>
+                                                    <div ng-if="!week.disabled && !week.times.start">Invalid Date</div>
+                                                </td>
+                                                <td class="weekly-timepicker">
+                                                    <div class="disabled" ng-if="week.disabled">Disabled</div>
+                                                    <div ng-if="!week.disabled" uib-timepicker ng-change="checkForChars(week.times.end)" ng-model="week.times.end" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian"> </div>
+                                                    <div ng-if="!week.disabled && !week.times.end">Invalid Date</div>
+                                                </td>
+                                                <td class="check">
+                                                    <md-checkbox style="margin:auto;" class="md-warn" ng-model="week.disabled" aria-label="disabled">
+                                                    </md-checkbox>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="attendant-bottom-button-bar">
+                                <div class="pull-right">
+                                    <button class="btn btn-default" uib-tooltip="Save attendant" ng-click="saveAttendant('continue')"><i class="fa fa-save"></i> Save Attendant</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Weekly-->
+
+                    <!--Holidays-->
+                    <div uib-accordion-group is-open="tabStatus.isHolidayOpen">
+                        <uib-accordion-heading>
+                            <h3>Holiday Schedule</h3>
+                        </uib-accordion-heading>
+                        <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+                            <button class="btn btn-primary holiday-button" ng-click = "addHoliday()"><i class="fa fa-plus" aria-hidden = "true"></i> Add Holiday</button>
+                            <div class="weekly-panel panel panel-default" ng-if="scheduleType.holiday.length>0">
+                                <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                                    <thead>
+                                        <tr>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th style="width:16%">Manage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="cls-body-table-pos">
+                                        <tr ng-repeat="newDate in scheduleType.holiday">
+                                            <td>
+                                                <span ng-if="!holidayEdited(newDate)">{{newDate.timeStart | amDateFormat: 'MMMM D'}}</span>
+                                                <div ng-if="holidayEdited(newDate)" class="input-group">
+                                                    <span class="input-group-addon" ng-click="open1()"><i class="fa fa-calendar"></i></span>
+                                                    <input type="text" class="form-control" ng-click="open1()" ng-change="changeEnd(newDate.timeStart)" uib-datepicker-popup = {{format}} ng-model="newDate.timeStart" placeholder="Start Date" datepicker-options="startDateOptions" is-open="popup1.opened" close-text="Close" ng-required = "true"/>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span ng-if="!holidayEdited(newDate)">{{newDate.timeEnd | amDateFormat: 'MMMM D'}}</span>
+                                                <div ng-if="holidayEdited(newDate)" class="input-group">
+                                                    <span class="input-group-addon" ng-click="open2()"><i class="fa fa-calendar"></i></span>
+                                                    <input type="text" class="form-control" ng-click="open2()" ng-change="changeStart(newDate.timeEnd)"  uib-datepicker-popup = {{format}} ng-model="newDate.timeEnd" placeholder="End Date" datepicker-options="endDateOptions" is-open="popup2.opened" close-text="Close" ng-required = "true"/>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span ng-if="!holidayEdited(newDate)"><i ng-click="editHoliday(newDate)" class="fa fa-pencil-square-o  deleteopt" aria-hidden="true" tooltip-placement="top" uib-tooltip="{{::tips.autoattendant.holidayeditrecord}}"></i></span>
+                                                <span ng-if="!holidayEdited(newDate)"><i ng-click="removeHoliday(newDate)" class="fa fa-times-circle redfont  deleteopt" aria-hidden="true" tooltip-placement="top" uib-tooltip="{{::tips.autoattendant.holidayremoverecord}}"></i></span>
+                                                <span ng-if="holidayEdited(newDate)"><i ng-click="saveHoliday(newDate)" class="fa fa-save  deleteopt" aria-hidden="true" tooltip-placement="top" uib-tooltip="{{::tips.autoattendant.holidaysavechanges}}"></i></span>
+                                                <span ng-if="holidayEdited(newDate)"><i ng-click="cancelEditingHoliday()" class="fa fa-ban deleteopt" aria-hidden="true" tooltip-placement="top" uib-tooltip="{{::tips.autoattendant.holidaycancelediting}}"></i></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 preset-holidays" ng-repeat="holiday in newIvr.presetHolidays">
+                                    <md-switch class="md-warn"
+                                            ng-model="holiday.status"
+                                            ng-click="togglePresetStatus(holiday)"
+                                            aria-hidden="true" 
+                                            tooltip-placement="top" 
+                                            uib-tooltip="Enable {{holiday.title}}">
+                                            {{holiday.title}}
+                                    </md-switch>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--Actions-->
+                    <div uib-accordion-group is-open="tabStatus.isOptionsOpen">
+                        <uib-accordion-heading>
+                            <h3>Customize Your Options</h3>
+                        </uib-accordion-heading>
+                        <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+                            <div class="tableclass action-menu">
+                                <md-radio-group ng-model="newIvr.auto_attendant.target_type"
+                                                ng-required="true">
+                                    <div class="tablecell">
+                                        <md-radio-button value="ivr_menu"
+                                                        class="md-primary">
+                                            <strong>Use IVR Menu</strong>
+                                            <br />
+                                            <span class="smfont">
+                                                Callers are directed to a numbered menu for guidance
+                                            </span>
+                                        </md-radio-button>
+                                    </div>
+                                    <div class="tablecell">
+                                        <md-radio-button value="ring_group">
+                                            <strong>Use Ring Group</strong>
+                                            <br />
+                                            <span class="smfont">
+                                                Callers are directed to a simultaneous, sequential or random ringgroup
+                                            </span>
+                                        </md-radio-button>
+                                    </div>
+                                    <div class="tablecell">
+                                        <md-radio-button value="voicemail">
+                                            <strong>Send to Voicemail</strong>
+                                            <br />
+                                            <span class="smfont">
+                                                Callers are sent directly to the voicemail for {{newIvr.did.phone | tel}}
+                                            </span>
+                                        </md-radio-button>
+                                    </div>
+                                </md-radio-group>
+                            </div>
+                            <div class="tableclass ringgroupoption action-menu" ng-if="newIvr.auto_attendant.target_type === 'voicemail'">
+                                <div class="tablecell">
+                                    <p>
+                                        <button ng-if="newIvr.vmgreeting" 
+                                            style="margin-right: 10px;"
+                                            class="btn btn-sm btn-default" 
+                                            ng-click="showAudioModal(newIvr.vmgreeting, 'voicemail-greeting1')" 
+                                            tooltip-placement="top" 
+                                            uib-tooltip="{{tips.autoattendant.playcurrentvoicemailgreeting}}">
+                                            Play Current Greeting</button>
+                                        <button class="btn btn-sm btn-primary" 
+                                            ng-click="showVoicemailTab()"
+                                            tooltip-placement="top" 
+                                            uib-tooltip="{{tips.autoattendant.editvoicemailoptions}}">
+                                            Edit Voicemail Settings
+                                        </button>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="tableclass ringgroupoption action-menu" ng-if="newIvr.auto_attendant.target_type === 'ring_group'">
+                                <div class="tablecell">
+                                    <p ng-if="availRinggroups.length === 0">There are currently no available Ringgroups. Please create a Ringgroup first.</p>
+                                    <md-input-container>
+                                        <label>Select a Ring Group</label>
+                                        <md-select ng-model="newIvr.auto_attendant.target_ringgroup">
+                                            <md-option ng-repeat="ringgroup in availRinggroups | orderBy : 'queue_name' : false" ng-value="ringgroup.call_center_queue_uuid" ng-disabled="availRinggroups.length === 0">
+                                                {{ringgroup.queue_name}} - {{showStrategy(ringgroup)}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                            </div>
+                            <!--Menu Action-->
+                            <div class="action-menu" id="menu-options" ng-if="newIvr.auto_attendant.target_type === 'ivr_menu'">
+                                <div class="mainAttendant">
+                                    <button class="btn btn-primary options-button" ng-show="!showAddOptions" ng-click="addNewOption()"><i class="fa fa-plus" aria-hidden = "true"></i> Add New Option</button>
+                                        
+                                    <div >
+                                        <table class="table table-bordered table-hover table-striped cls-tab-call-history customize" ng-show="optionsList.length>0 || showAddOptions">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 120px;">Menu Options</th>
+                                                    <th style="width: 180px;">Description</th>
+                                                    <th>Send Call To</th>
+                                                    <th style="width: 100px;"></th>
+                                                </tr>
+                                            </thead>
+                                            
+                                            <tbody>
+                                                <tr ng-repeat="myOptions in optionsList | orderBy : 'ivr_menu_option_digits' : false">
+                                                    <td ng-click="beingEdited(myOptions) || setEditing(myOptions)">
+                                                    <input type="hidden" ng-model="myOptions.ivr_menu_option_uuid">
+
+                                                        <div ng-show="!beingEdited(myOptions)"><strong>{{myOptions.ivr_menu_option_digits}}</strong></div>
+                                                    
+                                                        <md-input-container ng-show="beingEdited(myOptions)">
+                                                            <label>Select a Number</label>
+                                                                <md-select ng-model="myOptions.ivr_menu_option_digits" class="directoryOptions">
+                                                                    <md-option ng-repeat="digits in directoryOpts" ng-value="digits.digit" ng-disabled="!digits.available">
+                                                                        {{digits.digit}}
+                                                                    </md-option>
+                                                                </md-select>
+                                                        </md-input-container>
+                                                    </td>
+
+                                                    <td ng-click="beingEdited(myOptions) || setEditing(myOptions)">
+
+                                                        <div ng-show="!beingEdited(myOptions)"><strong>{{myOptions.ivr_menu_option_description}}</strong></div>
+                                                        
+                                                        <md-input-container ng-show="beingEdited(myOptions)">
+                                                                <label>Enter a Description</label>
+                                                                <input ng-model="myOptions.ivr_menu_option_description" />
+                                                        </md-input-container>
+                                                    </td>
+
+
+                                                    <td ng-if="!beingEdited(myOptions) || (beingEdited(myOptions) && myOptions.action === 'Dial By Name')" ng-click="beingEdited(myOptions) || setEditing(myOptions)">
+                                                        <strong>{{myOptions.action}}</strong>
+                                                        <span ng-if="myOptions.action !== 'Dial By Name' && !beingEdited(myOptions)">: {{showOptionsParams(myOptions)}}</span>
+                                                    </td>
+                                                    <td ng-if="beingEdited(myOptions) && (myOptions.action !== 'Dial By Name')">
+                                                        <div ng-show="myOptions.action === 'Transfer to an Extension'">
+                                                                <strong>{{myOptions.action}}</strong>: <md-input-container>
+                                                                <label>Pick a Number</label>
+                                                                <md-select ng-model="myOptions.ivr_menu_option_param">
+                                                                    <md-option ng-repeat="user in userList2.items" ng-value="user.ext">
+                                                                        {{user.ext}} - {{user.name}} - {{user.phone}}
+                                                                    </md-option>
+                                                                </md-select>
+                                                            </md-input-container>
+                                                        </div>
+                                                        <span ng-show="myOptions.action === 'Send to Voicemail'">
+                                                            <strong>{{myOptions.action}}</strong>
+                                                            <button ng-if="newIvr.vmgreeting" 
+                                                                style="margin-right: 10px;"
+                                                                class="btn btn-xs btn-default" 
+                                                                ng-click="showAudioModal(newIvr.vmgreeting, 'voicemail-greeting1')" 
+                                                                tooltip-placement="top" 
+                                                                uib-tooltip="{{tips.autoattendant.playcurrentvoicemailgreeting}}">
+                                                                Play Current Greeting</button>
+                                                            <button class="btn btn-xs btn-primary" 
+                                                                ng-click="saveOptionEditVoicemail(myOptions, addedOption)" 
+                                                                tooltip-placement="top" 
+                                                                uib-tooltip="{{tips.autoattendant.editvoicemailoptions}}">
+                                                                Edit Voicemail Settings</button>
+                                                        </span>
+                                                        <div ng-if="myOptions.action == 'Transfer to External Number'" ng-init="myOptions.ivr_menu_option_param = myOptions.ivr_menu_option_param.substring(4)">
+                                                                <strong>{{myOptions.action}}</strong>: <md-input-container>
+                                                                <label>Enter a Number</label>
+                                                                <input md-input phone-input ng-model="editedOption.external_number" />
+                                                            </md-input-container>
+                                                        </div>
+                                                        <div ng-show="myOptions.action === 'Ring Group'">
+                                                                <strong>{{myOptions.action}}</strong>: <md-input-container>
+                                                                <label>Select a Ring Group</label>
+                                                                <md-select ng-model="myOptions.ivr_menu_option_param">
+                                                                    <md-option ng-repeat="ringgroup in availRinggroups" ng-value="ringgroup.queue_extension">
+                                                                        {{ringgroup.queue_name}} - {{ringgroup.queue_extension}}
+                                                                    </md-option>
+                                                                </md-select>
+                                                            </md-input-container>
+                                                        </div>
+                                                    </td>
+                                                    <td style="width: 100px;">
+                                                        <i ng-show="!beingEdited(myOptions)" class="fa fa-times-circle redfont pull-right deleteopt" aria-hidden="true" ng-click="deleteOption(myOptions)" tooltip-placement="top" uib-tooltip="Delete Option"></i>
+                                                        
+                                                        <i ng-show="!beingEdited(myOptions)" class="fa fa-pencil-square-o pull-right deleteopt" aria-hidden="true" ng-click="setEditing(myOptions)" tooltip-placement="top" uib-tooltip="Edit Option"></i>
+                                                        <i ng-show="beingEdited(myOptions)" class="fa fa-ban pull-right cancelopt" aria-hidden="true" ng-click="cancelEditing()" tooltip-placement="top" uib-tooltip="Cancel Edit"></i>
+                                                        <i ng-show="beingEdited(myOptions)" class="fa fa-save pull-right deleteopt" aria-hidden="true" ng-click="saveOption(myOptions, editedOption)" tooltip-placement="top" uib-tooltip="Save Changes"></i>
+                                                        
+                                                        
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+
+                                            <tbody uib-collapse="!showAddOptions">
+
+                                                <tr class="cls-table-comp-setting-status" >
+                                                    <td>
+                                                        <md-input-container>
+                                                            <label>Select a Number</label>
+                                                            <md-select ng-model="myOptions.ivr_menu_option_digits" class="directoryOptions">
+                                                                <md-option ng-repeat="digits in directoryOpts" ng-value="digits.digit" ng-disabled="!digits.available"> 
+                                                                    {{digits.digit}}
+                                                                </md-option>
+                                                            </md-select>
+                                                        </md-input-container>
+                                                    </td>
+                                                    <td>
+                                                        <md-input-container>
+                                                            <label>Enter a Description</label>
+                                                            <input ng-model="myOptions.ivr_menu_option_description" />
+                                                        </md-input-container>
+                                                    </td>
+                                                    <td style="padding: 0;">
+                                                        <table class="table table-bordered masterdata">
+                                                            <tr>
+                                                                <td>
+                                                                    <md-input-container>
+                                                                        <label>Options</label>
+                                                                        <md-select ng-model="myOptions.action">
+                                                                            <md-option ng-repeat="sendTo in sendToOpts" ng-value="sendTo.name" ng-click="selectSendCallTo(this, sendTo.name, myOptions)" >
+                                                                                {{sendTo.name}}
+                                                                            </md-option>
+                                                                        </md-select>
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <td ng-show="myOptions.action && myOptions.action !== 'Dial By Name'">
+                                                                    <span ng-show="myOptions.action === 'Transfer to an Extension'">
+                                                                        <md-input-container>
+                                                                            <label>Choose an Extensiom</label>
+                                                                            <md-select ng-model="myOptions.ivr_menu_option_param">
+                                                                                <md-option ng-repeat="user in userList2.items" ng-value="user.ext">
+                                                                                    {{user.ext}} - {{user.name}} - {{user.phone}}
+                                                                                </md-option>
+                                                                            </md-select>
+                                                                        </md-input-container>
+                                                                    </span>
+                                                                    <span ng-show="myOptions.action === 'Send to Voicemail'">
+                                                                        <button ng-if="newIvr.vmgreeting" 
+                                                                            style="margin-right: 10px;"
+                                                                            class="btn btn-xs btn-default" 
+                                                                            ng-click="showAudioModal(newIvr.vmgreeting, 'voicemail-greeting1')" 
+                                                                            tooltip-placement="top" 
+                                                                            uib-tooltip="{{tips.autoattendant.playcurrentvoicemailgreeting}}">
+                                                                            Play Current Greeting</button>
+                                                                        <button class="btn btn-xs btn-primary" 
+                                                                            ng-click="saveOptionEditVoicemail(myOptions, addedOption)" 
+                                                                            tooltip-placement="top" 
+                                                                            uib-tooltip="{{tips.autoattendant.editvoicemailoptions}}">
+                                                                            Edit Voicemail Settings</button>
+                                                                    </span>
+                                                                    <span ng-if="myOptions.action == 'Transfer to External Number'">
+                                                                        <div><md-input-container>
+                                                                            <label>Enter a Number</label>
+                                                                            <input md-input phone-input ng-model="addedOption.external_number" />
+                                                                        </md-input-container></div>
+                                                                    </span>
+
+                                                                    <div ng-show="myOptions.action === 'Ring Group'">
+                                                                        <md-input-container>
+                                                                            <label>Select a Ring Group</label>
+                                                                            <md-select ng-model="myOptions.ivr_menu_option_param">
+                                                                                <md-option ng-repeat="ringgroup in availRinggroups" ng-value="ringgroup.queue_extension">
+                                                                                    {{ringgroup.queue_name}} - {{ringgroup.queue_extension}}
+                                                                                </md-option>
+                                                                            </md-select>
+                                                                        </md-input-container>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td>
+                                                        <i class="fa fa-ban pull-right cancelopt" aria-hidden="true" ng-click="cancelInsertOption()" tooltip-placement="top" uib-tooltip="Cancel Edit"></i>
+                                                        <i class="fa fa-save pull-right deleteopt" aria-hidden="true" ng-click="saveOption(myOptions, addedOption)" tooltip-placement="top" uib-tooltip="Save Changes"></i>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+
+                                </div>   
+                            
+                            </div>
+                        <br/>
+                        <br/>
+                            
+                        </div>
+                        
+                    </div>
+                    <!--Actions-->
+
+                    <!--Greetings-->
+                    <div uib-accordion-group is-open="tabStatus.isGreetingsOpen" ng-if="newIvr.auto_attendant.target_type === 'ivr_menu'">
+                        <uib-accordion-heading>
+                            <h3>Record Greeting</h3>
+                        </uib-accordion-heading>
+                        <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="panel cls-panels-header">
+                                        <div class="panel-heading"><i class="fa fa-hand-o-up" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Click an Option Below</strong></div>
+                                            <ul class="list-group">
+                                                <li class="list-group-item" ng-click="setOpcMessageBroadcast(1)"><i class="fa fa-microphone" style="margin-right: 10px;"></i>Record a New Message <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'newrecord'"></i></li>
+                                                <li class="list-group-item" ng-click="setOpcMessageBroadcast(2)"><i class="fa fa-upload" style="margin-right: 10px;"></i>Upload an Audio File <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'uploadfile'"></i></li>
+                                                <li class="list-group-item" ng-click="setOpcMessageBroadcast(3)"><i class="fa fa-book" style="margin-right: 10px;"></i> Select from Audio Library <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'audiolibrary'"></i></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                <div class="col-md-7">
+                                    <div ng-if="newIvr.greeting && !opcBroadcast" class="center-text show-player">
+                                        {{newIvr.greeting.file_title}}<br />
+                                        <button class="btn btn-default" ng-click="playRecording(newIvr.ivr_menu_greet_long)"><i class="fa fa-play"></i> Play Current Recording</button>
+                                    </div>
+                                    <div class="panel" ng-if="opcBroadcast" style="border: #cfdef0 solid 1px;">
+                                        <div class="panel-heading">
+                                            <strong class="cls-color-blue-tkg">{{opcBroadcastTitle}}</strong>
+                                            <button class="btn btn-default pull-right" ng-click="cancelAddAudio()"><i class="fa fa-undo"></i> Cancel2</button>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div ng-if="opcBroadcast==='newrecord'" >
+                                                <div class="jumbotron recording">
+                                                    <div ng-audio-recorder id="singleAudio" myindex="0" audio-model="recordedSingle" show-player="false" class="container" convert-mp3="false"
+                                                        kotter-start="recordingService.start" kotter-stop="recordingService.stop">
+                                                        <div ng-if="recorder.isAvailable">
+                                                            <div class="panel panel-primary">
+                                                                <div class="panel-body">
+                                                                    <div>
+                                                                        <md-input-container style="width: 100%; text-align: center;" >
+                                                                            <label>Recording Title</label>
+                                                                            <input ng-model="recording.title" />
+                                                                        </md-input-container>
+                                                                    </div>
+                                                                    <div >
+                                                                        <h3 style="float: right; /*font-family: sans-serif*/; text-align: center; width: 50px; border-radius: 30px; border: solid 2px #333; padding: 10px; margin: 0; background: #337ab7; color: #fff;"
+                                                                            ng-if="recorder.status.isRecording">
+                                                                            {{recorder.elapsedTime >= 10 ? recorder.elapsedTime : ('0'+recorder.elapsedTime)}}
+                                                                        </h3>
+
+                                                                        <div class="alert alert-danger" ng-if="recorder.status.isDenied === true">
+                                                                            Permission to use your microphone was declined, please refresh this page to grant
+                                                                            permission.
+                                                                        </div>
+                                                                        <div class="controls text-center" style="padding-top: 10px;"
+                                                                            ng-init="savingRecord = false;"
+                                                                                ng-hide="recorder.status.isDenied === true">
+                                                                            <button ng-click="recorder.status.isRecording ? recorder.stopRecord() : recorder.startRecord()"
+                                                                                    type="button" class="btn"
+                                                                                    ng-class="{'btn-primary': !recorder.status.isRecording, 'btn-danger': recorder.status.isRecording}">
+                                                                                <i class="glyphicon glyphicon-record"></i> {{recorder.status.isRecording ? 'Stop' :
+                                                                                'Record'}}
+                                                                            </button>
+                                                                            <button class="btn"
+                                                                                    ng-class="{'btn-primary': (recorder.status.isPaused || recorder.status.isStopped), 'btn-warning': recorder.status.isPlaying}"
+                                                                                    ng-click="recorder.status.isPlaying ? recorder.playbackPause() : recorder.playbackResume()"
+                                                                                    type="button"
+                                                                                    ng-disabled="recorder.status.isRecording || !recorder.audioModel">
+                                                                                <span ng-if="recorder.status.isPaused || recorder.status.isStopped">
+                                                                                    <i class="glyphicon glyphicon-play"></i> Play
+                                                                                </span>
+
+                                                                                <span ng-if="recorder.status.isPlaying">
+                                                                                    <i class="glyphicon glyphicon-pause"></i> Pause
+                                                                                </span>
+                                                                            </button>
+                                                                            <button class="btn btn-success" 
+                                                                                ng-disabled="savingRecord || recorder.status.isRecording || !recorder.audioModel" 
+                                                                                ng-click="savingRecord = !savingRecord; recorder.savetoServer(0, recording.title)"
+                                                                                >
+                                                                                <i class="glyphicon glyphicon-download"></i> Save
+                                                                            </button>
+                                                                            <span ng-if="savingRecord">
+                                                                                    <i class="fa fa-cog fa-spin fa-lg"></i>
+                                                                                </span>
+                                                                            <button id="btnDownload" style="display: none;"></button>
+                                                                        </div>
+                                                                        <div class="clearfix"></div>
+                                                                    </div>
+                                                                    <br/>
+                                                                    
+                                                                    <div ng-if="recorder.status.isConverting">
+                                                                        <p class="text-center">
+                                                                            Please wait while we process your recording
+                                                                        </p>
+                                                                    </div>
+                                                                    <div class="panels" canvas-sizer>
+                                                                        <div ng-show="recorder.status.isRecording">
+                                                                            <ng-audio-recorder-analyzer></ng-audio-recorder-analyzer>
+                                                                        </div>
+
+                                                                        <div ng-show="!recorder.status.isRecording && recorder.audioModel">
+                                                                            <ng-audio-recorder-wave-view wave-color="silver"
+                                                                                                        bar-color="red"></ng-audio-recorder-wave-view>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <div ng-if="!recorder.isAvailable" class="alert alert-warning">
+                                                            Your browser does not support this feature natively, please use latest version of <a
+                                                                href="https://www.google.com/chrome/browser" target="_blank">Google Chrome</a> or <a
+                                                                href="https://www.mozilla.org/en-US/firefox/new/" target="_blank">Mozilla Firefox</a>. If you're on
+                                                            Safari or Internet Explorer, you can install <a href="https://get.adobe.com/flashplayer/">Adobe Flash</a> to
+                                                            use this feature.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-if="opcBroadcast==='audiolibrary'">
+                                                <div class="scroll-container-head">
+                                                    <table class="table table-bordered table-hover table-striped data-table-top" style="width: 100%;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="width: 45px;">Play</th>
+                                                                <th>File</th>
+                                                                <th style="width: 100px;">Choose</th>
+                                                                <th style="width: 90px;"></th>
+                                                                <th ng-if="audioLibrary.length>5" style="width: 10px; padding: 0px; border-left: 0;"></th>
+                                                            </tr>
+                                                        </thead>
+                                                    </table>
+                                                </div>
+                                                <div class="scroll-container" style="height: 225px">
+                                                    <table class="table table-bordered table-hover table-striped"  style="width: 100%;">
+                                                        <tbody>
+                                                            <tr ng-repeat="row in audioLibrary">
+                                                                <td style="width: 45px;">
+                                                                    <span ng-if="audioFilePlaying!==row.audio_library_uuid" 
+                                                                        ng-click="playAudioFile(row.filepath, row.audio_library_uuid)" tooltip-placement="top" 
+                                                                        uib-tooltip="Listen to Audio File">
+                                                                        <i class="fa fa-play-circle fa-2x"></i>
+                                                                    </span>
+                                                                    <span ng-if="audioFilePlaying===row.audio_library_uuid" 
+                                                                        ng-click="stopPlaying()" 
+                                                                        tooltip-placement="top" 
+                                                                        uib-tooltip="Stop Playing Audio File">
+                                                                        <i class="fa fa-stop-circle fa-2x"></i>
+                                                                    </span>
+                                                                </td>
+                                                                <td><span ng-if="!greetingBeingEdited(row)">{{row.file_title}} <span ng-if="row.used ==='true'" aria-hidden="true" tooltip-placement="top" uib-tooltip="This greeting is being used in an Auto Attendant"><i class="fa fa-check" ></i></span></span>
+                                                                    <md-input-container ng-if="greetingBeingEdited(row)" style="width: 100%; text-align: center;" >
+                                                                        <label>Recording Title</label>
+                                                                        <input ng-model="row.file_title" />
+                                                                    </md-input-container>
+                                                                </td>
+                                                                <td style="width: 100px;">
+                                                                    <button class="btn btn-success btn-xs" 
+                                                                        ng-if="selectingGreeting !== row.audio_library_uuid"
+                                                                            ng-click="selectAudioLibraryFile(row)">
+                                                                        <i class="fa fa-plus"></i> 
+                                                                        Select
+                                                                    </button>
+                                                                    <i ng-if="selectingGreeting === row.audio_library_uuid" class="fa fa-cog fa-spin fa-lg"></i>
+                                                                </td>
+                                                                <td style="width: 90px;">
+                                                                    <i ng-if="row.original_filename !== 'ivrgreeting_default.mp3' && !greetingBeingEdited(row)" class="fa fa-times-circle pull-right {{row.used === 'true' ? 'ltredfont' : 'redfont'}} deleteopt" ng-click="row.used ==='true' || deleteGreeting(row)" aria-hidden="true" tooltip-placement="top-right" uib-tooltip="{{row.used ==='true' ? 'This greeting is being used and can not be deleted' : 'Delete Greeting'}}"></i>
+                                                                    <i ng-if="greetingBeingEdited(row)" class="fa fa-ban pull-right cancelopt" aria-hidden="true" ng-click="cancelEditGreeting()" tooltip-placement="top-right" uib-tooltip="Cancel Edit"></i>
+                                                                    <i ng-if="greetingBeingEdited(row)" class="fa fa-save pull-right deleteopt" aria-hidden="true" ng-click="saveEditGreeting(row)" tooltip-placement="top-right" uib-tooltip="Save Changes"></i>
+                                                                    <i ng-if="!greetingBeingEdited(row)" class="fa fa-pencil-square-o pull-right deleteopt" aria-hidden="true" ng-click="setEditGreeting(row)" tooltip-placement="bottom-right" uib-tooltip="Edit Audio File"></i>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div ng-if="opcBroadcast==='uploadfile'">
+                                                <div class="jumbotron center-text">
+                                                    <div><md-input-container style="width: 100%; text-align: center;" >
+                                                                <label>Recording Title</label>
+                                                                <input ng-model="recording.title" />
+                                                        </md-input-container></div>
+                                                    <span ng-if="audioRecording.name"><p><strong>{{audioRecording.name}}</strong></p></span>
+                                                    <label class="btn btn-primary btn-file" >
+                                                        Browse for File <input class="form-control" accept="audio/*" type="file" 
+                                                        name="useravatar" style="display: none;" file-model="audioRecording">
+                                                    </label>
+                                                    <button class="btn btn-success" ng-disabled="uploadingLibrary || !audioRecording" ng-click="uploadAudioFile(audioRecording, recording.title)">Upload File</button>
+                                                    <span ng-if="uploadingLibrary">
+                                                        <i class="fa fa-cog fa-spin fa-lg"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--End of Greetings-->
+
+                    <!--Voicemail Greeting -->
+                    <div uib-accordion-group is-open="tabStatus.isVoicemailOpen">
+                        <uib-accordion-heading>
+                            <h3>Manage Voicemail Greeting for Attendant DID - {{newIvr.did.phone | tel}}</h3>
+                        </uib-accordion-heading>
+                        <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+                            <md-input-container>
+                                <input type="password"
+                                    name="voicemail_password"
+                                    ng-model="newIvr.voicemail.voicemail_password"
+                                    ng-minlength="4"
+                                    md-minlength="4"
+                                    placeholder="4-digit PIN">
+                                <div ng-messages="voicemailForm.voicemail_password.$error">
+                                    <div ng-message="minlength">
+                                        PIN must be 4 digits
+                                    </div>
+                                </div>
+                            </md-input-container>
+                            <md-input-container class="vm_email">
+                                <input type="email"
+                                    name="voicemail_mail_to"
+                                    ng-model="newIvr.voicemail.voicemail_mail_to"
+                                    placeholder="Forwarding Email">
+                                <div ng-messages="voicemailForm.voicemail_mail_to.$error">
+                                    <div ng-message="email">
+                                        Must be valid email address
+                                    </div>
+                                </div>
+                            </md-input-container>
+                            <br>
+                            <div class="audio-selector-container">
+                                <md-button ng-if="newIvr.vmgreeting" class="md-default md-raised vm-button"
+                                        ng-click="showAudioModal(newIvr.vmgreeting, 'voicemail-greeting1')"
+                                        >
+                                    <i class="fa fa-play-circle"></i>
+                                    Play Current Voicemail Greeting
+                                </md-button>
+                                <md-button class="md-default md-raised vm-button"
+                                        ng-click="showVoicemailSelector = !showVoicemailSelector"
+                                        >
+                                    <i class="fa fa-edit"></i>
+                                    Change Voicemail Greeting
+                                </md-button>
+                                <br>
+                                <div class="row" ng-show="showVoicemailSelector">
+                                    <div class="col-md-5">
+                                        <div class="panel cls-panels-header">
+                                            <div class="panel-heading"><i class="fa fa-hand-o-up" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Click an Option Below</strong></div>
+                                                <ul class="list-group">
+                                                    <li class="list-group-item" ng-click="setOpcMessageBroadcast(1)"><i class="fa fa-microphone" style="margin-right: 10px;"></i>Record a New Message <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'newrecord'"></i></li>
+                                                    <li class="list-group-item" ng-click="setOpcMessageBroadcast(2)"><i class="fa fa-upload" style="margin-right: 10px;"></i>Upload an Audio File <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'uploadfile'"></i></li>
+                                                    <li class="list-group-item" ng-click="setOpcMessageBroadcast(3)"><i class="fa fa-book" style="margin-right: 10px;"></i> Select from Audio Library <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'audiolibrary'"></i></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    <div class="col-md-7">
+                                        <div ng-if="newIvr.vmgreeting && !opcBroadcast" class="center-text show-player">
+                                            <span ng-if="newIvr.vmgreeting">{{newIvr.vmgreeting.greeting_name}}</span><br />
+                                            <button class="btn btn-default" ng-click="showAudioModal(newIvr.vmgreeting, 'voicemail-greeting1')"><i class="fa fa-play"></i> Play Current Recording</button>
+                                        </div>
+                                        <div class="panel" ng-if="opcBroadcast" style="border: #cfdef0 solid 1px;">
+                                            <div class="panel-heading">
+                                                <strong class="cls-color-blue-tkg">{{opcBroadcastTitle}}</strong>
+                                                <button class="btn btn-default pull-right" ng-click="cancelAddAudio()"><i class="fa fa-undo"></i> Cancel</button>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div ng-if="opcBroadcast==='newrecord'" >
+                                                    <div class="jumbotron recording">
+                                                        <div ng-audio-recorder id="singleAudio" myindex="0" audio-model="recordedSingle" show-player="false" class="container"  convert-mp3="false">
+                                                            <div ng-if="recorder.isAvailable">
+                                                                <div class="panel panel-primary">
+                                                                    <div class="panel-body">
+                                                                        <div><md-input-container style="width: 100%; text-align: center;" >
+                                                                                    <label>Greeting Description</label>
+                                                                                    <input ng-model="recording.title" />
+                                                                            </md-input-container>
+                                                                        </div>
+                                                                        <div >
+                                                                            <h3 style="float: right; /*font-family: sans-serif*/; text-align: center; width: 50px; border-radius: 30px; border: solid 2px #333; padding: 10px; margin: 0; background: #337ab7; color: #fff;"
+                                                                                ng-if="recorder.status.isRecording">
+                                                                                {{recorder.elapsedTime >= 10 ? recorder.elapsedTime : ('0'+recorder.elapsedTime)}}
+                                                                            </h3>
+
+                                                                            <div class="alert alert-danger" ng-if="recorder.status.isDenied === true">
+                                                                                Permission to use your microphone was declined, please refresh this page to grant
+                                                                                permission.
+                                                                            </div>
+                                                                            <div class="controls text-center" style="padding-top: 10px;"
+                                                                                    ng-hide="recorder.status.isDenied === true">
+                                                                                <button ng-click="recorder.status.isRecording ? recorder.stopRecord() : recorder.startRecord()"
+                                                                                        type="button" class="btn"
+                                                                                        ng-class="{'btn-primary': !recorder.status.isRecording, 'btn-danger': recorder.status.isRecording}">
+                                                                                    <i class="glyphicon glyphicon-record"></i> {{recorder.status.isRecording ? 'Stop' :
+                                                                                    'Record'}}
+                                                                                </button>
+                                                                                <button class="btn"
+                                                                                        ng-class="{'btn-primary': (recorder.status.isPaused || recorder.status.isStopped), 'btn-warning': recorder.status.isPlaying}"
+                                                                                        ng-click="recorder.status.isPlaying ? recorder.playbackPause() : recorder.playbackResume()"
+                                                                                        type="button"
+                                                                                        ng-disabled="recorder.status.isRecording || !recorder.audioModel">
+                                                                                    <span ng-if="recorder.status.isPaused || recorder.status.isStopped">
+                                                                                        <i class="glyphicon glyphicon-play"></i> Play
+                                                                                    </span>
+
+                                                                                    <span ng-if="recorder.status.isPlaying">
+                                                                                        <i class="glyphicon glyphicon-pause"></i> Pause
+                                                                                    </span>
+                                                                                </button>
+                                                                                <button class="btn btn-success" 
+                                                                                    ng-disabled="recorder.status.isRecording || !recorder.audioModel" 
+                                                                                    ng-click="recorder.savetoServer(getaudioModel, recording.title)">
+                                                                                    <i class="glyphicon glyphicon-download"></i> Save
+                                                                                </button>
+                                                                                <button id="btnDownload" style="display: none;"></button>
+                                                                            </div>
+                                                                            <div class="clearfix"></div>
+                                                                        </div>
+                                                                        <br/>
+                                                                        
+                                                                        <div ng-if="recorder.status.isConverting">
+                                                                            <p class="text-center">
+                                                                                Please wait while we process your recording
+                                                                            </p>
+                                                                        </div>
+                                                                        <div class="panels" canvas-sizer>
+                                                                            <div ng-show="recorder.status.isRecording">
+                                                                                <ng-audio-recorder-analyzer></ng-audio-recorder-analyzer>
+                                                                            </div>
+
+                                                                            <div ng-show="!recorder.status.isRecording && recorder.audioModel">
+                                                                                <ng-audio-recorder-wave-view wave-color="silver"
+                                                                                                            bar-color="red"></ng-audio-recorder-wave-view>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                            <div ng-if="!recorder.isAvailable" class="alert alert-warning">
+                                                                Your browser does not support this feature natively, please use latest version of <a
+                                                                    href="https://www.google.com/chrome/browser" target="_blank">Google Chrome</a> or <a
+                                                                    href="https://www.mozilla.org/en-US/firefox/new/" target="_blank">Mozilla Firefox</a>. If you're on
+                                                                Safari or Internet Explorer, you can install <a href="https://get.adobe.com/flashplayer/">Adobe Flash</a> to
+                                                                use this feature.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div ng-if="opcBroadcast==='audiolibrary'">
+                                                    <div class="scroll-container-head">
+                                                        <table class="table table-bordered table-hover table-striped data-table-top" style="width: 100%;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style="width: 45px;">Play</th>
+                                                                    <th>Description</th>
+                                                                    <th style="width: 100px;">Choose</th>
+                                                                    <th style="width: 90px;"></th>
+                                                                    <th ng-if="voicemailGreetings.length>4" style="width: 10px; padding: 0px; border-left: 0;"></th>
+                                                                </tr>
+                                                            </thead>
+                                                        </table>
+                                                    </div>
+                                                    <div class="scroll-container" style="height: 225px">
+                                                        <table class="table table-bordered table-hover table-striped"  style="width: 100%;">
+                                                            <tbody>
+                                                                <tr ng-repeat="row in voicemailGreetings">
+                                                                    <td style="width: 45px;">
+                                                                        <span ng-if="audioFilePlaying!==row.voicemail_greeting_uuid" 
+                                                                            ng-click="playAudioFile(getGreetingFilepath(row.greeting_filename), row.voicemail_greeting_uuid)" tooltip-placement="top" 
+                                                                            uib-tooltip="Listen to Audio File">
+                                                                            <i class="fa fa-play-circle fa-2x"></i>
+                                                                        </span>
+                                                                        <span ng-if="audioFilePlaying===row.voicemail_greeting_uuid"
+                                                                            ng-click="stopPlaying()"
+                                                                            tooltip-placement="top"
+                                                                            uib-tooltip="Stop Playing Audio File">
+                                                                            <i class="fa fa-stop-circle fa-2x audiofileoption"></i>
+                                                                        </span>
+                                                                    </td>
+                                                                    <td><span ng-if="!vmGreetingBeingEdited(row)">{{row.greeting_name}} <span ng-if="currentVoicemailGreeting(row)" aria-hidden="true" tooltip-placement="top" uib-tooltip="This is the current voicemail greeting"><i class="fa fa-check" ></i></span></span>
+                                                                        <md-input-container ng-if="vmGreetingBeingEdited(row)" style="width: 100%; text-align: center;" >
+                                                                            <label>Greeting Description</label>
+                                                                            <input ng-model="row.greeting_name" />
+                                                                        </md-input-container>
+                                                                    </td>
+                                                                    <td style="width: 100px;">
+                                                                        <button class="btn btn-success btn-xs" 
+                                                                                ng-click="selectVoicemailGreeting(row)">
+                                                                            <i class="fa fa-plus"></i> 
+                                                                            Select
+                                                                        </button>
+                                                                    </td>
+                                                                    <td style="width: 90px;">
+                                                                        <i ng-show="!vmGreetingBeingEdited(row)" class="fa fa-times-circle pull-right {{currentVoicemailGreeting(row) ? 'ltredfont' : 'redfont'}} deleteopt" aria-hidden="true" ng-click="currentVoicemailGreeting(row) || deleteVmGreeting(row)" tooltip-placement="top-right" uib-tooltip="{{currentVoicemailGreeting(row) ? 'This is the current greeting so it can not be deleted' : 'Delete Greeting'}}"></i>
+                                                                        <i ng-show="vmGreetingBeingEdited(row)" class="fa fa-ban pull-right cancelopt" aria-hidden="true" ng-click="cancelEditVmGreeting()" tooltip-placement="top-right" uib-tooltip="Cancel Edit"></i>
+                                                                        <i ng-show="vmGreetingBeingEdited(row)" class="fa fa-save pull-right deleteopt" aria-hidden="true" ng-click="saveEditVmGreeting(row)" tooltip-placement="top-right" uib-tooltip="Save Changes"></i>
+                                                                        <i ng-show="!vmGreetingBeingEdited(row)" class="fa fa-pencil-square-o pull-right deleteopt" aria-hidden="true" ng-click="setEditVmGreeting(row)" tooltip-placement="top-right" uib-tooltip="Edit Greeting"></i>
+                                                                        
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div ng-if="opcBroadcast==='uploadfile'">
+                                                    <div class="jumbotron center-text">
+                                                        <div><md-input-container style="width: 100%; text-align: center;" >
+                                                                    <label>Greeting Description</label>
+                                                                    <input ng-model="recording.title" />
+                                                            </md-input-container>
+                                                        </div>
+                                                        <span ng-if="audioRecording.name"><p><strong>{{audioRecording.name}}</strong></p></span>
+                                                        <label class="btn btn-primary btn-file" >
+                                                            Browse for File <input class="form-control" accept="audio/*" type="file" 
+                                                            name="useravatar" style="display: none;" file-model="audioRecording">
+                                                        </label>
+                                                        <button class="btn btn-success" ng-disabled="!audioRecording" ng-click="uploadVoicemailAudio(audioRecording, recording.title)">Upload File</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </uib-accordion>
+                    </div>
+                </div>
+                <div class="attendant-bottom-button-bar" style="padding-bottom: 80px;">
+                    <hr />
+                    <div class="pull-right">
+                        <button class="btn btn-default" ng-click="cancelEditAttendant($event)" uib-tooltip="Cancel attendant"><i class="fa fa-undo"></i> Cancel</button>
+                        <button class="btn btn-primary" uib-tooltip="Save attendant" ng-click="saveAttendant('continue')"><i class="fa fa-save"></i> Save & Continue</button>
+                        <button class="btn btn-success" uib-tooltip="Save attendant" ng-click="saveAttendant('close')" ><i class="fa fa-save"></i> Save & Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-if="!aaEnabled && !menu.create">
+        
+        <div class="row caption">
+            <div class="col-sm-4">
+                <h3>Auto Attendant</h3>
+            </div>
+            <div class="col-sm-8 right-text" ng-if="isKotterTechOrGreater()">
+                <button class="btn btn-primary" ng-click="createNewAttendant()">Create New Attendant</button>
+            </div>
+        </div>
+        <div class="notification">
+            <h4>Your Auto Attendant is directly managed by The Kotter Group. Please contact us at <b>770-717-1777</b> to request changes.</h4>
+        </div>
+        <div ng-if="isKotterTechOrGreater()">
+            <table id="data-table-top" class="table table-bordered table-striped cls-tab-call-history">
+                <thead>
+                    <tr>
+                        <th>Auto Attendant Title</th>
+                        <th style="width: 25%">Primary DID</th>
+                        <th style="width: 25%">Location Group</th>
+                        <th style="width: 10%">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-if="!loadingAttendants && myAttendants.length === 0">
+                        <td colspan="5">There are no auto attendants on this agency yet. </td>
+                    </tr>
+                    <tr ng-if="loadingAttendants">
+                        <td colspan="5"
+                            class="loading-users mdgreyfont">
+                            <i class="fa fa-spinner fa-spin fa-4x"></i><br />
+                            <span>Loading Attendants<br />
+                            Please Wait</span>
+                        </td>
+                    </tr>
+                    <tr ng-if="!loadingAttendants && myAttendants.length > 0" ng-repeat="attendant in myAttendants | orderBy : 'ivr_menu_name' : false" class="viewAttendant">
+                        <td class="capital">
+                            {{attendant.ivr_name}}
+                        </td>
+                        <td>
+                            <span ng-if="editingDid !== attendant.ivr_menu_uuid">{{attendant.ivr_phone | tel}} <i class="fa fa-pencil-square-o mainopt bridgebluefont" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.editdid}}" ng-click="editPrimaryDid(attendant)"></i></span>
+                            <span ng-if="editingDid === attendant.ivr_menu_uuid">
+                                <md-input-container>
+                                    <label>Enter Primary DID</label>
+                                    <input ng-model="newPrimaryDid" />
+                                </md-input-container>
+                                <i class="fa fa-floppy-o mainopt primaryfont" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.savedid}}" ng-click="savePrimaryDid(attendant, newPrimaryDid)"></i>
+                                <i class="fa fa-undo mainopt orangefont" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.canceldidedit}}" ng-click="cancelEditPrimaryDid()"></i>
+                            </span>
+                        </td>
+                        <td>
+                            <span ng-if="editingLocation !== attendant.ivr_menu_uuid">{{showLocation(attendant.location_group_uuid)}} <i class="fa fa-pencil-square-o mainopt bridgebluefont" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.editlocation}}" ng-click="editLocationGroup(attendant)"></i></span>
+                            <span ng-if="editingLocation === attendant.ivr_menu_uuid">
+                                <md-input-container>
+                                    <label>Select a Location</label>
+                                    <md-select ng-model="newLocation">
+                                        <md-option ng-repeat="location in locationGroups" ng-value="location.locations_group_uuid">
+                                            {{location.group_name}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                                <i class="fa fa-floppy-o mainopt primaryfont" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.savelocation}}" ng-click="saveLocationGroup(attendant, newLocation)"></i>
+                                <i class="fa fa-undo mainopt orangefont" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.cancellocationedit}}" ng-click="cancelEditLocation()"></i>
+                            </span>
+                        </td>
+                        <td>
+                            <i ng-click="deleteBasicAttendant(attendant)" class="fa fa-times-circle redfont mainopt" aria-hidden="true" tooltip-placement="top-right" uib-tooltip="{{::tips.autoattendant.deleteattendant}}"></i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <hr />
+        <h4>Upload your Greetings here:</h4>
+        <div uib-collapse="isCollapsedVertical" class="collapsible-content">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="panel cls-panels-header">
+                        <div class="panel-heading"><i class="fa fa-hand-o-up" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Click an Option Below</strong></div>
+                            <ul class="list-group">
+                                <li class="list-group-item" ng-click="setOpcMessageBroadcast(1)"><i class="fa fa-microphone" style="margin-right: 10px;"></i>Record a New Message <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'newrecord'"></i></li>
+                                <li class="list-group-item" ng-click="setOpcMessageBroadcast(2)"><i class="fa fa-upload" style="margin-right: 10px;"></i>Upload an Audio File <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'uploadfile'"></i></li>
+                                <li class="list-group-item" ng-click="setOpcMessageBroadcast(3)"><i class="fa fa-book" style="margin-right: 10px;"></i> Select from Audio Library <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'audiolibrary'"></i></li>
+                            </ul>
+                        </div>
+                    </div>
+                <div class="col-md-7">
+                    <div class="panel" ng-if="opcBroadcast" style="border: #cfdef0 solid 1px;">
+                        <div class="panel-heading">
+                            <strong class="cls-color-blue-tkg">{{opcBroadcastTitle}}</strong>
+                            <button class="btn btn-default pull-right" ng-click="cancelAddAudio()"><i class="fa fa-undo"></i> Cancel</button>
+                        </div>
+                        <div class="panel-body">
+                            <div ng-if="opcBroadcast==='newrecord'" >
+                                <div class="jumbotron recording">
+                                    <div ng-audio-recorder id="singleAudio" myindex="0" audio-model="recordedSingle" show-player="false" class="container" convert-mp3="false"
+                                         kotter-start="recordingService.start" kotter-stop="recordingService.stop">
+                                        <div ng-if="recorder.isAvailable">
+                                            <div class="panel panel-primary">
+                                                <div class="panel-body">
+                                                    <div>
+                                                        <md-input-container style="width: 100%; text-align: center;" >
+                                                            <label>Recording Title</label>
+                                                            <input ng-model="recording.title" />
+                                                        </md-input-container>
+                                                    </div>
+                                                    <div>
+                                                        <h3 style="float: right; /*font-family: sans-serif*/; text-align: center; width: 50px; border-radius: 30px; border: solid 2px #333; padding: 10px; margin: 0; background: #337ab7; color: #fff;"
+                                                            ng-if="recorder.status.isRecording">
+                                                            {{recorder.elapsedTime >= 10 ? recorder.elapsedTime : ('0'+recorder.elapsedTime)}}
+                                                        </h3>
+
+                                                        <div class="alert alert-danger" ng-if="recorder.status.isDenied === true">
+                                                            Permission to use your microphone was declined, please refresh this page to grant
+                                                            permission.
+                                                        </div>
+                                                        <div class="controls text-center" style="padding-top: 10px;"
+                                                            ng-init="savingRecord = false;"
+                                                                ng-hide="recorder.status.isDenied === true">
+                                                            <button ng-click="recorder.status.isRecording ? recorder.stopRecord() : recorder.startRecord()"
+                                                                    type="button" class="btn"
+                                                                    ng-class="{'btn-primary': !recorder.status.isRecording, 'btn-danger': recorder.status.isRecording}">
+                                                                <i class="glyphicon glyphicon-record"></i> {{recorder.status.isRecording ? 'Stop' :
+                                                                'Record'}}
+                                                            </button>
+                                                            <button class="btn"
+                                                                    ng-class="{'btn-primary': (recorder.status.isPaused || recorder.status.isStopped), 'btn-warning': recorder.status.isPlaying}"
+                                                                    ng-click="recorder.status.isPlaying ? recorder.playbackPause() : recorder.playbackResume()"
+                                                                    type="button"
+                                                                    ng-disabled="recorder.status.isRecording || !recorder.audioModel">
+                                                                <span ng-if="recorder.status.isPaused || recorder.status.isStopped">
+                                                                    <i class="glyphicon glyphicon-play"></i> Play
+                                                                </span>
+
+                                                                <span ng-if="recorder.status.isPlaying">
+                                                                    <i class="glyphicon glyphicon-pause"></i> Pause
+                                                                </span>
+                                                            </button>
+                                                            <button class="btn btn-success" 
+                                                                ng-disabled="savingRecord || recorder.status.isRecording || !recorder.audioModel" 
+                                                                ng-click="savingRecord = !savingRecord; recorder.savetoServer(0, recording.title)"
+                                                                >
+                                                                <i class="glyphicon glyphicon-download"></i> Save
+                                                            </button>
+                                                            <span ng-if="savingRecord">
+                                                                    <i class="fa fa-cog fa-spin fa-lg"></i>
+                                                                </span>
+                                                            <button id="btnDownload" style="display: none;"></button>
+                                                        </div>
+                                                        <div class="clearfix"></div>
+                                                    </div>
+                                                    <br/>
+                                                    <div ng-if="recorder.status.isConverting">
+                                                        <p class="text-center">
+                                                            Please wait while we process your recording
+                                                        </p>
+                                                    </div>
+                                                    <div class="panels" canvas-sizer>
+                                                        <div ng-show="recorder.status.isRecording">
+                                                            <ng-audio-recorder-analyzer></ng-audio-recorder-analyzer>
+                                                        </div>
+
+                                                        <div ng-show="!recorder.status.isRecording && recorder.audioModel">
+                                                            <ng-audio-recorder-wave-view wave-color="silver"
+                                                                                        bar-color="red"></ng-audio-recorder-wave-view>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div ng-if="!recorder.isAvailable" class="alert alert-warning">
+                                            Your browser does not support this feature natively, please use latest version of <a
+                                                href="https://www.google.com/chrome/browser" target="_blank">Google Chrome</a> or <a
+                                                href="https://www.mozilla.org/en-US/firefox/new/" target="_blank">Mozilla Firefox</a>. If you're on
+                                            Safari or Internet Explorer, you can install <a href="https://get.adobe.com/flashplayer/">Adobe Flash</a> to
+                                            use this feature.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-if="opcBroadcast==='audiolibrary'">
+                                <div class="scroll-container-head">
+                                    <table class="table table-bordered table-hover table-striped data-table-top" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 45px;">Play</th>
+                                                <th>File</th>
+                                                <th style="width: 90px;"></th>
+                                                <th ng-if="audioLibrary.length>5" style="width: 10px; padding: 0px; border-left: 0;"></th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <div class="scroll-container" style="height: 225px">
+                                    <table class="table table-bordered table-hover table-striped"  style="width: 100%;">
+                                        <tbody>
+                                            <tr ng-repeat="row in audioLibrary">
+                                                <td style="width: 45px;">
+                                                    <span ng-if="audioFilePlaying!==row.audio_library_uuid" 
+                                                        ng-click="playAudioFile(row.filepath, row.audio_library_uuid)" tooltip-placement="top" 
+                                                        uib-tooltip="Listen to Audio File">
+                                                        <i class="fa fa-play-circle fa-2x"></i>
+                                                    </span>
+                                                    <span ng-if="audioFilePlaying===row.audio_library_uuid" 
+                                                        ng-click="stopPlaying()" 
+                                                        tooltip-placement="top" 
+                                                        uib-tooltip="Stop Playing Audio File">
+                                                        <i class="fa fa-stop-circle fa-2x"></i>
+                                                    </span>
+                                                </td>
+                                                <td><span ng-if="!greetingBeingEdited(row)">{{row.file_title}} <span ng-if="row.used ==='true'" aria-hidden="true" tooltip-placement="top" uib-tooltip="This greeting is being used in an Auto Attendant"><i class="fa fa-check" ></i></span></span>
+                                                    <md-input-container ng-if="greetingBeingEdited(row)" style="width: 100%; text-align: center;" >
+                                                        <label>Recording Title</label>
+                                                        <input ng-model="row.file_title" />
+                                                    </md-input-container>
+                                                </td>
+                                                <td style="width: 90px;">
+                                                    <i ng-if="row.original_filename !== 'ivrgreeting_default.mp3' && !greetingBeingEdited(row)" class="fa fa-times-circle pull-right {{row.used === 'true' ? 'ltredfont' : 'redfont'}} deleteopt" ng-click="row.used ==='true' || deleteGreeting(row)" aria-hidden="true" tooltip-placement="top-right" uib-tooltip="{{row.used ==='true' ? 'This greeting is being used and can not be deleted' : 'Delete Greeting'}}"></i>
+                                                    <i ng-if="greetingBeingEdited(row)" class="fa fa-ban pull-right cancelopt" aria-hidden="true" ng-click="cancelEditGreeting()" tooltip-placement="top-right" uib-tooltip="Cancel Edit"></i>
+                                                    <i ng-if="greetingBeingEdited(row)" class="fa fa-save pull-right deleteopt" aria-hidden="true" ng-click="saveEditGreeting(row)" tooltip-placement="top-right" uib-tooltip="Save Changes"></i>
+                                                    <i ng-if="!greetingBeingEdited(row)" class="fa fa-pencil-square-o pull-right deleteopt" aria-hidden="true" ng-click="setEditGreeting(row)" tooltip-placement="bottom-right" uib-tooltip="Edit Audio File"></i>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div ng-if="opcBroadcast==='uploadfile'">
+                                <div class="jumbotron center-text">
+                                    <div><md-input-container style="width: 100%; text-align: center;" >
+                                                <label>Recording Title</label>
+                                                <input ng-model="recording.title" />
+                                        </md-input-container></div>
+                                    <span ng-if="audioRecording.name"><p><strong>{{audioRecording.name}}</strong></p></span>
+                                    <label class="btn btn-primary btn-file" >
+                                        Browse for File <input class="form-control" accept="audio/*" type="file" 
+                                        name="useravatar" style="display: none;" file-model="audioRecording">
+                                    </label>
+                                    <button class="btn btn-success" ng-disabled="uploadingLibrary || !audioRecording" ng-click="uploadAudioFile(audioRecording, recording.title)">Upload File</button>
+                                    <span ng-if="uploadingLibrary">
+                                        <i class="fa fa-cog fa-spin fa-lg"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

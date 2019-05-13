@@ -1,0 +1,29 @@
+<div class="default-custom-prompt step2-errors-prompt">
+    <md-dialog-content>
+        <h2 class="md-title">Info</h2>
+        <div class="md-dialog-content-body">
+            {{recipientDupMessage}} You may view them below. If you would like to ignore the errors and continue, click continue. If you would like to revise your spreadsheet and re-upload before continuing, please click revise.
+            <div class="outer-errors-container">
+                <div class="inner-errors-container">
+                    <span ng-bind-html="dupErrors.join('')"></span>
+                </div>
+            </div>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <button class="md-primary md-confirm-button md-button md-autofocus md-ink-ripple
+                       md-default-theme"
+                type="button"
+                ng-click="resolvePrompt(true)"
+                md-autofocus="dialog.$type==='alert'">
+            Continue
+        </button>
+        <button class="md-primary md-confirm-button md-button md-autofocus md-ink-ripple
+                       md-default-theme"
+                type="button"
+                ng-click="resolvePrompt(false)"
+                md-autofocus="dialog.$type==='alert'">
+            Revise
+        </button>
+    </md-dialog-actions>
+</div>

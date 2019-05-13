@@ -1,0 +1,264 @@
+<!-- <div modaldraggable ng-controller="CallsCtrl" class="cls-modal-on-call">    -->
+<div class="cls-modal-on-call">  
+    
+    <div class="modal-header">
+        <div class="btn-group pull-right">
+            <button class="btn btn-link" title="Hide" ng-click="minWindow()" ng-show="!showDialPad" style="text-decoration: none;">Hide</button>
+            <button class="btn btn-link" title="Hide Dial Pad" ng-click="showDialPad=!showDialPad" ng-show="showDialPad" style="text-decoration: none;">Dial Pad</button>
+        </div>
+    </div>
+    
+    
+    <div class="modal-body" id="modal-body">
+    
+        <!-- ******************** ADD A CALL ********************* -->
+        <div class="cls-oncall-three-way" ng-show="showThreeWay && !ringProcess">
+            <div class="cls-input-transfer">
+                <form name="frmAddCall" >
+                    <input  type="text" id="txtContactSel"
+                            uib-typeahead="contsUsr as contsUsr.contact_name_full for contsUsr in userContacts | filter:{contact_name_full:$viewValue} | limitTo:8" 
+                            ng-model="contsUsr.contSel" 
+                            ng-click="setFocus('addCall')"
+                            class="form-control" 
+                            required>
+
+                    <div class="btn-group pull-right" role="group" aria-label="...">
+                        <button type="button" class="btn btn-link cls-btn-transfer" ng-click="addCallFunct(contsUsr.contSel, vm.content.data.id); " ng-disabled="frmAddCall.$invalid"  tooltip-placement="top" uib-tooltip="Call"><i class="fa fa-phone cls-color-green-tkg" style="font-size: 22px;"></i></button>
+                        <button type="button" class="btn btn-link cls-btn-transfer" ng-click="showThreeWay=!showThreeWay"  tooltip-placement="bottom" uib-tooltip="Cancel"><i class="fa fa-times" style="font-size: 22px; margin-left: 5px"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>        
+
+        
+        <div ng-hide="add3Call || showDialPad">
+            <center>
+                <strong class="cls-color-blue-tkg" style="font-size: 20px">On call with</strong>
+                <div><sapan class="cls-incomingcall-name"><span ng-hide="vm.content.data.name"></span>{{vm.content.data.name}}</sapan> <span class="cls-incomingcall-company"></span> </div>
+                <div class="cls-incomingcall-company">{{vm.content.data.phone_number}}</div>
+            </center>
+        </div>
+<!-- ng-show="" -->
+        <div class="cls-cont-img-incomingcall" >
+            <center>
+                <div ng-show="!showDialPad && !add3Call">
+                    <div class="cls-circle-arround-3">
+                        <div class="cls-circle-arround-2">
+                            <div class="cls-circle-arround-1">
+                               <img ng-src="{{pathImgProfile + vm.content.data.avatar}}" ng-show="vm.content.data.avatar" class="cls-img-incomingcall" alt=""/> 
+                               <label class="cls-img-incomingcall-null" ng-hide="vm.content.data.avatar"><i class="fa fa-volume-control-phone"></i></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div ng-show="showDialPad">
+                   <div ng-include="'views/modals/dialpadmodalOnCall.html'"></div>
+               </div>
+            </center>        
+        </div>
+
+        <div class="cls-incomingcall-oncall" ng-show="add3Call">
+            <div  ng-show="!showDialPad">
+                <ul class="list-group">
+                    <li class="list-group-item list-group-item-info" ng-show="!threeWayCall">
+                        <strong style="font-size: 20px;">{{vm.content.data.name}}</strong>
+                        <div  style="float: right !important">    
+                             <strong class="pull-left" id="vis2" style="margin-right: 10px;">00:00:00</strong>
+                            <button class="btn btn-link btn-sm cls-color-red-tkg"><img src="images/icons/end-call-red-icon.png" class="cls-color-red-tkg" width="20" height="20" alt="" /></button>
+                        </div>
+                        <div >{{vm.content.data.phone_number}}</div>
+                    </li>
+                    <li class="list-group-item list-group-item-success" ng-show="!threeWayCall" ng-repeat="contc in contactSel">
+                        <strong style="font-size: 20px;">{{contc.name}}</strong> 
+                        <i class="fa fa-spinner fa-pulse fa-2x fa-fw cls-color-blue-tkg" ng-show="!threeWayCall"></i>
+                        <div  style="float: right !important">
+                            <button class="btn btn-link btn-sm cls-color-red-tkg" ng-click="questionRichard()"><img src="images/icons/end-call-red-icon.png" class="cls-color-red-tkg" width="20" height="20" alt="" /></button>
+                        </div>
+                        <br/>
+                        <span>{{contc.phone}}</span>                                 
+                    </li>
+
+
+                    <!--********* LIST ON CALLS **********-->
+                    <li class="list-group-item list-group-item-info" ng-show="threeWayCall" ng-repeat="callThree in countCalls">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <strong style="font-size: 20px;">{{callThree.name}}</strong> <br/>
+                                <span>{{callThree.phoneOpposite}}</span>
+                            </div>
+                            <div class="col-lg-3">
+                                <strong style="margin-right: 10px;"><timer interval="1000">{{hours}}:{{minutes}}:{{seconds}}</timer></strong>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="btn-group pull-right" role="group" aria-label="...">
+                                    <button type="button" class="btn btn-link btn-sm cls-color-red-tkg" ng-click="hangUpdMultiCalls(callThree.callID); add3Call=!add3Call"><img src="images/icons/end-call-red-icon.png" class="cls-color-red-tkg" width="20" height="20" alt="" /></button>
+                                    <button type="button" class="btn btn-link btn-sm" ng-click="holdMultiCalls(callThree.callID, showHolded); showHolded=!showHolded" ng-init="showHolded=true ?  callsHolded(callThree.callID)  || vm.content.data.id === callThree.callID   : false"><i class="fa fa-pause fa-stack-1x"></i><i ng-class="'fa fa-ban fa-stack-2x text-danger'" ng-show="showHolded " style="margin-top: -3px;"></i></button>
+                                    
+                                </div>
+                            </div>
+                        </div>                             
+                    </li>
+                </ul>  
+            </div>
+        </div>
+    </div>
+    <!--
+    <div class="cls-oncall-chrono-dialpad" ng-show="!add3Call || showDialPad">
+        <strong class="pull-left" id="vis">00:00:00</strong>
+        <span class="pull-right" ng-click="showDialPad=!showDialPad" style="margin-top: -15px !important;"  tooltip-placement="left" uib-tooltip="Show Dial Pad"><img src="images/icons/dial-pad30x30.png" alt=""/></span>
+    </div>
+    -->
+    <div class="modal-footer" ng-show="!showDialPad">
+        <center>
+            
+            
+            
+            <div class="cls-oncall-buttons">
+                <!-- <strong class="pull-left" id="vis" style="margin-top: 10px;">00:00:00</strong>  -->
+                <timer interval="1000">{{hours}}:{{minutes}}:{{seconds}}</timer>
+                <div class="btn-group">
+                    <!-- ***** HANG UP  ***** -->
+                   <button class="btn btn-link btn-sm" ng-click="hangupCall(vm.content.data.id)" onclick="javascript:stopp();" id="unlikCall" tooltip-placement="top" uib-tooltip="Hang up" >
+                       <img src="images/icons/end-call-red-icon.png" width="24" height="24" alt=""/>
+                   </button>
+                </div>
+                <div class="btn-group">
+                    <!-- ***** MUTE  ***** --> <!-- ng-disabled="threeWayCall" -->
+                    <button class="btn btn-link btn-sm" ng-click="muteCall(); muteDisabledIcon=!muteDisabledIcon" tooltip-placement="top" uib-tooltip="Mute">
+                        <span class="fa-stack">
+                            <i class="fa fa-microphone fa-2x"></i><i ng-class="'fa fa-ban fa-stack-2x text-danger'" ng-show="muteDisabledIcon"></i>
+                        </span>
+                    </button>
+                </div>
+                <div class="btn-group">
+                    <!-- ***** RECORDING  ***** -->
+                    <button ng-if="!recording" class="btn btn-link btn-sm " ng-click="startRecordCall(vm.content.data.id)"  tooltip-placement="top" uib-tooltip="Start Recording" >
+                        <span class="fa-stack fa-1xb" ng-show="voiceAct">
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <strong class="fa-stack-1x fa-stack-text fa-inverse font-rec">REC</strong>
+                        </span>
+                    </button>
+                    <!-- ***** RECORDING  ***** -->
+                    <button ng-if="recording" class="btn btn-link btn-sm " ng-click="stopRecordCall(vm.content.data.id)"  tooltip-placement="top" uib-tooltip="Stop Recording" >
+                        <span class="fa-stack fa-1xb" ng-show="voiceAct">
+                            <i class="fa fa-circle fa-stack-2x" style="{{recording ? 'color: red;' : ''}}"></i>
+                            <strong class="fa-stack-1x fa-stack-text fa-inverse font-rec">REC</strong>
+                        </span>
+                    </button>
+                </div>
+                <div class="btn-group">
+                    <!-- ***** HOLD  ***** -->
+                    <button class="btn btn-link btn-sm" ng-click="holdCall(); holdDisabledIcon=!holdDisabledIcon" ng-disabled="threeWayCall"  tooltip-placement="top" uib-tooltip="Hold" >
+                        <span class="fa-stack" > <!--  <i ng-class="holdDisabledIcon"></i> -->
+                            <i class="fa fa-pause fa-2x"></i><i ng-class="'fa fa-ban fa-stack-2x text-danger'" ng-show="holdDisabledIcon"></i>
+                        </span>
+                   </button>
+                </div>  
+                <!-- ***** TRANSFER CALL  ***** -->      
+                <button class="btn btn-link btn-sm" ng-click="showTransfer=!showTransfer; transferCall()" ng-hide="showThreeWay || threeWayCall"  tooltip-placement="top" uib-tooltip="Transfer call" >
+                    <img src="images/icons/transfer2-blue-icon.png" width="24" height="24" alt=""/>
+                </button>
+                <!-- ***** NEW CALL  ***** -->
+                <div class="btn-group" ng-disabled="showTransfer">  <!--  holdCall(vm.content.data.id);   -->
+                    <button class="btn btn-link btn-md" ng-model="radioModel" ng-click="showThreeWay=!showThreeWay" ng-hide="threeWayCall" uib-btn-radio="'Right'" tooltip-placement="top" uib-tooltip="New Call">
+                        <i class="fa fa-user-plus fa-2x"></i>
+                    </button>                
+                </div>
+                <!-- ***** DIAL PAD  ***** -->  <!--  ng-show="threeWayCall"  -->
+                <button class="btn btn-link btn-sm" ng-click="showDialPad=!showDialPad" tooltip-placement="top" uib-tooltip="Show Dial Pad" >
+                    <img src="images/icons/dial-pad.png" width="27" height="27" alt=""/>
+                </button>
+            </div>
+            
+            
+            
+            <!-- ******************** TRANSFER CALL ********************* -->
+            <div class="cls-oncall-transfer" ng-show="showTransfer">
+                <div class="cls-input-transfer">
+
+                    <form name="frmTransfer" ng-submit="transferCall(contsUsr.contSelTrans, optTransfer)">
+                        <input  type="text" id="txtContactSelTrans"
+                            uib-typeahead="contsUsr as contsUsr.contact_name_full for contsUsr in userContacts | filter:{contact_name_full:$viewValue} | limitTo:8" 
+                            ng-model="contsUsr.contSelTrans" 
+                            ng-click="setFocus('tranfer')"
+                            class="form-control" 
+                            required>
+                        
+                        <button type="submit" class="btn btn-success cls-btn-transfer" ng-click="connectTo2=!connectTo2" ng-disabled="frmTransfer.$invalid" ng-hide="connectTo2">{{btnTransfer}}</button>
+                        <button class="btn btn-link btn-sm" ng-click="hangupCall()" onclick="javascript:stopp();" ng-show="connectTo2" tooltip-placement="top" uib-tooltip="Transfer Call" >
+                            <img src="images/icons/transfer-icon.png" width="30" height="30" alt="" style="margin-top: -3px;"/>
+                        </button>
+                        <div class="cls-opt-transfer">
+                            <label ng-click="selectOpt('S')"> <input type="radio" name="optTranfer" ng-value="S" ng-checked="true"> Supervised transfer</label>
+                            <label ng-click="selectOpt('B')"> <input type="radio" name="optTranfer" ng-value="B"> Blind transfer</label>
+                        </div>                     
+
+                    </form>
+                 </div>
+            </div>
+        </center>
+    </div>
+    
+</div>
+
+
+
+<script>
+    
+var hour = 0, min = 0, sec = 0, dec = 0;
+var vis = "";
+var stop = true;
+
+run() ;
+
+function run() {
+    if(stop === true) {
+            stop = false;
+            cronometro();
+    }
+}
+
+function cronometro() {
+    if(stop === false) {
+        dec++;
+        if(dec > 9) {
+                dec = 0;
+                sec++;
+        }
+        if(sec > 59) {
+                sec = 0;
+                min++;
+        }
+        if(min > 59) {
+                min = 0;
+                hour++;
+        }
+        show();
+        setTimeout("cronometro()", 100);
+    }
+}
+function show() {
+    if(hour < 10) vis = "0"; else vis = hour;
+    if(min < 10) vis = vis + ":" +"0";
+    vis = vis + min + ":";
+    if(sec < 10) vis = vis + "0";
+    vis = vis + sec;
+    //vis = vis + sec + ":" + dec;
+    //document.getElementById("vis").innerHTML = vis;
+    document.getElementById("vis2").innerHTML = vis;
+}
+function stopp() {
+    stop = true;
+}
+function reset() {
+    if(stop === false) {
+                stop = true;
+    }
+    hour = min = sec = dec = 0;
+    vis = "";
+    show();
+}
+    
+</script>
+
+

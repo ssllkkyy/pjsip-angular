@@ -1,0 +1,309 @@
+@import "variables";
+
+.auto-attendant {
+    .auto-attendant-container {
+        //display: flex;
+        //flex-direction: column;
+
+        .createAttendant {
+          //  flex: 1 1 auto;
+            //overflow-y: scroll;
+        }
+        .attendant-bottom-button-bar {
+            //flex: 0 0 50px;
+            //position: absolute;
+            //bottom: 0;
+            padding: 15px;
+            height: 50px;
+        }
+    }
+    .preset-holidays {
+        md-switch {
+            margin: 0px !important;
+            white-space: normal;
+            line-height: 18px;
+        }
+    }
+    md-select {
+        margin-bottom: 0 !important;
+    }
+    .btn-group {
+        width : 50% !important;
+    }
+
+    .box1-label {
+        padding-top: 24px;
+    }
+
+    .box1-input {
+        md-input-container {
+            width: 100%;
+        }
+    }
+
+    .weekly-timepicker {
+        input {
+            height: 20px;
+        }
+        button {
+            height: 20px;
+            padding: 0px 12px;
+        }
+    }
+
+    .options-button {
+        margin: 15px 0;
+    }
+
+    md-text {
+        min-width: 60px;
+    }
+    .ringView {
+        height: 80px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .capital {
+        text-transform: capitalize;
+        padding: 0 10px !important;
+    }
+    .viewAttendant {
+        position: relative;
+        &:hover {
+            color: #337ab7;
+            cursor: pointer;
+        }
+    }
+    .disabled-schedule {
+        td {
+            // text-decoration: line-through;
+            opacity: .6;
+        }
+        .check {
+            opacity: 1 !important;
+        }
+    }
+    // background: blue;
+    height: 100%;
+    padding-right:10px;
+    ul {
+        list-style: none;
+    }
+    md-input-container .md-errors-spacer {
+        min-height: 0;
+    }
+    .panelbox{
+        max-width: 750px;
+    }
+    .title-bar {
+        color: white;
+        font-size: 1.7rem;
+        text-align: center;
+        padding: 4px;
+    }
+    table {
+        margin-bottom: 0px;
+        th {
+            text-align: center;
+        }
+        tbody {
+            tr {
+                td {
+                    text-align: center;
+                    vertical-align: middle;
+                }
+            }
+        }
+    }
+    .covers {
+        position: absolute;
+        // height: 100%;
+        height: 80px;
+        width: 100%;
+        background: rgba(158, 194, 192, 0.33);
+        border: .8px solid gray;
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+        color: darkgoldenrod;
+        &:hover {
+            color: blue;
+            font-size: 2.2rem;
+        }
+    }
+    .show {
+        background: lightgray;
+    }
+    .actions {
+        height: 40px;
+    }
+    .holiday-button {
+        margin: 15px 0;
+    }
+    table.aa-progress {
+        background: none;
+        tr td {
+            width: 25%;
+        }
+        .fa {
+            font-size: 2.6rem;
+        }
+        
+    }
+    .finished {
+        color: $tkg-green !important;
+    }
+    .incomplete {
+        color: $ltgrey !important;
+    }
+    .tableclass.action-menu {
+        max-width: 800px;
+    }
+    
+    .action-menu {
+        
+        .tablecell {
+            padding: 0 10px;
+        }
+        .action-column {
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            .main-col {
+                width: 20%;
+            }
+            .full-width {
+                width: 100%;
+            }
+            .send-options {
+                width: auto;
+            }
+        }
+        .action-top {
+            // height: auto;
+        }
+        .action-bottom {
+            // height: 92px;
+        }
+        
+    }
+    .btn-success {
+        margin-right: 5px;
+    }
+    .collapsible-content {
+        padding-top: 10px;
+        padding-left: 10px;
+
+        border: 1px solid rgba(83, 147, 200, 0.1);
+        .md-button {
+                        margin: 0;
+                        margin-bottom: 4%;
+                    }
+        .auto-audio-selector-container{
+            width: 100%;
+        }
+        .auto-audio-selector{
+            width: 48%;
+            display: inline-block;
+            vertical-align: top;
+        }
+    }
+    .md-select-value {
+        span {
+            display: flex;
+            flex-wrap: wrap;
+            .md-text {
+                margin-left: 10px;
+            }
+        }
+    }
+    .directoryOptions {
+        min-width: 88px;
+    }
+    .weekly-panel {
+        width: 50vw;
+        mdp-time-picker {
+            .md-icon-button {
+                margin: 0;
+            }
+            md-input-container {
+                margin: 0;
+            }
+        }
+    }
+    .main-panel {
+        width: 60vw;
+    }
+    table.customize {
+        th {
+            text-align: left;
+        }
+        tbody tr td {
+            text-align: left;
+        }
+    }
+    @media only screen and (max-width:850px) {
+        .weekly-panel {
+            width: 85%;
+        }
+        .main-panel {
+            width: 85%;
+    }
+    }
+    .date-time {
+        // display: flex;
+        // flex-direction: row;
+        label {
+            color: gray;
+        }
+        .fa {
+            font-size: 1.7rem;
+            &:hover {
+                color: $red-color;
+            }
+        }
+        .datepicker {
+            width: 200px;
+        }
+    }
+    .caption {
+        margin-bottom: 15px;
+        h3 {
+            margin: 0;
+        }
+        button {
+            margin-right: 15px;
+            margin-bottom: 0;
+        }
+    }
+    .newdidbutton {
+        margin-right: 10px;
+        margin-top: 15px;
+    }
+    .options {
+        // Come back this takes away scroll bar
+        // max-height: 560px;
+        height: auto;
+        overflow: hidden;
+    }
+    .sendClass {
+        min-height: 800px;
+        overflow: hidden;
+    }
+    .opt-userlist {
+        overflow-y: scroll;
+        min-height: 100%;
+    }
+    .attendant-drop ul[dnd-list] {
+        min-height: 42px;
+        padding-left: 0px;
+    }
+
+}

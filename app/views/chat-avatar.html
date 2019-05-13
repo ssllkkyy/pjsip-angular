@@ -1,0 +1,18 @@
+<div class="postphoto clearfix">
+    <div class="dropdown">
+        <div class="post-time"
+             ng-if="isConsecutivePost">
+            {{post.create_at | amUtc | amLocal | amDateFormat:'h:mm a'}}
+        </div>
+        <div ng-if="!isConsecutivePost">
+            <a ng-bind-html="showMemberPhoto(contact, '')"
+               class="dropdown-toggle">
+            </a>
+        </div>
+        <!-- <div class="dropdown-menu" aria-labelledby="dropdownMenuLink"> -->
+        <!-- <chat-options -->
+        <!-- item="item"> -->
+        <!-- </chat-options> -->
+        <!-- </div> -->
+    </div>
+</div>

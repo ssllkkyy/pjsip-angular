@@ -1,0 +1,111 @@
+.action-pad .default-bottom,
+.action-pad .default-top {
+  text-align: center; }
+
+.action-pad .default-bottom {
+  border-top: dotted 1px lightblue;
+  padding-top: 14px; }
+  .action-pad .default-bottom input {
+    text-align: center; }
+
+.action-pad .action-contact {
+  overflow: scroll;
+  max-height: 500px;
+  margin-top: 4px; }
+
+.action-pad .attend-row {
+  display: flex;
+  justify-content: space-between; }
+
+.action-pad .no-select {
+  user-select: none; }
+
+.action-pad .no-float {
+  float: none !important; }
+
+.action-pad md-input-container {
+  margin-bottom: 6px; }
+
+.action-pad md-input-container .md-errors-spacer {
+  min-height: 0; }
+
+/***************************** Dropzone Styling *****************************/
+.attendant-drop .dropzone ul[dnd-list] {
+  min-height: 42px !important;
+  margin: 0px;
+  padding-left: 0px; }
+
+.attendant-drop ul[dnd-list] li {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;
+  padding: 10px 15px;
+  margin-bottom: -1px; }
+
+.attendant-drop .dropzone li {
+  display: block; }
+
+.attendant-drop ul[dnd-list] .dndPlaceholder {
+  display: block;
+  background-color: #ddd;
+  padding: 10px 15px;
+  min-height: 42px; }
+
+.attendant-drop .dndPlaceholder1 {
+  display: block;
+  padding: 10px 15px;
+  min-height: 42px; }
+
+.attendant-drop .dndDragging {
+  opacity: 0.7;
+  color: gray; }
+
+.attendant-drop .dndDraggingSource {
+  opacity: 0.5; }
+
+/***************************** Element type specific styles *****************************/
+.dnd-services {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; }
+
+.dnd-box {
+  width: 30%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center; }
+
+/***************************** Trashcan *****************************/
+.trashbox {
+  position: relative; }
+  .trashbox .trash {
+    list-style: none;
+    padding-left: 0px; }
+  .trashbox .fa-trash {
+    display: none;
+    position: fixed;
+    bottom: 40%;
+    left: 40%;
+    font-size: 7rem;
+    color: red;
+    z-index: 999; }
+  .trashbox .dndDragover {
+    background: gray;
+    opacity: .4;
+    width: 100%;
+    height: 100%; }
+    .trashbox .dndDragover .fa-trash {
+      display: block; }
+  .trashbox .dndPlaceholder {
+    display: none; }
+  .trashbox .holder {
+    min-height: 42px !important;
+    margin: 0px;
+    padding-left: 0px;
+    list-style: none;
+    padding-left: 0px; }
+    .trashbox .holder .itemlist {
+      min-height: 42px !important;
+      list-style: none; }

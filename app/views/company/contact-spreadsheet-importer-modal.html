@@ -1,0 +1,14 @@
+<div class="modal-header"
+     id="modal-screen-share">
+    <span class="cls-header-modal">
+        Import Contacts from File
+    </span>
+    <button type="button" ng-click="vm.content.data.closeThisModal()" class="close">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+<p></p>
+<div class="modal-body"
+     id="modal-body">
+    <contact-spreadsheet-importer target="vm.content.data.group"></contact-spreadsheet-importer>
+</div>

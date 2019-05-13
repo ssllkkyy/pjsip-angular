@@ -1,0 +1,155 @@
+#basic-container3 {
+  display: flex;
+  min-height: 90vh;
+  flex-direction: column;
+  overflow-y: hidden;
+  width: 100%;
+  margin: 0; }
+  #basic-container3 #basic-header {
+    flex: 22 1 0;
+    height: 110px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+    padding: 5px;
+    background-color: #fbfbfb;
+    border-bottom: solid 1px #e1e1e1; }
+    #basic-container3 #basic-header .basic-logo {
+      flex-grow: 1; }
+    #basic-container3 #basic-header .basic-menu {
+      flex-grow: 4;
+      padding-top: 15px; }
+      #basic-container3 #basic-header .basic-menu .topnav1 {
+        font-size: calc(6px + .65vmax);
+        list-style: none;
+        margin-bottom: 0; }
+        #basic-container3 #basic-header .basic-menu .topnav1 li {
+          display: inline-block;
+          margin: 0 30px;
+          border-bottom: 3px solid rgba(0, 0, 0, 0); }
+          #basic-container3 #basic-header .basic-menu .topnav1 li a, #basic-container3 #basic-header .basic-menu .topnav1 li a:active {
+            padding-bottom: 20px;
+            color: #473E3F; }
+          #basic-container3 #basic-header .basic-menu .topnav1 li a:hover {
+            color: #7B6B6D;
+            border-bottom: 3px solid #7B6B6D; }
+  #basic-container3 #basic-content {
+    display: flex;
+    flex: 93 1 0; }
+
+#basic-container2 {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  margin: 0;
+  width: 100%; }
+  #basic-container2 #basic-header {
+    height: 110px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+    padding: 5px;
+    background-color: #fbfbfb;
+    border-bottom: solid 1px #e1e1e1; }
+    #basic-container2 #basic-header .basic-logo {
+      flex-grow: 1; }
+    #basic-container2 #basic-header .basic-menu {
+      flex-grow: 4;
+      padding-top: 15px; }
+      #basic-container2 #basic-header .basic-menu .topnav1 {
+        font-size: calc(6px + .65vmax);
+        list-style: none;
+        margin-bottom: 0; }
+        #basic-container2 #basic-header .basic-menu .topnav1 li {
+          display: inline-block;
+          margin: 0 30px;
+          border-bottom: 3px solid rgba(0, 0, 0, 0); }
+          #basic-container2 #basic-header .basic-menu .topnav1 li a, #basic-container2 #basic-header .basic-menu .topnav1 li a:active {
+            padding-bottom: 20px;
+            color: #473E3F; }
+          #basic-container2 #basic-header .basic-menu .topnav1 li a:hover {
+            color: #7B6B6D;
+            border-bottom: 3px solid #7B6B6D; }
+  #basic-container2 #basic-content {
+    flex-grow: 1;
+    background-color: #fafafa; }
+    #basic-container2 #basic-content .conf-call-box {
+      padding: 20px; }
+    #basic-container2 #basic-content .padd15 {
+      padding: 15px; }
+
+#basic-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%; }
+  #basic-container #basic-header {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+    padding: 5px;
+    background-color: #fbfbfb;
+    border-bottom: solid 1px #e1e1e1; }
+    #basic-container #basic-header .basic-logo {
+      flex-grow: 1; }
+    #basic-container #basic-header .basic-menu {
+      flex-grow: 4;
+      padding-top: 15px; }
+      #basic-container #basic-header .basic-menu .topnav1 {
+        font-size: calc(6px + .65vmax);
+        list-style: none;
+        margin-bottom: 0; }
+        #basic-container #basic-header .basic-menu .topnav1 li {
+          display: inline-block;
+          margin: 0 30px;
+          border-bottom: 3px solid rgba(0, 0, 0, 0); }
+          #basic-container #basic-header .basic-menu .topnav1 li a, #basic-container #basic-header .basic-menu .topnav1 li a:active {
+            padding-bottom: 20px;
+            color: #473E3F; }
+          #basic-container #basic-header .basic-menu .topnav1 li a:hover {
+            color: #7B6B6D;
+            border-bottom: 3px solid #7B6B6D; }
+    #basic-container #basic-header h3 {
+      margin-bottom: 4px; }
+    #basic-container #basic-header .selector, #basic-container #basic-header .dial-in, #basic-container #basic-header .title-box {
+      float: right;
+      height: 80px; }
+    #basic-container #basic-header .title-box {
+      float: left;
+      padding-top: 10px; }
+      #basic-container #basic-header .title-box h3 {
+        margin-top: 0; }
+    #basic-container #basic-header .selector {
+      padding: 10px;
+      width: 200px;
+      padding-top: 20px; }
+      #basic-container #basic-header .selector.callerid {
+        width: 190px; }
+      #basic-container #basic-header .selector md-input-container {
+        width: 100%;
+        margin-bottom: 5px; }
+    #basic-container #basic-header .dial-in {
+      text-align: right;
+      padding-top: 20px;
+      padding-right: 30px;
+      width: 170px; }
+      #basic-container #basic-header .dial-in .dial-in-title {
+        font-size: 15px; }
+      #basic-container #basic-header .dial-in .dial-in-number {
+        font-size: 18px;
+        font-weight: 600; }
+  #basic-container #basic-content {
+    flex: 1 1 auto;
+    position: relative;
+    /* need this to position inner content */
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+    background-color: #fafafa; }
+    #basic-container #basic-content .conf-call-box {
+      padding: 20px; }
+    #basic-container #basic-content .padd15 {
+      padding: 15px; }

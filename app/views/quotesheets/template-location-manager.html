@@ -1,0 +1,31 @@
+<div class="material-modal">
+    <div class="header">
+        <h3>Locations</h3>
+    </div>
+    <div class="content">
+        <div class="template-locations">
+            <p>Template Locations</p>
+            <table class="locations table table-bordered table-hover table-striped">
+                <tbody>
+                    <tr ng-repeat="(key, loc) in availableLocations">
+                        <td>{{loc.group_name}}</td>
+                        <td>
+                            <md-checkbox ng-model="selectedLocations[key]">
+                            </md-checkbox>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="options">
+        <md-button ng-click="resolvePrompt()"
+                   class="md-raised md-warn">
+            Close
+        </md-button>
+        <md-button ng-click="saveTemplateLocations()"
+                   class="md-raised primary">
+            Save
+        </md-button>
+    </div>
+</div>

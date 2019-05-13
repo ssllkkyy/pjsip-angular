@@ -1,0 +1,94 @@
+<!-- <div id="incomingCall">
+    <div style="padding: 5px 0px 5px 0px; font-size: 20px; text-align: center;">
+        <span>
+            On call with:
+        </span>
+        <strong class="cls-color-blue-tkg">
+            {{call.contact.name}}
+        </strong>
+        <strong class="cls-color-blue-tkg"
+                ng-show="!call.contact.name">
+            {{call.params.remote_caller_id_number | tel}}
+        </strong>
+    </div>
+    <div class="incoming-call-animations">
+        <i class="mdi mdi-phone-incoming mdi-36px faa-ring animated pull-right"
+           style="color: #2ECCFA; font-size: 40px;">
+        </i>
+        <i class="fa fa-long-arrow-left faa-passing-reverse animated"
+           style="color: #3ADF00; font-size: 40px;">
+        </i>
+        <div ng-bind-html="showCallerPhoto(incomingCall, 'inbound')"></div>
+    </div>
+    <div style="text-align: center">
+        <strong>
+            {{incomingCall.contact.name}}
+        </strong>
+        <label>
+            {{incomingCall.params.remote_caller_id_number | tel}}
+        </label>
+    </div>
+    <div class="incoming-call-buttons">
+        <button class="btn-link mdi mdi-phone-incoming cls-color-green-tkg"
+                ng-click="answerCall(incomingCall)"
+                ng-if="!onConferenceCall"
+                tooltip-placement="top"
+                uib-tooltip="Answer Call">
+        </button>
+        <button class="btn-link mdi mdi-voicemail cls-color-blue-tkg"
+                ng-click="sendToVoicemail(call)"
+                tooltip-placement="top"
+                uib-tooltip="Send to voicemail">
+        </button>
+        <button class="btn-link mdi mdi-phone-missed cls-color-red-tkg"
+                ng-click="declineCall(incomingCall)"
+                tooltip-placement="top"
+                uib-tooltip="{{ isAttendantCall ? 'Ignore call' : 'Decline call'}}">
+        </button>
+    </div>
+</div> -->
+
+<div id="incomingCall" ng-if="showIncomingCallThreeWay()">
+    <div class="three-way-call">
+        <div class="three-way-call-labels">
+            <center>
+            <div class="three-way-call-animations">
+                <i class="mdi mdi-phone-incoming mdi-20px faa-ring animated pull-right"
+                    style="color: #2ECCFA; font-size: 40px;">
+                </i>
+                <i class="fa fa-long-arrow-left faa-passing-reverse animated"
+                    style="color: #3ADF00; font-size: 30px; margin:15px;">
+                </i>
+                <div ng-bind-html="showCallerPhoto(incomingCall, 'inbound', 'xs')"></div>
+            </div>
+            <label>
+                <strong>Incoming Call: </strong>
+                <strong>{{incomingCall.contact.contact_name_full}}</strong> 
+                {{incomingCall.params.remote_caller_id_number | tel}}
+            </label>
+            </center>
+        </div>
+        
+        <div class="three-way-call-buttons">
+                <i class="mdi mdi-phone-incoming mdi-10px cls-color-green-tkg"
+                    ng-click="answerCall(incomingCall)"
+                    ng-if="!onConferenceCall"
+                    tooltip-placement="top"
+                    uib-tooltip="Answer Call">
+                </i>
+
+                <i class="mdi mdi-voicemail mdi-10px cls-color-blue-tkg"
+                    ng-click="sendToVoicemail(call)"
+                    tooltip-placement="top"
+                    ng-if="!isAttendantCall"
+                    uib-tooltip="Send to voicemail">
+                </i>
+
+                <i class="mdi mdi-phone-missed mdi-10px cls-color-red-tkg"
+                    ng-click="declineCall(incomingCall)"
+                    tooltip-placement="top"
+                    uib-tooltip="Ignore call">
+                </i>
+        </div>
+    </div>
+</div>

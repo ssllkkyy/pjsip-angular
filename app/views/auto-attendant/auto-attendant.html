@@ -1,0 +1,290 @@
+<div ng-if="isBluewaveAgency() && isKotterTechOrGreater()">
+    <div class="alert alert-warning centered bluewave-call-flow" ng-if="!data && !importWorking">
+        <div class="tableclass">
+            <div class="tablecell left-text">
+                <h4>Bluewave Call Flow and User Preview</h4>
+            </div>
+            <div class="col-sm-3" ng-if="isKotterTechOrGreater()">
+                <button class="btn btn-sm" 
+                    ng-class="{'btn-success' : domain.voicemails, 'btn-danger' : !domain.voicemails }"
+                    style="margin-bottom: 5px; margin-right: 10px;" 
+                    ng-click="toggleVoicemail()">
+                    Toggle Voicemails {{domain.voicemails ? 'Off' : 'On'}}
+                </button>
+            </div>
+            <div class="tablecell right-text">
+                <button class="btn btn-primary btn-sm" ng-click="previewCallFlowImportFromBluewave()">Retrieve Preview Data</button>
+            </div>
+        </div>
+    </div>
+    <div class="print-buttons" ng-if="data">
+        <button class="btn btn-default btn-sm" 
+            ng-click="closeImport()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i>
+            Cancel Preview
+        </button>
+        <button class="btn btn-default btn-sm" 
+            ng-click="printDiv('printme')">
+            <i class="fa fa-print" style="margin-right: 10px;"></i>
+            Print Preview
+        </button>
+        <a ng-href="{{getDownloadUrl()}}" ng-if="data.num_recordings > 0" target="_blank" class="btn btn-default btn-sm">
+            <i class="fa fa-download" style="margin-right: 10px;"></i>
+            Download Greetings
+        </a>
+        <button class="btn btn-default btn-sm" 
+            ng-if="data.num_recordings === 0" 
+            ng-click="showNoGreetings()">
+            <i class="fa fa-download" style="margin-right: 10px;"></i>
+            Download Greetings
+        </button>
+        <button class="btn btn-primary btn-sm" 
+            ng-click="completeImportCallFlow()">
+            <i class="fa fa-upload" style="margin-right: 10px;"></i>
+            Proceed With Import
+        </button>
+    </div>
+    <div ng-if="importWorking" class="working-box">
+        <div class="loading-info">
+            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+            <span>Working on the Import<br />
+            Please Wait</span>
+        </div>
+    </div>
+    <div ng-if="loadingPreview" class="working-box">
+        <div class="loading-info">
+            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+            <span>Loading the Preview<br />
+            Please Wait</span>
+        </div>
+    </div>
+    <div id="printme" ng-if="data && !importWorking && !loadingPreview">
+        <div class="row">
+            <div class="col-sm-12">
+                <h4>{{domain.domain_description}} - Bluewave Call Flow and User Preview</h4>
+                <p>Default Caller ID: {{data.callerid | tel}}</p>
+                <p>The following Ivrs and Ring Groups will be imported for {{domain.domain_description}}. The extensions will be changed when inserted into Fusion to correspond with the Call Flow requirements.</p>
+            </div>
+        </div>
+        <h4>User / Extensions</h4>
+        <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Extension</th>
+                    <th>User Agent</th>
+                    <th>MAC Address</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="showExts().length === 0">
+                    <td colspan="5">There are no Users / Exts to be shown</td>
+                </tr>
+                <tr ng-if="showExts().length > 0" ng-repeat="ext in showExts()">
+                    <td>{{ext.name}}</td>
+                    <td>{{ext.ext}}</td>
+                    <td>{{ext.ua_name | capitalize}}</td>
+                    <td>{{ext.mac}}</td>
+                    <td>{{ext.status | capitalize}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <h4>Ring Groups</h4>
+        <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+            <thead>
+                <tr>
+                    <th>Ring Group</th>
+                    <th>Extension</th>
+                    <th>Strategy</th>
+                    <th>Destinations</th>
+                    <th>Timeout Destination</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="data.rgs.length === 0">
+                    <td colspan="5">There are no Ring Groups to be imported</td>
+                </tr>
+                <tr ng-if="data.rgs.length > 0" ng-repeat="rg in data.rgs">
+                    <td>{{rg.name}}</td>
+                    <td>{{rg.oldext}}</td>
+                    <td>{{rg.strategy | capitalize}}</td>
+                    <td>{{rg.dest_list}}</td>
+                    <td>{{rg.timeout_dest}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <h4>Ivrs</h4>
+        <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+            <thead>
+                <tr>
+                    <th>IVR Name / Greeting</th>
+                    <th>Ext.</th>
+                    <th>Timeout</th>
+                    <th>Timeout Dest.</th>
+                    <th>Options</th>
+                    <th>Conditions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="data.ivrs.length === 0">
+                    <td colspan="5">There are no Ivrs to be imported</td>
+                </tr>
+                <tr ng-if="data.ivrs.length > 0" ng-repeat="ivr in data.ivrs">
+                    <td>
+                        {{ivr.ivr_menu_name}}
+                        <span class="smfont" ng-if="ivr.greeting"><br />Greeting: {{ivr.greeting}}</span>
+                    </td>
+                    <td>{{ivr.oldext}}</td>
+                    <td>{{ivr.ivr_menu_timeout}}</td>
+                    <td>{{ivr.exit_description}}</td>
+                    <td>
+                        <table class="table table-striped internal-table">
+                            <tr ng-repeat="opt in ivr.ivr_opts">
+                                <td>{{opt.ivr_menu_option_digits}}</td>
+                                <td>{{opt.ivr_menu_option_description}}</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <span ng-if="ivr.default_status === 0">
+                            Off
+                        </span>
+                        <span ng-if="ivr.default_status === null">
+                            Inherit
+                        </span>
+                        <span ng-if="ivr.default_status === 1 && ivr.default">
+                            Default Destination: {{ivr.default_vm == 1 ? 'Voicemail ' : ''}}{{ivr.default}}
+                        </span>
+                        <table ng-if="ivr.default_status && ivr.times.length > 0" class="table table-striped internal-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Dest.</th>
+                                    <th>Day / Date</th>
+                                    <th>Times</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="cond in ivr.times | orderBy : 'status'">
+                                    <td>{{cond.status == 'closed' ? 'Closed' : 'Open'}}</td>
+                                    <td>{{cond.destination}}</td>
+                                    <td ng-if="cond.date">{{cond.date}}</td>
+                                    <td ng-if="cond.day_from && cond.day_to">{{cond.day_from}} to {{cond.day_to}}</td>
+                                    <td ng-if="cond.time_from && cond.time_to">{{cond.time_from}} to {{cond.time_to}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h4>DIDs / Time Conditions</h4>
+        
+        <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+            <thead>
+                <tr>
+                    <th>DID</th>
+                    <th>Destination</th>
+                    <th>Record Call</th>
+                    <th>Conditions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="data.timeCond.dids.length === 0">
+                    <td colspan="3">There are no DIDs to be shown</td>
+                </tr>
+                <tr ng-if="data.timeCond.dids.length > 0" ng-repeat="did in data.timeCond.dids">
+                    <td>{{did.number1}}</td>
+                    <td>{{did.dest}}</td>
+                    <td>{{did.recordcall == 1 ? 'Yes' : 'No'}}</td>
+                    <td>
+                        <span ng-if="did.default">
+                            Default Destination: {{did.default_vm == 1 ? 'Voicemail ' : ''}}{{did.default}}
+                        </span>
+                        <table ng-if="did.conditions.length > 0" class="table table-striped internal-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Dest.</th>
+                                    <th>Day / Date</th>
+                                    <th>Times</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="cond in did.conditions | orderBy : 'status'">
+                                    <td>{{cond.status == 'closed' ? 'Closed' : 'Open'}}</td>
+                                    <td>{{cond.destination}}</td>
+                                    <td ng-if="cond.date">{{cond.date}}</td>
+                                    <td ng-if="cond.day_from && cond.day_to">{{cond.day_from}} to {{cond.day_to}}</td>
+                                    <td ng-if="cond.time_from && cond.time_to">{{cond.time_from}} to {{cond.time_to}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="print-buttons" ng-if="data && !importWorking && !loadingPreview">
+        <button class="btn btn-default btn-sm" 
+            ng-click="closeImport()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i>
+            Cancel Import
+        </button>
+        <button class="btn btn-default btn-sm" 
+            ng-click="printDiv('printme')">
+            <i class="fa fa-print" style="margin-right: 10px;"></i>
+            Print Preview
+        </button>
+        <a href="{{getDownloadUrl()}}" target="_blank" class="btn btn-default btn-sm">
+            <i class="fa fa-download" style="margin-right: 10px;"></i>
+            Download Greetings
+        </a>
+        <button class="btn btn-primary btn-sm" 
+            ng-click="completeImportCallFlow()">
+            <i class="fa fa-upload" style="margin-right: 10px;"></i>
+            Proceed With Import
+        </button>
+    </div>
+</div>
+
+<auto-attendant-manage-table
+    edit-time-condition="editTimeCondition"
+    edit-ring-group="editRingGroup"
+    edit-ivr="editIvr"
+    edit-voicemail="editVoicemail"
+    edit-extension="editExtension"
+    create-auto-attendant="createAutoAttendant"
+    edit-auto-attendant="editAutoAttendant"
+    ng-if="currentStateIs('manage-table')">
+</auto-attendant-manage-table>
+<attendant-editor
+    ng-if="currentStateIs('attendant-edit')"
+    attendant="editingAttendant"
+    register-callbacks="registerCallbacks(save, shouldPromptOnCancel)">
+</attendant-editor>
+<div class="attendant-action-btns-col"
+     ng-if="currentStateIs('attendant-edit')">
+    <div class="attendant-action-btns-row">
+        <button class="btn btn-default btn-md"
+                ng-click="quitWithoutSaving(editingAttendant)">
+            <i class="fa fa-undo"
+               style="margin-right: 10px;">
+            </i>
+            Cancel
+        </button>
+        <button class="btn btn-success btn-md"
+                ng-click="saveAndQuit()">
+            <i class="fa fa-save"
+               ng-show="!loading"
+               style="margin-right: 10px;">
+            </i>
+            <span class="spinner"
+                  ng-show="loading">
+                <i class="fa fa-cog fa-spin fa-lg"></i>
+            </span>
+            {{loading ? "" : "Save Call Flow"}}
+        </button>
+    </div>
+</div>

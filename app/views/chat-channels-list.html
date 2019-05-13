@@ -1,0 +1,77 @@
+<div class="chat-block-side-header">
+    <div class="tableclass">
+        <div class="tablecell">
+            @{{::chatUserProfile.username}}<br />
+            <span class="chat-team-name">
+                {{::chatUserProfile.team.display_name}}
+            </span>
+        </div>
+        <!-- <div class="tablecell user-settings">
+            <i class="fa fa-gear fa-2x" ng-click="editChatUserSettings()"></i>
+        </div> -->
+    </div>
+</div>
+<div class="chat-block-side-content">
+    <ul class="chat-contacts-list">
+        <li class="cat" ng-show="favoritesExist()">
+            <span ng-click="toggleFavorites()">
+                FAVORITES
+                <i class="fa fa-chevron-down"
+                   ng-show="showFavorites">
+                </i>
+                <i class="fa fa-chevron-right"
+                   ng-show="!showFavorites">
+                </i>
+            </span>
+            <favorite-channels-list class="favorite-channels-list"
+                                    toggle-favorite-channel="toggleFavoriteChannel"
+                                    ng-show="showFavorites"
+                                    is-favorite-channel="isFavoriteChannel">
+            </favorite-channels-list>
+        </li>
+        <li class="cat">
+            <span ng-click="toggleTopicChannels()">
+                CHANNELS
+                <i class="fa fa-chevron-down"
+                   ng-show="showTopicChannels">
+                </i>
+                <i class="fa fa-chevron-right"
+                   ng-show="!showTopicChannels">
+                </i>
+            </span>
+            <span class="add-option"
+                  ng-click="addChannel()"
+                  tooltip-placement="top"
+                  ng-show="showTopicChannels"
+                  uib-tooltip="{{::tips.chat.create_channel}}">
+                <i class="fa fa-plus"></i>
+            </span>
+            <topic-channels-list ng-show="showTopicChannels"
+                                 toggle-favorite-channel="toggleFavoriteChannel"
+                                 is-favorite-channel="isFavoriteChannel">
+            </topic-channels-list>
+        </li>
+        <li class="cat">
+            <span ng-click="toggleDMChannels()">
+                DIRECT MESSAGES
+                <i class="fa fa-chevron-down"
+                   ng-show="showDMChannels">
+                </i>
+                <i class="fa fa-chevron-right"
+                   ng-show="!showDMChannels">
+                </i>
+            </span>
+            <span class="add-option"
+                  ng-click="addDirectMessage()"
+                  tooltip-placement="top-right"
+                  ng-if="showDMChannels"
+                  uib-tooltip="Open a Direct Message ...">
+                <i class="fa fa-plus"></i>
+            </span>
+            <dm-channels-list ng-show="showDMChannels"
+                              toggle-favorite-channel="toggleFavoriteChannel"
+                              is-favorite-channel="isFavoriteChannel">
+            </dm-channels-list>
+        </li>
+    </ul>
+</div>

@@ -1,0 +1,305 @@
+<toll-free-number-setup domain="domain"></toll-free-number-setup>
+<hr />
+<h4>Caller ID and E911 Setup</h4>
+<p>Set the outbound caller ID for each of your DIDs. Each phone number with a unique CallerID must be associated with a physical address for 911 service. There is a $0.99/month fee for each e911 address to cover the cost of 911 service.</p>
+<div class="users-table">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead>
+            <tr>
+                <th class="user-name-col">User Name</th>
+                <th class="extension-col">Extension</th>
+                <th class="did-col">User DID</th>
+                <th class="outbound-col">Outbound CallerID</th>
+                <th class="address-col">E911 Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-if="loading">
+                <td colspan="5">
+                    <span class="spinner"
+                            ng-show="loading">
+                        <i class="fa fa-cog fa-spin fa-lg"></i>
+                    </span>
+                </td>
+            </tr>
+            <tr ng-if="!isKotterTechUserByUuid(user.id) && !loading" 
+                ng-repeat="user in filteredUsers = (users | orderBy : 'contact_name_given') | limitTo:pagination.perPage:pagination.perPage*(pagination.currentPage-1)">
+                <td class="user-name-col">
+                    <md-input-container>
+                        {{user.contact_name_given + ' ' + user.contact_name_family}}
+                    </md-input-container>
+                </td>
+                <td class="extension-col">
+                    <md-input-container>
+                        {{user.user_ext}}
+                    </md-input-container>
+                </td>
+                <td class="did-col">
+                    <div class="tableclass">
+                        <div class="tablecell">
+
+                            <md-input-container ng-show="editingDid !== user.id">
+                                {{user.did | tel}}
+                            </md-input-container>
+                            <md-input-container ng-show="editingDid === user.id">
+                                <md-select ng-model="userDIDChoices[user.id]"
+                                            aria-label="choices" 
+                                            md-on-close="doChangeUserDid(user)">
+                                    <md-option ng-show="isAvailDid(did, user)" 
+                                        ng-repeat="did in validDids"
+                                        ng-value="did">
+                                        {{did.destination_number | tel}}
+                                        <span class="greyfont" > - {{did.destination_description}}</span>
+                                        <span class="greyfont capitalize"
+                                            ng-if="did.port">
+                                            - {{did.port.port_status}}
+                                        </span>
+                                        <span class="greyfont capitalize"
+                                            ng-if="did.destination_number === user.did">
+                                            - Current
+                                        </span>
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                        <div class="tablecell right-text">
+                            <i class="fa fa-pencil-square-o"
+                                ng-click="editDid(user)"
+                                ng-if="editingDid !== user.id"
+                                tooltip-placement="top"
+                                uib-tooltip="Change {{user.contact_name_given + ' ' + user.contact_name_family}}'s DID" ></i>
+                            <i class="fa fa-undo dktealfont"
+                                ng-click="cancelEditUserDid(user)"
+                                ng-if="editingDid === user.id"
+                                tooltip-placement="top"
+                                uib-tooltip="Save changes to {{user.contact_name_given + ' ' + user.contact_name_family}}'s DID" ></i>
+                        </div>
+                    </div>
+                </td>
+                <td class="outbound-col">
+                    <md-input-container>
+                        <md-select ng-model="outboundDIDChoices[user.id]"
+                                    aria-label="choices" 
+                                    ng-change="setCallerId(user, did)">
+                            <md-option ng-if="!did.port_status || did.port_status == 'porting'" 
+                                ng-repeat="did in validDids"
+                                ng-value="did">
+                                {{did.destination_number | tel}}
+                                <span class="greyfont capitalize"
+                                        ng-if="did.port">
+                                    - {{did.port.port_status}}
+                                </span>
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </td>
+                <td class="address-col">
+                    <md-input-container>
+                        <md-select ng-model="emergencyDidChoices[user.id]"
+                                    aria-label="choices"
+                                    ng-change="assignCallerIdNumber(user, false)">
+                            <md-option ng-repeat="reg in e911Registrations"
+                                        ng-value="reg">
+                                {{reg.address}}, {{reg.city}}, {{reg.state}}
+                            </md-option>
+                            <md-option ng-value="null">
+                                Add New Address
+                            </md-option>
+                            
+                        </md-select>
+                    </md-input-container>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div ng-show="filteredUsers.length > pagination.perPage" style="text-align: center">
+        <ul uib-pagination
+            class="pagination-sm pagination call-history"
+            total-items="filteredUsers.length"
+            ng-model="pagination.currentPage"
+            previous-text="&lsaquo;"
+            next-text="&rsaquo;"
+            items-per-page="pagination.perPage">
+        </ul>
+    </div>
+</div>
+
+<div class="tableclass addresses">
+    <div class="tablecell">
+        Edit E911 physical addresses below as needed for each outgoing Caller ID number listed below.
+    </div>
+    <div class="tablecell button">
+        <md-button ng-click="showNewE911Modal()"
+            class="pull-right md-default md-raised">
+            <i class="fa fa-plus"></i> Add New Address
+        </md-button>
+    </div>
+</div>
+<div class="address-table">
+    <div class="table-head-container">
+        <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+            <thead>
+                <tr>
+                    <th>Address</th>
+                    <th class="city-col">City</th>
+                    <th class="state-col">State</th>
+                    <th class="zip-col">Zipcode</th>
+                    <th class="options-col">Default</th>
+                    <th class="options-col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="loading">
+                    <td colspan="6">
+                        <span class="spinner"
+                                ng-show="loading">
+                            <i class="fa fa-cog fa-spin fa-lg"></i>
+                        </span>
+                    </td>
+                </tr>
+                <tr ng-if="showAddE911">
+                    <td >
+                        <md-input-container>
+                            <input type="text"
+                                   ng-model="newE911Number.address1"
+                                   placeholder="address">
+                        </md-input-container>
+                    </td>
+                    <td>
+                        <md-input-container>
+                            <input type="text"
+                                   ng-model="newE911Number.community"
+                                   placeholder="city">
+                        </md-input-container>
+                    </td>
+                    <td>
+                        <md-input-container>
+                            <md-select ng-model="newE911Number.state"
+                                name="e911State"
+                                required
+                                placeholder="state">
+                                <md-option ng-repeat="state in billingStates"
+                                        ng-value="state.state_abbr">
+                                    {{state.state_name}}
+                                </md-option>
+                            </md-select>
+                            <div ng-messages="registerE911.state.$error" >
+                                <div ng-message="required">This is required!</div>
+                            </div>
+                        </md-input-container>
+                    </td>
+                    <td>
+                        <md-input-container>
+                            <input type="text"
+                                   ng-model="newE911Number.postalcode"
+                                   placeholder="zipcode">
+                        </md-input-container>
+                    </td>
+                    <td class="options-col">
+                        <div class="options-container">
+                            <i class="fa fa-ban pull-right cancelopt"
+                               ng-click="cancelAddE911()"
+                               tooltip-placement="top"
+                               uib-tooltip="Cancel Edit">
+                            </i>
+                            <i class="fa fa-save pull-right deleteopt"
+                               ng-click="registerE911Phone()"
+                               tooltip-placement="top"
+                               uib-tooltip="Save Changes">
+                            </i>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-show="!loading" 
+                    ng-repeat="(destinationUuid, registration) in filteredRegistrations = (e911Registrations) | limitTo:pagination.perPage2:pagination.perPage2*(pagination.currentPage2-1)">
+                    <td ng-if="!registration.editing">
+                        {{registration.address}}
+                        <span ng-if="registration.domain_default==='true'"> - (Default)</span>
+                    </td>
+                    <td class="full-md-container" ng-if="registration.editing">
+                        <md-input-container>
+                            <input type="text"
+                                   ng-model="editE911Number.address1"
+                                   placeholder="address">
+                        </md-input-container>
+                    </td>
+                    <td ng-if="!registration.editing">
+                        {{registration.city}}
+                    </td>
+                    <td ng-if="registration.editing">
+                        <md-input-container>
+                            <input type="text"
+                                   ng-model="editE911Number.community"
+                                   placeholder="city">
+                        </md-input-container>
+                    </td>
+                    <td ng-if="!registration.editing">
+                        {{registration.state}}
+                    </td>
+                    <td ng-if="registration.editing">
+                        <md-input-container>
+                            <input type="text"
+                                   ng-model="editE911Number.state"
+                                   placeholder="state">
+                        </md-input-container>
+                    </td>
+                    <td ng-if="!registration.editing">
+                        {{registration.zipcode}}
+                    </td>
+                    <td ng-if="registration.editing">
+                        <md-input-container>
+                            <input type="text"
+                                   ng-model="editE911Number.postalcode"
+                                   placeholder="zipcode">
+                        </md-input-container>
+                    </td>
+                    <td>
+                        <i class="fa fa-square-o orangefont mainopt" 
+                            ng-if="!registration.domain_default"
+                            ng-click="setDefaultE911Address(registration)"
+                            tooltip-placement="top"
+                            uib-tooltip="Set {{registration.address}} as Default Address"></i>
+                        <i class="fa fa-check-square-o orangefont mainopt" 
+                            ng-if="registration.domain_default === 'true'"
+                            tooltip-placement="top"
+                            uib-tooltip="{{registration.address}} is the Default Address"></i>
+                    </td>
+                    <td ng-show="!registration.editing">
+                        <span ng-click="editE911(registration)">
+                            <i class="fa fa-pencil-square-o primaryfont mainopt"></i>
+                        </span>
+                    </td>
+                    <td ng-show="registration.editing">
+                        <div class="options-container">
+                            <i class="fa fa-save mainopt"
+                                ng-if="!savingChanges"
+                                ng-click="saveEditE911(registration)"
+                                tooltip-placement="top"
+                                uib-tooltip="Save Changes">
+                             </i>
+                            <i class="fa fa-ban mainopt"
+                                ng-if="!savingChanges"
+                               ng-click="cancelEditE911(registration)"
+                               tooltip-placement="top"
+                               uib-tooltip="Cancel Edit">
+                            </i>
+                            <span ng-if="savingChanges"><i class="fa fa-spinner fa-spin"></i> Saving</span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div ng-show="filteredRegistrations.length > pagination.perPage2" style="text-align: center">
+            <ul uib-pagination
+                class="pagination-sm pagination call-history"
+                total-items="filteredRegistrations.length"
+                ng-model="pagination.currentPage2"
+                previous-text="&lsaquo;"
+                next-text="&rsaquo;"
+                items-per-page="pagination.perPage2">
+            </ul>
+        </div>
+    </div>
+</div>
+<p>Call customer support to port in additional phone numbers by dialing 411 or clicking "Talk to Support" above</p>
+

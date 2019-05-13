@@ -1,0 +1,72 @@
+<div ng-controller="FileSharingCtrl">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-files-o fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">File Sharing</span>
+            <button type="button" class="close" ng-click="closeFileShareModal()"><i class="fa fa-times"></i></button>
+        </div>
+
+        <form name="frmFileShare">
+        <div class="modal-body" id="modal-body"  >
+            <div class="alert alert-success" ng-show="msgEmailSent" role="alert" style="margin-top: 10px; display: block">
+                You have successfully emailed a link to the file!
+            </div>
+
+            <div ng-hide="msgEmailSent">
+                <contact-selector type="'file'"></contact-selector>
+                <textarea class="form-control" id="enterText" ng-model="contentEmail" style="height: 200px; margin-top: 12px; resize: none;" placeholder="Write your message here (Optional)"></textarea>
+
+                <div ng-if="alertError && alertError !== ''" uib-alert ng-class="'alert-danger'" dismiss-on-timeout="5000" close="closeFilterAlert()">{{alertError}}</div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer cls-incomingcall-buttons">
+
+            <label class="btn btn-default btn-file btn-block" ng-show="!msgEmailSent && uploader.queue.length ==0 " style="border-top-left-radius: 5; border-bottom-left-radius: 5;">
+                <span ng-hide="uploader.queue.length >= 1" class="cls-color-blue-tkg">Click to select file (max size 250 MB)</span>
+                <input type="file" class="form-control" ng-if="uploader.queue.length < 1" accept="file_extension|audio/*|video/*|image/*|media_type" nv-file-select=""  uploader="uploader" filters="enforceMaxFileSize,enforceFileType" style="display: none;"  ng-disabled="frmFileShare.$invalid">
+
+            </label>
+            <div class="alert alert-info" style="padding: 10px; text-align: center;" ng-show="uploader.queue.length >= 1">
+            <span ng-repeat="item in uploader.queue" >
+                    <strong>{{ item.file.name.length > 75 ? item.file.name.substring(0, 35) + ' ... ' + item.file.name.substring(item.file.name.length-35) : item.file.name }}</strong>
+
+                    <div class="progress" style="margin-bottom: 0;">
+                        <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                    </div>
+
+                </span>
+            </div>
+            <div ng-repeat="item in uploader.queue" ng-show="uploader.queue.length >= 1" style="margin-top: 10px">
+                <button type="button" class="btn btn-danger btn-sm" ng-click="item.remove()" ng-show="uploader.queue.length >= 1" ng-disabled="item.isReady || item.isUploading || item.isSuccess"><i class="fa fa-trash" style="margin-right: 10px;"></i>Remove file selected</button>
+                <button  class="btn btn-primary btn-sm"
+                         ng-click="contactsSelected.length < 1 ? null : item.upload(); "
+                         ng-hide="msgEmailSent"
+                         ng-disabled="item.isReady || item.isUploading || item.isSuccess || contactsSelected.length < 1">
+                    <i class="fa fa-paper-plane-o" style="margin-right: 10px;"></i>
+                    Send file
+                </button>
+            </div>  <!--  item.upload(); sendEmail(contactsUsr, contentEmail);-->
+
+            <div ng-show="msgEmailSent">
+                <button  class="btn btn-primary btn-sm" ng-click="closeFileShareModal()"><i class="fa fa-check" style="margin-right: 10px;"></i>Done</button>
+            </div>
+
+            <!--
+            <div nv-file-drop="" uploader="uploader" options="uploadOptions" removeAfterUpload="true" >
+                <div nv-file-over="" uploader="uploader" over-class="another-file-over-class" class="well my-drop-zone" >
+                You may drag drop files here
+                </div>
+            </div>
+            -->
+
+        </div>
+    </form>
+
+
+    </div>
+</div>

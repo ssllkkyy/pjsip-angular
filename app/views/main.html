@@ -1,0 +1,109 @@
+<div class="main-dashboard" ng-show="true">
+    <div class="active-tiles"
+         dnd-drop="callback({targetList: activeTiles, targetIndex: index})"
+         dnd-list="activeTiles">
+        <div class="draggable-tile"
+             ng-repeat="tile in activeTiles"
+             context-menu="tileOptions($index, true)"
+             ng-if="tile.allowed() && !isFbTile(tile)"
+             dnd-draggable="tile"
+             dnd-callback="removeTileFromList(activeTiles, tile, targetList, targetIndex)">
+
+            <dashboard-tile go-to="tile.goToUrl"
+                            fa-class="tile.faClass"
+                            tile-title="tile.title"
+                            show-transclude="tile.shouldTransclude"
+                            on-click="tile.customClickFn">
+                <tile-image-contents>
+                    <img src="/images/icons/fbmsg.png"
+                         class="messengerimg"
+                         ng-if="isFbTile(tile)">
+                </tile-image-contents>
+            </dashboard-tile>
+        </div>
+    </div>
+    <div class="buttons">
+        <button class="btn btn-default"
+                ng-click="showHiddenTiles = !showHiddenTiles">
+            <i ng-show="!showHiddenTiles"
+               class="fa fa-eye">
+            </i>
+            <i ng-show="showHiddenTiles"
+               class="fa fa-eye-slash">
+            </i>
+            {{showHiddenTiles ? 'Show Only Active' : 'Show All'}}
+        </button>
+        <button class="btn btn-default reset"
+                ng-click="sortTilesAlphabetically()">
+            <i class="fa fa-sort-alpha-asc"></i>
+            Sort Alphabetically
+        </button>
+        <button class="btn btn-default reset"
+                ng-click="resetTiles()">
+            <i class="fa fa-refresh"></i>
+            Reset
+        </button>
+    </div>
+    <div class="inactive-tiles"
+         ng-show="showHiddenTiles"
+         dnd-drop="callback({targetList: inactiveTiles, targetIndex: index})"
+         dnd-list="inactiveTiles">
+        <div class="draggable-tile"
+             ng-repeat="tile in inactiveTiles"
+             context-menu="tileOptions($index, false)"
+             ng-if="tile.allowed()"
+             dnd-draggable="tile"
+             dnd-callback="removeTileFromList(inactiveTiles, tile, targetList, targetIndex)">
+            <dashboard-tile go-to="tile.goToUrl"
+                            fa-class="tile.faClass"
+                            tile-title="tile.title"
+                            show-transclude="tile.shouldTransclude">
+                <tile-image-contents>
+                    <img src="/images/icons/fbmsg.png"
+                         class="messengerimg"
+                         ng-if="isFbTile(tile)">
+                    <!--span class="fa-stack fa-stack voicemail-icon"
+                          ng-if="isVVTile(tile)">
+                        <i style="transform: scale(2.1,1);"
+                           class="fa fa-minus fa-stack-2x">
+                        </i>
+                        <i class="fa fa-circle-o fa-stack-2x left-circle"></i>
+                        <i class="fa fa-circle-o fa-stack-2x right-circle"></i>
+                    </span-->
+                </tile-image-contents>
+            </dashboard-tile>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/ng-template" id="feature-detail.html">
+    <div class="modal-header">
+        <span class="cls-header-modal">
+            <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+            <center>{{vm.content.data.tileTitle}}</center>
+        </span>
+    </div>
+    <div class="modal-body">
+        <div  ng-if="vm.content.data.description && vm.content.data.description!=='Description coming soon'" class="option-modal-description">
+            {{vm.content.data.description}}
+        </div>
+        <div ng-if="vm.content.data.isAdminGroupOrGreater()" class="option-modal-upgrade-button center-text fullwidth">
+            <button 
+                class="btn btn-danger btn-md" 
+                ng-click="vm.content.data.doUpgrade()">
+                <i class="fa fa-times" style="margin-right: 10px;"></i>
+                Upgrade Now
+            </button>
+        </div>
+        <div ng-if="!vm.content.data.isAdminGroupOrGreater()" class="option-modal-upgrade-button center-text fullwidth">
+            To activate this feature, please ask an agency admin user to upgrade your Bridge plan.
+        </div>
+        <div ng-if="vm.content.data.videoUrl">
+            <iframe width="560" height="315" ng-src="{{vm.content.data.videoUrl}}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+    </div>
+</script>

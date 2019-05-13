@@ -1,0 +1,621 @@
+<div id="addcontact" ng-controller="SettingsCtrl">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x cls-color-blue-tkg">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">{{action}}</span>
+        <button type="button" ng-click="closeAddContact()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body-contacts-master" ng-show="!confirmDelete">
+        <form name="frmContacts" ng-show="!importContact">
+            <!-- input type="text" class="form-control" ng-model="contactUser.contact_nickname" placeholder="Nickname"  -->
+
+            <input type="hidden" ng-model="contactUser.contact_uuid" />
+
+
+            <md-tabs md-dynamic-height>
+                <md-tab label="General Information" style="background: red;" ng-if="contactUser.contact_type!='user'">
+                    <!-- //////////////////// GENERAL INFORMATION TAB \\\\\\\\\\\\\\\\\\\\ -->
+                    <div id="tabContContacts">
+                        <p>NOTE: Each contact must have at least one phone number and a first and last name. If using the same phone number for more than one contact you should include the organization name in addition to the first and last name.</p>
+                        
+                        <div class="row">
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container>
+                                    <label>Prefix</label>
+                                    <input name="" ng-model="contactUser.contact_name_prefix">
+                                    <div ng-messages="frmContacts.favoriteColor.$error">
+                                        <div ng-message="required">This Field is required!</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container>
+                                    <label>First Name</label>
+                                    <input name="txtName" ng-model="contactUser.contact_name_given" required>
+                                    <div ng-messages="frmContacts.txtName.$error">
+                                        <div ng-message="required">First name is required!</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container>
+                                    <label>Last Name</label>
+                                    <input name="txtLastName" ng-model="contactUser.contact_name_family" required>
+                                    <div ng-messages="frmContacts.txtLastName.$error">
+                                        <div ng-message="required">Last name is required!</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container>
+                                    <label>Suffix</label>
+                                    <input name="" ng-model="contactUser.contact_name_suffix">
+                                    <div ng-messages="frmContacts.favoriteColor.$error">
+                                        <div ng-message="required">This Field is required!</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container class="md-block">
+                                    <label>Email Address</label>
+                                    <input type="email" name="txtEmail" ng-model="contactUser.contact_email_address" minlength="5" maxlength="100" ng-pattern="/^.+@.+\..+$/" />
+
+                                    <div ng-messages="frmContacts.txtEmail.$error" role="alert">
+                                        <div ng-message-exp="['required', 'minlength', 'maxlength', 'pattern']">You must enter a valid email!</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container>
+                                    <label>Organization</label>
+                                    <input name="txtOrganization" ng-model="contactUser.contact_organization">
+                                    <div ng-messages="frmContacts.txtName.$error"></div>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container>
+                                    <label>Time Zone</label>
+                                    <md-select name="type" ng-model="contactUser.contact_time_zone">
+                                        <md-option><em>None</em></md-option>
+                                        <md-option ng-repeat="timeZone in timeZones" ng-value="timeZone.timezone">
+                                            {{timeZone.display}} - {{timeZone.timezone}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container>
+                                    <label>Date of Birth (YYYY-MM-DD)</label>
+                                    <input ng-model="contactUser.settings.contact_dob" name="contactDob" validate-dob />
+                                    <div ng-messages="frmContacts.contactDob.$error">
+                                        <div ng-message="validateDob">Format must be YYYY-MM-DD!</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container class="md-block">
+                                    <label>Street Address</label>
+                                    <input type="text" name="txtAddress" ng-model="contactUser.settings.contact_address" minlength="5" maxlength="100" />
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container>
+                                    <label>City</label>
+                                    <input name="txtCity" ng-model="contactUser.settings.contact_city">
+                                </md-input-container>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container style="width: 100% !important;">
+                                    <label>State</label>
+                                    <md-select name="type" ng-model="contactUser.settings.contact_state">
+                                        <md-option><em>None</em></md-option>
+                                        <md-option ng-repeat="state in usStates" value="{{state.state_abbr}}">
+                                            {{state.state_name}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container>
+                                    <label>Zip Code</label>
+                                    <input name="txtZipcode" ng-model="contactUser.settings.contact_zip_code" minlength="0" maxlength="5" ng-pattern="/^[0-9]*$/">
+                                    <div ng-messages="frmContacts.txtZipcode.$error" role="alert">
+                                        <div ng-message-exp="['maxlength', 'pattern']">You must enter a valid zipcode!</div>
+                                    </div>
+                                </md-input-container>
+                            </div>
+                        </div>
+                        <div class="row">
+                    
+                            <div class="col-lg-3 col-md-6" >
+                                <md-checkbox style="margin-top: 20px;" ng-model="contactUser.favorite" aria-label="Add to Favorites" class="md-warn md-align-top-left" flex>
+                                    Add to Favorites
+                                    <br/> {{ data.cb2 }}
+                                </md-checkbox>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <md-input-container ng-if="(actionContact === 'add')">
+                                    <label>Contact Group</label>
+                                    <md-select name="type" ng-model="contactUser.initialGroup" 
+                                        ng-change="checkGroupLimits()">
+                                        <md-option><em>None</em></md-option>
+                                        <md-option ng-repeat="group in contactGroups" ng-value="group.group_uuid">
+                                            {{ group.group_name }}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                                <div ng-if="actionContact === 'edit'">
+                                    <div>Contact Groups <button class="btn btn-default btn-xs" ng-click="contactsmaster.showSelectGroup = true">Select Group</button></div>
+                                    <div class="list-group" ng-if="contactUser.contactGroups && contactUser.contactGroups.length > 0">
+                                        <div ng-repeat="group in contactUser.contactGroups track by $index"
+                                            class="list-group-item">
+                                            {{group.group_name}} <i class="fa fa-trash" ng-click="removeContactFromGroup($index)"></i>
+                                        </div>
+                                    </div>
+                                    <div ng-show="contactsmaster.showSelectGroup">
+                                        <md-input-container>
+                                            <label>Contact Group</label>
+                                            <md-select name="type" ng-model="contactsmaster.selectedGroup" 
+                                                ng-change="chooseGroup()">
+                                                <md-option ng-repeat="item in contactGroups" ng-value="item">
+                                                    {{ item.group_name }}
+                                                </md-option>
+                                            </md-select>
+                                        </md-input-container>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div>Tags 
+                                    <button class="btn btn-default btn-xs" ng-click="contactsmaster.showTagSelection = !contactsmaster.showTagSelection">
+                                        <span ng-if="contactsmaster.showTagSelection">Cancel</span>
+                                        <span ng-if="!contactsmaster.showTagSelection">Select Tags</span>
+                                    </button>
+                                </div>
+                                <div class="tag-container" ng-if="contactUser.tags && contactUser.tags.length > 0">
+                                    <div ng-repeat="tagname in contactUser.tags track by $index"
+                                        ng-init="tag = getTagByName(tagname)"
+                                        class="tag-item">
+                                        {{tag.tag_name}} <i class="fa fa-trash" ng-click="removeTagFromContact($index)"></i>
+                                    </div>
+                                </div>
+                                <div ng-show="contactsmaster.showTagSelection">
+                                    <md-input-container ng-show="!createNewTag">
+                                        <label>Tags</label>
+                                        <md-select name="type" ng-model="contactsmaster.selectedTag" 
+                                            ng-change="chooseTag(contactsmaster.selectedTag)">
+                                            <md-option value="newtag">Create New Tag</md-option>
+                                            <md-option ng-repeat="item in availableTags()" ng-value="item">
+                                                {{ item.tag_name }}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                    <div ng-show="createNewTag">
+                                    <input type="text"
+                                        ng-model="contactsmaster.newtag">
+                                        <i class="icon-folder-close fa fa-save" ng-show="createNewTag && !showSpinner" ng-click="saveNewTag(contactsmaster.newtag)"></i>
+                                        <span ng-show="showFolderSpinner"><i class="icon-folder-close fa fa-spinner fa-spin" ></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6" 
+                                ng-if="user.exportType.partner_code != 'generic'">
+                                <md-checkbox style="margin-top: 20px;" 
+                                    ng-model="contactUser.partner_contact" 
+                                    aria-label="Set as Partner Contact" 
+                                    class="md-warn md-align-top-left" flex>
+                                    Is {{user.exportType.partner_name}} Contact
+                                </md-checkbox>
+                            </div>
+                            <div class="col-lg-3 col-md-6" ng-if="contactUser.partner_contact && (user.exportType.partner_code == 'ams360' || user.exportType.partner_code == 'qqcatalyst')">
+                                <md-input-container>
+                                    <label>{{user.exportType.partner_name}} {{user.exportType.partner_code == 'qqcatalyst' ? 'Entity' : 'Customer'}} ID</label>
+                                    <input name="customerId" ng-model="contactUser.contact_customer_id">
+                                </md-input-container>
+                            </div>
+                            
+                        </div>
+                        <br>
+                        <div class="row">
+
+                            <div class="col-lg-6">
+                                <div class="col-lg-6 text-center">
+                                    <div style="width: 100%; margin: 0 auto;">
+                                        <!-- img src="{{pathImgProfile + contactUser.contact_profile_image}}" ng-if="contactUser.contact_profile_image && contactUser.contact_profile_image!=='0' && actionContact==='edit'" class="cls-img-profile" alt=""/  -->
+                                        <div class="settings-avatar" ng-if="uploader.queue.length===0 ">
+                                            <div ng-if="contactUser.contact_profile_image" class="settings-avatar">
+                                                <img src="{{pathImgProfile + contactUser.contact_profile_image}}" class="cls-settings-img-profile" alt="" />
+                                            </div>
+                                            <div ng-if="!contactUser.contact_profile_image" class="cls-settings-img-profile-null" style="background-color: {{ contactUser.contact_profile_color ? contactUser.contact_profile_color : '' }};">
+                                                <i class="fa fa-user" style="font-size: 75px; opacity: 0.4;" aria-hidden="true"></i>
+                                            </div>
+                                        </div>
+
+                                        <div ng-show="uploader.isHTML5" ng-repeat="item in uploader.queue" style="width: 120px !important; height: 120px !important;" s>
+                                            <span class="cls-contact-previous-avatar" ng-thumb="{file: item._file, width: 100, height: 100}"></span>
+                                        </div>
+
+                                        <!-- label class="btn btn-default btn-file btn-block" style="border-bottom-left-radius: 0; border-top-left-radius: 0;" ng-if="uploader.queue.length===0">
+                                            <i class="fa fa-photo"></i> Upload Image 
+                                            <input type="file" nv-file-select="" uploader="uploader" style="display: none;" />
+                                        </label  -->
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6" ng-init="contactUser.contact_profile_color ? contactUser.contact_profile_color : contactUser.contact_profile_color=profilecoloroptions[0]">
+                                    <div style="width: 100%; margin: 0 auto;">
+                                        <div ng-if="contactUser.contact_profile_image">
+                                            <button class="btn btn-danger" ng-click="removeAvatar()"><i class="fa fa-trash"></i> Remove Image</button>
+                                        </div>
+                                        <div ng-show="uploader.queue.length===0 && !contactUser.contact_profile_image">
+                                            <div ng-repeat="color in profilecoloroptions" class="coloroptionbox text-center">
+                                                <div class="coloroptions" style="background-color: {{color}}">
+                                                    <input type="radio" name="contactUser.contact_profile_color" ng-selected="$index=0" ng-model="contactUser.contact_profile_color" value="{{color}}" style="margin-top: 8px;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div ng-repeat="item in uploader.queue">
+                                            <label ng-show="never">{{contactUser.contact_profile_image=item.file.name}}</label>
+                                            <input type="hidden" ng-model="contactUser.contact_profile_image" />
+                                            <span>{{ item.file.name.length > 25 ? item.file.name.substring(0, 12) + ' ... ' + item.file.name.substring(item.file.name.length-12) : item.file.name }}</span> <br/>
+                                            <span>{{ item.file.size/1024/1024|number:2 }} MB</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="input-group">
+                                    <textarea class="form-control" rows="5" ng-model="contactUser.contact_note" placeholder="Submit notes about this contact ..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" ng-if="uploader.queue.length===0">
+
+                            <div class="col-lg-3">
+                                <label class="btn btn-default btn-file btn-block cls-color-blue-tkg">
+                                    <i class="fa fa-photo"></i> {{!contactUser.contact_profile_image ? 'Upload' : 'Change'}} Image 
+                                    <input type="file" nv-file-select="" uploader="uploader" style="display: none;" />
+                                </label>
+                            </div>
+                            <div class="col-lg-4" ng-if="!contactUser.contact_profile_image">
+                                <label style="margin-top: 10px; color: navy;">-OR- Select a color for generic avatar</label>
+                            </div>
+
+                        </div>
+                                                    
+                    </div>
+                </md-tab>
+
+                <md-tab label="Phone Numbers" ng-if="contactUser.contact_type!='user'">
+                    <!-- //////////////////// PHONE NUMBERS TAB \\\\\\\\\\\\\\\\\\\\ -->
+                    <div id="tabContContacts">
+                        <table class="table addnumber">
+                            <tr>
+                                <td>
+                                    <md-input-container style="width: 100% !important;">
+                                        <label>Phone Type</label>
+                                        <md-select name="type" ng-model="contactPhone.phone_label">
+                                            <md-option><em>None</em></md-option>
+                                            <md-option ng-repeat="phonetype in phoneNumberTypes" value="{{phonetype}}">
+                                                {{phonetype}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </td>
+    
+                                <td>
+                                    <md-input-container style="width: 100% !important;">
+                                        <label>Phone Number</label>
+                                        <input name="txtPhoneNumber" phone-input ng-model="contactPhone.phone_number">
+                                        <div ng-messages="frmContacts.txtPhoneNumber.$error">
+                                            <div ng-message="required">Phone Number is required!</div>
+                                        </div>
+                                    </md-input-container>
+                                </td>
+    
+                                <td>
+                                    <md-input-container style="width: 100% !important;">
+                                        <label>Extension</label>
+                                        <input name="txtExtension" ng-model="contactPhone.phone_extension" ng-disabled="contactPhone.phone_label ==='Mobile'">
+                                        <div ng-messages="frmContacts.txtExtension.$error">
+                                        </div>
+                                    </md-input-container>
+                                </td>
+    
+                                <td class=" number-options">
+    
+                                    <md-checkbox ng-model="contactPhone.phone_primary" aria-label="Primary Number" ng-true-value="1" ng-false-value="0" class="md-warn md-align-top-left" flex>
+                                        Primary Number
+                                    </md-checkbox>
+                                    <md-checkbox ng-model="contactPhone.phone_type_text" aria-label="Receive Texts" ng-true-value="1" ng-false-value="0" class="md-warn md-align-top-left" flex>
+                                        Receive Texts
+                                    </md-checkbox>
+                                </td>
+    
+                                <td class="buttonbox">
+                                    <button class="btn btn-primary btn-xs" ng-disabled="!contactPhone.phone_label || !contactPhone.phone_number" ng-click="listPhoneNumber(contactPhone, editingPhoneIndex)" style="text-decoration: none;">
+                                            <i class="fa fa-list-ol"></i>
+                                            {{editingPhoneIndex != null ? 'Update in list' : 'Add to list'}}
+                                    </button>
+                                    <button ng-if="editingPhoneIndex != null" class="btn btn-default btn-xs" ng-click="cancelEditPhone()">
+                                            <i class="fa fa-list-ol"></i>
+                                            Cancel 
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                        <md-list ng-cloak ng-if="phoneList.length > 0">
+                            <md-subheader class="md-no-sticky"><strong class="cls-color-blue-tkg">Phone List</strong></md-subheader>
+                            <md-list-item ng-repeat="phone in phoneList">
+                                <div class="col-lg-2 cls-row-list-phone">{{phone.phone_label}}<input type="hidden" ng-modal="phone.contact_phone_uuid"></div>
+                                <div class="col-lg-3 cls-row-list-phone">{{phone.phone_number | tel }} <span class="badge" style="font-size: 8px;" ng-if="!phone.contact_phone_uuid">New</span></div>
+                                <div class="col-lg-2 cls-row-list-phone"><span ng-if="phone.phone_extension">{{ phone.phone_extension | tel}}</span> </div>
+                                <div class="col-lg-3 cls-row-list-phone">{{phone.phone_primary == 1 ? 'Primary Number' : ''}} <br ng-if="phone.phone_primary == 1" /> {{phone.phone_type_text == 1 ? 'Receive Texts' : ''}} </div>
+                                <div class="col-lg-2 right-text" style="font-size: 20px; ">
+                                    <i class="btn btn-md fa fa-trash cls-color-red-tkg" style="margin-right: 10px;" ng-click="deleteContactInfo('phone', phone.contact_uuid, $index)"></i>
+                                    <i class="btn btn-md fa fa-edit cls-color-blue-tkg" ng-click="editPhone(phone, $index)"></i>
+                                </div>
+                            </md-list-item>
+                        </md-list>
+
+                    </div>
+                </md-tab>
+                <md-tab label="Contact Ringtones">
+                    <div id="tabContContactRingtones">
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h4 class="contact-ringtone">Call Ringtone: </h4>
+                            </div>
+                            <div class="col-sm-5">
+                                <md-input-container class="ringtone-select-container">
+                                    <label>Call Ringtone</label>
+                                    <md-select ng-model="callRingtone">
+                                        <md-option ng-repeat="ringtone in ringtones()"
+                                                   ng-value="ringtone">
+                                            {{ringtone.file_title}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                            <div class="col-sm-1 center-text">
+                                <i class="fa fa-2x fa-play-circle ringtone-play-btn"
+                                    ng-show="ringtonePlaying != 'call'"
+                                    tooltip-placement="top-right" 
+                                    uib-tooltip="{{tips.contacts.playringtone}}"
+                                    ng-click="playRingtone(callRingtone, 'call', callRingtoneMedia)">
+                                </i>
+                                <i class="fa fa-2x fa-stop-circle ringtone-play-btn"
+                                    ng-show="ringtonePlaying == 'call'"
+                                    tooltip-placement="top-right" 
+                                    uib-tooltip="{{tips.contacts.stopringtone}}"
+                                    ng-click="stopRingtone()">
+                                </i>
+                            </div>
+                            <div class="col-sm-1 center-text"  ng-if="callRingtone">
+                                <i class="fa fa-2x fa-times-circle redfont"
+                                    tooltip-placement="top-right" 
+                                    uib-tooltip="{{tips.contacts.removeringtone}}"
+                                    ng-click="removeContactRingtone(contactUser, 'callRingtone')">
+                                </i>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h4 class="contact-ringtone">Text Ringtone: </h4>
+                            </div>
+                            <div class="col-sm-5">
+                              <md-input-container class="ringtone-select-container">
+                                <label>Text Ringtone</label>
+                                <md-select ng-model="textRingtone">
+                                    <md-option ng-repeat="ringtone in ringtones()"
+                                               ng-value="ringtone">
+                                        {{ringtone.file_title}}
+                                    </md-option>
+                                </md-select>
+                              </md-input-container>
+                            </div>
+                            <div class="col-sm-1 center-text">
+                                <i class="fa fa-2x fa-play-circle ringtone-play-btn"
+                                    ng-show="ringtonePlaying != 'text'"
+                                    tooltip-placement="top-right" 
+                                    uib-tooltip="{{tips.contacts.playringtone}}"
+                                    ng-click="playRingtone(textRingtone, 'text', textRingtoneMedia)">
+                                </i>
+                                <i class="fa fa-2x fa-stop-circle ringtone-play-btn"
+                                    ng-show="ringtonePlaying == 'text'"
+                                    tooltip-placement="top-right" 
+                                    uib-tooltip="{{tips.contacts.stopringtone}}"
+                                    ng-click="stopRingtone()">
+                                </i>
+                            </div>
+                            <div class="col-sm-1 center-text" ng-if="textRingtone">
+                                <i class="fa fa-2x fa-times-circle redfont"
+                                    tooltip-placement="top-right" 
+                                    uib-tooltip="{{tips.contacts.removeringtone}}"
+                                    ng-click="removeContactRingtone(contactUser,'textRingtone')">
+                                </i>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                </md-tab>
+                <md-tab label="Policy Information">
+                    <div id="tabContPolicyInformation" style="min-height:300px">
+                        <table class="table addpolicy">
+                            <tr>
+                                <td>
+                                    <md-input-container style="width: 100% !important;">
+                                        <label>Policy Number</label>
+                                        <input name="policy_number" ng-model="policy_info.policy_number">
+                                    </md-input-container>
+                                </td>
+    
+                                <td>
+                                    <md-input-container style="width: 100% !important;">
+                                        <label>Policy Type</label>
+                                        <input name="policy_type" ng-model="policy_info.policy_type">
+                                    </md-input-container>
+                                </td>
+    
+                                <td>
+                                    <md-input-container style="width: 100% !important;">
+                                        <label>Policy CSR</label>
+                                        <input name="policy_csr" ng-model="policy_info.policy_csr_info">
+                                    </md-input-container>
+                                </td>
+    
+                                <td class="date-picker">
+                                    <div class="input-group" style="margin-top: 18px;">
+                                        <span class="input-group-addon" ng-click="OpenEffectiveDate()">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                        <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="policy_info.policy_effective_date" name="policy_info.policy_effective_date" is-open="effectiveDatePopup.opened" datepicker-options="effectiveDateOptions" close-text="Close" ng-click="OpenEffectiveDate()" ng-change="processEffectiveDate(policy_info.policy_effective_date)"
+                                            placeholder="Effective Date" />
+                                    </div>
+                                </td>
+    
+                                <td class="date-picker">
+                                    <div class="input-group" style="margin-top: 18px;">
+                                        <span class="input-group-addon" ng-click="OpenExpiryDate()">
+                                            <i class="fa fa-calendar"></i>
+                                        </span>
+                                        <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="policy_info.policy_expiry_date" name="policy_info.policy_expiry_date" is-open="expiryDatePopup.opened" datepicker-options="expiryDateOptions" close-text="Close" ng-click="OpenExpiryDate()" ng-change="processExpiryDate(policy_info.policy_expiry_date)"
+                                            placeholder="Expiry Date" />
+                                    </div>
+                                </td>
+
+                                <td class="buttonbox">
+                                    <button class="btn btn-primary btn-xs" ng-disabled="!policy_info.policy_number || !policy_info.policy_type" ng-click="addPolicyToList(policy_info, editingPolicyIndex)" style="text-decoration: none;">
+                                            <i class="fa fa-list-ol"></i>
+                                            {{editingPolicyIndex != null ? 'Update in list' : 'Add to list'}}
+                                    </button>
+                                    <button ng-if="editingPolicyIndex != null" class="btn btn-default btn-xs" ng-click="cancelEditPolicy()">
+                                            <i class="fa fa-list-ol"></i>
+                                            Cancel 
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                        <md-list ng-cloak ng-if="policyList.length > 0">
+                            <md-subheader class="md-no-sticky">
+                                <div><strong class="cls-color-blue-tkg">Policy List</strong></div>
+                                <br>
+                                <div class="col-lg-2">Number</div>
+                                <div class="col-lg-3">Type</div>
+                                <div class="col-lg-1">CSR</div>
+                                <div class="col-lg-3">Effective Date</div>
+                                <div class="col-lg-3">Expiry Date</div>
+                            </md-subheader>
+                            <md-list-item ng-repeat="policy in policyList">
+                                <div class="col-lg-2 cls-row-list-phone">{{policy.policy_number}}<input type="hidden" ng-modal="policy.contact_phone_uuid"></div>
+                                <div class="col-lg-3 cls-row-list-phone">{{policy.policy_type}}</div>
+                                <div class="col-lg-1 cls-row-list-phone">{{policy.policy_csr_info}}</div>
+                                <div class="col-lg-2 cls-row-list-phone">{{policy.policy_effective_date | toLocalTime | amDateFormat: 'YYYY-MM-DD'}}</div>
+                                <div class="col-lg-2 cls-row-list-phone">{{policy.policy_expiry_date | toLocalTime | amDateFormat: 'YYYY-MM-DD'}}</div>
+                                <div class="col-lg-2 right-text" style="font-size: 20px; ">
+                                    <i class="btn btn-md fa fa-trash cls-color-red-tkg" ng-click="deletePolicyInfo(policy.contact_uuid, $index)"></i>
+                                    <i class="btn btn-md fa fa-edit cls-color-blue-tkg" ng-click="editPolicy(policy, $index)"></i>
+                                </div>
+                            </md-list-item>
+                        </md-list>
+                    </div>
+                </md-tab>
+            </md-tabs>
+        </form>
+
+        <div ng-if="importContact && emulationStatus()['contactimports'].manager==='true'" >
+
+            <md-button ng-click="toggleState='spreadsheet'" class="md-primary md-raised">
+                Import From Spreadsheet
+            </md-button>
+            <md-button ng-click="obtainTargetGroup()"
+                       class="md-primary md-raised">
+
+                Import Google Contacts
+            </md-button>
+
+            <contact-spreadsheet-importer ng-show="toggleState=='spreadsheet'">
+            </contact-spreadsheet-importer>
+        </div>
+
+    </div>
+
+    <div class="modal-footer cls-incomingcall-buttons">
+        <div ng-show="!confirmDelete">
+            <button ng-if="emulationStatus()['contactimports'].manager==='true' && !importContact && !contactUser.contact_uuid"
+                    class="btn btn-warning importBtn"
+                    ng-click="import()">
+                Import Contact
+            </button>
+            <button ng-if="importContact && !contactUser.contact_uuid"
+                    class="btn btn-warning importBtn"
+                    ng-click="import()">
+                Create User
+            </button>
+            <button class="btn btn-default" 
+                ng-click="closeAddContact()">
+                Cancel
+            </button>
+            <button class="btn btn-danger btn-md"
+                    ng-if="contactUser.contact_uuid && contactUser.contact_type !== 'user' && deletingContact"
+                    ng-disabled="true">
+                <i class="fa fa-spinner fa-spin" style="margin-right: 10px;"></i>
+                Deleting Contact
+            </button>
+            <button class="btn btn-danger btn-md"
+                    ng-if="contactUser.contact_uuid && contactUser.contact_type !== 'user' && !deletingContact"
+                    ng-click="deleteContactInfo('contact', contactUser.contact_uuid)">
+                <i class="fa fa-trash" style="margin-right: 10px;"></i>
+                Delete Contact
+            </button>
+            <button class="btn btn-primary btn-md"
+                    ng-if="importContact"
+                    ng-click="closeContacts()">
+                Done
+            </button>
+            <button class="btn btn-primary btn-md"
+                    ng-if="!contactUser.contact_uuid && !importContact"
+                    ng-disabled="!(contactUser.contact_name_given && contactUser.contact_name_family) || phoneList.length === 0"
+                    ng-click="addContactSubmit(contactUser)">
+                <i class="fa fa-save" style="margin-right: 10px;"></i>
+                Add Contact
+            </button>
+            <button class="btn btn-primary btn-md"
+                    ng-if="contactUser.contact_uuid && !importContact && !savingContact"
+                    ng-disabled="frmContacts.$invalid || phoneList.length === 0"
+                    ng-click="saveContactUser(contactUser,phoneList)">
+                <i class="fa fa-save" style="margin-right: 10px;"></i>
+                Save Contact
+            </button>
+            <button class="btn btn-primary btn-md"
+                    ng-if="contactUser.contact_uuid && !importContact && savingContact"
+                    ng-disabled="true"
+                    >
+                <i class="fa fa-spinner fa-spin" style="margin-right: 10px;"></i>
+                Saving Contact
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,76 @@
+<div  ng-if="!showPaymentTab" class="invoice-options">
+    <button class="btn btn-default" ng-click="closePayment()">
+        <i class="fa fa-window-close-o"></i> Close Payment
+    </button>
+    <a class="btn btn-default" 
+        href="{{onescreenBaseUrl}}/billing/printpayment/{{payment.invoice_payment_uuid}}?token={{userToken}}"
+        target="_blank">
+        <i class="fa fa-print"></i> Download / Print Payment
+    </a>
+</div>
+
+<div id="invoice-view">
+    <div class="center-text"><h3>Payment Record</h3></div>
+    
+    <table class="table payment-amount">
+        <tr>
+            <td style="width: 180px;"><strong>Paid By:</strong></td>
+            <td>
+                <span ng-if="domain">
+                    {{domain.domain_description}}<br />
+                    <span ng-if="domain.address">{{domain.address.address}}<br />
+                    {{domain.address.city}}, {{domain.address.state}}<br />
+                    {{domain.address.zipcode}}</span>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Date:</strong></td>
+            <td>{{payment.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}</td>
+        </tr>
+        <tr>
+            <td><strong>Payment number:</strong></td>
+            <td>PA{{payment.payment_num}}</td>
+        </tr>
+        <tr>
+            <td><strong>Payment amount:</strong></td>
+            <td>{{payment.amount_paid | currency}}</td>
+        </tr>
+        <tr>
+            <td><strong>Payment method:</strong></td>
+            <td>{{payment.description}}</td>
+        </tr>
+        <tr>
+            <td><strong>Confirmation number:</strong></td>
+            <td>{{payment.stripe_charge_id}}</td>
+        </tr>
+        <tr ng-if="payment.payment_note">
+            <td><strong>Note:</strong></td>
+            <td>{{payment.payment_note}}</td>
+        </tr>
+        <tr ng-if="payment.refunds.length>0">
+            <td colspan="2"><strong>Refunds:</strong></td>
+        </tr>
+        <tr ng-repeat="refund in payment.refunds">
+            <td>
+                {{refund.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                {{refund.created_at | toLocalTime | amDateFormat:'h:mm a'}}
+            </td>
+            <td>
+                {{refund.amount | currency}} <br />
+                {{refund.description}}
+            </td>
+        </tr>
+        <tr ng-if="payment.refunds.length>0">
+            <td><strong>Net Payment:</strong></td>
+            <td>{{(payment.amount_paid - sumOfRefunds(payment)) | currency}}</td>
+        </tr>
+    </table>
+    <div class="kotter-address">
+        <strong>The Kotter Group</strong><br />
+                    3100 Five Forks Trickum Rd SW Suite #403<br />
+                    Lilburn, Georgia  30047<br />
+                    (770) 717-1777<br />
+                    sales@kotter.net
+    </div>
+</div>

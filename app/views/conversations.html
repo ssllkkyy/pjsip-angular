@@ -1,0 +1,568 @@
+<div style="width: 100%" ng-controller="CommunicationsCtrl">
+    <div class="row">
+        <div class="col-sm-8"><h3>Search Communications - {{contactCommSearch.contact_name_full}} <span ng-if="showTable && selectEmulateUser!==null && selectEmulateUser !== user.id">- Emulating: {{getNameByUUID(selectEmulateUser)}}</span></h3></div>
+        <div class="col-sm-4" ng-if="emulationStatus['voicemail'].manager==='true'">
+            <div class="input-group">
+                <md-select ng-model="selectEmulateUser" class="emulate" placeholder="- Emulate User -"
+                tooltip-placement="bottom" uib-tooltip="{{::tips.voicemail.select_months}}" ng-change="setEmulationUser(selectEmulateUser, 'voicemail')">
+                    <md-option ng-value="user.id"><strong>{{user.contact_name_given}} {{user.contact_name_family}}</strong></md-option>
+                    <md-option ng-repeat="emUser in emulationStatus['voicemail'].watched" ng-value="emUser.user_uuid">
+                    {{getNameByUUID(emUser.user_uuid)}}
+                    </md-option>
+                </md-select>
+            </div>
+        </div>
+    </div>
+    <div class="comm-search">
+        <h4>Filter Criteria</h4>
+        <table class="table page-actions">
+            <tr>
+                
+                <td>
+                    <md-checkbox
+                        ng-model="search.channel.calls"
+                        aria-label="Calls"
+                        class="md-warn md-align-top-left" flex>
+                        Calls
+                    </md-checkbox>
+                    <md-checkbox
+                        ng-model="search.channel.texts"
+                        aria-label="Text Messages"
+                        class="md-warn md-align-top-left" flex>
+                        Text Messages
+                    </md-checkbox>
+                    <md-checkbox
+                        ng-model="search.channel.fileshares"
+                        aria-label="File Shares"
+                        class="md-warn md-align-top-left" flex>
+                        File Shares
+                    </md-checkbox>
+                    <md-checkbox
+                        ng-model="search.channel.faxes"
+                        aria-label="Faxes"
+                        class="md-warn md-align-top-left" flex>
+                        Faxes
+                    </md-checkbox>
+                    <md-checkbox
+                        ng-if="1===2"
+                        ng-model="search.channel.videos"
+                        aria-label="Video Conferences"
+                        class="md-warn md-align-top-left" flex>
+                        Video Conferences
+                    </md-checkbox>
+                    <md-checkbox
+                        ng-if="1===2"
+                        ng-model="search.channel.chats"
+                        aria-label="Chatplus Messages"
+                        class="md-warn md-align-top-left" flex>
+                        Chatplus
+                    </md-checkbox>
+                </td>
+                <td class="date-picker">
+                    <div class="input-group"> 
+                        <span class="input-group-addon" ng-click="OpenfromDate()"><i class="fa fa-calendar"></i></span>
+                        <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="fromDate" name="fromDate" is-open="fromDatePopup.opened" datepicker-options="fromDateOptions" ng-required="true" close-text="Close" ng-click="OpenfromDate()" ng-change="changeToMinDate(fromDate)" placeholder="From" />
+                    </div>
+                </td>
+                <td class="date-picker">
+                    <div class="input-group">
+                        <span class="input-group-addon" ng-click="OpentoDate()"><i class="fa fa-calendar"></i></span>
+                        <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="toDate" name="toDate" is-open="toDatePopup.opened" datepicker-options="toDateOptions" ng-required="true" close-text="Close" ng-click="OpentoDate()" ng-change="processToDate(toDate)" placeholder="To" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+                        <input class="form-control" type="text" ng-model="search.filterText" placeholder="Filter Results">
+                    </div>
+                </td>
+                <td><md-select ng-model="search.contact_uuid" placeholder="- Choose Contact -"
+                tooltip-placement="bottom" uib-tooltip="{{::tips.voicemail.select_months}}" >
+                    <md-option ng-repeat="contact in userContacts()" ng-if="!isKotterTechUser(contact)" ng-value="contact.contact_uuid">
+                    {{contact.contact_name_full}}
+                    </md-option>
+                </md-select></td>
+                <td>
+                    <button class="btn btn-primary btn-s searchbtn" ng-click="doSearch()">Search</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="comm-results-container clearfix">
+        <div class="system-working" ng-if="copyingToHs.status"><i class="fa fa-spinner fa-spin fa-5x"></i><br />
+            <span>{{copyingToHs.message}}<br />
+            Please Wait</span></div>
+
+        <div ng-if="!copyingToHs.status">
+            <div id="convoloading" class="row" ng-if="communicationsList || searching">
+                <div class="col-sm-3" ng-if="search.channel.texts">
+                    <div class="textloading">
+                        <div class="icon">
+                            <i class="fa fa-paper-plane fa-2x ltgreenfont fa-3x" style="padding-top:10px"></i>
+                        </div>
+                        <div class="note">
+                            <h5>Text Messaging</h5>
+                            <span ng-if="!showTextTable"><i class="fa fa-spinner fa-spin"></i> Loading</span>
+                            <span ng-if="showTextTable"><i class="fa fa-check greenfont"></i> Done</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3" ng-if="search.channel.calls">
+                    <div class="callloading">
+                        <i class="fa fa-phone ltbluefont fa-3x pull-left" style="padding-top:10px"></i>
+                        <h5>Calling</h5>
+                        <span ng-if="!showCallTable"><i class="fa fa-spinner fa-spin"></i> Loading</span>
+                        <span ng-if="showCallTable"><i class="fa fa-check greenfont"></i> Done</span>
+                    </div>
+                </div>
+                <div class="col-sm-3" ng-if="search.channel.fileshares">
+                    <div class="fileloading">
+                        <i class="fa fa-files-o orangefont fa-3x pull-left" style="padding-top:10px"></i>
+                        <h5>File Sharing</h5>
+                        <span ng-if="!showFileTable"><i class="fa fa-spinner fa-spin"></i> Loading</span>
+                        <span ng-if="showFileTable"><i class="fa fa-check greenfont"></i> Done</span>
+                    </div>
+                </div>
+                <div class="col-sm-3" ng-if="search.channel.faxes">
+                    <div class="faxloading">
+                        <i class="fa fa-fax greenfont fa-3x pull-left" style="padding-top:10px"></i>
+                        <h5>Faxing</h5>
+                        <span ng-if="!showFaxTable"><i class="fa fa-spinner fa-spin"></i> Loading</span>
+                        <span ng-if="showFaxTable"><i class="fa fa-check greenfont"></i> Done</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div ng-if="showList" class="clearfix">
+                <div style="width: 100%;">
+                    <button ng-show="user.exportType.partner_code == 'hawksoft'" class="btn btn-default pull-right" ng-click="exportFilteredToHawksoft(filterAllData)" tooltip-placement="top" uib-tooltip="{{::tips.conversation.copytohawksoft}}"><img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 24px; height: 24px;" ></button>
+                    <button ng-show="user.exportType.partner_code == 'generic'" class="btn btn-default pull-right" ng-click="exportFilteredToHawksoft(filterAllData)" tooltip-placement="top-right" uib-tooltip="{{::tips.conversation.copytomanagement}}"><img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 24px; height: 24px;" ></button>
+                </div>
+                <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <thead>
+                        <tr>
+                            <th class="button-column-sm"><a href ng-click="sortAllBy('type')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbydate}}"><i class="fa fa-{{!reverse.all && predicate.all==='type'?'chevron-up':'chevron-down'}}"></i></a></th>
+                            <th style="width: 150px;"><a href ng-click="sortAllBy('date')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbyrecipientemail}}">Date <i class="fa fa-{{!reverse.all && predicate.all==='date' ?'chevron-up':'chevron-down'}}"></i></a></th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in filterAllData = (communicationsList | orderBy : predicate.all :reverse.all | filter: searchAll) | limitTo:perPage:perPage*(currentPage-1)">
+                            <td class="button-column-sm center-text">
+                                <i ng-if="item.type==='sms'" class="fa fa-paper-plane fa-2x ltgreenfont"></i>
+                                <i ng-if="item.type==='fileshare'" class="fa fa-files-o fa-2x orangefont"></i>
+                                <i ng-if="item.type==='call'" class="fa fa-phone fa-2x ltbluefont"></i>
+                                <i ng-if="item.type==='fax'" class="fa fa-fax fa-2x greenfont"></i>
+                                <i ng-if="item.type==='video'" class="fa fa-video-camera fa-2x redfont"></i>
+                            </td>
+                            <td>
+                                {{item.date | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                                {{item.date | toLocalTime | amDateFormat:'h:mm a'}}
+                            </td>
+                            <td style="padding: 0px;">
+                                <table class="table table-bordered masterdata"  ng-if="item.type==='sms'">
+                                    <tr>
+                                        <td style="width: 50px;" class="center-text">
+                                            <i ng-if="item.data.message_direction==='in'" class="fa fa-arrow-down fa-2x greenfont" tooltip-placement="top" uib-tooltip="Inbound"></i>
+                                            <i ng-if="item.data.message_direction==='out'" class="fa fa-arrow-up fa-2x redfont" tooltip-placement="top" uib-tooltip="Outbound"></i>
+                                        </td>
+                                        <td style="width: 200px;" ng-if="item.data.message_direction==='in'">
+                                            <ul class="profile-display" >
+                                                <li ng-if="item.data.from_contact && item.data.from_contact.contact_profile_image" class="profile_display_30"><img src="{{pathImgProfile}}{{item.data.from_contact.contact_profile_image}}" class="profile_image" /></li>
+                                                <li ng-if="!item.data.from_contact.contact_profile_image" class="profile_display_30"><label class="profile_icon" style="background-color: {{item.data.from_contact.contact_profile_color}} !important;"><i class="fa fa-user"></i></label></li>
+                                                <li style="display: inline-block;"><strong>{{item.data.from_contact.contact_name_full}}</strong><br />
+                                                    {{item.data.from_number | tel}}
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td style="width: 200px;" ng-if="item.data.message_direction==='out'">
+                                            <ul class="profile-display" >
+                                                <li ng-if="item.data.to_contact && item.data.to_contact.contact_profile_image" class="profile_display_30"><img src="{{pathImgProfile}}{{item.data.to_contact.contact_profile_image}}" class="profile_image" /></li>
+                                                <li ng-if="!item.data.to_contact.contact_profile_image" class="profile_display_30"><label class="profile_icon" style="background-color: {{item.data.to_contact.contact_profile_color}} !important;"><i class="fa fa-user"></i></label></li>
+                                                <li style="display: inline-block;"><strong>{{item.data.to_contact.contact_name_full}}</strong><br />
+                                                    {{item.data.to_number | tel}}
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td>{{item.data.message}}</td>
+                                    </tr>
+                                </table>
+                                <table class="table table-bordered masterdata"  ng-if="item.type==='fileshare'">
+                                    <tr>
+                                        <td style="width: 240px;" ng-if="item.data.contact">
+                                            <ul class="profile-display" >
+                                                <li ng-if="item.data.contact.contact_profile_image" class="profile_display_30"><img src="{{pathImgProfile}}{{item.data.contact.contact_profile_image}}" class="profile_image" /></li>
+                                                <li ng-if="!item.data.contact.contact_profile_image" class="profile_display_30"><label class="profile_icon" style="background-color: {{item.data.contact.contact_profile_color}} !important;"><i class="fa fa-user"></i></label></li>
+                                                <li style="display: inline-block;"><strong>{{::item.data.contact.contact_name_given}} {{::item.data.contact.contact_name_family}}</strong><br />
+                                                    <a ng-click="startEmailClient(item.data.recipient_email)" tooltip-placement="bottom" uib-tooltip="{{tips.item.data.sendanemail + item.data.recipient_email}}">{{item.data.recipient_email.length>30 ? item.data.recipient_email.substring(0,13)+'...'+item.data.recipient_email.substring(item.data.recipient_email.length-13,item.data.recipient_email.length) : item.data.recipient_email}}</a>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td style="width: 240px;" ng-if="item.data.noncontact">
+                                            <ul class="profile-display">
+                                                <li class="profile_display_30"><label class="profile_icon" style="background-color: {{item.data.noncontact.color}} !important;"><i class="fa fa-user"></i></label></li>
+                                                <li ng-if="item.data.noncontact.name" style="display: inline-block;"><span class="capitalize"><strong>{{::item.data.noncontact.name}}</strong></span><br />
+                                                    <a ng-click="startEmailClient(item.data.recipient_email)" tooltip-placement="bottom" uib-tooltip="{{tips.item.data.sendanemail + item.data.recipient_email}}">{{item.data.recipient_email}}</a>
+                                                </li>
+                                                <li ng-if="!item.data.noncontact.name" style="display: inline-block;"><a ng-click="startEmailClient(item.data.recipient_email)" tooltip-placement="bottom" uib-tooltip="{{tips.item.data.sendanemail}}">{{item.data.recipient_email.length>30 ? item.data.recipient_email.substring(0,13)+'...'+item.data.recipient_email.substring(item.data.recipient_email.length-13,item.data.recipient_email.length) : item.data.recipient_email}}</a></li>
+                                            </ul>
+                                            <span style="color: #64d76c;"><i tooltip-placement="top" style="float: right; padding-left: 10px;font-size: 18px;" uib-tooltip="{{tips.contacts.addcontact}}" ng-hide="selectEmulateUser!==null && selectEmulateUser !== user.id" ng-click="showAddContactForm('fileshare', fileShare)" class="fa fa-user-plus"></i></span>
+                                        </td>
+                                        <td style="width: 200px;" ng-bind-html="showFileName(item.data)"></td>
+                                        <td style="width: 150px;">
+                                            <span ng-if="item.data.downloaded_at">{{::item.data.downloaded_at | amDateFormat:'MMM D, YYYY'}}<br />
+                                                {{::item.data.downloaded_at | amDateFormat:'h:mm a'}}</span>
+                                            <span ng-if="!item.data.downloaded_at">Not Downloaded</span>
+                                        </td>
+                                        <td class="button-column" ng-if="!shareExpired(item.data)"><i ng-click="resendFileShareNotice(item.data.shared_file_uuid, item.data.file_uuid)" class="fa fa-share" style="cursor: pointer; font-size: 18px; color: orange;" tooltip-placement="top" uib-tooltip="{{tips.fileshare.resendfileshare}}"></i></td>
+                                        <td class="button-column" ng-if="shareExpired(item.data)"><i  class="fa fa-share" tooltip-placement="top" style="font-size: 18px; color:grey;" uib-tooltip="{{tips.fileshare.share_expired}}"></i></td>
+                                    </tr>
+                                </table>
+                                <table class="table table-bordered masterdata" ng-if="item.type==='call'">
+                                    <tr>
+                                        <td style="width: 200px;">
+                                            <ul class="profile-display">
+                                                <li ng-if="item.data.contact && item.data.contact.contact_profile_image" class="profile_display_45"><img ng-src="{{pathImgProfile + item.data.contact.contact_profile_image}}" class="cls-img-lst-contact" alt=""/></li>
+                                                <li ng-if="item.data.contact && !item.data.contact.contact_profile_image" class="profile_display_45"><label class="cls-img-lst-contact-null"  style="{{ setProfileColor(item.data.contact.contact_profile_color) }}">{{item.data.contact.contact_name_given.substring(0,1).toUpperCase() + item.data.contact.contact_name_family.substring(0,1).toUpperCase()}}</label></li>
+                                                <li ng-if="item.data.noncontact" class="profile_display_45"><label class="cls-icon-lst-contact-null" style="{{ setProfileColor(item.data.noncontact.color) }}"><i class="fa fa-user"></i></label></li>
+                                                <li style="display: inline-block;">
+                                                    <span ng-if="item.data.contact && item.data.contact_name"><a href="" ng-click="showEditContactForm(item.data.contact)"><strong>{{item.data.contact_name}}</strong></a><br></span>
+                                                    <span ng-if="!item.data.contact && item.data.contact_name && !isPhoneNumber(item.data.contact_name)"><strong>{{item.data.contact_name}}</strong><br></span>
+                                                    <span ng-if="item.data.contact && item.data.contact_name" style="font-size: smaller;"><span ng-if="item.data.contact_number.length<10">Ext: </span>{{item.data.contact_number | tel}}</span><span ng-if="item.data.destination_number==10000 || item.data.destination_number=='1'+recording.caller_id_number"> (Conference Call)</span>
+                                                    <span ng-if="item.data.contact && !item.data.contact_name"><strong><span ng-if="item.data.contact_number.length<10">Ext: </span>{{item.data.contact_number | tel}}</strong><br></span>
+                                                    <span ng-if="!item.data.contact && (item.data.contact_name && isPhoneNumber(item.data.contact_name)) || !item.data.contact_name"><strong><span ng-if="item.data.contact_number.length<10">Ext: </span>{{item.data.contact_number | tel}}</strong><br></span>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td  class="button-column-lg">
+                                            <span ng-bind="formatTime(item.data.duration) |  date:'MM/dd/yyyy h:m'"> </span>
+                                        </td>
+                                        <td class="button-column-md">
+                                            <span id="statusCall">
+                                                <span ng-if="item.data.call_direction === 'outbound'">
+                                                    <span ng-if="item.data.call_status ==='answered'" class="fa-stack bluefont" tooltip-placement="top" uib-tooltip="{{tips.history.outboundanswered}}" alt="{{tips.history.outboundanswered}}">
+                                                        <i class="fa fa-phone fa-stack-2x"></i>
+                                                        <i class="fa fa-arrow-up fa-rotate-45 fa-stack-1x" style="padding-left:12px; margin-top: -10px;"></i>
+                                                    </span>
+                                                    <i ng-if="item.data.call_status ==='unanswered'" class="fa fa-phone fa-2x bluefont" tooltip-placement="top" uib-tooltip="{{tips.history.outboundunanswered}}" alt="{{tips.history.outboundunanswered}}"></i>
+                                                </span>
+                                                <span ng-if="item.data.call_direction === 'inbound'">
+                                                    <span ng-if="item.data.call_status === 'missed' || item.data.call_status === 'unanswered'" class="fa-stack redfont" tooltip-placement="top" uib-tooltip="{{tips.history.missed}}">
+                                                        <i class="fa fa-phone fa-rotate-135 fa-stack-2x" style=" margin-top: 5px;"></i>
+                                                        <i class="fa fa-minus fa-rotate-135 fa-stack-1x" style="margin-top: -7px;padding-right: 5px;"></i>
+                                                        <i class="fa fa-arrow-left fa-rotate-45  fa-stack-1x" style="margin-top: -9px; margin-left: -3px;"></i>
+                                                    </span>
+                                                    <span ng-if="item.data.call_status === 'answered'" class="fa-stack greenfont" tooltip-placement="top" uib-tooltip="{{tips.history.answered}}" alt="{{tips.history.answered}}">
+                                                        <i class="fa fa-phone fa-stack-2x"></i>
+                                                        <i class="fa fa-arrow-down fa-rotate-45 fa-stack-1x" style="padding-left:12px; margin-top: -10px;"></i>
+                                                    </span>
+                                                    <i ng-if="!item.data.voicemail_filepath && item.data.call_status === 'sent_to_voicemail'" class="fa fa-phone fa-rotate-135 fa-2x redfont" tooltip-placement="top" uib-tooltip="{{tips.history.sent_to_voicemail}}" alt="{{tips.history.sent_to_voicemail}}"></i>
+                                                    <i ng-if="item.data.call_status === 'declined'" class="fa fa-phone fa-rotate-135 fa-2x redfont" tooltip-placement="top" uib-tooltip="{{tips.history.declined}}" alt="{{tips.history.declined}}"></i>
+                                                    <a href ng-if="item.data.voicemail_filepath" ng-click="showAudioModal(call, 'history-voicemail')"><img ng-src="images/icons/record-icon.png" tooltip-placement="top" uib-tooltip="{{tips.history.voicemail}}" class="cls-img-call-history" alt="{{tips.history.voicemail}}" /></a>
+                                                </span>
+                                            </span>
+                                        </td>
+                                        <td class="button-column-md">
+                                                <span ng-if="item.data.recording_filepath && audioPlaying!==item.data.recording_filepath" ng-click="showAudioModal(item.data, 'history-recording')" tooltip-placement="top" uib-tooltip="Listen to Recording"><i class="fa fa-play-circle fa-2x"></i></span>
+                                                <span ng-if="item.data.recording_filepath && audioPlaying===item.data.recording_filepath" ng-click="stopPlaying()" tooltip-placement="top" uib-tooltip="Stop Playing Recording"><i class="fa fa-stop-circle fa-2x"></i></span>
+                                                <span ng-if="item.data.manual_recording_filepath && audioPlaying!==item.data.manual_recording_filepath" ng-click="showAudioModal(item.data, 'history-recording-manual')" tooltip-placement="top" uib-tooltip="Listen to Recording"><i class="fa fa-play-circle fa-2x"></i></span>
+                                                <span ng-if="item.data.manual_recording_filepath && audioPlaying===item.data.manual_recording_filepath" ng-click="stopPlaying()" tooltip-placement="top" uib-tooltip="Stop Playing Recording"><i class="fa fa-stop-circle fa-2x"></i></span>
+
+                                            
+                                        </td>
+                                    </tr>
+                                </table>
+                                <table class="table table-bordered masterdata"  ng-if="item.type==='fax'">
+                                    <tr>
+                                        <td style="width: 50px;" class="center-text">
+                                            <i ng-if="item.data.direction==='inbound'" class="fa fa-arrow-down fa-2x greenfont"></i>
+                                            <i ng-if="item.data.direction==='outbound'" class="fa fa-arrow-up fa-2x redfont"></i>
+                                        </td>
+                                        <td style="width: 200px;" ng-if="item.data.contact">
+                                            <ul class="profile-display" >
+                                                <li ng-if="item.data.contact && item.data.contact.contact_profile_image" class="profile_display_30"><img src="{{pathImgProfile}}{{item.data.contact.contact_profile_image}}" class="profile_image" /></li>
+                                                <li ng-if="!item.data.contact.contact_profile_image" class="profile_display_30"><label class="profile_icon" style="background-color: {{item.data.contact.contact_profile_color}} !important;"><i class="fa fa-user"></i></label></li>
+                                                <li style="display: inline-block;"><strong>{{item.data.contact.contact_name_full}}</strong><br />
+                                                    <span ng-if="item.data.direction==='outbound'">{{item.data.destination_number | tel}}</span>
+                                                    <span ng-if="item.data.direction==='inbound'">{{item.data.source_number | tel}}</span>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td style="width: 200px;" ng-if="!item.data.contact">
+                                            <ul class="profile-display" >
+                                                <li class="profile_display_30"><label class="profile_icon" ><i class="fa fa-user"></i></label></li>
+                                                <li style="display: inline-block;">
+                                                    <strong><span ng-if="item.data.direction==='outbound'">{{item.data.destination_number | tel}}</span>
+                                                    <span ng-if="item.data.direction==='inbound'">{{item.data.source_number | tel}}</span></strong>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td >
+                                            <a href ng-click="viewMessageImage(message.vfax_message_uuid)">{{showFaxFile(item.data)}}</a>
+                                        </td>
+                                        <td style="width: 100px;">{{item.data.status}}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div  style="text-align: center">
+                    <ul uib-pagination class="pagination-sm pagination" total-items="communicationsList.length" ng-model="currentPage" previous-text="&lsaquo;" next-text="&rsaquo;" items-per-page="perPage"></ul>
+                </div>
+            </div>
+            <div ng-if="showTextTable" class="clearfix">
+                <div>
+                    <div class="col-sm-8">
+                        <h4>Text Message Log</h4>
+                        <p>{{filterSmsData.length}} sms messages match your query.</p>
+                    </div>
+                    <div class="col-sm-4 right-text">
+                        <button class="btn btn-default" ng-click="showSms = false" ng-show="filterSmsData.length>0 && showSms">Collapse <i class="fa fa-chevron-up"></i></button>
+                        <button class="btn btn-default" ng-click="showSms = true" ng-show="filterSmsData.length>0 && !showSms">Expand <i class="fa fa-chevron-down"></i></button>
+                    </div>
+                </div>
+                <table ng-show="filterSmsData.length>0 && showSms" id = "data-table-under" class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;"><a href ng-click="sortSmsBy('message_direction')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbydate}}"><i class="fa fa-{{!reverse.sms && predicate.sms==='message_direction'?'chevron-up':'chevron-down'}}"></i></a></th>
+                            <th style="width: 180px;"><a href ng-click="sortSmsBySender()" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbyrecipientemail}}">Sender <i class="fa fa-{{!reverse.sms && sendersort ?'chevron-up':'chevron-down'}}"></i></a></th>
+                            <th style="width: 180px;"><a href ng-click="sortSmsByRecipient()" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbyfilename}}">Recipient<i class="fa fa-{{!reverse.sms && recipientsort ?'chevron-up':'chevron-down'}}"></i></a></th>
+                            <th style="width: 150px;"><a href ng-click="sortSmsBy('sent_at')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbydownloaded}}">Date / Time<i class="fa fa-{{!reverse.sms && predicate.sms==='sent_at'?'chevron-up':'chevron-down'}}"></i></a></th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody class="cls-body-table-pos">
+                        <tr ng-repeat="sms in filterSmsData = (masterDisplayMessages | orderBy : predicate.sms :reverse.sms | filter:searchTexts) | limitTo:perPage:perPage*(currentPage-1)">
+                            <td class="center-text">
+                                <i ng-if="sms.message_direction==='in'" class="fa fa-arrow-down fa-2x greenfont"></i>
+                                <i ng-if="sms.message_direction==='out'" class="fa fa-arrow-up fa-2x redfont"></i>
+                            </td>
+                            <td>
+                                <ul class="profile-display" >
+                                    <li ng-if="sms.from_contact && sms.from_contact.contact_profile_image" class="profile_display_30"><img src="{{pathImgProfile}}{{sms.from_contact.contact_profile_image}}" class="profile_image" /></li>
+                                    <li ng-if="!sms.from_contact.contact_profile_image" class="profile_display_30"><label class="profile_icon" style="background-color: {{sms.from_contact.contact_profile_color}} !important;"><i class="fa fa-user"></i></label></li>
+                                    <li style="display: inline-block;"><strong>{{sms.from_contact.contact_name_full}}</strong><br />
+                                        {{sms.from_number | tel}}
+                                    </li>
+                                </ul>
+                            </td>
+                            <td ><ul class="profile-display" >
+                                    <li ng-if="sms.to_contact && sms.to_contact.contact_profile_image" class="profile_display_30"><img src="{{pathImgProfile}}{{sms.to_contact.contact_profile_image}}" class="profile_image" /></li>
+                                    <li ng-if="!sms.to_contact.contact_profile_image" class="profile_display_30"><label class="profile_icon" style="background-color: {{sms.to_contact.contact_profile_color}} !important;"><i class="fa fa-user"></i></label></li>
+                                    <li style="display: inline-block;"><strong>{{sms.to_contact.contact_name_full}}</strong><br />
+                                        {{sms.to_number | tel}}
+                                    </li>
+                                </ul>
+                            </td>
+                            <td>{{sms.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                            {{sms.created_at | toLocalTime | amDateFormat:'h:mm a'}}</td>
+                            <td>{{sms.message}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr />
+            <div ng-if="showFileTable" class="clearfix">
+                <div>
+                    <div class="col-sm-8">
+                        <h4>File Sharing Log</h4>
+                        <p>{{filterFileData.length}} shared files were found that match your query.</p>
+                    </div>
+                    <div class="col-sm-4 right-text">
+                        <button class="btn btn-default" ng-click="showFs = false" ng-show="filterFileData.length>0 && showFs">Collapse <i class="fa fa-chevron-up"></i></button>
+                        <button class="btn btn-default" ng-click="showFs = true" ng-show="filterFileData.length>0 && !showFs">Expand <i class="fa fa-chevron-down"></i></button>
+                    </div>
+                </div>
+                <div class="scroll-container-head" ng-show="filterFileData.length>0 && showFs">
+                    <table id="data-table-top" class="table table-bordered table-hover table-striped cls-tab-call-history">
+                        <thead>
+                            <tr>
+                                <th style="width: 13%;"><a href ng-click="sortFileBy('created_at')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbydate}}"> Date / Time <i class="fa fa-{{!reverse.file && predicate.file==='created_at'?'chevron-up':'chevron-down'}}"></i></a></th>
+                                <th style="width: 28%;"><a href ng-click="sortFileBy('recipient_email')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbyrecipientemail}}">Recipient <i class="fa fa-{{!reverse.file && predicate.file==='recipient_email'?'chevron-up':'chevron-down'}}"></i></a></th>
+                                <th style="width: 20%;"><a href ng-click="sortFileBy('original_filename')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbyfilename}}">File <i class="fa fa-{{!reverse.file && predicate.file==='original_filename'?'chevron-up':'chevron-down'}}"></i></a></th>
+                                <th style="width: 13%;"><a href ng-click="sortFileBy('downloaded_at')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbydownloaded}}">Downloaded<i class="fa fa-{{!reverse.file && predicate.file==='downloaded_at'?'chevron-up':'chevron-down'}}"></i></a></th>
+                                <!--<th>Download IP <i class="fa fa-chevron-down"></i></th>-->
+                                <th class="button-column">Resend</th>
+                            </tr>
+                        </thead>
+                        <tbody class="cls-body-table-pos">
+                            <tr ng-if="fileShare.upload_type.substring(0,6) !== 'hscopy'" ng-repeat="fileShare in filterFileData = (fileShareList | orderBy : predicate.fileshare :reverse.fileshare | filter:searchRecipients | filter:filterByMonth) | limitTo:perPage:perPage*(currentPage-1)">
+                                <td style="width: 13%;">{{fileShare.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                                {{fileShare.created_at | toLocalTime | amDateFormat:'h:mm a'}}</td>
+                                <td style="width: 28%;" ng-if="fileShare.contact">
+                                    <ul class="profile-display" >
+                                        <li ng-if="fileShare.contact.contact_profile_image" class="profile_display_30"><img src="{{pathImgProfile}}{{fileShare.contact.contact_profile_image}}" class="profile_image" /></li>
+                                        <li ng-if="!fileShare.contact.contact_profile_image" class="profile_display_30"><label class="profile_icon" style="background-color: {{fileShare.contact.contact_profile_color}} !important;"><i class="fa fa-user"></i></label></li>
+                                        <li style="display: inline-block;"><strong>{{fileShare.contact.contact_name_given}} {{fileShare.contact.contact_name_family}}</strong><br />
+                                            <a ng-click="startEmailClient(fileShare.recipient_email)" tooltip-placement="bottom" uib-tooltip="{{tips.fileshare.sendanemail + fileShare.recipient_email}}">{{fileShare.recipient_email.length>30 ? fileShare.recipient_email.substring(0,13)+'...'+fileShare.recipient_email.substring(fileShare.recipient_email.length-13,fileShare.recipient_email.length) : fileShare.recipient_email}}</a>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td style="width: 29%;" ng-if="fileShare.noncontact">
+                                    <ul class="profile-display">
+                                        <li class="profile_display_30"><label class="profile_icon" style="background-color: {{fileShare.noncontact.color}} !important;"><i class="fa fa-user"></i></label></li>
+                                        <li ng-if="fileShare.noncontact.name" style="display: inline-block;"><span class="capitalize"><strong>{{fileShare.noncontact.name}}</strong></span><br />
+                                            <a ng-click="startEmailClient(fileShare.recipient_email)" tooltip-placement="bottom" uib-tooltip="{{tips.fileshare.sendanemail + fileShare.recipient_email}}">{{fileShare.recipient_email}}</a>
+                                        </li>
+                                        <li ng-if="!fileShare.noncontact.name" style="display: inline-block;"><a ng-click="startEmailClient(fileShare.recipient_email)" tooltip-placement="bottom" uib-tooltip="{{tips.fileshare.sendanemail}}">{{fileShare.recipient_email.length>30 ? fileShare.recipient_email.substring(0,13)+'...'+fileShare.recipient_email.substring(fileShare.recipient_email.length-13,fileShare.recipient_email.length) : fileShare.recipient_email}}</a></li>
+                                    </ul>
+                                    <span style="color: #64d76c;"><i tooltip-placement="top" style="float: right; padding-left: 10px;font-size: 18px;" uib-tooltip="{{tips.contacts.addcontact}}" ng-hide="selectEmulateUser!==null && selectEmulateUser !== user.id" ng-click="showAddContactForm('fileshare', fileShare)" class="fa fa-user-plus"></i></span>
+                                </td>
+                                <td style="width: 20%;" ng-bind-html="showFileName(fileShare)"></td>
+                                <td style="width: 13%;"><span ng-if="fileShare.downloaded_at!=''">{{fileShare.downloaded_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                                {{fileShare.downloaded_at | toLocalTime | amDateFormat:'h:mm a'}}</span></td>
+                                <!--<td><span ng-if="fileShare.downloaded_at!=''">{{fileShare.downloaded_ip}}</span></td>-->
+                                <td class="button-column" ng-if="!shareExpired(fileShare)"><i ng-click="resendFileShareNotice(fileShare.shared_file_uuid, fileShare.file_uuid)" class="fa fa-share" style="cursor: pointer; font-size: 18px; color: orange;" tooltip-placement="top" uib-tooltip="{{tips.fileshare.resendfileshare}}"></i></td>
+                                <td class="button-column" ng-if="shareExpired(fileShare)"><i  class="fa fa-share" tooltip-placement="top" style="font-size: 18px; color:grey;" uib-tooltip="{{tips.fileshare.share_expired}}"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <hr />
+            <div ng-if="showCallTable" class="clearfix">
+                <div>
+                    <div class="col-sm-8">
+                        <h4>Call Log</h4>
+                        <p>{{filterCallData.length}} calls were found that match your query.</p>
+                    </div>
+                    <div class="col-sm-4 right-text">
+                        <button class="btn btn-default" ng-click="showCalls = false" ng-show="filterCallData.length>0 && showCalls">Collapse <i class="fa fa-chevron-up"></i></button>
+                        <button class="btn btn-default" ng-click="showCalls = true" ng-show="filterCallData.length>0 && !showCalls">Expand <i class="fa fa-chevron-down"></i></button>
+                    </div>
+                </div>
+                <table ng-show="filterCallData.length>0 && showCalls" class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <thead>
+                        <tr>
+                            <th style="width: 6%">&nbsp;</th>
+                            <th style="width: 33%" id="cls-tab-from"><a href ng-click="sortCallBy('contact.contact_name_full')" tooltip-placement="top-left" uib-tooltip="{{tips.history.sortbyfrom}}">From / To <i class="fa fa-{{!reverse.call && predicate.call==='contact.contact_name_full'?'chevron-up':'chevron-down'}}"></i></a></th>
+                            <th style="width: 20%" id="cls-tab-date"><a href ng-click="sortCallBy('start_stamp')" tooltip-placement="top-left" uib-tooltip="{{tips.history.sortbydate}}">Date / Time <i class="fa fa-{{!reverse.call && predicate.call==='start_stamp'?'chevron-up':'chevron-down'}}"></i></a></th>
+                            <th style="width: 11%" id="cls-tab-dura"><a href ng-click="sortCallBy('duration')" tooltip-placement="top-left" uib-tooltip="{{tips.history.sortbyduration}}">Duration <i class="fa fa-{{!reverse.call && predicate.call==='duration'?'chevron-up':'chevron-down'}}"></i></a></th>
+                            <th class="button-column-md" id="cls-tab-stat"><a href ng-click="sortCallBy('icon')" tooltip-placement="top-left" uib-tooltip="{{tips.history.sortbystatus}}">Status <i class="fa fa-{{!reverse.call && predicate.call==='icon'?'chevron-up':'chevron-down'}}"></i></a></th>
+                            <th class="button-column-md" id="cls-tab-reco"><a href ng-click="sortCallBy('recording_file')" tooltip-placement="top-left" uib-tooltip="{{tips.history.sortbyrecording}}">Recording <i class="fa fa-{{!reverse.call && predicate.call==='recording_file'?'chevron-up':'chevron-down'}}"></i></a></th>
+                        </tr>
+                    </thead>
+                    <tbody class="data-table-body">
+                        <tr ng-if="call.contact_number!=='0000000000'" ng-repeat="call in filterCallData = (contactCallHistory | orderBy : predicate.call :reverse.call | filter : vmSearch)">
+
+                            <td style="width: 6%">
+                                <span class="cls-img-contact-call-history"> 
+                                    <img ng-if="call.contact && call.contact.contact_profile_image" ng-src="{{pathImgProfile + call.contact.contact_profile_image}}" class="cls-img-lst-contact" alt=""/>
+                                    <label ng-if=" call.contact && !call.contact.contact_profile_image" class="cls-img-lst-contact-null"  style="{{ setProfileColor(call.contact.contact_profile_color) }}">{{call.contact.contact_name_given.substring(0,1).toUpperCase() + call.contact.contact_name_family.substring(0,1).toUpperCase()}}</label>
+                                    <label ng-if="call.noncontact" class="cls-icon-lst-contact-null" style="{{ setProfileColor(call.noncontact.color) }}"><i class="fa fa-user"></i></label>
+                                </span>
+                            </td>
+
+                            <td style="width: 33%">
+                                    <span ng-if="call.contact && call.contact_name"><a href="" ng-click="showEditContactForm(call.contact)"><strong>{{call.contact_name}}</strong><span ng-if="1==2 && call.contact.contact_uuid === user.contact_uuid"> (You)</span></a><br></span>
+                                    <span ng-if="call.noncontact && call.contact_name && !isPhoneNumber(call.contact_name)"><strong>{{call.contact_name}}</strong><br></span>
+                                    <span ng-if="call.contact && call.contact_name" style="font-size: smaller;"><span ng-if="call.contact_number.length<10">Ext: </span>{{call.contact_number | tel}} <span ng-if="call.description.length>0">{{call.description}}</span></span>
+                                    <span ng-if="call.contact && !call.contact_name"><strong><span ng-if="call.contact_number.length<10">Ext: </span>{{call.contact_number | tel}}</strong><br><span ng-if="call.description.length>0">{{call.description}}</span></span>
+                                    <span ng-if="call.noncontact && (call.contact_name && isPhoneNumber(call.contact_name)) || !call.contact_name"><strong><span ng-if="call.contact_number.length<10">Ext: </span>{{call.contact_number | tel}}</strong><span ng-if="call.description.length>0"><br />{{call.description}}</span></span>
+                            </td>
+                            <!--  -->
+                            <td style="width: 20%">{{call.start_stamp | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}</td>
+                            <td style="width: 11%; text-align: center;">
+                                <span ng-bind="formatTime(call.duration) |  date:'MM/dd/yyyy h:m'"> </span>
+                            </td>
+                            <td class="button-column-md">
+                                <span id="statusCall">
+                                    <span ng-if="call.call_direction === 'outbound'">
+                                        <span ng-if="call.call_status ==='answered'" class="fa-stack bluefont" tooltip-placement="top" uib-tooltip="{{tips.history.outboundanswered}}" alt="{{tips.history.outboundanswered}}">
+                                            <i class="fa fa-phone fa-stack-2x"></i>
+                                            <i class="fa fa-arrow-up fa-rotate-45 fa-stack-1x" style="padding-left:12px; margin-top: -10px;"></i>
+                                        </span>
+                                        <i ng-if="call.call_status ==='unanswered'" class="fa fa-phone fa-2x bluefont" tooltip-placement="top" uib-tooltip="{{tips.history.outboundunanswered}}" alt="{{tips.history.outboundunanswered}}"></i>
+                                    </span>
+                                    <span ng-if="call.call_direction === 'inbound'">
+                                        <span ng-if="call.call_status === 'missed' || call.call_status === 'unanswered'" class="fa-stack redfont" tooltip-placement="top" uib-tooltip="{{tips.history.missed}}">
+                                            <i class="fa fa-phone fa-rotate-135 fa-stack-2x" style=" margin-top: 5px;"></i>
+                                            <i class="fa fa-minus fa-rotate-135 fa-stack-1x" style="margin-top: -7px;padding-right: 5px;"></i>
+                                            <i class="fa fa-arrow-left fa-rotate-45  fa-stack-1x" style="margin-top: -9px; margin-left: -3px;"></i>
+                                        </span>
+                                        <span ng-if="call.call_status === 'answered'" class="fa-stack greenfont" tooltip-placement="top" uib-tooltip="{{tips.history.answered}}" alt="{{tips.history.answered}}">
+                                            <i class="fa fa-phone fa-stack-2x"></i>
+                                            <i class="fa fa-arrow-down fa-rotate-45 fa-stack-1x" style="padding-left:12px; margin-top: -10px;"></i>
+                                        </span>
+                                        <i ng-if="!call.voicemail_filepath && call.call_status === 'sent_to_voicemail'" class="fa fa-phone fa-rotate-135 fa-2x redfont" tooltip-placement="top" uib-tooltip="{{tips.history.sent_to_voicemail}}" alt="{{tips.history.sent_to_voicemail}}"></i>
+                                        <i ng-if="call.call_status === 'declined'" class="fa fa-phone fa-rotate-135 fa-2x redfont" tooltip-placement="top" uib-tooltip="{{tips.history.declined}}" alt="{{tips.history.declined}}"></i>
+                                        <a href ng-if="call.voicemail_filepath" ng-click="showAudioModal(call, 'history-voicemail')"><img ng-src="images/icons/record-icon.png" tooltip-placement="top" uib-tooltip="{{tips.history.voicemail}}" class="cls-img-call-history" alt="{{tips.history.voicemail}}" /></a>
+                                    </span>
+                                </span>
+                            </td>
+                            <td class="button-column-md">
+                                <span ng-if="call.recording_filepath && audioPlaying!==call.recording_filepath" ng-click="showAudioModal(call, 'history-recording')" tooltip-placement="top" uib-tooltip="Listen to Recording"><i class="fa fa-play-circle fa-2x"></i></span>
+                                <span ng-if="call.recording_filepath && audioPlaying===call.recording_filepath" ng-click="stopPlaying()" tooltip-placement="top" uib-tooltip="Stop Playing Recording"><i class="fa fa-stop-circle fa-2x"></i></span>
+                                <span ng-if="call.manual_recording_filepath && audioPlaying!==call.manual_recording_filepath" ng-click="showAudioModal(call, 'history-recording-manual')" tooltip-placement="top" uib-tooltip="Listen to Recording"><i class="fa fa-play-circle fa-2x"></i></span>
+                                <span ng-if="call.manual_recording_filepath && audioPlaying===call.manual_recording_filepath" ng-click="stopPlaying()" tooltip-placement="top" uib-tooltip="Stop Playing Recording"><i class="fa fa-stop-circle fa-2x"></i></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr />
+            <div ng-if="showFaxTable" class="clearfix">
+                <div>
+                    <div class="col-sm-8">
+                        <h4>Faxing Log</h4>
+                        <p>{{filterFaxData.length}} faxes were found that match your query.</p>
+                    </div>
+                    <div class="col-sm-4 right-text">
+                        <button class="btn btn-default" ng-click="showFs = false" ng-show="filterFaxData.length>0 && showFs">Collapse <i class="fa fa-chevron-up"></i></button>
+                        <button class="btn btn-default" ng-click="showFs = true" ng-show="filterFaxData.length>0 && !showFs">Expand <i class="fa fa-chevron-down"></i></button>
+                    </div>
+                </div>
+                <div class="scroll-container-head" ng-show="filterFaxData.length>0 && showFs">
+                    <table id="data-table-top" class="table table-bordered table-hover table-striped cls-tab-call-history">
+                        <thead>
+                            <tr>
+                                <th style="width: 13%;"><a href ng-click="sortFaxBy('created_at')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbydate}}"> Date / Time <i class="fa fa-{{!reverse.fax && predicate.fax==='created_at'?'chevron-up':'chevron-down'}}"></i></a></th>
+                                <th style="width: 50px;"><a href ng-click="sortFaxBy('direction')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbydate}}"> Date / Time <i class="fa fa-{{!reverse.fax && predicate.fax==='direction'?'chevron-up':'chevron-down'}}"></i></a></th>
+                                <th style="width: 28%;"><a href ng-click="sortFaxBy('recipient_email')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbyrecipientemail}}">Recipient <i class="fa fa-{{!reverse.fax && predicate.fax==='recipient_email'?'chevron-up':'chevron-down'}}"></i></a></th>
+                                <th style="width: 20%;"><a href ng-click="sortFaxBy('original_filename')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbyfilename}}">File <i class="fa fa-{{!reverse.fax && predicate.fax==='original_filename'?'chevron-up':'chevron-down'}}"></i></a></th>
+                                <th style="width: 13%;"><a href ng-click="sortFaxBy('downloaded_at')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbydownloaded}}">Downloaded<i class="fa fa-{{!reverse.fax && predicate.fax==='downloaded_at'?'chevron-up':'chevron-down'}}"></i></a></th>
+                            </tr>
+                        </thead>
+                        <tbody class="cls-body-table-pos">
+                            <tr ng-repeat="fax in filterFaxData = (faxList | orderBy : predicate.fax :reverse.fax | filter:searchFax) | limitTo:perPage:perPage*(currentPage-1)">
+                                <td style="width: 13%;">{{fax.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                                {{fax.created_at | toLocalTime | amDateFormat:'h:mm a'}}</td>
+                                <td style="width: 50px;" class="center-text">
+                                    <i ng-if="fax.direction==='inbound'" class="fa fa-arrow-down fa-2x greenfont"></i>
+                                    <i ng-if="fax.direction==='outbound'" class="fa fa-arrow-up fa-2x redfont"></i>
+                                </td>
+                                <td style="width: 200px;" ng-if="fax.contact">
+                                    <ul class="profile-display" >
+                                        <li ng-if="fax.contact && fax.contact.contact_profile_image" class="profile_display_30"><img src="{{pathImgProfile}}{{fax.contact.contact_profile_image}}" class="profile_image" /></li>
+                                        <li ng-if="!fax.contact.contact_profile_image" class="profile_display_30"><label class="profile_icon" style="background-color: {{fax.contact.contact_profile_color}} !important;"><i class="fa fa-user"></i></label></li>
+                                        <li style="display: inline-block;"><strong>{{fax.contact.contact_name_full}}</strong><br />
+                                            <span ng-if="fax.direction==='outbound'">{{fax.destination_number | tel}}</span>
+                                            <span ng-if="fax.direction==='inbound'">{{fax.source_number | tel}}</span>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td style="width: 200px;" ng-if="!fax.contact">
+                                    <ul class="profile-display" >
+                                        <li class="profile_display_30"><label class="profile_icon" ><i class="fa fa-user"></i></label></li>
+                                        <li style="display: inline-block;">
+                                            <strong><span ng-if="fax.direction==='outbound'">{{fax.destination_number | tel}}</span>
+                                            <span ng-if="fax.direction==='inbound'">{{fax.source_number | tel}}</span></strong>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td >
+                                    <a href ng-click="viewMessageImage(message.vfax_message_uuid)">{{showFaxFile(fax)}}</a>
+                                </td>
+                                <td style="width: 100px;">{{fax.status}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

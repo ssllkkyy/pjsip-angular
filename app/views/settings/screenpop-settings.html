@@ -1,0 +1,82 @@
+<md-content>
+    <div class="integration-settings">
+        <div>
+            <h4>Use Screen Pop? </h4>
+            <md-checkbox 
+                ng-model="user.openScreenPop" 
+                ng-change="updateGreenbox('OpenScreenPop', user.openScreenPop)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Enable Screen Pop on Ring
+            </md-checkbox>
+            <md-checkbox 
+                ng-model="user.popupAfterAnswer" 
+                ng-change="updateGreenbox('popupAfterAnswer', user.popupAfterAnswer)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Enable Screen Pop on Answer
+            </md-checkbox>
+        </div>
+        <div ng-if="partner==='hawksoft' && (user.popupAfterAnswer=='true' || user.openScreenPop=='true')">
+            <h4>Where to Screen Pop?</h4>
+            <md-checkbox 
+                ng-model="user.screenPopBridge"
+                ng-change="updateGreenbox('screenPopBridge', user.screenPopBridge)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Screen pop inside Bridge
+            </md-checkbox>
+            <md-checkbox 
+                ng-model="user.screenPopPartner" 
+                ng-change="updateGreenbox('screenPopPartner', user.screenPopPartner)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Screen pop inside {{partner_name}}
+            </md-checkbox>
+        </div>
+
+        <div ng-show="(user.popupAfterAnswer=='true' || user.openScreenPop=='true') && (partner !== 'hawksoft' || (partner == 'hawksoft' && user.screenPopBridge && user.screenPopBridge == 'true'))">
+            <h4>Customize Screen Pop: </h4>
+            <md-checkbox 
+                ng-model="user.useCustomScreenpopFields" 
+                ng-change="updateGreenbox('UseCustomScreenpopFields', user.useCustomScreenpopFields)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Select Custom Screen Pop Fields
+            </md-checkbox>
+            <div class="screenpop-field-option-container" ng-if="user.useCustomScreenpopFields === 'true'">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="smfont">Select up to 5 info fields </div>
+                        <md-checkbox 
+                            class="orangeink"
+                            ng-model="screenpop.selectedOptions[option.name]" 
+                            ng-repeat="option in availableFields.info"
+                            ng-true-value="'true'" 
+                            ng-false-value="'false'">
+                            {{option.title}}
+                        </md-checkbox>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="smfont">Select which policy fields you wish displayed </div>
+                        <md-checkbox 
+                            class="orangeink"
+                            ng-model="screenpop.selectedOptions[option.name]" 
+                            ng-repeat="option in availableFields.policy"
+                            ng-true-value="'true'" 
+                            ng-false-value="'false'">
+                            {{option.title}}
+                        </md-checkbox>
+                    </div>
+                </div>
+            </div>
+            <md-button ng-if="user.useCustomScreenpopFields === 'true'"
+                ng-click="updateCustomOptions()"
+                class="md-primary md-raised">
+                Save Settings
+            </md-button>
+        </div>
+    </div>
+</md-content>

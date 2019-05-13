@@ -1,0 +1,39 @@
+<ul class="fa-ul channellist ">
+    <li ng-if="!favoritesOnly || (favoritesOnly && isFavoriteChannel(channel))"
+    ng-click="setChannel(channel)"
+        ng-repeat="channel in channels() | orderBy: 'display_name'"
+        ng-class="{hideentity : channel.display_name === '',
+                    channelbold : channel.getUnreadCount() > 0 }">
+        <i class="fa-li fa fa-{{channel.type == 'P' ? 'lock' : 'globe'}} fa-lg"
+           style="font-size: 14px; width: 25px; text-align: center;">
+        </i>
+        <span >
+            {{channel.display_name}}
+        </span>
+        <span ng-if="channel.getUnreadCount() > 0">
+            ({{channel.getUnreadCount()}})
+        </span>
+        <span ng-click="toggleFavoriteChannel(channel)" class="favorite-star">
+            <span class="fa-stack"
+                  ng-if="!isFavoriteChannel(channel)"
+                  tooltip-placement="top"
+                  uib-tooltip="Add to Favorites">
+                <i class="fa fa-star-o fa-stack-1x showonhover"></i>
+                <i class="fa fa-star fa-stack-1x bg-icon"></i>
+            </span>
+            <span class="fa-stack"
+                  ng-if="isFavoriteChannel(channel)"
+                  tooltip-placement="top"
+                  uib-tooltip="Remove from Favorites">
+                <i class="fa fa-star fa-stack-1x showonhover"></i>
+                <i class="fa fa-star fa-stack-1x bg-icon"></i>
+            </span>
+        </span>
+    </li>
+    <li ng-if="!favoritesOnly">
+        <a href=""
+           ng-click="manageSubscriptions()">
+            Subscribe to More ...
+        </a>
+    </li>
+</ul>

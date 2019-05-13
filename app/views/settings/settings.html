@@ -1,0 +1,504 @@
+<div id="settings-container" ng-controller="SettingsCtrl">
+    <md-tabs active="activeTab"
+        md-selected="activeSettingTab"
+        ng-show="!emulateProfileEditing"
+        justified="false"
+        class="settings-tabset">
+        <md-tab index="0"
+            label="My Profile"
+            ng-init="setUploaderOption()">
+            <user-profile-edit uploader="uploader"
+                user="user"
+                trigger-upload="triggerUpload()"
+                uploader-option="uploaderOption">
+            </user-profile-edit>
+        </md-tab>
+        <!--Company Setup-->
+        <md-tab index="1"
+                label="Agency Setup"
+                ng-if="isAdminGroupOrGreater() || isDemoAgency()"
+                class="clearfix">
+            <div class="settings-content-container">
+                <div class="menu-box cls-company-setup-mnu">
+                    <div class="btn-group"
+                        ng-model="tabs.activeTab"
+                        bs-radio-group>
+                        <button class="btn btn-default"
+                            ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                                ng-class="{currentbutton : templateInclude==='users'}"
+                                ng-click="changeTemplate('users')"
+                                tooltip-placement="bottom"
+                                uib-tooltip="Add / edit users">
+                            <i class=" fa fa-users cls-color-blue-tkg"></i>
+                            Users
+                        </button>
+                        <button class="btn btn-default"
+                            ng-if="packageHasAccess('chatplus')"
+                            ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                            ng-class="{currentbutton : templateInclude==='chat-macros'}"
+                            ng-click="changeTemplate('chat-macros')"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Add / Edit Chat Macros">
+                            <i class=" fa fa-keyboard-o cls-color-blue-tkg"></i>
+                            Chat / Text Macros
+                        </button>
+                        <button class="btn btn-default"
+                            ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                            ng-class="{currentbutton : templateInclude==='audio'}"
+                            ng-click="changeTemplate('audio')"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Manage your sound files">
+                            <i class=" fa fa-music cls-color-blue-tkg"></i>
+                            Audio
+                        </button>
+                        <button class="btn btn-default"
+                            ng-if="packageHasAccess('emulate') || isKotterTechOrGreater()"
+                            ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                            ng-class="{currentbutton : templateInclude==='permissions'}"
+                            ng-click="changeTemplate('permissions')"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Who can view what">
+                            <i class=" fa fa-check-square-o cls-color-blue-tkg"></i>
+                            Permissions
+                        </button>
+                        <button class="btn btn-default"
+                            ng-if="packageHasAccess('locations') || isKotterTechOrGreater()"
+                            ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                            ng-class="{currentbutton : templateInclude==='locations'}"
+                            ng-click="changeTemplate('locations')"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Access">
+                            <i class=" fa fa-globe cls-color-blue-tkg"></i>
+                            Locations
+                        </button>
+                        <button class="btn btn-default"
+                            ng-if="packageHasAccess('presence')"
+                            ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                            ng-class="{currentbutton : templateInclude==='status'}"
+                            ng-click="changeTemplate('status')"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Availability options">
+                            <i class=" fa fa-address-card-o cls-color-blue-tkg"></i>
+                            Status
+                        </button>
+                        <button class="btn btn-default"
+                                ng-if="(packageHasAccess('multi_attendant') || packageHasAccess('attendant'))"
+                                ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                                ng-class="{currentbutton : templateInclude==='attendant'}"
+                                ng-click="changeTemplate('attendant')"
+                                tooltip-placement="bottom"
+                                uib-tooltip="Set up Call Flow">
+                            <i class=" fa fa-gears cls-color-blue-tkg"></i>
+                            Call Flow Setup [BETA]
+                        </button>
+                        <button class="btn btn-default"
+                            ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                            ng-class="{currentbutton : templateInclude==='number-setup'}"
+                            ng-click="changeTemplate('number-setup')"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Number Setup">
+                            <i class=" fa fa-phone cls-color-blue-tkg"></i>
+                            Number Setup
+                        </button>
+                        <button class="btn btn-default"
+                            ng-if="packageHasAccess('quotesheets')"
+                            ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                            ng-class="{currentbutton : templateInclude==='quotesheets-settings'}"
+                            ng-click="changeTemplate('quotesheets-settings')"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Quote Sheet Settings">
+                            <i class=" fa fa-pencil-square-o cls-color-blue-tkg"></i>
+                            Quote Sheet Settings
+                        </button>
+                        <button class="btn btn-default"
+                            ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                            ng-click="showDomainCallersBlacklist()"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Domain Callers Blacklist">
+                            <i class=" fa fa-ban cls-color-blue-tkg"></i>
+                            Callers Blacklist
+                        </button>
+                        <button class="btn btn-default"
+                        ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                            ng-click="changeTemplate('integration-setup')"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Bridge Desktop Integration">
+                            <i class=" fa fa-wrench cls-color-blue-tkg"></i>
+                            Integration Setup
+                        </button>
+                        <button class="btn btn-default"
+                        ng-disabled="isDemoAgency() && !isAdminGroupOrGreater()"
+                            ng-click="changeTemplate('provisioning')"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Provisioning">
+                            <i class=" fa fa-tasks cls-color-blue-tkg"></i>
+                            Provisioning Portal
+                        </button>
+                        <div class="admin-company-controls"
+                            ng-show="isKotterTechOrGreater() && templateInclude!=='attendant'">
+                            <md-autocomplete
+                                class="company-emulate"
+                                md-selected-item="emulate.emulatedCompany"
+                                md-search-text-change="searchTextChange(emulate.searchText)"
+                                md-search-text="emulate.searchText"
+                                md-selected-item-change="setEmulatedCompany(emulate.emulatedCompany)"
+                                md-items="domain in getDomainsBySearchText() | orderBy : 'domain_enabled' : true"
+                                md-item-text="domain.domain_name"
+                                md-min-length="0"
+                                ng-disabled
+                                placeholder="- Emulate Agency -">
+                                <md-item-template>
+                                    <span md-selectable="domain.domain_enabled === 'true'">
+                                        <span md-highlight-text="emulate.searchText"
+                                            md-highlight-flags="^i">
+                                            {{domain.domain_name}} {{domain.domain_enabled === 'false' ? '(Disabled)' : ''}}
+                                        </span>
+                                    </span>
+                                </md-item-template>
+                                <md-not-found>
+                                    No domains matching "{{emulate.searchText}}" were found.
+                                </md-not-found>
+                            </md-autocomplete>
+                            <md-switch class="md-warn"
+                                    class="company-disable"
+                                    ng-show="!isKotterGroupCompany() && emulate.emulatedCompany"
+                                    ng-model="currentDomainStatus"
+                                    ng-click="setCompanyStatus()">
+                                {{ currentDomainStatus ? 'Agency Enabled' : 'Agency Disabled'}}
+                            </md-switch>
+                            <md-button class="md-warn md-danger md-raised delete-user-btn"
+                                    ng-show="!isKotterGroupCompany() && emulate.emulatedCompany"
+                                    ng-click="deleteDomain()">
+                                Delete Agency
+                            </md-button>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-info" ng-if="isDemoAgency() && !isAdminGroupOrGreater()">
+                    Admin functions are disabled on Bridge Demo accounts. Please contact a Bridge specialist at <a href="mailto:bridge@kotter.net" target="_blank">bridge@kotter.net</a> if you have questions about company settings.
+                </div>
+                <div class="settings-body-container" >
+                    <company-setup-user-tab class="company-setup-user-tab"
+                                            uploader="uploader"
+                                            trigger-upload="triggerUpload()"
+                                            ng-if="templateInclude === 'users' && isAdminGroupOrGreater()"
+                                            domain="getCurrentDomain()">
+                    </company-setup-user-tab>
+                    <company-setup-chat-macros class="company-setup-chat-macros-tab"
+                                               ng-if="packageHasAccess('chatplus') && templateInclude === 'chat-macros'"
+                                               domain="getCurrentDomain()">
+                    </company-setup-chat-macros>
+                    <auto-attendant
+                        register-template-change-callback="registerTempChangeCb('attendant', type, callback)"
+                        ng-if="(packageHasAccess('attendant') ||
+                               packageHasAccess('multi-attendant')) &&
+                               templateInclude === 'attendant' &&
+                               isAdminGroupOrGreater()">
+                    </auto-attendant>
+                    <company-setup-audio-tab class="company-setup-audio-tab"
+                                             ng-if="templateInclude === 'audio' && isAdminGroupOrGreater()"
+                                             domain="getCurrentDomain()">
+                    </company-setup-audio-tab>
+                    <company-setup-permissions class="company-setup-permissions"
+                                               ng-if="packageHasAccess('emulate') && templateInclude === 'permissions' && isAdminGroupOrGreater()">
+                    </company-setup-permissions>
+                    <company-setup-locations class="company-setup-permissions"
+                                             ng-if="(packageHasAccess('locations') || isKotterTechOrGreater()) && templateInclude === 'locations' && isAdminGroupOrGreater()">
+                    </company-setup-locations>
+                    <company-setup-status-tab class="company-setup-user-tab"
+                                              ng-if="packageHasAccess('presence') && templateInclude === 'status' && isAdminGroupOrGreater()">
+                    </company-setup-status-tab>
+                    <company-setup-number-setup-tab class="company-setup-number-tab"
+                                                    ng-if="templateInclude === 'number-setup'"
+                                                    domain="getCurrentDomain()">
+                    </company-setup-number-setup-tab>
+                    <company-setup-quotesheet-settings class="company-setup-number-tab"
+                                                       ng-if="packageHasAccess('quotesheets') && templateInclude === 'quotesheets-settings'"
+                                                       domain="getCurrentDomain()">
+                    </company-setup-quotesheet-settings>
+                    <company-setup-integrations-tab class="company-setup-integration-tab"
+                                                    domain="getCurrentDomain()"
+                                                    ng-if="templateInclude === 'integration-setup'">
+                    </company-setup-integrations-tab>
+                    <company-setup-provisions-tab class="company-setup-provisions-tab"
+                                                  domain="getCurrentDomain()"
+                                                  ng-if="templateInclude === 'provisioning'">
+                    </company-setup-provisions-tab>
+                </div>
+            </div>
+            <div class="col-md-12" style="display: none;">
+                <ul uib-pagination boundary-links="true"
+                    total-items="totalItems"
+                    ng-model="currentPage"
+                    class="pagination-sm"
+                    previous-text="&lsaquo;"
+                    next-text="&rsaquo;"
+                    first-text="&laquo;"
+                    last-text="&raquo;">
+                </ul>
+            </div>
+        </md-tab>
+        <md-tab index="2"
+                ng-if="packageHasAccess('contacts')"
+                label="Contact Groups"
+                md-active="tabContactGroup"
+                md-on-select="clearSelectionTab()">
+            <div class="cls-company-setup-mnu full-height" >
+                <div class="cls-cont-contact-groups"
+                     ng-if="templateInclude">
+                    <contact-groups-manager></contact-groups-manager>
+                </div>
+            </div>
+        </md-tab>
+        <md-tab index="3"
+            ng-if="packageHasAccess('contacts')"
+            label="Manage Contacts">
+            <div class="cls-cont-contact-groups">
+                <contact-management></contact-management>
+            </div>
+        </md-tab>
+        <md-tab index="4" ng-if="isAdminGroupOrGreater()" label="Agency Account" >
+            <div class="settings-content-container" ng-if="activeSettingTab == 4">
+                <div class="cls-company-setup-mnu settings-content-menu">
+                    <div class="btn-group" ng-model="tabs.activeTab" bs-radio-group>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBill==='3'}"
+                            ng-click="mnuSelectedBill('3')" >
+                            <i class=" fa fa-money cls-color-blue-tkg"
+                                style="margin-right: 10px;">
+                            </i>
+                            Package & Add-Ons
+                        </button>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBill==='1'}"
+                            ng-click="mnuSelectedBill('1')">
+                            <i class=" fa fa-align-left cls-color-blue-tkg"
+                            style="margin-right: 10px;">
+                            </i>
+                            Billing Summary
+                        </button>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBill==='2'}"
+                            ng-click="mnuSelectedBill('2')">
+                            <i class=" fa fa-money cls-color-blue-tkg"
+                            style="margin-right: 10px;">
+                            </i>
+                            Make a Payment
+                        </button>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBill==='4'}"
+                            ng-click="mnuSelectedBill('4')" >
+                            <i class=" fa fa-money cls-color-blue-tkg"
+                            style="margin-right: 10px;">
+                            </i>
+                            Billing History
+                        </button>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBill==='5'}"
+                            ng-click="mnuSelectedBill('5')">
+                            <i class=" fa fa-money cls-color-blue-tkg"
+                            style="margin-right: 10px;">
+                            </i>
+                            Billing Settings
+                        </button>
+                    </div>
+                </div>
+                <div class="settings-content-body">
+                    <agency-package
+                        ng-if="templateIncludeBill === 'package'">
+                    </agency-package>
+                    <billing-summary-tab
+                        domain="getCurrentDomain()"
+                        class="content-box company-setup-user-tab company-setup-tab"
+                        ng-if="templateIncludeBill === 'summary' && billingLoaded()">
+                    </billing-summary-tab>
+                    <billing-payment-tab
+                        domain="getCurrentDomain()"
+                        class="content-box company-setup-user-tab company-setup-tab"
+                        ng-if="templateIncludeBill === 'makeapayment' && billingLoaded()">
+                    </billing-payment-tab>
+                    <billing-history-tab
+                        domain="getCurrentDomain()"
+                        class="content-box company-setup-user-tab company-setup-tab"
+                        ng-if="templateIncludeBill === 'billinghistory' && billingLoaded()">
+                    </billing-history-tab>
+                    <billing-config-tab
+                        domain="getCurrentDomain()"
+                        class="content-box company-setup-user-tab company-setup-tab"
+                        ng-if="templateIncludeBill === 'config' && billingLoaded()">
+                    </billing-config-tab>
+                </div>
+            </div>
+        </md-tab>
+        <md-tab ng-if="isKotterTechOrGreater()" index="6" label="TKG Admin" class="">
+            <div class="settings-content-container">
+                <div class="menu-box cls-company-setup-mnu">
+                    <div class="btn-group" ng-model="tabs.activeTab" bs-radio-group>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActAdmin==='1'}"
+                            ng-click="mnuSelectedAdmin('1')">
+                            <i class=" fa fa-users cls-color-blue-tkg"
+                               style="margin-right: 10px;">
+                            </i>
+                            Agencies
+                        </button>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActAdmin==='4'}"
+                            ng-click="mnuSelectedAdmin('4')" >
+                            <i class=" fa fa-paper-plane cls-color-blue-tkg"
+                               style="margin-right: 10px;">
+                            </i>
+                            Bridge Notices
+                        </button>
+                        <button ng-if="1==2" class="btn btn-default" ng-class="{currentbutton : btnMnuActAdmin==='4'}" ng-click="mnuSelectedAdmin('4')" tooltip-placement="bottom" uib-tooltip="dashboard...">
+                            <i class=" fa fa-lock cls-color-blue-tkg"
+                               style="margin-right: 10px;">
+                            </i>
+                            ...???...
+                        </button>
+                        <button class="btn btn-default" 
+                            ng-class="{currentbutton : btnMnuActAdmin==='7'}" 
+                            ng-click="mnuSelectedAdmin('7')" >
+                            <i class="fa fa-key cls-color-blue-tkg"
+                               style="margin-right: 10px;">
+                            </i>
+                            Manage KotterTech Password
+                        </button>
+                    </div>
+                </div>
+                <admin-agencies-tab
+                    class="content-box company-setup-user-tab company-setup-tab"
+                    ng-if="templateIncludeAdmin === 'agencies'">
+                </admin-agencies-tab>
+                <admin-notices-tab
+                    ng-if="templateIncludeAdmin === 'notices'"
+                    class="content-box company-setup-user-tab company-setup-tab"
+                    >
+                </admin-notices-tab>
+                <managekt-pass-tab 
+                    ng-if="templateIncludeAdmin === 'managektpassword'"
+                    class="content-box company-setup-user-tab company-setup-tab"
+                    >
+                </managekt-pass-tab>
+            </div>
+        </md-tab>
+        <md-tab ng-if="isSalesOrGreater()" index="5" label="Billing Admin" class="">
+            <div class="settings-content-container">
+                <div class="menu-box cls-company-setup-mnu">
+                    <div class="btn-group" ng-model="tabs.activeTab" bs-radio-group>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBillingAdmin==='1'}"
+                            ng-click="mnuSelectedBillingAdmin('1')" >
+                            <i class=" fa fa-users cls-color-blue-tkg"
+                               style="margin-right: 10px;">
+                            </i>
+                            Agencies
+                        </button>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBillingAdmin==='2'}"
+                            ng-click="mnuSelectedBillingAdmin('2')" >
+                            <i class=" fa fa-dollar cls-color-blue-tkg"
+                               style="margin-right: 10px;">
+                            </i>
+                            Invoices
+                        </button>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBillingAdmin==='3'}"
+                            ng-click="mnuSelectedBillingAdmin('3')" >
+                            <i class=" fa fa-key cls-color-blue-tkg"
+                                style="margin-right: 10px;">
+                            </i>
+                            Group Codes
+                        </button>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBillingAdmin==='4'}"
+                            ng-click="mnuSelectedBillingAdmin('4')" >
+                            <i class=" fa fa-magic cls-color-blue-tkg"
+                               style="margin-right: 10px;">
+                            </i>
+                            Bridge Packages
+                        </button>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBillingAdmin==='6'}"
+                            ng-click="mnuSelectedBillingAdmin('6')" >
+                            <i class=" fa fa-magic cls-color-blue-tkg"
+                               style="margin-right: 10px;">
+                            </i>
+                            Billing Reports
+                        </button>
+                        <button class="btn btn-default"
+                            ng-class="{currentbutton : btnMnuActBillingAdmin==='5'}"
+                            ng-click="mnuSelectedBillingAdmin('5')" >
+                            <i class=" fa fa-users cls-color-blue-tkg"
+                               style="margin-right: 10px;">
+                            </i>
+                            Bluewave Sales
+                        </button>
+                    </div>
+                </div>
+                <billing-admin-agencies-tab
+                    class="content-box company-setup-user-tab company-setup-tab"
+                    ng-if="templateIncludeBillingAdmin === 'billingadmin'">
+                </billing-admin-agencies-tab>
+                <billing-admin-invoices-tab
+                    ng-if="templateIncludeBillingAdmin === 'admininvoices'"
+                    class="content-box company-setup-user-tab company-setup-tab">
+                </billing-admin-invoices-tab>
+                <admin-group-codes-tab
+                    class="content-box company-setup-user-tab company-setup-tab"
+                    ng-if="templateIncludeBillingAdmin === 'groupcodes'">
+                </admin-group-codes-tab>
+                <admin-packages-tab
+                    ng-if="templateIncludeBillingAdmin === 'packages'"
+                    class="content-box company-setup-user-tab company-setup-tab">
+                </admin-packages-tab>
+                <billing-reports-tab
+                    ng-if="templateIncludeBillingAdmin === 'reports'"
+                    class="content-box company-setup-user-tab company-setup-tab">
+                </billing-reports-tab>
+                <blue-admin-agencies-tab
+                    class="content-box company-setup-user-tab company-setup-tab"
+                    ng-if="templateIncludeBillingAdmin === 'blueadmin'">
+                </blue-admin-agencies-tab>
+            </div>
+        </md-tab>
+        <md-tab index="7" label="Bridge Downloads" class="call-stats-tab">
+            <div class="settings-content-container">
+                <h3>Available Bridge Downloads</h3>
+                <div class="col-sm-6 offset-sm-3">
+                    <div class="jumbotron" style="padding: 20px;">
+                        <ul style="margin-left: 25px;">
+                            <li>Bridge Desktop:
+                                <a href="#" title="Click to download Bridge Desktop">
+                                    <span ng-click="openDownloadLink('https://onescreen.kotter.net/BridgeDesktopSetup-Current.exe')">Download Here</span>
+                                </a>
+                            </li>
+
+                            <li>Bridge Mobile (Android):
+                                <a href="#" title="Click to download Bridge Mobile (Android)">
+                                    <span ng-click="openDownloadLink(bmAndroidLink)">Download Here</span>
+                                </a>
+                                (<span ng-click="copyLink(bmAndroidLink)">Copy Link</span>)
+                            </li>
+
+                            <li>Bridge Mobile (iOS): Coming Soon!</li>
+
+                            <li>Bridge Screenshot :
+                                <a href="https://chrome.google.com/webstore/detail/the-kotter-group/keojfojghjmflkeaodjfefbdmkilgcil" target="_blank">
+                                    Download Here
+                                </a>
+                            </li>
+
+                            <li>Wooshem (64bit) Download :
+                                <a href="#">
+                                    <span ng-click="openDownloadLink('https://onescreen.kotter.net/BridgeWooshem64bit.msi')"> Download Here </span>
+
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </md-tab>
+    </md-tabs>
+</div>

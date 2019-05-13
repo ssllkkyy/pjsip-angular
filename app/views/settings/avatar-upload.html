@@ -1,0 +1,25 @@
+<div class="cls-profile-info"
+     ng-show="!showAvatarUpload">
+    <div class="settings-avatar">
+        <img src="{{pathImgProfile + user.profile_image}}"
+             ng-show="user.profile_image"
+             class="cls-settings-img-profile" alt=""/>
+        <div class="cls-settings-img-profile-null"
+             style="background-color: {{ user.profile_color ? user.profile_color : '' }};"
+             ng-show="!user.profile_image" >
+            <i class="fa fa-user"
+               style="font-size: 75px; opacity: 0.4;"
+               aria-hidden="true"></i>
+        </div>
+    </div>
+    
+    <md-button ng-click="triggerUpload()"
+               class="md-raised md-secondary">
+        Change Avatar
+    </md-button>
+</div>
+<input type="file"
+       nv-file-select
+       uploader="uploader"
+       id="cloud-upload"
+       style="display: none;">

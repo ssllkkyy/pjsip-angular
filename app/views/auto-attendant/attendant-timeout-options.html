@@ -1,0 +1,18 @@
+<md-input-container>
+    <label>{{$ctrl.labelText}}</label>
+    <md-select ng-model="$ctrl.selectedOpt"
+               ng-change="$ctrl.chooseOpt($ctrl.selectedOpt)">
+        <md-option ng-repeat="option in $ctrl.options"
+                   ng-value="option">
+            {{option.display}}
+        </md-option>
+    </md-select>
+</md-input-container>
+<md-input-container ng-if="$ctrl.selectedOpt.actionName === 'external-did'">
+    <label>Enter a Number</label>
+    <input
+        md-input
+        phone-input
+        ng-change="$ctrl.updateExternalOpt($ctrl.selectedOpt, $ctrl.externalDid)"
+        ng-model="$ctrl.externalDid"/>
+</md-input-container>

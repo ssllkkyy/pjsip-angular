@@ -1,0 +1,260 @@
+<div ng-show="search" class="display-buttons-on-search  button-box">
+        <button class="btn btn-success" ng-class="{'button-pad-right5': search, 'button-pad-right': !search}" ng-click="showFileShareModal()"><i class="fa fa-file-o"></i> Share a File</button>
+        <button class="btn btn-success" ng-class="{'button-pad-right5': search, 'button-pad-right': !search}" ng-click="showRequestFiles()" ><i class="fa fa-copy"></i> Request Files</button>
+        <button class="btn btn-success" ng-class="{'button-pad-right5': search, 'button-pad-right': !search}" ng-click="showShareLogs()" ng-if="!display.showingShares"><i class="fa fa-list"></i> Shared File Logs</button>
+        <button class="btn btn-success" ng-class="{'button-pad-right5': search, 'button-pad-right': !search}" ng-click="showFolders()" ng-if="display.showingShares"><i class="fa fa-folder-o"></i> View Folders</button>
+    </div>
+<div class="display-table-info">
+    
+    <div class="display-table-left" >
+            
+        <div ng-show="!search" class="button-box">
+            <button class="btn btn-success" ng-class="{'btn-xs button-pad-right5': search, 'button-pad-right': !search}" ng-click="showFileShareModal()"><i class="fa fa-file-o"></i> Share a File</button>
+            <button class="btn btn-success" ng-class="{'btn-xs button-pad-right5': search, 'button-pad-right': !search}" ng-click="showRequestFiles()" ><i class="fa fa-copy"></i> Request Files</button>
+            <button class="btn btn-success" ng-class="{'btn-xs button-pad-right5': search, 'button-pad-right': !search}" ng-click="showShareLogs()" ng-if="!display.showingShares"><i class="fa fa-list"></i> Shared File Logs</button>
+            <button class="btn btn-success" ng-class="{'btn-xs button-pad-right5': search, 'button-pad-right': !search}" ng-click="showFolders()" ng-if="display.showingShares"><i class="fa fa-folder-o"></i> View Folders</button>
+        </div>
+        <div class="notices">
+
+            <div style="">
+                <div ng-repeat="success in cloudSuccess" uib-alert ng-class="'alert-success'" dismiss-on-timeout="6000" close="closeSuccess($index)">{{success.message}}</div>
+                <!-- <div ng-if="showErrorMsg" uib-alert ng-class="'alert-danger'" dismiss-on-timeout="8000" close="closeError()">{{errorMsg}}</div> -->
+                <div ng-if="cloudErrors.length>0" uib-alert ng-class="'alert-danger'" close="closeError()">
+                    <ul>
+                        <li ng-repeat="error in cloudErrors">{{error.message}}</li>
+                    </ul>
+                </div>
+        
+                <uib-progressbar max="max"
+                    value="progressBarPercentage"
+                    type="success"
+                    class="cloud-progress-bar"
+                    ng-show="progressBarPercentage > 0">
+                    <span style="color:white; white-space:nowrap; font-weight: bold;">
+                        {{progressBarPercentage}}%
+                    </span>
+                </uib-progressbar>
+                <span class="cloud-progress-cancel">
+                    <i ng-show="progressBarPercentage > 0" 
+                        class=" fa fa-times" 
+                        ng-click="deleteCurrent()"
+                        uib-tooltip="{{tips.storeandshare.cancelupload}}"
+                        tooltip-placement="bottom">
+                    </i>
+                </span>
+            </div>
+            <div>
+                <div class="folder-back">
+                    <span class="folder-back-icon">
+                        <img src="images/Folders/up_left-48.png" class="cloud-flat-img fs-ascend"
+                                ng-show="root.parent_folder_uuid"
+                                ng-click="ascend()"
+                                ng-drop="true"
+                                ng-drop-success="onDrop($data, rootParent(), $event)"
+                                ng-drag-move="dragMove($event)"
+                                ng-drag-stop="stopDrag($event)"
+                                ng-drag-start="dragStart($event)"
+                                ng-center-anchor="true"
+                                scroll-parent="true">
+                    </span>
+                    <span class="folder-back-name" ng-click="ascend()" ng-show="root.files && root.parent_folder_uuid">
+                            <b>{{root.folder_name}}</b>
+                    </span>
+                </div>
+                <div class="perm-upload-spinner">
+                    <span ng-if="showUploadingSpinner()">
+                        <i class="fa fa-cog fa-spin fa-2x"
+                            uib-tooltip="Updating folder permissions">
+                        </i>
+                    </span>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+    <div class="cloud-create-btns" >
+        <a ng-click="triggerUpload()"
+           class="cloud-upload-doc-btn"
+           uib-tooltip="Upload File"
+           tooltip-placement="bottom">
+            <img src="images/Files/add_file-48.png" style="cursor: pointer;" class="cloud-flat-img">
+        </a>
+        <a ng-click="addFolder()"
+           class="cloud-create-folder-btn"
+           uib-tooltip="Create New Folder"
+           tooltip-placement="bottom">
+            <img src="images/Folders/add_folder-48.png" style="cursor: pointer;" class="cloud-flat-img">
+        </a>
+    </div>
+    <div class="cloud-storage-totals">
+        My usage: {{getTotalSpaceUsed()}}<br />
+        Cloud Storage used by my agency: {{domainUsage()}} of {{domainLimit()}}
+    </div>
+</div>
+<div ng-show="!display.showingShares">
+    <div>
+        <table class="table fs-file-table">
+            <thead>
+                <tr>
+                    <th ng-click="sortBy('original_filename', 'folder_name')" class="cloud-name-col">
+                        Name
+                        <i ng-show="!sortDown && sortFile == 'original_filename'"
+                            class="fa fa-arrow-down"
+                            style="color: black;"
+                            aria-hidden="true">
+                        </i>
+                        <i ng-show="sortDown && sortFile == 'original_filename'"
+                            class="fa fa-arrow-up"
+                            style="color: black;"
+                            aria-hidden="true">
+                        </i>
+                    </th>
+                    <th ng-click="sortBy('created_at', 'created_at')" class="cloud-updated-col">
+                        Uploaded
+                        <i ng-show="!sortDown && sortFile == 'created_at'"
+                            class="fa fa-arrow-down"
+                            style="color: black;"
+                            aria-hidden="true">
+                        </i>
+                        <i ng-show="sortDown && sortFile == 'created_at'"
+                            class="fa fa-arrow-up"
+                            style="color: black;"
+                            aria-hidden="true">
+                        </i>
+                    </th>
+                    <th ng-click="sortBy('file_size_in_b', '')" class="cloud-filesize-col-header">
+                        File Size
+                        <i ng-show="!sortDown && sortFile == 'file_size_in_b'"
+                            class="fa fa-arrow-down"
+                            style="color: black;"
+                            aria-hidden="true">
+                        </i>
+                        <i ng-show="sortDown && sortFile == 'file_size_in_b'"
+                            class="fa fa-arrow-up"
+                            style="color: black;"
+                            aria-hidden="true">
+                        </i>
+                    </th>
+                    <th ng-show="!search">
+                        Uploaded By
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="cloud-scroll-body" context-menu="tableMenuOptions()"
+            nv-file-drop
+            uploader="uploader">
+        <table class="fs-file-table">
+            <thead>
+                <tr>
+                    <th class="cloud-name-col"></th>
+                    <th class="cloud-updated-col"></th>
+                    <th class="cloud-filesize-col"></th>
+                    <th ng-show="!search"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="folder in root.dummyFolders" class="cloud-row">
+                    <td ng-click context-menu="dummyFolderMenuOptions()" class="cloud-name-col">
+                        <img class="cloud-flat-img cloud-folder" src="/images/Folders/folder-48.png"> {{folder.folder_name}}
+                        <input type="text"
+                                class="form-control file-rename-input"
+                                dummy-folder-input
+                                ng-model="folder.folder_name"
+                                folder="folder"
+                                ng-model-options="{updateOn: 'blur'}">
+                    </td>
+                    <td class="cloud-updated-col">{{folder.created_at | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a' }}</td>
+                </tr>
+                <tr ng-repeat="folder in root.folders | orderBy : sortFolder : sortDown"
+                    class="cloud-row"
+                    ng-if="hasPermission(folder) && !isKotterTechUserByUuid(folder.user_uuid)"
+                    ng-drop="true"
+                    ng-drop-success="onDrop($data, folder, $event)"
+                    ng-drag-move="dragMove($event)"
+                    ng-drag-stop="stopDrag($event)"
+                    ng-drag-start="dragStart($event)"
+                    ng-center-anchor="true"
+                    folder-id="{{folder.folder_uuid}}"
+                    scroll-parent="true">
+                    <td ng-click="openFolder(folder)"
+                        style="cursor: pointer;"
+                        ng-show="!folder.renaming"
+                        cloud-folder
+                        folder="folder"
+                        class="cloud-name-col"
+                        context-menu="folderMenuOptions(folder)">
+                        <span class="cloud-item-name cloud-item-image-box">
+                            <img class="cloud-flat-img cloud-{{getFolderType(folder)}}" src="/images/Folders/folder-48.png" >
+                        </span>
+                        <span class="cloud-item-name">{{folder.folder_name}}</span>
+                    </td>
+                    <td ng-show="folder.renaming" class="cloud-name-col">
+                        <span class="cloud-item-name cloud-item-image-box"><img class="cloud-flat-img cloud-{{getFolderType(folder)}}" src="/images/Folders/folder-48.png"></span>
+                        <span class="cloud-item-name">
+                            <input type="text"
+                                    class="form-control file-rename-input"
+                                    ng-model="folder.folder_name"
+                                    cloud-enter
+                                    ng-blur="renameFolder(folder)"
+                                    ng-model-options="{updateOn: 'blur'}">
+                        </span>
+                    </td>
+                    <td class="cloud-updated-col">{{folder.created_at | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}</td>
+                    <td class="cloud-filesize-col">{{folder.folder_size ? folder.folder_size : getFolderSize(folder)}}</td>
+                    <td ng-show="!search"></td>
+                </tr>
+                <tr ng-repeat="file in root.files | orderBy : sortFile : sortDown"
+                    class="cloud-row"
+                    ng-class="{'highlight-file': highlightFile.file_uuid===file.file_uuid}"
+                    ng-drag="true"
+                    ng-drag-data="file"
+                    data-file-uuid="{{file.file_uuid}}"
+                    allow-transform="false"
+                    ng-show="!file.hide">
+                    <td ng-click="viewFile(file)"
+                        ng-show="!file.renaming"
+                        class="cloud-name-col"
+                        cloud-file
+                        stop-digest
+                        file="file"
+                        context-menu="fileMenuOptions(file)">
+                        <span class="cloud-item-name cloud-item-image-box"><img class="cloud-flat-img cloud-{{getFileType(file)}}" src="/images/Files/file-48.png"></span> 
+                        <span class="cloud-item-name">{{file.original_filename}}</span>
+                    </td>
+                    <td ng-show="file.renaming">
+                        <span class="cloud-item-name cloud-item-image-box"><img class="cloud-{{getFileType(file)}} cloud-flat-img" src="/images/Files/file-48.png"></span>
+                        <span class="cloud-item-name"><input type="text"
+                                class="form-control file-rename-input cloud-name-col"
+                                ng-value="removeFileExtensionFromFilename(file.original_filename)"
+                                cloud-enter
+                                ng-blur="renameFile(file, $event.currentTarget.value)"
+                                ng-focus-on
+                                model="file"
+                                focus-event="file.renaming"
+                                ng-model-options="{updateOn: 'blur'}"></span>
+                        <!-- ng-model="file.original_filename" -->
+                    </td>
+                    <td class="cloud-updated-col">{{file.created_at | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}</td>
+                    <td class="cloud-filesize-col">{{file.true_file_size}}</td>
+                    <td ng-show="!search">{{file.contact_firstname}} {{file.contact_lastname}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="paste-block"><br /></div>
+    </div>
+    <p class="cloud-item-count"><b>{{getItemCount()}}</b> items</p>
+</div>
+<div ng-if="display.showingShares">
+    <file-share-table domain="user.domain_uuid"></file-share-table>
+</div>
+
+
+<input type="file"
+       nv-file-select
+       uploader="uploader"
+       id="cloud-upload"
+       style="display: none;"
+       multiple="multiple">

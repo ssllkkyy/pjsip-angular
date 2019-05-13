@@ -1,0 +1,85 @@
+<div ng-controller="ScreenSharingCtrl">
+    <div>  
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-clone fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Screen Share</span>
+            <button type="button" class="close" ng-click="closeScreenShareModal()"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <div ng-show="!invitesSent">
+               <!-- <h4>Who is going to Share their Screen?</h4>
+                <div class="row">
+                    <md-radio-group ng-model="roomType">
+                    <div class="col-sm-6">
+                        <md-radio-button value="user" class="md-primary">Share your screen with your invitee(s).</md-radio-button>
+                    </div>
+                    <div class="col-sm-6">
+                        <md-radio-button value="contact">Your invitee will share their screen with you.</md-radio-button>
+                    </div>
+                    </md-radio-group>
+                </div>-->
+                <strong>Room ID:</strong>
+                <div class="input-group"> 
+                    <span class="input-group-addon" title="name"><i class="fa fa-desktop"></i></span> 
+                    <input class="form-control" type="text" id="room-id" ng-model="roomId" ng-keyup="slugifyRoomId()" placeholder="Input name room" required> 
+                </div>
+            
+                <p><strong>Invite Stored Contacts</strong><br />
+                <span class="smfont">Start typing a contact's name to search your contacts and then select from provided results.</span></p>
+                <tags-input ng-model="delivery.messageContacts" display-property="contact_name_full" key-property="contact_uuid" placeholder="Start typing the name of a contact to select" replace-spaces-with-dashes="false">
+                    <auto-complete source="loadTags($query)" min-length="0" load-on-focus="false" load-on-empty="false" max-results-to-show="10" template="autocomplete-template"></auto-complete> 
+                </tags-input>
+                <script type="text/ng-template" id="autocomplete-template">
+                    <div class="autocomplete-template">
+                        <span ng-bind-html="$highlight($getDisplayText())"></span> <span ng-if="data.contact_email_address!=''" class="smfont">(Email: {{data.contact_email_address}})</span><span ng-if="data.contact_email_address==''" class="smfont">(No Email Address Available)</span>
+                    </div>
+                </script>
+                
+                <p><strong>Invite Non-Contacts</strong><br />
+                <span class="smfont">Enter a name and email and click Include to add to the Invitee List.</span></p>
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="input-group"> 
+                            <span class="input-group-addon"><i class="fa fa-user"></i></span> 
+                            <input class="form-control" type="text" ng-model="invitee.name" placeholder="Invitee Name">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="input-group"> 
+                            <span class="input-group-addon"><i class="fa fa-envelope"></i></span> 
+                            <input class="form-control" type="text" ng-model="invitee.email" placeholder="Invitee Email">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-success btn-sm" ng-click="addNonContactInvitee(invitee)"><i class="fa fa-plus-circle"></i> Include</button>
+                    </div>
+                </div>
+                
+                <table ng-if="addedInvitees.length>0" class="table table-bordered table-hover table-striped">
+                    <thead><tr><th>Name</th><th>Email</th><th></th></tr></thead>
+                    <tbody>
+                    <tr ng-repeat="person in addedInvitees"><td>{{person.name}}</td><td>Email: {{person.email}}</td><td><button class="btn btn-danger btn-xs" ng-click="removeInvitee($index)"><i class="fa fa-times"></i> Remove</button></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div ng-if="invitesSent" uib-alert ng-class="'alert-info'" dismiss-on-timeout="5000" close="closeLogout()"><strong>Invitations have been Sent!</strong></div>
+            <div ng-if="invitesSent" class="invite-url-box" ng-bind-html="showRoomURL()"></div>
+               <!-- <span class="input-group-addon btn" id="open-room" ng-click="openRoom()" tooltip-placement="bottom-right" uib-tooltip="Click to Open a New Room"><i class="fa fa-exchange"></i></span> 
+                <span class="input-group-addon btn" id="join-room" ng-click="joinRoom()"  ng-show="xxx999" tooltip-placement="bottom-right" uib-tooltip="Click to Join room opened"><i class="fa fa-compress"></i></span> 
+                <span class="input-group-addon btn" id="open-or-join-room" ng-click="openOrJoinRoom()" ng-show="xxx999" tooltip-placement="bottom-right" uib-tooltip="Click to Join room opened"><i class="fa fa-compress"></i></span> -->
+
+        </div>
+
+        
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-default btn-md" ng-show="!invitesSent" ng-click="closeScreenShareModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-default btn-md" ng-show="invitesSent" ng-click="closeScreenShareModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+            <button class="btn btn-primary btn-md" ng-show="!invitesSent" ng-click="sendScreenSharing(delivery)"><i class="fa fa-desktop" style="margin-right: 10px;"></i>Send Invitation<span ng-if="contactsUsr.length + addedInvitees.length > 1">s</span></button>
+            <!-- <button class="btn btn-primary btn-md"><i class="fa fa-compress" style="margin-right: 10px;"></i>Join Room</button>  -->
+        </div>
+    </div> 
+</div>    
+    

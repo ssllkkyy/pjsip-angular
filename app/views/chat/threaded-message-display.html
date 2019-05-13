@@ -1,0 +1,93 @@
+<div class="top-thread-display-bar">
+        <h4 class="message-thread">Message Thread</h4>
+        <i class="fa fa-sign-out md-icon"
+        ng-click="closeDisplay()()"
+        tooltip-placement="bottom-right"
+        uib-tooltip="Close thread">
+        </i>
+    </div>
+    <div class="posts-container">
+        <chat-post
+            class="root-post"
+            channel="channel()"
+            data-post-id="{{rootPost.id}}"
+            ng-if="rootPost"
+            class="threaded-root-post"
+            is-threaded="true"
+            is-threaded-root-post="true"
+            post="rootPost">
+        </chat-post>
+        <chat-post
+            ng-repeat="order in rootPost.postInfo.order"
+            ng-class="{'is-consecutive-post': getOrderPost(order).isConsecutive}"
+            channel="channel()"
+            data-threaded-post-id="{{getOrderPost(order).id}}"
+            is-threaded="true"
+            post="getOrderPost(order)">
+        </chat-post>
+    </div>
+    <chat-macro-suggestion-list
+        ng-if="showMacrosList && inputElement"
+        input-element="inputElement"
+        parent-data="macrosListData" >
+    </chat-macro-suggestion-list>
+    <chat-people-suggestion-list
+        ng-if="showPeopleList && inputElement"
+        input-element="inputElement"
+        parent-data="peopleListData">
+    </chat-people-suggestion-list>
+    <chat-channels-suggestion-list
+        ng-if="showChannelList && inputElement"
+        input-element="inputElement"
+        parent-data="channelListData">
+    </chat-channels-suggestion-list>
+    <div class="input-container">
+        <span class="chat-input">
+            <textarea
+                class="include-emojis"
+                name="chatMessage"
+                placeholder="Write a message"
+                class="chat-input"
+                rows="2"
+                ng-show="rootPost"
+                send-post="sendPost()"
+                uploader="uploader"
+                root-post="rootPost"
+                ng-if="uploader"
+                key-press-chat
+                key-press-event-fns="keyPressFns"
+                people-data="peopleListData"
+                channel-data="channelListData"
+                macro-data="macrosListData"
+                is-threaded-input="true">
+            </textarea>
+        </span>
+        <span class="chat-upload">
+            <label tooltip-placement="left"
+                uib-tooltip="Upload files to channel">
+                <i class="fa fa-paperclip"></i>
+                <input ng-if="uploader"
+                    type="file"
+                    nv-file-select=""
+                multiple
+                uploader="uploader"
+                required
+                style="display: none;" />
+            </label>
+        </span>
+        <span class="chat-send">
+            <button class="btn btn-default btn-xs"
+                    ng-click="sendPost()(inputElement, channel(), sendPostOpts)">
+                Send
+            </button>
+        </span>
+        <!-- <p class="users-currently-typing">{{currentTypingMessage()}}</p> -->
+        <div class="post-uploading"
+            ng-if="showUploadingFiles">
+            <chat-post-upload-preview
+                show="showUploadingFiles"
+                sendMessage="sendMessage"
+                uploader="uploader">
+            </chat-post-upload-preview>
+        </div>
+    </div>

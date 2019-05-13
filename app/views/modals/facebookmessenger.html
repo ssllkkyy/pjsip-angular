@@ -1,0 +1,25 @@
+<div>
+    <div class="modal-header" id="modal-screen-share">
+        <span class="fa-stack fa-2x cls-color-green-tkg">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Facebook Messenger</span>
+        <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <p>While in Facebook messenger you can make copies of any text and download them directly into your management system. With The Kotter Group Screen Capture extension, you can select any part of the screen, mark it up or annotate it and then capture it directly to your management system. <a href="https://chrome.google.com/webstore/detail/the-kotter-group-screensh/emkhfdblfibefdhibmbeiefiolojmjbm" target="_blank">Click here to download</a></p>
+        <button class="btn btn-primary" ng-click="openMessenger(hideFacebookModal)" target="_blank">Open Messenger Now</button>
+        <md-checkbox
+        ng-model="hideFacebookModal"
+        aria-label="Hide Facebook Messenger Modal"
+        ng-true-value="true"
+        ng-false-value="false"
+        class="md-warn md-align-top-left" flex>
+        Check to hide this message and load Facebook Messenger immediately
+    </md-checkbox>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md" ng-click="vm.cancel()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+    </div>
+</div>

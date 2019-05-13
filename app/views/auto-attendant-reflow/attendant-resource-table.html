@@ -1,0 +1,96 @@
+<div class="auto-attendant-container"
+     ng-if="hasTableInfo">
+    <div class="title-container"
+         ng-if="!tableOnly">
+        <h3>{{resourceName}}s</h3>
+    </div>
+    <div class="resource-table-container">
+        <div class="{{tableOpts.tableClass}} aa-panel aa-panel-primary">
+            <span ng-if="cancelTable"
+                  class="resource-table-quit-btn">
+                <i ng-click="cancelTable()"
+                   class="fa fa-times"></i>
+            </span>
+            <div class="aa-jumbotron">
+                <div class="aa-panel aa-panel-body">
+                    <scrollable-table
+                        column-names="tableControls.columnNames"
+                        resource-length="resources.length"
+                        per-page="searchControls.perPage.val"
+                        current-page="tableControls.currentPage"
+                        sorting-opts="tableControls.sortingOpts"
+                        separate-footer="true">
+                        <table-body>
+                            <table class="table table-bordered table-hover
+                                          table-striped cls-tab-comp-setup-users">
+                                <table id="data-table-top"
+                                       class="table table-bordered table-hover
+                                              table-striped cls-tab-call-history">
+                                    <tbody>
+                                        <tr ng-if="!loadingResources && resources.length === 0">
+                                            <td colspan="4">
+                                                {{noResourceMessage()}}
+                                            </td>
+                                        </tr>
+                                        <tr ng-if="loadingResources">
+                                            <td colspan="5"
+                                                class="loading-users mdgreyfont">
+                                                <i class="fa fa-spinner fa-spin fa-4x"></i>
+                                                <br />
+                                                <span>
+                                                    Loading {{resourceName}}s
+                                                    <br />
+                                                    Please Wait
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr ng-if="!loadingResources && resources.length > 0"
+                                            ng-repeat="resource in resources |
+                                                   orderBy :
+                                                   tableControls.sortingOpts.orderBy">
+                                            <td ng-repeat="column in columns"
+                                                ng-click="column.name !==
+                                                           'actions' &&
+                                                           editResource({resource:
+                                                           resource})"
+                                                style="{{!editResource && 'cursor: initial;'}}"
+                                                class="{{column.className}}">
+                                                {{getColumnData(resource, column.name)}}
+                                                <i ng-if="column.name === 'actions'"
+                                                   ng-visible="!actionFnInfo.show
+                                                          ||
+                                                          actionFnInfo.show(resource,
+                                                          scopeFns, actionFnInfo)"
+                                                   ng-repeat="actionFnInfo in actionFns"
+                                                   ng-click="actionFnInfo.fn(resource, scopeFns)"
+                                                   class="{{displayClass(actionFnInfo.class,
+                                                            resource)}}"
+                                                   aria-hidden="true"
+                                                   tooltip-placement="top-right"
+                                                   uib-tooltip="{{displayTooltip(actionFnInfo.tooltip,
+                                                                  resource)}}">
+                                                </i>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </table>
+                        </table-body>
+                        <table-body-footer ng-transclude="tableBodyFooter">
+                            <button class="btn btn-primary"
+                                    ng-if="createNewResource"
+                                    ng-click="scopeFns.createNewResource()">
+                                Create New {{resourceName}}
+                            </button>
+                            <span>
+                                Click the
+                                <i class="{{displayClass(handleActionClass)}}"></i>
+                                icon above for each {{resourceName}} you want used in this call flow
+                            </span>
+                        </table-body-footer>
+                    </scrollable-table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

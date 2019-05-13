@@ -1,0 +1,152 @@
+<div class="main-announcement-edit-container">
+    <div class="col-md-12 creation-container"
+         ng-if="editing">
+        <div class="announcement-info-edit">
+            <div class="row" >
+                <div class="col-sm-3">
+                    <md-input-container class="vm-name">
+                        <label>Announcement Name</label>
+                        <input ng-model="announcementEditInfo.file_title" />
+                    </md-input-container>
+                </div>
+                <div class="col-sm-3 playback-controls">
+                    <md-button
+                        ng-if="audioPath"
+                        class="md-default md-raised vm-button">
+                        <audio-play-btn
+                            audio-file="audioPath"
+                            contents-only="true"
+                            ng-init="btnLink = {}"
+                            ng-click="btnLink.toggle()"
+                            style="display: block;"
+                            link="btnLink">
+                            <btn-text>
+                                <span class="play-label">
+                                    {{btnLink.isPlaying() ? "Pause Message" : "Play Message"}}
+                                </span>
+                            </btn-text>
+                        </audio-play-btn>
+                    </md-button>
+                </div>
+                <div class="col-sm-6">
+                    <!-- <attendant-timeout-options -->
+                    <!-- chosen-opt="announcementEditInfo.noAnswerOpt" -->
+                    <!-- label-text="'After Timeout, Send Caller To'" -->
+                    <!-- value-path="''" -->
+                    <!-- choose-initial-opt="findTimeoutOpt(options)" -->
+                    <!-- addl-timeout-opts="timeoutOptions"> -->
+                    <!-- </attendant-timeout-options> -->
+                    <attendant-timeout-select
+                        type="announcement.timeout_action"
+                        data="announcement.timeout_resource_uuid"
+                        chosen-opt="announcementEditInfo.noAnswerOpt">
+                    </attendant-timeout-select>
+                </div>
+            </div>
+            <div class="row"
+                 ng-if="transcript">
+                <text-synthesizer
+                    style="width: 100%;"
+                    save-synth="updateTranscript(text, file)"
+                    transcript="transcript">
+                </text-synthesizer>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 creation-container"
+         ng-show="!editing">
+        <md-radio-group
+            ng-model="selectedOpc"
+            ng-change="setSelectedOpc(selectedOpc)"
+            ng-show="selectedOpc !== true">
+            <div class="tablecell"
+                 ng-repeat="opc in opcOpts">
+                <md-radio-button ng-value="opc"
+                                 class="md-primary">
+                    <strong>
+                        {{opc.title}}
+                    </strong>
+                </md-radio-button>
+            </div>
+        </md-radio-group>
+        <div>
+            <attendant-timeout-select
+                type="announcement.timeout_action"
+                data="announcement.timeout_resource_uuid"
+                chosen-opt="announcementEditInfo.noAnswerOpt">
+            </attendant-timeout-select>
+        </div>
+        <div class="panel"
+             ng-show="selectedOpc"
+             style="border: #cfdef0 solid 1px;">
+            <div class="panel-heading">
+                <strong class="cls-color-blue-tkg">
+                    {{selectedOpc.title}}
+                </strong>
+            </div>
+            <div class="panel-body">
+                <md-button
+                    ng-if="announcementEditInfo.selectedRecording && selectedOpc"
+                    class="md-default md-raised vm-button">
+                    <audio-play-btn
+                        audio-file="announcementEditInfo.selectedRecording"
+                        contents-only="true"
+                        ng-init="btnLink = {}"
+                        ng-click="btnLink.toggle()"
+                        style="display: block;"
+                        link="btnLink">
+                        <btn-text>
+                            <span class="play-label">
+                                {{btnLink.isPlaying() ? "Pause Message" : "Play Message"}}
+                            </span>
+                        </btn-text>
+                    </audio-play-btn>
+                </md-button>
+                <md-button class="md-default md-raised vm-button"
+                           ng-if="announcementEditInfo.selectedRecording && selectedOpc === true"
+                           ng-click="changeAnnouncement()">
+                    <i class="fa fa-edit"></i>
+                    Change Message Announcement
+                </md-button>
+                <div ng-show="selectedOpc.name === 'newrecord'">
+                    <audio-recorder
+                        ng-if="selectedOpc.name === 'newrecord' "
+                        save-recording="saveRecording(recording)"
+                        title="'Announcement'">
+                    </audio-recorder>
+                </div>
+                <div ng-show="selectedOpc.name==='uploadfile'">
+                    <div class="jumbotron center-text">
+                        <div>
+                            <md-input-container style="width: 100%; text-align: center;" >
+                                <label>Message Description</label>
+                                <input ng-model="audioRecordingData.title" />
+                            </md-input-container>
+                        </div>
+                        <file-browse-btn
+                            class="btn btn-primary btn-file"
+                            accept="audio/*"
+                            file-model-obj="audioRecordingData">
+                            <btn-text>Browse for File</btn-text>
+                        </file-browse-btn>
+                        <button class="btn btn-success"
+                                ng-disabled="!audioRecordingData"
+                                ng-click="saveRecording(audioRecordingData)">
+                            Save
+                        </button>
+                    </div>
+                </div>
+                <div ng-show="selectedOpc.name === 'synthesize'" >
+                    <div>
+                        <md-input-container style="width: 100%; text-align: center;" >
+                            <label>Message Description</label>
+                            <input ng-model="announcementEditInfo.file_title" />
+                        </md-input-container>
+                    </div>
+                    <text-synthesizer save-synth="saveSynth(text, file)">
+                    </text-synthesizer>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

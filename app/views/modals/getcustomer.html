@@ -1,0 +1,35 @@
+<div class="screenpop-outer">
+    <div class="screenpop-container">
+        <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+        <div ng-if="!vm.content.data.customerList">
+            <h4>Contact Not Found</h4>
+            <p>Unable to locate a {{user.exportType.partner_name}} contact matching {{vm.content.data.phone | tel2}}.</p>
+            <a class="btn btn-success btn-sm"
+                ng-if="vm.content.data.integrationUrl"
+                href="{{vm.content.data.integrationUrl}}"
+                onclick="window.close()"
+                target="_blank">Open {{user.exportType.partner_name}} Search</a>
+        </div>
+        <div ng-if="vm.content.data.customerList.length > 1">
+            <p>There are {{vm.content.data.customerList.length}} Customers associated with {{vm.content.data.phone | tel2}}.</p>
+            <p>Please select one.</p>
+            <hr class="screenpop-hr" />
+            <div tooltip-placement="top-left" 
+                class="screenpop-contact"
+                uib-tooltip="Click to View Contact"
+                ng-repeat="contact in vm.content.data.customerList track by $index" 
+                ng-click="vm.content.data.onSelectCustomer(vm.content.data, contact)">
+                <p>
+                    <strong ng-if="contact.contact_name_full">{{contact.contact_name_full}}</strong>
+                    <span class="smfont" ng-if="contact.contact_organization" ><br />{{contact.contact_organization}}</span>
+                    <span class="smfont" ng-if="contact.settings.contact_address || contact.settings.contact_city || contact.settings.contact_state" >
+                        <br /><span ng-if="contact.settings.contact_address">{{contact.settings.contact_address}} </span>
+                        <span ng-if="contact.settings.contact_city">{{contact.settings.contact_city}} </span>
+                        <span ng-if="contact.settings.contact_state">{{contact.settings.contact_state}}</span>
+                    </span>
+                </p>
+                <hr class="screenpop-hr" />
+            </div>
+        </div>
+    </div>
+</div>

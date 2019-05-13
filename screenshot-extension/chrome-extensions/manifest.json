@@ -1,0 +1,43 @@
+{
+    "name": "The Kotter Group Screenshot",
+    "version": "1.4",
+
+    "commands": {
+        "visible_screenshot": {
+            "description": "visible screenshot"
+        },
+        "entire_page_screenshot": {
+            "description": "Entire Page Screenshot"
+        }
+    },
+
+
+    "homepage_url": "http://www.kotter.net/",
+    "manifest_version": 2,
+    "description": "This Extension is developed for Bridge from The Kotter Group. It enables you to capture screenshots and export to Management System.",
+    "icons": {
+        "16": "logo16.png",
+        "48": "logo48.png",
+        "128": "logo128.png"
+    },
+    "background": {
+        "page": "background.html"
+    },
+    "browser_action": {
+        "default_popup": "popup.html"
+    },
+    "web_accessible_resources": [
+        "/images/*.png",
+
+        "/css/pagestyles.css",
+        "/css/dialog.css",
+
+        "/libs/gapi.js",
+        "/libs/jquery.js",
+        "/js/dialog.js"
+    ],
+    "offline_enabled":true,
+    "default_locale": "en",
+    "permissions": ["activeTab","clipboardWrite","tabs"],
+    "optional_permissions": ["desktopCapture" ]
+}

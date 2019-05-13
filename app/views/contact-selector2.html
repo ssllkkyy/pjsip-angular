@@ -1,0 +1,116 @@
+<div class="contact-search-container">
+    <div class="clearfix" ng-if="type!=='contactgroup'">
+        <span class="selected-contact"
+                ng-repeat="contact in contactsSelected track by $index">
+            <span ng-if="contact.contact_name_full">
+                {{contact.contact_name_full}}
+            </span>
+            <span ng-if="type==='sms' || type==='conference'">
+                <span ng-if="contact.contact_name_full">: </span>{{contact.contact_mobile_number | tel2}}
+            </span>
+            <span ng-if="type==='file' || type==='cloudlink'">
+                <span ng-if="contact.contact_name_full">: </span>{{contact.contact_email_address}}
+            </span>
+            <i class="fa fa-times"
+                ng-click="removeSelectedContact($index)">
+            </i>
+        </span>
+    </div>
+    <div class="input-group contact-select">
+            
+        <input type="text"
+            style="min-height: 40px; padding-left: 40px;"
+            contact-select
+            ng-model="box.recipients"
+            debounce="500"   
+            class="form-control"
+            ng-change="doIndexSearch()"
+            id="contactselect"
+            autocomplete="nope"
+            tooltip-placement="top"
+            uib-tooltip="{{inputTooltip}}"
+            placeholder="{{inputPlaceholder}}">
+    </div>
+    <div class="contact-options" ng-show="showContactSelection">
+        <div ng-if="box.recipients && !box.short && filterData.length ===0 && !box.searching" class="no-results mdgreyfont">
+            <i class="fa fa-search fa-2x"></i>
+            <span>No Results Found - Broaden Your Search</span>
+        </div>
+        <div ng-if="box.short" class="partial-search mdgreyfont">
+            <span>Search must include 3 at least characters.</span>
+        </div>
+        <div ng-if="filterData.length > 50" class="partial-search mdgreyfont">
+            <span>More than 50 Results Found<br/>
+                Showing First 50 - Please Narrow Search</span>
+        </div>
+        <div ng-if="filterData.length < 51 && filterData.length !== 0"
+             class="partial-search mdgreyfont">
+            <span>{{filterData.length}} Results Found</span>
+        </div>
+        <div ng-if="box.searching" class="partial-search mdgreyfont">
+            <i class="fa fa-spinner fa-spin fa-2x"></i> <span>Searching - Please Wait</span>
+        </div>
+        <div class="list-group">
+            <div ng-repeat="contact in filterData = (box.results | filter:filterResults)"
+                class="list-group-item">
+                <div class="thread-list-item" >
+                    <div class="callbox-list-circle">
+                        <span ng-bind-html="showContactPhoto(contact, 'small')"></span>
+                    </div>
+                    <div class="thread-list-body" >
+                        <div ng-if="type!=='contactgroup'" >
+                            <span >
+                                {{contact.name}} <span ng-if="contact.org">({{contact.org}})</span>
+                            </span>
+                        </div>
+                        <div ng-if="type==='contactgroup'" 
+                            ng-click="addContact(contact, contact.cuuid)"
+                            style="padding-top: 16px;" >
+                            <span >
+                                {{contact.name}} <span ng-if="contact.org">({{contact.org}})</span>
+                            </span>
+                        </div>
+                        <div class="recent-message" ng-if="(type==='file' || type==='cloudlink')">
+                            <span ng-if="!contact.em">
+                                No Email Available
+                            </span>
+                            <span ng-if="contact.em" ng-click="addContact(contact, contact.em)">
+                                <span class="numbers" style="margin-right: 10px; ">
+                                    Email: {{contact.em}}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="recent-message" ng-if="type==='conference' || type==='sms'">
+                            <span ng-if="contact.ext && type==='conference'" 
+                                ng-click="addContact(contact, contact.ext)">
+                                <span class="numbers" style="margin-right: 10px; ">Ext: {{contact.ext}}<br /></span>
+                            </span>
+                            <span ng-if="phone.num"
+                                  ng-repeat="phone in contact.nums" 
+                                  ng-click="addContact(contact, phone.num)">
+                                <span class="numbers" ng-show="phone.num" style="margin-right: 10px; "> {{phone.lab}}: {{phone.num | tel2}}<br /></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix" ng-if="type==='contactgroup'" style="max-height: 14rem; overflow-y: auto;">
+        <span class="selected-contact"
+                ng-repeat="contact in contactsSelected track by $index">
+            <span ng-if="contact.contact_name_full">
+                {{contact.contact_name_full}}
+            </span>
+            <span ng-if="type==='sms' || type==='conference'">
+                <span ng-if="contact.contact_name_full">: </span>{{contact.contact_mobile_number | tel2}}
+            </span>
+            <span ng-if="type==='file' || type==='cloudlink'">
+                <span ng-if="contact.contact_name_full">: </span>{{contact.contact_email_address}}
+            </span>
+            <i class="fa fa-times"
+                ng-click="removeSelectedContact($index)">
+            </i>
+        </span>
+    </div>
+</div>

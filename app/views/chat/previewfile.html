@@ -1,0 +1,43 @@
+<div>
+    <div class="modal-body" id="modal-body">
+        <div style="width: 100%; height: 100%; text-align: center;" id="imagetocopy">
+        <img src="{{vm.content.data.obj}}" style="{{thumbDimensions(mediaUrl+vm.content.data, 'preview')}}; max-width: 100%;">
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+        <button class="btn btn-primary btn-md" id="copyimage" ><i class="fa fa-copy" style="margin-right: 10px;"></i>Copy Image</button>
+        <a class="btn btn-primary btn-md" href="{{vm.content.data.obj}}" download target="_blank"><i class="fa fa-download" style="margin-right: 10px;"></i>Download</a>
+    </div>
+</div>
+
+<script>
+    function SelectText(element) {
+        var doc = document;
+        if (doc.body.createTextRange) {
+            var range = document.body.createTextRange();
+            range.moveToElementText(element);
+            range.select();
+        } else if (window.getSelection) {
+            var selection = window.getSelection();
+            var range = document.createRange();
+            range.selectNodeContents(element);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    }
+    function doCopy(item) {
+        item.attr("contenteditable", true);
+        SelectText(item.get(0));
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+        item.removeAttr("contenteditable");
+        alert("Image copied to clipboard.");
+    }
+    $("#copyimage").click(function (e) {
+        doCopy($('#imagetocopy'));
+    });
+    $("#imagetocopy").click(function (e) {
+        doCopy($(this));
+    });
+</script>

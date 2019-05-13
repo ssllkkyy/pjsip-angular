@@ -1,0 +1,61 @@
+<div style="width: 100%;" ng-controller="AutoDialingCtrl">
+
+    <div ng-show="!showDelivering" class="cls-cont-wizard-RB">
+        <wizard >
+
+            <input type="hidden" ng-model="broadcast.robocall_uuid" ng-value="roboCallUUID"/>
+            <button ng-click="returnToLanding()" class="btn btn-default pull-right"><i class="fa fa-mail-reply" style="margin-right: 10px;"></i>Return to Landing Page</button>
+
+
+            <wz-step wz-title="step 1: Setup">
+                <h3>Setup: Specify your campaign type</h3>
+                <p></p>
+                <div ng-include="'views/autodialing/step1.html'"></div>
+                <div class="center-text" style="margin-top: 20px;">
+                    <span ng-if="step1Disabled(broadcast)">Please complete all fields above before clicking Next.</span><br />
+                    <button class="btn btn-primary cls-btn-wzrd" style="margin-top: 5px !important;" ng-disabled="step1Disabled(broadcast)" ng-click="saveStep1(broadcast)" wz-next> Next  <i class="fa fa-angle-double-right"></i></button>
+                </div>
+            </wz-step>
+
+            <wz-step wz-title="step 2: Recipients" canenter="canEnter" canexit="isStep2Clear">
+                <h4>Campaign: {{broadcast.robocall_name}}</h4>
+                <h3>Recipients: Who should receive this message?</h3>
+                <div ng-include="'views/autodialing/step2.html'"></div>
+                <div class="center-text">
+                    <button class="btn btn-primary cls-btn-wzrd" wz-previous><i class="fa fa-angle-double-left"></i> Back  </button> 
+                    <button class="btn btn-primary cls-btn-wzrd" ng-click="step2Validation()" ng-disabled="disableStep2"> Next  <i class="fa fa-angle-double-right"></i></button>
+                </div>
+            </wz-step>
+
+
+            <wz-step wz-title="step 3: Build">
+                <h4>Campaign: {{broadcast.robocall_name}}</h4>
+                <h3>Build: Schedule and add content to your campaign</h3>
+                <p></p>
+                <div ng-include="'views/autodialing/step3.html'"></div>
+                <center>
+                    <button class="btn btn-primary cls-btn-wzrd" type="submit" wz-previous><i class="fa fa-angle-double-left"></i>  Back  </button>
+                    <button class="btn btn-success cls-btn-wzrd" ng-disabled="step3Validation(broadcast)" ng-click="saveStep3(broadcast);" wz-next> Next  <i class="fa fa-angle-double-right"></i></button>
+                </center>
+            </wz-step>
+
+            <wz-step wz-title="step 4: Review & Send">
+                <h3>Review & Send</h3>
+                <p></p>
+                <div ng-include="'views/autodialing/step5.html'"></div>
+                <center>
+                    <button class="btn btn-primary cls-btn-wzrd" type="submit" wz-previous><i class="fa fa-angle-double-left"></i>  Back</button>
+                    <button class="btn btn-primary cls-btn-wzrd" ng-disabled="checkCampaignStatus(broadcast)" ng-click="startCampaign(broadcast)" wz-finish> Start Campaign <i class="fa fa-check"></i></button>
+                </center>
+            </wz-step>
+        </wizard>
+
+    </div>
+    <div ng-show="showDelivering" class="delivering-queued" style="">
+        <div class="alert alert-info" role="alert" style="margin-top: 10px; display: block">
+            <h1>SUCCESS</h1>
+            <h4>Your campaign has been queued and will be delivered as scheduled.</h4>
+            <button ng-click="goToLanding()" class="btn btn-default btn-lg">Return to Landing Page</button>
+        </div>
+    </div>
+</div>

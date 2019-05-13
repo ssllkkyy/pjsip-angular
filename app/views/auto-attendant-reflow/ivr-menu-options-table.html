@@ -1,0 +1,331 @@
+<div class="opts-table-header-row opts-table-row">
+    <div class="opts-table-col">
+        Menu Options
+    </div>
+    <div class="opts-table-col">
+        Description
+    </div>
+    <div class="opts-table-col">
+        Send Call To
+    </div>
+    <div class="opts-table-col"></div>
+</div>
+<div class="opts-table-chosen-row opts-table-row"
+     ng-repeat="optionModel in $ctrl.ivrModel.optionModels | orderBy : getDigitOptOrder : false">
+    <div class="opts-table-col"
+         ng-click="$ctrl.ivrModel.editOption(optionModel)">
+        <div ng-if="!optionModel.editing">
+            <strong>
+                {{optionModel.digitValue}}
+            </strong>
+        </div>
+        <md-input-container ng-if="optionModel.editing">
+            <label>
+                Select a Number
+            </label>
+            <md-select
+                ng-model="optionModel.ivr_menu_option_digits"
+                ng-change="$ctrl.updateDigitOpts()"
+                class="directoryOptions">
+                <md-option
+                    ng-repeat="digit in $ctrl.ivrModel.digitOpts | orderBy : getDigitOptOrder : false"
+                    ng-value="digit"
+                    ng-disabled="!digit.available">
+                    {{digit.value}}
+                </md-option>
+            </md-select>
+        </md-input-container>
+    </div>
+    <div class="opts-table-col"
+         ng-click="$ctrl.ivrModel.editOption(optionModel)">
+        <div ng-if="!optionModel.editing">
+            <strong>
+                {{optionModel.description}}
+            </strong>
+        </div>
+        <md-input-container ng-if="optionModel.editing">
+            <label>
+                Enter a Description
+            </label>
+            <input ng-model="optionModel.description" />
+        </md-input-container>
+    </div>
+    <div class="opts-table-col"
+         ng-if="!optionModel.editing || (optionModel.editing &&
+                (optionModel.actionName === 'dialbyname' || optionModel.actionName ===
+                'menu-top-app'))"
+         ng-click="$ctrl.ivrModel.editOption(optionModel)">
+        <p style="display: inline-block;">
+            <strong>
+                {{optionModel.actionTitle}} {{optionModel.paramDisplayVal ? ":" : ""}}
+            </strong>
+        </p>
+        <p ng-if="optionModel.actionName !== 'dialbyname' && !optionModel.editing"
+           style="display: inline-block;">
+            {{optionModel.paramDisplayVal}}
+        </p>
+    </div>
+    <div class="opts-table-col"
+         ng-if="optionModel.editing && optionModel.actionName !== 'dialbyname' &&
+                optionModel.actionName !== 'menu-top-app'">
+        <div ng-if="optionModel.actionName === 'extension'">
+            <strong>{{optionModel.actionTitle}}</strong>:
+            <md-input-container>
+                <label>Pick an Extension</label>
+                <md-select ng-model="optionModel.paramDisplayVal">
+                    <md-option ng-repeat="extension in $ctrl.extensions"
+                               ng-value="extension.extension">
+                        {{ $ctrl.displayResource(extension) }}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+        <span ng-if="optionModel.actionName === 'voicemail'">
+            <strong>{{optionModel.actionTitle}}</strong>
+            <br>
+            <audio-play-btn
+                audio-file="optionModel.resourceFileValue"
+                contents-only="true"
+                ng-init="btnLink = {}"
+                link="btnLink"
+                ng-click="btnLink.toggle()"
+                class="btn btn-sm btn-default toggle-btn"
+                ng-if="optionModel.resourceFileValue">
+                <btn-text>Play Current Greeting</btn-text>
+            </audio-play-btn>
+            <button class="btn btn-xs btn-primary"
+                    ng-click="$ctrl.openSelector(optionModel)"
+                    tooltip-placement="top"
+                    uib-tooltip="{{tips.autoattendant.editvoicemailoptions}}">
+                Edit Voicemail Settings
+            </button>
+        </span>
+        <div ng-if="optionModel.actionName === 'external-did'">
+            <strong>{{optionModel.actionTitle}}</strong>:
+            <md-input-container>
+                <label>Enter a Number</label>
+                <input md-input
+                       maxlength-phone-input
+                       ng-change="optionModel.updateParam(externalNumber)"
+                       ng-model="optionModel.paramDisplayVal" />
+            </md-input-container>
+        </div>
+        <span ng-if="optionModel.actionName === 'announcement'">
+            <strong>{{optionModel.actionTitle}}</strong>
+            <audio-play-btn
+                audio-file="optionModel.resourceFileValue"
+                contents-only="true"
+                ng-init="btnLink = {}"
+                link="btnLink"
+                ng-click="btnLink.toggle()"
+                class="btn btn-sm btn-default toggle-btn"
+                ng-if="optionModel.resourceFileValue">
+                <btn-text>Play Current Announcement</btn-text>
+            </audio-play-btn>
+            <button
+                class="btn btn-xs btn-primary"
+                ng-click="$ctrl.openSelector(optionModel)"
+                tooltip-placement="top"
+                uib-tooltip="{{tips.autoattendant.editvoicemailoptions}}">
+                Edit Announcement Settings
+            </button>
+        </span>
+        <div ng-if="optionModel.actionName === 'ring-group'">
+            <strong>{{optionModel.actionTitle}}</strong>:
+            <md-input-container>
+                <label>Select a Ring Group</label>
+                <md-select ng-model="optionModel.paramDisplayVal">
+                    <md-option ng-repeat="ringGroup in $ctrl.ringGroups"
+                               ng-value="ringGroup.ring_group_extension">
+                        {{$ctrl.displayResource(ringGroup)}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+    </div>
+    <div class="opts-table-col">
+        <i ng-if="!optionModel.editing"
+           class="fa fa-times-circle redfont pull-right deleteopt"
+           aria-hidden="true"
+           ng-click="$ctrl.ivrModel.deleteOption(optionModel)"
+           tooltip-placement="top"
+           uib-tooltip="Delete Option">
+        </i>
+        <i ng-if="!optionModel.editing"
+           class="fa fa-pencil-square-o pull-right deleteopt"
+           aria-hidden="true"
+           ng-click="$ctrl.ivrModel.editOption(optionModel)"
+           tooltip-placement="top"
+           uib-tooltip="Edit Option">
+        </i>
+        <i ng-if="optionModel.editing"
+           class="fa fa-ban pull-right cancelopt"
+           aria-hidden="true"
+           ng-click="optionModel.cancelEditing()"
+           tooltip-placement="top"
+           uib-tooltip="Cancel Edit">
+        </i>
+        <i ng-if="optionModel.editing"
+           class="fa fa-save pull-right deleteopt"
+           aria-hidden="true"
+           ng-click="optionModel.saveChanges()"
+           tooltip-placement="top"
+           uib-tooltip="Save Changes">
+        </i>
+    </div>
+</div>
+<div class="opts-table-new-row opts-table-row"
+     ng-if="!$ctrl.ivrModel.newOptionModel.editing">
+    <div class="add-new-opt-col opts-table-col">
+        <button class="btn btn-sm btn-primary options-button"
+                ng-click="$ctrl.ivrModel.addNewOption()">
+            <i class="fa fa-plus"></i>
+            Add New Option
+        </button>
+    </div>
+</div>
+<div class="opts-table-new-row opts-table-row"
+     ng-if="$ctrl.ivrModel.newOptionModel.editing">
+    <div class="opts-table-col">
+        <md-input-container>
+            <label>
+                Select a Number
+            </label>
+            <md-select
+                ng-model="$ctrl.ivrModel.newOptionModel.ivr_menu_option_digits"
+                ng-change="$ctrl.updateDigitOpts()"
+                class="directoryOptions">
+                <md-option
+                    ng-repeat="digit in $ctrl.ivrModel.digitOpts |
+                               orderBy : getDigitOptOrder : false"
+                    ng-value="digit"
+                    ng-disabled="!digit.available">
+                    {{digit.value}}
+                </md-option>
+            </md-select>
+        </md-input-container>
+    </div>
+    <div class="opts-table-col">
+        <md-input-container>
+            <label>Enter a Description</label>
+            <input ng-model="$ctrl.ivrModel.newOptionModel.description" />
+        </md-input-container>
+    </div>
+    <div class="opts-table-col">
+        <div class="send-call-to-row opts-table-row">
+            <div class="opts-table-col">
+                <md-input-container>
+                    <label>Options</label>
+                    <md-select
+                        ng-model="newOptionAction"
+                        ng-change="$ctrl.updateAction(newOptionAction)">
+                        <md-option ng-repeat="sendTo in $ctrl.sendToOpts"
+                                   ng-value="sendTo.name">
+                            {{sendTo.title}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div class="opts-table-col"
+                 ng-show="$ctrl.ivrModel.newOptionModel.hasResource">
+                <span ng-if="$ctrl.ivrModel.newOptionModel.actionName === 'extension'">
+                    <md-input-container>
+                        <label>Pick an Extension</label>
+                        <md-select
+                            ng-model="$ctrl.ivrModel.newOptionModel.paramDisplayVal">
+                            <md-option ng-repeat="extension in $ctrl.extensions"
+                                       ng-value="extension.extension">
+                                {{ $ctrl.displayResource(extension) }}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </span>
+                <span ng-if="$ctrl.ivrModel.newOptionModel.actionName === 'voicemail'">
+                    <audio-play-btn
+                        audio-file="$ctrl.ivrModel.newOptionModel.resourceFileValue"
+                        contents-only="true"
+                        ng-init="btnLink = {}"
+                        link="btnLink"
+                        ng-click="btnLink.toggle()"
+                        class="btn btn-sm btn-default toggle-btn"
+                        ng-if="$ctrl.ivrModel.newOptionModel.resourceFileValue">
+                        <btn-text>Play Current Greeting</btn-text>
+                    </audio-play-btn>
+                    <button
+                        class="btn btn-xs btn-primary"
+                        ng-click="$ctrl.openSelector($ctrl.ivrModel.newOptionModel)"
+                        tooltip-placement="top"
+                        uib-tooltip="{{tips.autoattendant.editvoicemailoptions}}">
+                        Edit Voicemail Settings
+                    </button>
+                </span>
+                <span ng-if="$ctrl.ivrModel.newOptionModel.actionName === 'external-did'">
+                    <md-input-container>
+                        <label>Enter a Number</label>
+                        <input
+                            md-input
+                            maxlength-phone-input
+                            ng-change="$ctrl.ivrModel.newOptionModel.updateParam(externalNumber)"
+                            ng-model="externalNumber">
+                    </md-input-container>
+                </span>
+                <span ng-if="$ctrl.ivrModel.newOptionModel.actionName === 'announcement'">
+                    <audio-play-btn
+                        audio-file="$ctrl.ivrModel.newOptionModel.resourceFileValue"
+                        contents-only="true"
+                        ng-init="btnLink = {}"
+                        link="btnLink"
+                        ng-click="btnLink.toggle()"
+                        class="btn btn-sm btn-default toggle-btn"
+                        ng-if="$ctrl.ivrModel.newOptionModel.resourceFileValue">
+                        <btn-text>Play Current Recording</btn-text>
+                    </audio-play-btn>
+                    <button
+                        class="btn btn-xs btn-primary"
+                        ng-click="$ctrl.openSelector($ctrl.ivrModel.newOptionModel)"
+                        tooltip-placement="top">
+                        Edit Recording Settings
+                    </button>
+                </span>
+                <div ng-if="$ctrl.ivrModel.newOptionModel.actionName === 'ring-group'">
+                    <md-input-container>
+                        <label>Select a Ring Group</label>
+                        <md-select ng-model="$ctrl.ivrModel.newOptionModel.paramDisplayVal">
+                            <md-option ng-repeat="ringGroup in $ctrl.ringGroups"
+                                       ng-value="ringGroup.ring_group_extension">
+                                {{$ctrl.displayResource(ringGroup)}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div ng-if="$ctrl.ivrModel.newOptionModel.actionName === 'ivr'">
+                    <md-input-container>
+                        <label>Select another IVR</label>
+                        <md-select
+                            ng-model="$ctrl.ivrModel.newOptionModel.paramDisplayVal">
+                            <md-option
+                                ng-repeat="ivr in $ctrl.ivrs"
+                                ng-value="ivr.ivr_menu_extension">
+                                {{$ctrl.displayResource(ivr)}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="opts-table-col">
+        <i class="fa fa-ban pull-right cancelopt"
+           aria-hidden="true"
+           ng-click="$ctrl.ivrModel.newOptionModel.cancelEditing()"
+           tooltip-placement="top"
+           uib-tooltip="Cancel Edit">
+        </i>
+        <i class="fa fa-save pull-right deleteopt"
+           aria-hidden="true"
+           ng-click="$ctrl.ivrModel.saveNewOption()"
+           tooltip-placement="top"
+           uib-tooltip="Save Changes">
+        </i>
+    </div>
+</div>

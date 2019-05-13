@@ -1,0 +1,69 @@
+<div class="table-head-container"
+     ng-if="tableHasHeader()"
+     ng-class="{'body-has-scrollbar': hasScrollbar}">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead>
+            <tr>
+                <th ng-repeat="columnName in columnNames"
+                    ng-click="setSort(columnName.name)"
+                    ng-if="!columnName.hidden"
+                    ng-style="getHeaderStyleObj(columnName.name)"
+                    class="{{columnName.className}}-col">
+                    {{columnName.text}}
+                    <i ng-if="showSelectedChevron(columnName.name, 'up')"
+                       class="fa fa-chevron-circle-up activesort padd5left">
+                    </i>
+                    <i ng-if="showSelectedChevron(columnName.name, 'down')"
+                       class="fa fa-chevron-circle-down activesort padd5left">
+                    </i>
+                    <i ng-if="showDefaultChevron(columnName.name)"
+                       class="fa fa-chevron-down">
+                    </i>
+                </th>
+                <th ng-if="tableBodyContainerHasScrollbar()" style="width: 1%;"></th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div class="table-body-container">
+    <div ng-transclude="tableBody">
+        <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+            <tbody>
+                <tr ng-repeat="data in tableData |
+                               limitTo : perPage :
+                               perPage * (currentPage.page - 1)">
+                    <td ng-repeat="columnName in columnNames"
+                        class="{{columnName.className}}-col">
+                        {{data[columnName.name]}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div ng-transclude="tableBodyFooter"
+         style="margin-top: 1rem;"
+         ng-if="!separateFooter">
+    </div>
+</div>
+<div class="table-bottom-border"
+     ng-if="hasScrollbar"
+     ng-class="{'body-has-scrollbar': hasScrollbar}">
+    <div class="border-line"></div>
+</div>
+<div ng-transclude="tableBodyFooter"
+     style="margin-top: 1rem;"
+     ng-if="separateFooter">
+</div>
+<div class="pagination-container">
+    <ul uib-pagination
+        ng-if="currentPage && perPage"
+        class="pagination-sm pagination"
+        total-items="resourceLength || tableData.length"
+        ng-model="currentPage.page"
+        previous-text="&lsaquo;"
+        next-text="&rsaquo;"
+        items-per-page="perPage"
+        boundary-link-numbers="true"
+        max-size="10">
+    </ul>
+</div>

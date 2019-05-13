@@ -1,0 +1,103 @@
+<md-button ng-if="categories.indexOf('ringtones')!== -1 && isAdminGroupOrGreater() && accessLevels == 'company'"
+           ng-click="filteredLibraries().length>0 && showDefaultRingtonesModal();filteredLibraries().length==0 && showNoRingtones()"
+           class="md-primary md-raised modal-btn pull-right">
+    Set Default Company Ringtones
+    <i class="fa fa-gear"></i>
+</md-button>
+<div class="audio-table-container table-head-container">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead>
+            <tr>
+                <th ng-click="sortBy('file_title')" class="file-name-cell">
+                    File Name
+                    <i class="fa fa-chevron-up"
+                       ng-show="sortDirection">
+                    </i>
+                    <i class="fa fa-chevron-down"
+                       ng-show="!sortDirection">
+                    </i>
+                </th>
+                <th class= "preview">Preview</th>
+                <th class= "download-file">Download</th>
+                <th ng-if="option === 'ringtone'" class= "default-cell">Default</th>
+                <th class="delete-file">
+                    Delete
+                </th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div class="audio-table-container table-body-container">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <tbody>
+            <tr>
+                <td colspan="5"
+                    class="add-audio-cell"
+                    ng-click="triggerUpload()">
+                    <span ng-if="!uploadingLibrary">
+                        <i class="fa fa-plus-circle fa-2x"></i>
+                    </span>
+                    <span ng-if="uploadingLibrary">
+                        <i class="fa fa-cog fa-spin fa-lg"></i>
+                    </span>
+                </td>
+                <simple-uploader
+                    upload-fn="uploadAudioLibrary"
+                    trigger="triggerUploader"
+                    accept="'audio/*'">
+                </simple-uploader>
+            </tr>
+            <tr class="cls-table-comp-setting-status" ng-if="(library.access_level==='personal' && library.user_uuid===user.id) || library.access_level==='company'"
+                ng-repeat="library in filteredLibraries() | orderBy: sortCol : sortDirection">
+                <td class="file-name-cell">
+                    <div class="file-name-container">
+                        <p ng-click="editLibrary(library, getNeighboringInputByEvent($event))"
+                           ng-show="!library.editing">
+                            {{library.file_title}}
+                        </p>
+                        <input type="text"
+                               ng-show="library.editing"
+                               ng-value="removeFileExtensionFromFilename(library.file_title)"
+                               ng-blur="stopEditingLibrary(library, $event.currentTarget)"
+                               on-enter="renameLibrary(library)"
+                               oninput="angular.element(this).scope().setLibraryToEdited(angular.element(this).scope().library)">
+                        <i class="fa fa-check-square"
+                           ng-show="library.edited"
+                           ng-click="renameLibrary(library)">
+                        </i>
+                    </div>
+                </td>
+                <td class="preview">
+                    <i class="fa fa-lg fa-play-circle ringtone-play-btn"
+                       ng-show="libraryPlaying !== library"
+                       ng-click="playAudioLibrary(library)">
+                    </i>
+                    <i class="fa fa-lg fa-stop-circle ringtone-stop-btn"
+                       ng-show="libraryPlaying === library"
+                       ng-click="stopPlayingLibrary()">
+                    </i>
+                </td>
+                <td class="download-file">
+                    <i class="fa fa-download"
+                       ng-click="downloadAudioFile(library)">
+                    </i>
+                </td>
+                <td ng-if="option === 'ringtone'" class="default-cell">
+                    <span ng-if="calldefault && calldefault.audio_library_uuid === library.audio_library_uuid"><i class="fa fa-check"></i> Call</span>
+                    <span ng-if="textdefault && textdefault.audio_library_uuid === library.audio_library_uuid"><i class="fa fa-check"></i> Text</span>
+                    <span ng-if="chatdefault && chatdefault.audio_library_uuid === library.audio_library_uuid"><i class="fa fa-check"></i> Chat</span>
+                    <span ng-if="videoinvitedefault && videoinvitedefault.audio_library_uuid === library.audio_library_uuid"><i class="fa fa-check"></i> VideoInvite</span>
+                </td>
+                <td class="delete-file">
+                    <i class="fa fa-times"
+                       ng-show="libraryAllowed(library)"
+                       ng-click="deleteAudioLibrary(library)">
+                    </i>
+                    <p ng-show="!libraryAllowed(library)">
+                        Company Ringtone
+                    </p>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

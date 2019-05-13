@@ -1,0 +1,116 @@
+<div ng-if="!isAdmin()" >
+    You do not have access to this page.
+</div>
+<button ng-if="isAdmin()" 
+        class="btn btn-primary btn-sm"
+        style="margin-bottom: 10px;"
+        ng-click="showEditPermissions(null)">
+        Add Team Permissions
+    </button>
+    <div ng-if="isAdmin()" class="permissions-table table-head-container">
+      <table class="table table-bordered table-hover table-striped ">
+        <thead>
+            <tr>
+                <th class="group-name">Team Name</th>
+                <th class="managers">Managers</th>
+                <th class="members">Members</th>
+                <th class="dissolve-group">Dissolve Team</th>
+            </tr>
+        </thead>
+      </table>
+    </div>
+    <div ng-if="isAdmin()" class="permissions-table table-body-container">
+      <table class="table table-bordered table-hover table-striped">
+        <tr ng-if="tkGroups.length===0">
+            <td colspan="5">
+                No permission team have been created yet. Use the button above to create the first team.
+            </td>
+        </tr>
+        <tr ng-repeat="group in tkGroups">
+            <td class="group-name">
+                <strong>{{group.group_name}}</strong>
+                <i class="fa fa-edit grouptableicon-right table-green"
+                   ng-click="showEditPermissions($index)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="Edit Team"></i>
+                <br />
+            </td>
+            <td class="managers">
+                <i class="fa fa-lock grouptableicon-left table-ltblue"></i>
+                <i ng-if="!group.showManagers"
+                   class="fa fa-chevron-down grouptableicon-left table-orange"
+                   ng-click="toggleShowGroupManagers(group)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.show_managers}}">
+                </i>
+                <i ng-if="group.showManagers"
+                   class="fa fa-chevron-up grouptableicon-left table-orange"
+                   ng-click="toggleShowGroupManagers(group)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.show_managers}}">
+                </i>
+                <i ng-if="group.showManagers"
+                   class="fa fa-user-plus grouptableicon-right table-green"
+                   ng-click="showEditPermissions($index)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.manage_managers}}"></i>
+                <div ng-if="group.showManagers">
+                    <table class="table " >
+                        <tr ng-repeat="manager in group.managers">
+                            <td>{{getUserName(manager.user_uuid)}}</td>
+                            <td><i ng-if="manager !== user.user_uuid"
+                                   ng-click="postRemoveTkGroupMember(group, $index, 'manager')"
+                                   class="fa fa-user-times grouptableicon-right table-red"
+                                   tooltip-placement="bottom"
+                                   uib-tooltip="{{tips.groups.remove_manager}}"></i>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td class="members">
+                <i class="fa fa-user-circle-o grouptableicon-left table-ltblue"
+                   style="">
+                </i>
+                <i ng-if="!group.showMembers"
+                   class="fa fa-chevron-down grouptableicon-left table-orange"
+                   ng-click="toggleShowGroupMembers(group)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="Show All Members">
+                </i>
+                <i ng-if="group.showMembers"
+                   class="fa fa-chevron-up grouptableicon-left table-orange"
+                   ng-click="toggleShowGroupMembers(group)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="Hide All Members">
+                </i>
+                <i ng-if="group.showMembers"
+                   class="fa fa-user-plus grouptableicon-right table-green"
+                   ng-click="showEditPermissions($index)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.manage_members}}">
+                </i>
+                <div ng-if="group.showMembers">
+                    <table class="table " >
+                        <tr ng-repeat="contact in group.members">
+                            <td>{{getUserName(contact.user_uuid)}}</td>
+                            <td><i ng-if="contact !== user.user_uuid"
+                                   ng-click="postRemoveTkGroupMember(group, $index, 'member')"
+                                   class="fa fa-user-times grouptableicon-right table-red"
+                                   tooltip-placement="bottom"
+                                   uib-tooltip="{{tips.groups.remove_member}}"></i>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td class="dissolve-group">
+                <i class="fa fa-window-close-o grouptableicon-left table-red"
+                   ng-click="openDissolveGroupModal(group)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.dissolve_group}}">
+                </i>
+            </td>
+        </tr>
+      </table>
+    </div>

@@ -1,0 +1,57 @@
+<script>
+    // ********** PARA EL SCROLL TIPO FACEBOOK **********//    
+    // $(function() {  
+    //         $('.cls-chat-box').jScrollPane({
+    //             verticalGutter: 5,
+    //             'showArrows': false,
+    //             autoReinitialise: true
+    //         });
+
+    //         $('.jspDrag').hide();
+    //         $('.jspScrollable').mouseenter(function(){
+    //             $(this).find('.jspDrag').stop(true, true).fadeIn('slow');
+    //         });
+    //         $('.jspScrollable').mouseleave(function(){
+    //             $(this).find('.jspDrag').stop(true, true).fadeOut('slow');
+    //         });
+    // });
+</script>
+<div>
+
+
+    <div class="cls-chat-contact-sel">
+
+        <div class="cls-mnu-contact-selected" ng-controller="ContactDetailsCtrl">
+            <div ng-include="'views/contactdetails.html'"></div>
+        </div>
+
+
+        <div class="cls-chat-box" ng-controller="ContactDetailsCtrl">
+
+            <div>
+                <div ng-repeat="persons in contacts">
+                    <span>{{persons.name}}</span>
+                </div>
+
+                <div ng-repeat="persons in contacts">
+                    <span>{{persons.name}}</span>
+                </div>
+                <div ng-repeat="persons in contacts">
+                    <span>{{persons.name}}</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="cls-chat-type-tex-div">
+            <div class="col-lg-6">
+                <textarea class="cls-chat-type-tex-box"></textarea>
+            </div>
+            <div class="col-lg-2">
+                <button class="btn btn-lg btn-default cls-color-blue-tkg"><i class="fa fa-commenting"></i> send</button>
+            </div>
+        </div>
+
+    </div>
+
+</div>

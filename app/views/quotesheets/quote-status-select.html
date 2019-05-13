@@ -1,0 +1,19 @@
+<div class="quote-status-select">
+    <h2 class="md-title">
+        Please select a status for your completed quote
+    </h2>
+    <md-input-container>
+        <md-select ng-model="selectedStatus"
+                   placeholder="Choose status">
+            <md-option ng-value="option"
+                       ng-repeat="option in statuses">
+                {{ option.quote_sheet_status_name }}
+            </md-option>
+        </md-select>
+    </md-input-container>
+    <md-button class="md-primary"
+               ng-disabled="!selectedStatus"
+               ng-click="hidePrompt(selectedStatus)">
+        Done
+    </md-button>
+</div>

@@ -1,0 +1,188 @@
+<md-toolbar id="contact-groups-toolbar">
+    <div class="md-toolbar-tools">
+        <div class="row" style="width: 100%">
+            <div class="col-sm-8">
+                <h2>Billing Reports</h2>
+            </div>
+            <div class="col-sm-4 right-text">
+                <button class="btn btn-primary" ng-click="generateNewReport()">Generate New Report</button>
+            </div>
+        </div>
+    </div>
+</md-toolbar>
+<md-content class="package-content billing-reports">
+    <div>
+        <div ng-if="!showReport">
+            <h4>Recent Reports</h4>
+            <table ng-if="!activeInvoice" class="table table-bordered table-striped cls-tab-call-history" style="text-align: left !important;">
+                <thead>
+                    <tr>
+                        <th>Report Type</th>
+                        <th>Request Date</th>
+                        <th>Requested By</th>
+                        <th># Records</th>
+                        <th>Status</th>
+                        <th style="width: 130px;">Download</th>
+                        <th style="width: 100px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-if="loadingReports">
+                        <td colspan="7" class="loading-users mdgreyfont">
+                            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+                            <span>Loading Recent Reports<br />
+                            Please Wait</span>
+                        </td>
+                    </tr>
+                    <tr ng-if="!loadingReports && reportsLoaded().length === 0">
+                            <td colspan="6">
+                                There are currently no open / saved reports. Click Generate New Report above to prepare a report.
+                            </td>
+                        </tr>
+                    <tr ng-if="!loadingReports" ng-repeat="report in reportsLoaded() | orderBy : 'created_at' : true">
+                        <td ng-click="report.report_status === 'complete' && viewReport(report)">{{showReportType(report) | capitalize:true}}</td>
+                        <td ng-click="report.report_status === 'complete' && viewReport(report)">{{report.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}</td>
+                        <td ng-click="report.report_status === 'complete' && viewReport(report)">{{showUserName(report.requested_by)}}</td>
+                        <td ng-click="report.report_status === 'complete' && viewReport(report)">{{report.num_records}}</td>
+                        <td>
+                            {{report.report_status | capitalize}}
+                            <span ng-if="report.report_status==='pending' && report.progress">{{report.progress}}% Complete</span>
+                        </td>
+                        <td>
+                            <a href="{{onescreenBaseUrl+'/admin/billing/reportcsv/'+report.billing_report_uuid+'?token='+userToken}}" 
+                                target="_blank" 
+                                ng-if="report.report_status === 'complete'"
+                                class="btn btn-xs btn-success"
+                                tooltip-placement="top-right"
+                                uib-tooltip="{{::tips.billing.download_report}}">Download Csv</button>
+                        </td>
+                        <td>
+                            <button class="btn btn-xs btn-danger"
+                                tooltip-placement="top-right"
+                                uib-tooltip="{{::tips.billing.delete_report}}"
+                                ng-click="cancelBillingReport(report)">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div ng-if="showReport" class="report-container">
+            <div class="top-buttons">
+                <button class="btn btn-sm btn-default"
+                    tooltip-placement="top-right"
+                    uib-tooltip="{{::tips.billing.close_report}}"
+                    ng-click="closeReport()">Close Report</button>
+            </div>
+            <table ng-if="!activeInvoice" class="table table-bordered table-striped cls-tab-call-history" style="text-align: left !important;">
+                <thead>
+                    <tr>
+                        <td ng-click="sort_by($index)" ng-repeat="option in dataHeaders track by $index">
+                            <span ng-if="$index !== dataHeaders.length-1">{{option}} <i ng-class="showChevron($index)"></i></span>
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="line in viewData | orderBy:dataSort:reverse | limitTo:paginate.perPage:(paginate.perPage*(paginate.currentPage-1)) track by $index">
+                        <td ng-repeat="option in line track by $index">
+                            <span ng-if="$index !== line.length-1">{{option}}</span>
+                            <span ng-if="$index === line.length-1"><button class="btn btn-xs btn-default" ng-click="goToDomain(option)">GoToDomain</button></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="text-align: center">
+                <ul uib-pagination
+                    class="pagination-sm pagination call-history"
+                    total-items="viewData.length"
+                    ng-model="paginate.currentPage"
+                    previous-text="&lsaquo;"
+                    next-text="&rsaquo;"
+                    items-per-page="paginate.perPage">
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+</md-content>
+<script type="text/ng-template" id="new-report-modal.html">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x cls-color-blue-tkg">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-dollar fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Generate New Billing Report</span>
+        <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    <new-billing-report></new-billing-report>
+</script>
+
+<script type="text/ng-template" id="new-billing-report.html">
+
+    <div class="modal-body invoice-edit" id="modal-body">
+        <div class="tableclass">
+            <div class="tablecell billing-report-label">
+                Report Type: 
+            </div>
+            <div class="tablecell">
+                <md-radio-group ng-model="data.reportType" class="md-primary">
+                    <md-radio-button value="billing-summary">Billing Summary (payment method, billing status, etc.) </md-radio-button>
+                    <md-radio-button value="credit-balance">Credit Balance</md-radio-button>
+                    <md-radio-button value="invoice-summary">Invoice Summary</md-radio-button>
+                    <md-radio-button value="declined-payment">Declined Payments</md-radio-button>
+                    <md-radio-button value="account-balance">Account Balance</md-radio-button>
+                </md-radio-group>
+            </div>
+        </div>
+
+        <div class="tableclass" ng-if="data.reportType === 'billing-summary'">
+            <div class="tablecell billing-report-label">
+                Customers: 
+            </div>
+            <div class="tablecell">
+                <md-radio-group ng-model="data.custBlock" class="md-primary">
+                    <md-radio-button value="all">All Customers </md-radio-button>
+                    <md-radio-button value="tkg">Only TKG Customers</md-radio-button>
+                    <md-radio-button value="bot">Only BOT Customers</md-radio-button>
+                </md-radio-group>
+            </div>
+        </div>
+        <div class="tableclass" ng-if="data.reportType === 'invoice-summary'">
+            <div class="tablecell billing-report-label">
+                Choose Invoice Date: 
+            </div>
+            <div class="tablecell">
+                <md-select ng-model="data.invoiceDate"
+                    style="width: 180px;"
+                    aria-label="choices">
+                    <md-option ng-repeat="option in billingDates"
+                        ng-value="option.date">
+                        {{option.display}}
+                    </md-option>
+                </md-select>
+            </div>
+        </div>
+        <div class="tableclass" ng-if="data.reportType === 'declined-payment'">
+            <div class="tablecell billing-report-label">
+                Choose Payment Date: 
+            </div>
+            <div class="tablecell">
+                <md-select ng-model="data.paymentDate"
+                    style="width: 180px;"
+                    aria-label="choices">
+                    <md-option ng-repeat="option in billingDates"
+                        ng-value="option.date">
+                        {{option.display}}
+                    </md-option>
+                </md-select>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md" ng-click="closeModal()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel
+        </button>
+        <button class="btn btn-default btn-md" ng-click="generateReport(invoice)">
+            <i class="fa fa-save" style="margin-right: 10px;"></i>Generate Report
+        </button>
+    </div>
+</script>

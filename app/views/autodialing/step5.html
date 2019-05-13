@@ -1,0 +1,89 @@
+<div class="row">
+    <div class="col-sm-9">
+        <div class="jumbotron">
+            <ul class="list-group">
+                <li class="list-group-item"><div class="row"><div class="col-sm-3 confirmation-label">Campaign Name:</div><div class="col-sm-9">{{broadcast.robocall_name}}</div></div></li>
+                <li class="list-group-item"><div class="row"><div class="col-sm-3 confirmation-label">Delivery Method</div><div class="col-sm-9">{{broadcast.message_type}}</div></div></li>
+                <li class="list-group-item"><div class="row"><div class="col-sm-3 confirmation-label">Broadcast Type:</div><div class="col-sm-9">{{broadcast.robocall_type}}</div></div></li>
+                <li class="list-group-item"><div class="row"><div class="col-sm-3 confirmation-label">Campaign Type:</div><div class="col-sm-9">{{broadcast.schedule_type === 'One' ? 'One Time Message' : 'Series of Messages'}}</div></div></li>
+                <li class="list-group-item"><div class="row"><div class="col-sm-3 confirmation-label">Send To:</div><div class="col-sm-9">{{broadcast.contacts.length}} Total Contact(s) <button class="btn btn-default btn-xs" ng-click="showModalWithData('/autodialing/displaycontacts.html', broadcast.contacts)">View</button></div></div></li>
+                <li class="list-group-item" ng-if="broadcast.schedule_type==='One'">
+                    <div class="row">
+                        <div class="col-sm-3 confirmation-label">Delivery Date/Time:</div>
+                        <div class="col-sm-9" ng-if="broadcast.schedule_status==='Yes'">Start Immediately</div>
+                        <div class="col-sm-9" ng-if="broadcast.schedule_status==='No'">{{broadcast.schedules[0].start_at | amDateFormat: 'ddd, MMM D, h:mm a'}}</div>
+                    </div>
+                </li>
+
+                <li class="list-group-item" ng-if="broadcast.schedule_type==='One'">
+                    <div class="row">
+                        <div class="col-sm-3 confirmation-label">Message Details:</div>
+                        <div class="col-sm-9 message-details">
+                            <div ng-if="broadcast.message_type==='Text'">
+                                <p><strong>SMS Reply to Number:</strong> {{broadcast.schedules[0].sms_reply_number | tel}}</p>
+                                <p><strong>SMS Message: </strong> {{broadcast.schedules[0].sms_message}}</p>
+                            </div>
+                            <div ng-if="broadcast.message_type==='Voice'">
+                                <p><strong>Caller Id Number:</strong> {{broadcast.schedules[0].call_from_did | tel}}</p>
+                                <p><strong>Audio Message: </strong> <button ng-click="showAudioModal(broadcast.schedules[0].recording_file, 'robocall-recording')" class="btn btn-default">Click to Listen</button></p>
+                            </div>
+                            <div ng-if="broadcast.message_type==='Email'">
+                                <p><strong>From:</strong> {{broadcast.schedules[0].email_from_name}} ({{broadcast.schedules[0].email_from_email}})</p>
+                                <p><strong>Subject: </strong> {{broadcast.schedules[0].email_subject}}</p>
+                                <p><strong>Message (Text): </strong></p>
+                                <!--<div>{{broadcast.schedules[0].email_message_text}}</div>-->
+                                <div class="email-preview" ng-bind-html="showHtml(broadcast.schedules[0].email_message_html)"></div>
+                                <!--<p><strong>Message (Html): </strong> <button ng-click="alert('Working on Preview');" class="btn btn-default">Click to Preview</button></p>-->
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div ng-if="broadcast.schedule_type==='Series'">
+                <h4>Your Scheduled Deliveries</h4>
+                <uib-accordion close-others="oneAtATime" >
+                    <div uib-accordion-group ng-repeat="schedule in broadcast.schedules | orderBy: 'start_at'" class="panel-default" ng-init="uuid=schedule.broadcast_schedule_uuid; editSchedule[uuid]=false; editMessage[uuid]=false" is-open="status.open">
+                        <uib-accordion-heading>
+                            <div class="row">
+                                <div class="col-lg-1"><i class="fa fa-{{broadcast.message_type==='Voice' ? 'phone' : (broadcast.message_type==='Text' ? 'paper-plane' : 'envelope')}} fa-2x" style="padding-right: 12px;"></i></div>
+                                <div class="col-lg-8 summary-header"><strong>Message Title: </strong>{{schedule.title}}<br />
+                                    <strong>{{broadcast.message_type==='Voice' ? 'Calling' : 'Sending'}} At:</strong> {{schedule.start_at | amDateFormat: 'ddd, MMM D, h:mm a'}}</div>
+                                <div class="col-lg-3 right-text">
+                                    <div class="col-sm-9">View <i class="pull-right glyphicon" style="margin-left: 10px;" ng-click="dothis()" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}" tooltip-placement="bottom-right" uib-tooltip="{{tips.automated.show_details}}"></i></div>
+                                    <div class="col-sm-2" ng-if="scheduleReady(schedule)"><i class="fa fa-check-circle" style="color: green; font-size: 20px;" tooltip-placement="bottom-right" uib-tooltip="{{tips.automated.schedule_ready}}"></i></div>
+                                    <div class="col-sm-2" ng-if="!scheduleReady(schedule)"><i class="fa fa-times-circle" style="color: red; font-size: 20px;" tooltip-placement="bottom-right" uib-tooltip="{{tips.automated.schedule_notready}}"></i>!</div>
+                                </div>
+                            </div>
+                        </uib-accordion-heading>
+                        <div class="row broadcast-message-container message-details"> 
+                            <div ng-if="broadcast.message_type==='Text'">
+                                <p><strong>SMS Reply to Number:</strong> {{schedule.sms_reply_number | tel}}</p>
+                                <p><strong>SMS Message: </strong> {{schedule.sms_message}}</p>
+                            </div>
+                            <div ng-if="broadcast.message_type==='Voice'">
+                                <p><strong>Caller Id Number:</strong> {{schedule.call_from_did | tel}}</p>
+                                <p><strong>Audio Message: </strong> <button ng-click="showAudioModal(schedule.recording_file, 'robocall-recording')" class="btn btn-default">Click to Listen</button></p>
+                            </div>
+                            <div ng-if="broadcast.message_type==='Email'">
+                                <p><strong>From:</strong> {{schedule.email_from_name}} ({{schedule.email_from_email}})</p>
+                                <p><strong>Subject: </strong> {{schedule.email_subject}}</p>
+                                <p><strong>Message (Text): </strong></p>
+                                <span ng-bind-html="showHtml(schedule.email_message_html)"></span>
+                                <!--<p><strong>Message (Html): </strong> <button ng-click="alert('Working on Preview')" class="btn btn-default">Click to Preview</button</p>-->
+                            </div>
+                        </div>
+                    </div>
+                </uib-accordion>
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-if="campaignErrors.length>0 && 1==2" uib-alert ng-class="'alert-danger'" close="closeMessage()">
+    <ul>
+        <li ng-repeat="error in campaignErrors">{{error}}</li>
+    </ul>
+</div>
+
+<div ng-if="!campaignErrors || campaignErrors.length==0" class="alert alert-success" role="alert" style="margin-top: 10px; display: block">
+    If the information above is correct, click the Start Campaign button below.
+</div>

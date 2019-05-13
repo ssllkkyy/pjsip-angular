@@ -1,0 +1,79 @@
+<div class="audio-table-container table-head-container">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Preview</th>
+                <th>Download</th>
+                <th>Delete</th>
+                <th>Parking MOH</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="5" class="add-audio-cell" ng-click="triggerUpload()">
+                    <span ng-if="!uploadingRecord">
+                        <i class="fa fa-plus-circle fa-2x"></i>
+                    </span>
+                    <span ng-if="uploadingRecord">
+                        <i class="fa fa-cog fa-spin fa-lg"></i> Working
+                    </span>
+                </td>
+                <simple-uploader
+                    upload-fn="createMusicOnHoldRecord"
+                    trigger="triggerUploader"
+                    accept="'audio/*'">
+                </simple-uploader>
+            </tr>
+            <tr ng-show="record.files"
+                ng-repeat="file in record.files">
+                <td class="file-name-cell">
+                    <div class="file-name-container">
+                        <p ng-click="!isDefaultMOHFile(file) && editFile(file, getNeighboringInputByEvent($event), record)"
+                           ng-show="currentFileEditing !== file">
+                            {{file}}<span ng-if="record.isDefault"> (Server Default)</span>
+                        </p>
+                        <input type="text"
+                               ng-show="currentFileEditing === file"
+                               ng-value="removeFileExtensionFromFilename(file)"
+                               ng-blur="stopEditing()"
+                               on-enter="renameFile(currentEditInput[0].value, currentRecordEditing)"
+                               oninput="angular.element(this).scope().setFileToEdited()">
+                        <i class="fa fa-check-square"
+                           ng-show="fileEdited && (currentFileEditing == file)"
+                           ng-click="renameFile(currentEditInput[0].value, currentRecordEditing)">
+                        </i>
+                    </div>
+                </td>
+                <td class="preview">
+                    <i class="fa fa-lg fa-play-circle ringtone-play-btn"
+                       ng-show="file !== filePlaying"
+                       ng-click="playMusicFile(record, file)">
+                    </i>
+                    <i class="fa fa-lg fa-stop-circle ringtone-stop-btn"
+                       ng-show="file === filePlaying"
+                       ng-click="stopPlayingFile()">
+                    </i>
+                </td>
+                <td class="download-file">
+                    <i class="fa fa-download"
+                        ng-if="!isDefaultMOHFile(file) && !record.isDefault"
+                        ng-click="downloadMusicFile(record, file)">
+                    </i>
+                </td>
+                <td class="delete-file">
+                    <i class="fa fa-times"
+                        ng-if="!isDefaultMOHFile(file) && !record.isDefault"
+                        ng-click="deleteMusicFile(record.music_on_hold_uuid, file)">
+                    </i>
+                </td>
+                <td class="parking-moh">
+                    <md-checkbox ng-model="parkingMoh[file]"
+                                ng-if="!record.isDefault"
+                                 ng-change="onParkingMohChange(record, file)">
+                    </md-checkbox>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

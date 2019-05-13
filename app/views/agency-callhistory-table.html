@@ -1,0 +1,300 @@
+<table class="table page-actions" style="border-top: 0px;">
+    <tr>
+        <td class="entries-per-page">
+            <div ng-show="!showBtnDelCalls">
+                <label class="bluecolor" for="search">Calls per page:</label>
+                <select class="selectpicker form-control per-page" ng-options="page as page for page in ppOptions" ng-change="changePerPage()" ng-model="agencyCallHistory.perPage"></select>
+            </div>
+        </td>
+        <td class="date-picker">
+            <div class="input-group">
+                <span class="input-group-addon" ng-click="OpenfromDate()">
+                    <i class="fa fa-calendar"></i>
+                </span>
+                <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="agencyCallHistory.fromDate" name="agencyCallHistory.fromDate" is-open="fromDatePopup.opened" datepicker-options="fromDateOptions" ng-required="true" close-text="Close" ng-click="OpenfromDate()" ng-change="processFromDate(agencyCallHistory.fromDate, 'agencyCallHistory')"
+                    placeholder="From" />
+            </div>
+        </td>
+        <td class="date-picker">
+            <div class="input-group">
+                <span class="input-group-addon" ng-click="OpentoDate()"><i class="fa fa-calendar"></i></span>
+                <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="agencyCallHistory.toDate" name="agencyCallHistory.toDate" is-open="toDatePopup.opened" datepicker-options="toDateOptions" ng-required="true" close-text="Close" ng-click="OpentoDate()" ng-change="processToDate(agencyCallHistory.toDate, 'agencyCallHistory')" placeholder="To"
+                />
+            </div>
+        </td>
+        <td>
+            <div class="input-group">
+                <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+                <input class="form-control" type="text" ng-model="agencyHistorySearch" ng-change= "searchbox(agencyHistorySearch)" placeholder="Filter Displayed Results">
+            </div>
+        </td>
+        <td>
+            <button class="btn btn-default" ng-click="showBlackListModal(1)">Blacklist</button>
+        </td>
+    </tr>
+</table>
+
+<div class="scroll-container-head">
+    <table id="data-table-top" class="table table-bordered table-hover table-striped cls-tab-call-history">
+        <thead>
+            <tr>
+                <th style="width: 5%">&nbsp;</th>
+                <th style="width: 15%"
+                    ng-click="sort_by('caller_id_number')">
+                    <span class="colsort"
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.history.sortbyfrom}}">
+                        From
+                        <i ng-class="showChevron('caller_id_number')"></i>
+                    </span>
+                </th>
+                <th style="width: 15%"
+                    ng-click="sort_by('destination_number')">
+                    <span class="colsort"
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.history.sortbyfrom}}">
+                        To
+                        <i ng-class="showChevron('destination_number')"></i>
+                    </span>
+                </th>
+                <th style="width: 20%"
+                    ng-click="sort_by('start_stamp')">
+                    <span class="colsort"
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.history.sortbydate}}">
+                        Date / Time
+                        <i ng-class="showChevron('start_stamp')"></i>
+                    </span>
+                </th>
+                <th style="width: 13%"
+                    ng-click="sort_by('duration')">
+                    <span class="colsort"
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.history.sortbyduration}}">
+                        Duration
+                        <i ng-class="showChevron('duration')"></i>
+                    </span>
+                </th>
+                <th class="button-column-md"
+                    ng-click="sort_by('callstat')"
+                    style="width: 13%">
+                        <span class="colsort"
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.history.sortbystatus}}">
+                        Status
+                        <i ng-class="showChevron('callstat')"></i>
+                    </span>
+                </th>
+                <th class="button-column-md"
+                    ng-click="sort_by('manual_recording_filepath')"
+                    style="width: 13%" ng-if="emulationStatus()['agencycallhistory'].manager==='true'">
+                    <span class="colsort"
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.history.sortbyrecording}}">
+                        Recording
+                        <i ng-class="showChevron('manual_recording_filepath')"></i>
+                    </span>
+                </th>
+                <th class="button-column-md" style="width: 6%">Copy</th>
+            </tr>
+        </thead>
+        <tbody ng-if="showTable" class="cls-body-table-pos">
+            <tr ng-if="dateSearched">
+                <td colspan="8">
+                    <div ng-if="hasSelections()">
+                        <button ng-disabled="emulatedUser()" class="btn btn-default btn-sm" ng-click="deleteCallSelected(); "><i class="fa fa-trash" style="margin-right: 10px;"></i> Delete</button>
+                    </div>
+                    <div ng-if="!hasSelections()">
+                        Showing {{filterData.length}} of {{agencyCallHistoryData.length}} Call History Records for the period from <strong ng-if="agencyCallHistory.fromDate">{{agencyCallHistory.fromDate | date:'EEE MMM d, y'}}</strong><strong ng-if="!agencyCallHistory.fromDate">{{displayFromDate | date:'EEE MMM d, y'}}</strong> to <strong ng-if="agencyCallHistory.toDate">{{agencyCallHistory.toDate | date:'EEE MMM d, y'}}</strong><strong ng-if="!agencyCallHistory.toDate">{{displayToDate | date:'EEE MMM d, y'}}</strong>.
+                        <span ng-if="showMissedField()"><br />Showing Missed Calls only <button class="btn btn-default btn-xs" ng-click="clearMissedFilter()">Clear Filter</button></span>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div  class="scroll-container" style="height: auto;" ng-style="{'max-height': historyTableHeight && historyTableHeight}">
+    <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+        <tbody class="data-table-body">
+            <tr ng-if="!showTable">
+                <td colspan="7" class="loading-users mdgreyfont">
+                    <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+                    <span>Loading Call History<br />
+                    Please Wait</span>
+                </td>
+            </tr>
+            <tr ng-if="showTable && filterData.length===0">
+                <td colspan="7">There are no calls that match your query.</td>
+            </tr>
+            <tr ng-if="showTable" ng-repeat="call in filterData = (agencyCallHistoryData | orderBy : predicate :reverse | filter: showMissed | filter : searchCallHistory) |  limitTo:agencyCallHistory.perPage:agencyCallHistory.perPage*(agencyCallHistory.currentPage-1)">
+
+                <td style="width: 5%" >
+                    <a href=""
+                        ng-click="(!emulatedUser()) && callSelected(call.call_history_fs_uuid)">
+                        <span class="cls-img-contact-call-history">
+                            <span ng-if="!showCallSelected[call.call_history_fs_uuid] && callContact(call)">
+                                <img ng-if="callContact(call).im"
+                                    ng-src="{{pathImgProfile + callContact(call).im}}"
+                                    class="cls-img-lst-contact-history" alt=""/>
+                                <label ng-if="!callContact(call).im && callContact(call).contact_type !== 'ams' && callContact(call).contact_type !== 'qqcatalyst'"
+                                        class="cls-icon-lst-contact-null"
+                                        ng-style="setProfileColor(callContact(call).color)">
+                                        <i class="fa fa-user"></i>
+                                    <!-- {{callContact(call).contact_name_given.substring(0,1).toUpperCase() + callContact(call).contact_name_family.substring(0,1).toUpperCase()}} -->
+                                </label>
+                                <img ng-if="callContact(call).contact_type === 'ams'"
+                                        src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                                        style="width: 24px; height: 24px; margin-left: 20%;">
+                                <img ng-if="callContact(call).contact_type === 'qqcatalyst'"
+                                        src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                                        style="width: 24px; height: 24px; margin-left: 20%;">
+                            </span>
+                            <span ng-if="!showCallSelected[call.call_history_fs_uuid] && !callContact(call)">
+                                <label ng-if="!showCallSelected[call.call_history_fs_uuid]" class="cls-icon-lst-contact-null"
+                                    ng-style="setProfileColor(call.noncontact.color)">
+                                    <i class="fa fa-user"></i>
+                                </label>
+                            </span>
+                            <label class="cls-call-history-selected" ng-if="showCallSelected[call.call_history_fs_uuid]">
+                                <i class="fa fa-check"></i>
+                            </label>
+                            <input type="checkbox" ng-model="call.call_history_fs_uuid"
+                                ng-checked="showCallSelected[call.call_history_fs_uuid]"
+                                ng-show="showNever" />
+
+                        </span>
+                    </a>
+                </td>
+
+                <td style="width: 15%">
+                    <span ng-if="callContactNumber(call, 'caller', call.caller_id_number)">
+                        <a href="" ng-click="makeCall(call.caller_id_number)" tooltip-placement="top" uib-tooltip="Click to Dial">
+                            <strong>
+                                {{call.caller_name || showContactName(call)}}
+                            </strong>
+                        </a>
+                        <br>
+                        <span style="font-size: smaller;">
+                            <span ng-if="call.caller_id_number.length<10">
+                                Ext:
+                            </span>
+                            {{call.caller_id_number | tel}}
+                            
+                        </span>
+                    </span>
+                    <span ng-if="!callContactNumber(call, 'caller', call.caller_id_number)">
+                        <span ng-if="call.caller_name && !isPhoneNumber(call.caller_name)">
+                            <strong>
+                                {{call.caller_name}}
+                            </strong>
+                            <br>
+                        </span>
+                        <span ng-if="(call.caller_name && isPhoneNumber(call.caller_name)) || !call.caller_name">
+                            <strong ng-click="makeCall(call.caller_id_number)" tooltip-placement="top" uib-tooltip="Click to Dial">
+                                <span ng-if="call.caller_id_number.length<10">
+                                    Ext:
+                                </span>
+                                {{call.caller_id_number | tel}}
+                            </strong>
+                        </span>
+                    </span>
+                </td>
+                <td style="width: 15%">
+                    <span ng-if="callContactNumber(call, 'destination',call.destination_number)">
+                        <a href="" ng-click="makeCall(call.destination_number)" tooltip-placement="top" uib-tooltip="Click to Dial">
+                            <strong>
+                                {{call.destination_name || showContactName(call)}}
+                            </strong>
+                        </a>
+                        <br>
+                        <span style="font-size: smaller;">
+                            <span ng-if="call.destination_number.length<10">
+                                Ext:
+                            </span>
+                            {{call.destination_number | tel}}
+                            <span ng-if="call.description.length>0">
+                                <br/>
+                                {{call.description}}
+                            </span>
+                        </span>
+                    </span>
+                    <span ng-if="!callContactNumber(call, 'destination', call.destination_number)">
+                        <span ng-if="call.destination_name && !isPhoneNumber(call.destination_name)">
+                            <strong>
+                                {{call.destination_name}}
+                            </strong>
+                            <br>
+                        </span>
+                        <span ng-if="(call.destination_name && isPhoneNumber(call.destination_name)) || !call.destination_name">
+                            <strong ng-click="makeCall(call.destination_number)" tooltip-placement="top" uib-tooltip="Click to Dial">
+                                <span ng-if="call.destination_number.length<10">
+                                    Ext:
+                                </span>
+                                {{call.destination_number | tel}}
+                            </strong>
+                            <span ng-if="call.description.length>0">
+                                <br />
+                                {{call.description}}
+                            </span>
+                        </span>
+                    </span>
+                </td>
+                <td style="width: 20%">{{call.start_stamp | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}</td>
+                <td style="width: 13%; text-align: center;">
+                    <span ng-bind="formatTime(call.duration) |  date:'MM/dd/yyyy h:m'"> </span>
+                </td>
+                <td class="button-column-md" style="width: 13%">
+                    <span id="statusCall">
+                        <span ng-if="call.call_direction === 'outbound'">
+                            <span ng-if="call.call_status ==='answered'" class="fa-stack bluefont" tooltip-placement="top" uib-tooltip="{{tips.history.outboundanswered}}" alt="{{tips.history.outboundanswered}}">
+                                <i class="fa fa-phone fa-stack-2x"></i>
+                                <i class="fa fa-arrow-up fa-rotate-45 fa-stack-1x" style="padding-left:12px; margin-top: -10px;"></i>
+                            </span>
+                            <i ng-if="call.call_status ==='unanswered'" class="fa fa-phone fa-2x bluefont" tooltip-placement="top" uib-tooltip="{{tips.history.outboundunanswered}}" alt="{{tips.history.outboundunanswered}}"></i>
+                        </span>
+                        <span ng-if="call.call_direction === 'inbound'">
+                            <span ng-if="call.call_status === 'missed' || call.call_status === 'unanswered'" class="fa-stack redfont" tooltip-placement="top" uib-tooltip="{{tips.history.missed}}">
+                                <i class="fa fa-phone fa-rotate-135 fa-stack-2x" style=" margin-top: 5px;"></i>
+                                <i class="fa fa-minus fa-rotate-135 fa-stack-1x" style="margin-top: -7px;padding-right: 5px;"></i>
+                                <i class="fa fa-arrow-left fa-rotate-45  fa-stack-1x" style="margin-top: -9px; margin-left: -3px;"></i>
+                            </span>
+                            <span ng-if="call.call_status === 'answered'" class="fa-stack greenfont" tooltip-placement="top" uib-tooltip="{{tips.history.answered}}" alt="{{tips.history.answered}}">
+                                <i class="fa fa-phone fa-stack-2x"></i>
+                                <i class="fa fa-arrow-down fa-rotate-45 fa-stack-1x" style="padding-left:12px; margin-top: -10px;"></i>
+                            </span>
+                            <i ng-if="!call.voicemail_filepath && call.call_status === 'sent_to_voicemail'" class="fa fa-phone fa-rotate-135 fa-2x redfont" tooltip-placement="top" uib-tooltip="{{tips.history.sent_to_voicemail}}" alt="{{tips.history.sent_to_voicemail}}"></i>
+                            <i ng-if="call.call_status === 'declined'" class="fa fa-phone fa-rotate-135 fa-2x redfont" tooltip-placement="top" uib-tooltip="{{tips.history.declined}}" alt="{{tips.history.declined}}"></i>
+                            <a href ng-if="call.voicemail_filepath" ng-click="playVoicemailFile(call)"><img ng-src="images/icons/record-icon.png" tooltip-placement="top" uib-tooltip="{{tips.history.voicemail}}" class="cls-img-call-history" alt="{{tips.history.voicemail}}" /></a>
+                        </span>
+                    </span>
+                </td>
+                <td class="button-column-md" style="width: 13%" ng-if="emulationStatus()['agencycallhistory'].manager==='true'">
+                    <span ng-if="call.recording_filepath && call.call_status !== 'declined'"
+                            ng-click="showAudioModal(call, 'history-recording', callContact(call))">
+                        <i class="fa fa-play-circle fa-2x cls-color-green-tkg"
+                            tooltip-placement="top"
+                            uib-tooltip="{{::tips.recording.playautorecording}}">
+                        </i>
+                    </span>
+                    <span ng-if="call.manual_recording_filepath"
+                            ng-click="showMultipleAudioModal(call, 'history-recording')">
+                        <i class="fa fa-play-circle fa-2x cls-color-green-tkg"
+                            tooltip-placement="top"
+                            uib-tooltip="{{::tips.recording.playmanualrecording}}">
+                        </i>
+                    </span>
+                </td>
+                <td class="button-column-md" style="width: 6%">
+                    <span ng-show="user.exportType.partner_code == 'hawksoft'" ng-click="copyCallToHawksoft(call)" tooltip-placement="top-right" uib-tooltip="{{::tips.history.copytohawksoft}}"><img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 24px; height: 24px;" ></span>
+                    <span ng-show="user.exportType.partner_code != 'hawksoft' && user.exportType.partner_code != 'e-agent'" ng-click="copyCallToHawksoft(call)" tooltip-placement="top-right" uib-tooltip="{{::tips.history.copytomanagement}}"><img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 24px; height: 24px;" ></span>
+                    <span ng-show="user.exportType.partner_code == 'e-agent'" ng-click="copyCallToHawksoft(call)" tooltip-placement="top-right" uib-tooltip="{{::tips.history.copytomanagement}}"><img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 30px; height: 30px;" ></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div ng-show="showTable" style="text-align: center">
+    <ul uib-pagination class="pagination-sm pagination call-history" total-items="filterData.length" ng-model="agencyCallHistory.currentPage" previous-text="&lsaquo;" next-text="&rsaquo;" items-per-page="agencyCallHistory.perPage" boundary-link-numbers="true" max-size="10"></ul>
+</div>

@@ -1,0 +1,44 @@
+<div class="cls-cont-img-incomingcall">
+  <div class="phone-shake">
+    <i class="mdi mdi-phone-outgoing mdi-48px faa-ring animated pull-right">
+    </i>
+  </div>
+  <div class="arrow-point">
+    <i class="fa fa-long-arrow-right faa-passing animated">
+    </i>
+  </div>
+  <div class="conference-avatar"
+       ng-show="call.isConferenceCall">
+      <span class="fa-stack fa-3x cls-color-blue-tkg">
+          <i class="fa fa-circle fa-stack-2x"></i>
+          <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+      </span>
+  </div>
+  <div class="avatar"
+       ng-if="!call.isConferenceCall"
+       ng-bind-html="showCallerPhoto(call, 'outbound')">
+  </div>
+  <div class="current-call-info" style="text-align: center;">
+      <strong ng-if="call.contact.name">
+        {{call.contact.name}}
+      </strong>
+      <strong ng-if="!call.contact.name && !call.isConferenceCall">
+        Unknown
+      </strong>
+      <strong ng-if="call.isConferenceCall">
+        Conference Call
+      </strong>
+      <br/>
+      <label>
+        {{call.number | tel}}
+      </label>
+  </div>
+  <div class="cls-outgoingcall-buttons">
+    <button class="btn btn-link btn-sm mdi mdi-phone-hangup mdi-24px cls-color-red-tkg"
+      ng-click="hangUp()"
+      style=" margin-top: 5px !important"
+      tooltip-placement="left"
+      uib-tooltip="Hang up call">
+    </button>
+  </div>
+</div>

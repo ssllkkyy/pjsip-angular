@@ -1,0 +1,35 @@
+<div>
+    <div>  
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-share fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Share Message</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+
+        <div class="modal-body" id="modal-body">
+            <div class="input-group"> 
+                <span class="input-group-addon"><i class="fa fa-wechat"></i></span> 
+                <textarea class="form-control" type="text" ng-model="chat.sharepost.newmessage" placeholder="Add a message if you would like"></textarea>
+            </div>
+            Share in:
+            <div class="input-group"> 
+                <span class="input-group-addon" title="Voicemail Language"><i class="fa fa-edit"></i></span> 
+                <select class="selectpicker form-control" ng-model="vmLanguage">
+                    <optgroup label="Channels">
+                        <option ng-repeat="channel in availableChannels" value="{{channel.id}}"># {{channel.name}}</option>
+                    </optgroup>
+                    <optgroup label="Direct Messages">
+                        <option ng-repeat="user in directMessageList" value="{{user.id}}">{{user.first_name}} {{user.last_name}} (@{{user.username}})</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click=""><i class="fa fa-save" style="margin-right: 10px;"></i>Share</button>
+        </div>
+    </div>
+</div>

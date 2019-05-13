@@ -1,0 +1,10 @@
+<md-input-container>
+    <label>Location: </label>
+    <md-select ng-model="location"
+                ng-change="onLocChange()">
+        <md-option ng-repeat="loc in locationGroups"
+                    ng-value="loc" >
+            {{loc.group_name}}
+        </md-option>
+    </md-select>
+</md-input-container>

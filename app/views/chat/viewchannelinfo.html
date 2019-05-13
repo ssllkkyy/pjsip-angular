@@ -1,0 +1,29 @@
+<div>
+    <div>  
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Edit Purpose for {{channel.name}}</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+
+        <div class="modal-body" id="modal-body">
+
+            Describe how this Channel should be used. This text appears in the channel list in the "More..." menu and helps others decide whether to join.
+            <div class="input-group"> 
+                <span class="input-group-addon"><i class="fa fa-question"></i></span> 
+                <textarea class="form-control" type="text" ng-model="chat.editchannel.purpose" placeholder="Purpose of the Channel (optional)"></textarea>
+            </div>
+            
+        </div>
+        
+        
+
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="modifyChannelPurpose()"><i class="fa fa-save" style="margin-right: 10px;"></i>Schedule</button>
+        </div>
+    </div>
+</div>

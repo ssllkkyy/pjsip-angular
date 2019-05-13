@@ -1,0 +1,19 @@
+<div>
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Confirm?</span>
+        <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <div class="cls-title-cont-modal">Please confirm you wish to close the editor. If you have unsaved changes, these will be lost. If you are unsure then please click Save in the editor first.<br /></div>
+    </div>
+    
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+        <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-times" style="margin-right: 10px;"></i>Confirm Close</button>
+    </div>
+</div>

@@ -1,0 +1,193 @@
+@import "variables";
+.cls-name-contact-sel {
+    font-size: 30px;
+    color: grey;
+}
+.cls-profile-contact-sel {
+    margin: 0 ;
+}
+.cls-contact-btn-options ul{
+    list-style: none;
+     margin:0;
+}
+.cls-contact-btn-options ul li {
+    display: inline-block;
+    padding: 2px;
+}
+.cls-contact-btn-options ul li span {
+    font-size: 16px;
+    padding: 3px;
+}
+.cls-contact-btn-options ul li span:hover {
+    background-color:#e9e9e9;
+    // border: white solid 1px;
+}
+
+.group-contacts {
+    .panel-body {
+        padding: 15px 0px !important;
+    }
+}
+.group-contacts-container {
+    .panel-body {
+        padding: 0px !important;
+    }
+    .cls-contact-btn-options {
+        padding: 8px 6px;
+        background-color: white;
+    }
+}
+
+
+
+/********** MODAL CONTACTS **********/
+.cls-modal-contacts {
+    width: 70% !important;
+    height: 100% !important;
+    border: #5dcacb solid 5px;
+    border-radius: 10px ;
+    padding: 0px;
+    float: left !important;
+    right: 0 !important;
+}
+#modal-body-contacts-master md-tabs md-tab-content {
+    max-height: 450px;
+    overflow-y: auto;
+}
+/*#modal-body-contacts-master md-tabs md-tab-content:nth-child(1) {
+      background-color: #cfd8dc; }
+    #modal-body-contacts-master md-tabs md-tab-content:nth-child(2) {
+      background-color: #ffb74d; }
+*/
+
+.modal-body#modal-body-contacts-master {
+    overflow-y: auto;
+    padding-top: 0;
+
+}
+
+#tabContContacts {
+    margin-top: 15px !important;
+    padding-left: 15px;
+    padding-right: 15px;
+    md-input-container {
+        margin: 18px 0px 0px 0px;
+        width: 100%;
+        &.invalid-date {
+            .md-input {
+                border: 1px solid red !important;
+                color: red !important;
+            }
+
+        }
+    }
+}
+
+#tabContContactRingtones {
+    margin-top: 15px !important;
+    padding-left: 15px;
+    padding-right: 15px;
+    h4.contact-ringtone{
+        color: $mdgrey;
+        font-size: 13pt;
+    }
+    md-input-container {
+        margin: 0px;
+        width: 100%;
+    }
+    .row{
+        margin:0 15px;
+        height: 5%;
+        padding: 0%;
+        .col-xs-3,.col-xs-5{
+            margin:0;
+            height: 10%;
+        }
+
+        .col-xs-3{
+            margin:0;
+            padding: 0;
+            padding-top:1rem;
+            width: 20%;
+        }
+        .col-xs-1{
+            position: relative;
+            float: right;
+            margin-right: 15%;
+            padding-top:1rem;
+        }
+    }
+    .ringtone-select {
+        display: inline-block;
+        width: 100%;
+        margin-top: 1rem;
+        margin-right: 3rem;
+    }
+    .modal-ringtone-select {
+        display: inline-block;
+        width: 45%;
+        margin-top: 1rem;
+        margin-right: 3rem;
+    }
+    .ringtone-play-btn {
+        display: inline-block;
+        cursor: pointer;
+    }
+    .ringtone-slider {
+        display: inline-block;
+        width: 40%;
+        float: right;
+    }
+}
+
+.tolowercase {
+    text-transform: lowercase;
+}
+
+.tocapitalize {
+    text-transform: capitalize;
+}
+
+.md-tab, .md-button {
+    text-transform: capitalize !important;
+}
+.md-tab {
+    padding: 16px !important;
+}
+
+.cls-row-list-phone {
+    font-size: 17px !important;
+}
+
+ .tooltip .tooltip-inner {
+    background-color: grey;
+}
+
+.dropdown-menu.profilestatus {
+    width: 200px !important;
+    z-index: 9999;
+    .dropdown-busy{
+        cursor:no-drop;
+    }
+}
+
+.md-list-item {
+    height: 50px !important;
+}
+
+.cls-xxx {
+    float: left !important;
+}
+
+.cls-list-3way-call {
+    font-size: 17px;
+    margin-left: 15px !important;
+}
+
+.cls-queue-incoming-calls {
+/*    height: 110px !important;
+    display: block;
+    position: static;
+    overflow-y: auto;
+    overflow-x: hidden;*/
+}

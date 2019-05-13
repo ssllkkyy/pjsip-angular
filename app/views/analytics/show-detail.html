@@ -1,0 +1,253 @@
+<div class="download-button">
+    <button ng-if="showing ==='calls'"
+        tooltip-placement="bottom" 
+        uib-tooltip="{{tips.analytics.exporttocsvcalls}}"
+        type="button" 
+        ng-csv="getCallsArray()" 
+        csv-header="['User Extension', 'User Name', 'Contact Number',  'Contact Name', 'Contact Organization', 'Call Direction', 'Call Length (sec)', 'Start Time']" 
+        filename="callHistory.csv">
+        <i class="fa fa-download fa-3x"></i>
+    </button>
+    <button ng-if="showing ==='messages'" 
+        tooltip-placement="bottom" 
+        uib-tooltip="{{tips.analytics.exporttocsvsms}}"
+        type="button" 
+        ng-csv="getMessagesArray()" 
+        csv-header="['User DID', 'User Name', 'Contact Number', 'Contact Name', 'Contact Organization', 'Message Direction', 'Message Content', 'Sent Time']" 
+        filename="smsMessages.csv">
+        <i class="fa fa-download fa-3x"></i>
+    </button>
+</div>
+<div class="input-group" style="width: 50%; float: right; margin-top: 20px">
+        <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+        <input class="form-control" type="text" ng-model="callsSearch" placeholder="Filter Displayed Results">
+</div>
+<div class="cleared"></div>
+<scrollable-table column-names="tableCallControls.columnNames" ng-if="showing ==='calls'"
+    resource-length="filteredCallsLength()"
+    per-page="searchControls.perPage.val"
+    current-page="tableCallControls.currentPage"
+    sorting-opts="tableCallControls.sortingOpts">
+    <table-body>
+        <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+            <tbody>
+                <tr ng-repeat="call in tableCallControls.filteredCalls | filter: searchCalls | limitTo : $parent.perPage : $parent.perPage * ($parent.currentPage.page - 1)">
+                    <td class="user-field-col" ng-click="showUserChart(call.user)">
+                        <ul class="profile-display">
+                            <li ng-if="getUser(call) && getUser(call).im" class="profile_display_30">
+                                <img src="{{pathImgProfile}}{{getUser(call).im}}" class="profile_image" />
+                            </li>
+                            <li ng-if="!getUser(call) || (getUser(call) && !getUser(call).im)" class="profile_display_30">
+                                <label class="profile_icon" style="background-color: {{getUser(call) ? getUser(call).color+'!important' : ''}}">
+                                    <i class="fa fa-user"></i>
+                                </label>
+                            </li>
+                            <li class="pull-left" ng-if="getUser(call)">
+                                <span>
+                                    {{getUser(call).name}}<br />
+                                </span>
+                                <strong>Ext: {{getUser(call).ext}}</strong>
+                            </li>
+                            <li class="pull-left" ng-if="!getUser(call)">
+                                <strong>{{ call.call_direction === 'outbound' ? call.caller_id_number : call.destination_number | tel}}</strong>
+                            </li>
+                        </ul>
+                    </td>
+                    <td ng-if="callContact(call)" class="contact-field-col" ng-click="showUserChart(call.user)">
+                        <ul class="profile-display" >
+                            <li ng-if="callContact(call).im" class="profile_display_30">
+                                <img src="{{pathImgProfile}}{{callContact(call).im}}" class="profile_image" />
+                            </li>
+                            <li ng-if="!callContact(call).im" class="profile_display_30">
+                                <label class="profile_icon" style="background-color: {{callContact(call).color}} !important;">
+                                    <i class="fa fa-user"></i>
+                                </label>
+                            </li>
+                            <li ng-if="callContact(call)" style="display: inline-block;">
+                                <strong>{{callContact(call).name}}</strong><br />
+                                <span ng-if="callContact(call).org" class="smtext"> ({{callContact(call).org}})<br /></span>
+                                    <span ng-if="call.contact_number.length<10">
+                                        Ext:
+                                    </span>
+                                    {{call.contact_number | tel}}
+                                </span>
+                            </li>
+                        </ul>
+                    </td>
+                    <td ng-if="!callContact(call)" class="contact-field-col" ng-click="showUserChart(call.user)">
+                        <ul class="profile-display" >
+                            <li class="profile_display_30">
+                                <label class="profile_icon">
+                                    <i class="fa fa-user"></i>
+                                </label>
+                            </li>
+                            <li style="display: inline-block;">
+                                <span ng-if="call.contact_name">
+                                    <strong>{{call.contact_name}}</strong><br />
+                                </span>
+                                <span >
+                                    {{call.contact_number | tel}}
+                                </span>
+                            </li>
+                        </ul>
+                    </td>
+                    <td class="direction-field-col" ng-click="showUserChart(call.user)">
+                        <span ng-if="call.call_direction === 'inbound'">
+                            <span ng-if="call.call_status === 'missed' || call.call_status === 'unanswered'" class="fa-stack redfont" tooltip-placement="top" uib-tooltip="{{tips.history.missed}}">
+                                <i class="fa fa-phone fa-rotate-135 fa-stack-2x" style=" margin-top: 5px;"></i>
+                                <i class="fa fa-minus fa-rotate-135 fa-stack-1x" style="margin-top: -7px;padding-right: 5px;"></i>
+                                <i class="fa fa-arrow-left fa-rotate-45  fa-stack-1x" style="margin-top: -9px; margin-left: -3px;"></i>
+                            </span>
+                            <span ng-if="call.call_status === 'answered'" class="fa-stack greenfont" tooltip-placement="top" uib-tooltip="{{tips.history.answered}}" alt="{{tips.history.answered}}">
+                                <i class="fa fa-phone fa-stack-2x"></i>
+                                <i class="fa fa-arrow-down fa-rotate-45 fa-stack-1x" style="padding-left:12px; margin-top: -10px;"></i>
+                            </span>
+                            <i ng-if="!call.voicemail_filepath && call.call_status === 'sent_to_voicemail'" class="fa fa-phone fa-rotate-135 fa-2x redfont" tooltip-placement="top" uib-tooltip="{{tips.history.sent_to_voicemail}}" alt="{{tips.history.sent_to_voicemail}}"></i>
+                            <i ng-if="call.call_status === 'declined'" class="fa fa-phone fa-rotate-135 fa-2x redfont" tooltip-placement="top" uib-tooltip="{{tips.history.declined}}" alt="{{tips.history.declined}}"></i>
+                            <span ng-if="call.voicemail_filepath"><img ng-src="images/icons/record-icon.png" tooltip-placement="top" uib-tooltip="Voicemail Left" class="cls-img-call-history" alt="{{tips.history.voicemail}}" /></span>
+                        </span>
+                        <span ng-if="call.call_direction === 'outbound'">
+                            <span ng-if="call.call_status ==='answered'" class="fa-stack bluefont" tooltip-placement="top" uib-tooltip="{{tips.history.outboundanswered}}" alt="{{tips.history.outboundanswered}}">
+                                <i class="fa fa-phone fa-stack-2x"></i>
+                                <i class="fa fa-arrow-up fa-rotate-45 fa-stack-1x" style="padding-left:12px; margin-top: -10px;"></i>
+                            </span>
+                            <i ng-if="call.call_status ==='unanswered'" class="fa fa-phone fa-2x bluefont" tooltip-placement="top" uib-tooltip="{{tips.history.outboundunanswered}}" alt="{{tips.history.outboundunanswered}}"></i>
+                        </span>
+                    </td>
+                    <td class="start-date-col" ng-click="showUserChart(call.user)">
+                        {{call.start_stamp | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                    </td>
+                    <td class="duration-field-col" ng-click="showUserChart(call.user)">
+                        {{formatMinutesFromSec(call.duration)}}
+                    </td>
+                    <td class="recordings-field-col">
+                        <span ng-if="call.recording_filepath && call.call_status !== 'declined'"
+                            ng-click="showAudioModal(call, 'history-recording', callContact(call))">
+                        <i class="fa fa-play-circle fa-2x cls-color-green-tkg"
+                            tooltip-placement="top"
+                            uib-tooltip="{{::tips.recording.playautorecording}}">
+                        </i>
+                        </span>
+                        <span ng-if="call.manual_recording_filepath"
+                                ng-click="showMultipleAudioModal(call, 'history-recording')">
+                            <i class="fa fa-play-circle fa-2x cls-color-green-tkg"
+                                tooltip-placement="top"
+                                uib-tooltip="{{::tips.recording.playmanualrecording}}">
+                            </i>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </table-body>
+</scrollable-table>
+<div ng-if="showing==='messages'" class="smtext">NOTE: Click on row to view messages.</div>
+<scrollable-table column-names="tableMessageControls.columnNames" ng-if="showing ==='messages'" 
+    resource-length="filteredMessagesLength()"
+    per-page="searchControls.perPage.val"
+    current-page="tableMessageControls.currentPage"
+    sorting-opts="tableMessageControls.sortingOpts">
+    <table-body>
+        <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+            <tbody>
+                <tr ng-click="showMessages(thread.thread_uuid)" ng-repeat-start="thread in tableMessageControls.filteredMessages | filter: sendSearch |
+                                limitTo : $parent.perPage :
+                                $parent.perPage * ($parent.currentPage.page - 1) track by $index">
+                    <td class="user-field-col">
+                        <ul class="profile-display">
+                            <li ng-if="getSmsUser(thread) && getSmsUser(thread).im" class="profile_display_30">
+                                <img src="{{pathImgProfile}}{{getSmsUser(thread).im}}" class="profile_image" />
+                            </li>
+                            <li ng-if="!getSmsUser(thread) || (getSmsUser(thread) && !getSmsUser(thread).im)" class="profile_display_30">
+                                <label class="profile_icon" style="background-color: {{getSmsUser(thread) ? getSmsUser(thread).color+'!important' : ''}}">
+                                    <i class="fa fa-user"></i>
+                                </label>
+                            </li>
+                            <li class="pull-left" ng-if="getSmsUser(thread)">
+                                <span>
+                                    {{getSmsUser(thread).name}}<br />
+                                </span>
+                                <strong>{{thread.number_from | tel}}</strong>
+                            </li>
+                            <li class="pull-left" ng-if="!getSmsUser(thread)">
+                                <strong>{{thread.number_from | tel}}</strong>
+                            </li>
+                        </ul>
+                    </td>
+                    <td ng-if="smsContact(thread)" class="contact-field-col">
+                        <ul class="profile-display" >
+                            <li ng-if="smsContact(thread).im" class="profile_display_30">
+                                <img src="{{pathImgProfile}}{{smsContact(thread).im}}" class="profile_image" />
+                            </li>
+                            <li ng-if="!smsContact(thread).im" class="profile_display_30">
+                                <label class="profile_icon" style="background-color: {{smsContact(thread).color}} !important;">
+                                    <i class="fa fa-user"></i>
+                                </label>
+                            </li>
+                            <li ng-if="smsContact(thread)" style="display: inline-block;">
+                                <strong ng-if="smsContact(thread).name">{{smsContact(thread).name}}<br /></strong>
+                                <span ng-if="smsContact(thread).org" class="smtext"> ({{smsContact(thread).org}})<br /></span>
+                                {{thread.contact_phone | tel}}
+                            </li>
+                        </ul>
+                    </td>
+                    <td ng-if="!smsContact(thread)" class="contact-field-col">
+                        <ul class="profile-display" >
+                            <li class="profile_display_30">
+                                <label class="profile_icon">
+                                    <i class="fa fa-user"></i>
+                                </label>
+                            </li>
+                            <li style="display: inline-block;">
+                                <span >
+                                    {{thread.contact_phone | tel}}
+                                </span>
+                            </li>
+                        </ul>
+                    </td>
+                    <td class="count-in-col">
+                        {{thread.count_in}}
+                    </td>
+                    <td class="count-out-col">
+                        {{thread.count_out}}
+                    </td>
+                    <td class="thread-field-col">
+                            {{thread.messages[0].message}}
+                    </td>
+                    <td class="sent-date-col">
+                        {{thread.messages[0].sent_at | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                    </td>
+                </tr>
+                <tr ng-repeat-end ng-show="displayMessages===thread.thread_uuid">
+                    <td colspan="6" class="thread-messages">
+                        <span class="pull-right"><button class="btn btn-default btn-xs" ng-click="hideMessages()">Hide</button></span>
+                        <div  class="scroll-container" style="max-height: 300px; overflow-y: scroll;">    
+                            <table class="table">
+                                <!-- <thead style="width: 100%">
+                                    <tr>
+                                        <th>Date / Time</th>
+                                        <th style="width: 90px;">Direction</th>
+                                        <th>Message<span class="pull-right"><button class="btn btn-default btn-xs" ng-click="hideMessages()">Hide</button></span></th>
+                                    </tr>
+                                </thead> -->
+                                <tbody >
+                                    <tr ng-repeat="message in thread.messages">
+                                        <td style="width: 200px;">
+                                            {{message.sent_at | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                                        </td>
+                                        <td style="width: 90px;">
+                                            {{message.message_direction}}
+                                        </td>
+                                        <td>
+                                            {{message.message}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </table-body>
+</scrollable-table>

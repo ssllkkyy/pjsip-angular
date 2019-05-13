@@ -1,0 +1,156 @@
+<div ng-if="!isAdminGroupOrGreater()" >
+    You do not have access to this page.
+</div>
+<button ng-if="isAdminGroupOrGreater()" class="btn btn-primary btn-sm"
+        style="margin-bottom: 10px;"
+        ng-click="showEditLocations(null)">
+    Add Location Group
+</button>
+
+
+<div ng-if="isAdminGroupOrGreater()" class="permissions-table table-head-container">
+    <div ng-if="isKotterTechOrGreater() && !packageHasAccess('locations')"
+        class="alert alert-warning centered no-access">
+        Locations are not enabled for this agency. Default location shown to allow for agency sms configurattion.
+    </div>
+    <table class="table table-bordered table-hover table-striped ">
+        <thead>
+            <tr>
+                <!-- <th class="group-image">Group Image</th> -->
+                <th class="group-name">Group Name</th>
+                <th class="managers">Managers</th>
+                <th class="members">Members</th>
+                <th>Properties in Group</th>
+                <th class="dissolve-group">Dissolve Group</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div ng-if="isAdminGroupOrGreater()"
+     class="permissions-table table-body-container">
+
+  <table class="table table-bordered table-hover table-striped">
+    <tr ng-if="locationsGroups.length===0">
+        <td colspan="5">
+            No permission groups have been created yet. Use the button above to create the first group.
+        </td>
+    </tr>
+    <tr ng-repeat="group in locationsGroups">
+        <td class="group-name">
+            <strong>{{group.group_name}}</strong>
+            <i class="fa fa-edit grouptableicon-right table-green"
+               ng-click="showEditLocations($index)"
+               tooltip-placement="bottom"
+               uib-tooltip="{{tips.groups.edit_group}}"></i>
+            <br />
+            {{showCommunications2($index)}}
+        </td>
+        <td class="managers">
+            <i class="fa fa-lock grouptableicon-left table-ltblue"></i>
+            <i ng-if="!group.showManagers"
+               class="fa fa-chevron-down grouptableicon-left table-orange"
+               ng-click="toggleShowGroupManagers(group)"
+               tooltip-placement="bottom"
+               uib-tooltip="{{tips.groups.show_managers}}">
+            </i>
+            <i ng-if="group.showManagers"
+               class="fa fa-chevron-up grouptableicon-left table-orange"
+               ng-click="toggleShowGroupManagers(group)"
+               tooltip-placement="bottom"
+               uib-tooltip="{{tips.groups.hide_managers}}">
+            </i>
+            <i ng-if="group.showManagers"
+               class="fa fa-user-plus grouptableicon-right table-green"
+               ng-click="showEditLocations($index)"
+               tooltip-placement="bottom"
+               uib-tooltip="{{tips.groups.manage_managers}}"></i>
+            <div ng-if="group.showManagers">
+                <table class="table " >
+                    <tr ng-repeat="manager in group.managers" ng-if="!isKotterTechUser(manager)">
+                        <td>{{getUserName(manager.user_uuid)}}</td>
+                        <td><i ng-if="manager.user_uuid !== user.user_uuid"
+                               ng-click="postRemoveLocationGroupMember(group, $index, 'manager')"
+                               class="fa fa-user-times grouptableicon-right table-red"
+                               tooltip-placement="bottom"
+                               uib-tooltip="{{tips.groups.remove_manager}}"></i>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </td>
+        <td class="members">
+            <i class="fa fa-user-circle-o grouptableicon-left table-ltblue"
+               style="">
+            </i>
+            <i ng-if="!group.showMembers"
+               class="fa fa-chevron-down grouptableicon-left table-orange"
+               ng-click="toggleShowGroupMembers(group)"
+               tooltip-placement="bottom"
+               uib-tooltip="{{tips.groups.show_members}}">
+            </i>
+            <i ng-if="group.showMembers"
+               class="fa fa-chevron-up grouptableicon-left table-orange"
+               ng-click="toggleShowGroupMembers(group)"
+               tooltip-placement="bottom"
+               uib-tooltip="{{tips.groups.hide_members}}">
+            </i>
+            <i ng-if="group.showMembers"
+               class="fa fa-user-plus grouptableicon-right table-green"
+               ng-click="showEditLocations($index)"
+               tooltip-placement="bottom"
+               uib-tooltip="{{tips.groups.manage_members}}">
+            </i>
+            <div ng-if="group.showMembers">
+                <table class="table " >
+                    <tr ng-repeat="contact in group.members " ng-if="!isKotterTechUser(contact)">
+                        <td>{{getUserName(contact.user_uuid)}}</td>
+                        <td><i ng-if="contact.user_uuid !== user.user_uuid"
+                               ng-click="postRemoveLocationGroupMember(group, $index, 'member')"
+                               class="fa fa-user-times grouptableicon-right table-red"
+                               tooltip-placement="bottom"
+                               uib-tooltip="{{tips.groups.remove_member}}"></i>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </td>
+        <td>
+            <div class="row" ng-if="group.quotesheets && group.quotesheets.length>0">
+                <div class="col-sm-5"><strong>Quotesheets: </strong></div>
+                <div class="col-sm-7">
+                    <span ng-repeat="quote in group.quotesheets">
+                        {{ivr.ivr_name}}<br />
+                    </span>
+                </div>
+            </div>
+            <div class="row" ng-if="group.vfax">
+                <div class="col-sm-5"><strong>Fax Number: </strong></div>
+                <div class="col-sm-7">{{group.vfax.fax_number | tel}}</div>
+            </div>
+            <div class="row" ng-if="group.ivrs && group.ivrs.length > 0">
+                <div class="col-sm-5"><strong>Auto Attendants: </strong></div>
+                <div class="col-sm-7">
+                    <span ng-repeat="ivr in group.ivrs">
+                        {{ivr.ivr_name}}<br />
+                    </span>
+                </div>
+            </div>
+            <div class="row" ng-if="group.customexts && group.customexts.length > 0">
+                <div class="col-sm-5"><strong>Custom Extensions: </strong></div>
+                <div class="col-sm-7">
+                    <span ng-repeat="ext in group.customexts">
+                        {{ext.extension}}<span ng-if="ext.did"> - {{ext.did | tel}}</span><br />
+                    </span>
+                </div>
+            </div>
+        </td>
+        <td class="dissolve-group center-text">
+            <i class="fa fa-window-close-o grouptableicon-left table-red"
+               ng-click="dissolveGroup(group)"
+               tooltip-placement="bottom"
+               uib-tooltip="{{tips.groups.dissolve_group}}">
+            </i>
+        </td>
+    </tr>
+  </table>
+</div>

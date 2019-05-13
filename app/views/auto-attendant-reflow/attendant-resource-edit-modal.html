@@ -1,0 +1,36 @@
+<md-dialog class="attendant-modal">
+    <div class="modal-header"
+         ng-if="editingItem.action">
+        <div class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x" ></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </div>
+        <div class="attendant-modal-title">
+            {{editingItem.action.resourceName}}
+        </div>
+    </div>
+    <div class="modal-body">
+        <tc-action-case-display
+            ng-if="selectedAction"
+            selected-action="selectedAction"
+            editing-resource="editingResource"
+            register-save-fn="registerSaveFn(saveFn)">
+        </tc-action-case-display>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-md"
+                uib-tooltip="Cancel New Action"
+                ng-click="cancelEdit()" >
+            <i class="fa fa-undo"
+               style="margin-right: 10px;">
+            </i>
+            Cancel
+        </button>
+        <button class="btn btn-success"
+                uib-tooltip="Save {{selectedAction.title}"
+                ng-click="save()" >
+            <i class="fa fa-save"></i>
+            Save
+        </button>
+    </div>
+</md-dialog>

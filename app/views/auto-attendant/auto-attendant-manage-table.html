@@ -1,0 +1,150 @@
+<button class="btn btn-success btn-sm"
+        ng-show="!showAttendantCreationRow && !queueManagerExist && !creatingQM"
+        ng-click="createQueueManager()"
+        style="margin-bottom: 5px;">
+    <i class="fa fa-plus-circle"
+        ng-show="!loading"
+        style="margin-right: 10px;">
+    </i>
+    Create Queue Manager
+</button>
+
+<span ng-if="creatingQM">
+    <i class="fa fa-cog fa-spin fa-lg"></i> Working! Please wait!
+</span>
+
+<button class="btn btn-success btn-sm"
+        ng-show="!showAttendantCreationRow && queueManagerExist"
+        ng-click="openFusionForQM()"
+        style="margin-bottom: 5px;">
+    Open Queue Manager
+    <i class="fa fa-external-link-square"
+        ng-show="!loading"
+        style="margin-left: 5px;">
+    </i>
+</button>
+
+<button class="btn btn-success btn-sm"
+        ng-show="!showAttendantCreationRow && queueManagerExist"
+        ng-click="openFusionForQM('/app/ivr_menus/ivr_menus.php')"
+        style="margin-bottom: 5px;">
+    Open IVR Menus
+    <i class="fa fa-external-link-square"
+        ng-show="!loading"
+        style="margin-left: 5px;">
+    </i>
+</button>
+
+<button class="btn btn-success btn-sm"
+        ng-show="!showAttendantCreationRow && queueManagerExist"
+        ng-click="openFusionForQM('/app/ring_groups/ring_groups.php')"
+        style="margin-bottom: 5px;">
+    Open Ring Groups
+    <i class="fa fa-external-link-square"
+        ng-show="!loading"
+        style="margin-left: 5px;">
+    </i>
+</button>
+
+<button class="btn btn-success btn-sm"
+        ng-show="!showAttendantCreationRow && queueManagerExist"
+        ng-click="openFusionForQM('/app/time_conditions/time_conditions.php')"
+        style="margin-bottom: 5px;">
+    Open Time Conditions
+    <i class="fa fa-external-link-square"
+        ng-show="!loading"
+        style="margin-left: 5px;">
+    </i>
+</button>
+
+<button class="btn btn-success btn-sm"
+        ng-show="!showAttendantCreationRow && queueManagerExist"
+        ng-click="openAudioSelector('ivr-greeting')"
+        style="margin-bottom: 5px;">
+        <i class="fa fa-music"
+            ng-show="!loading"
+            style="margin-left: 5px;">
+        </i>
+         Manage Audio
+</button>
+
+<div ng-show="showAudioSettings" style="padding: 20px;">
+    <attendant-audio-selector
+        ng-if="audioSelectorType"
+        choose-audio="chooseAudio({resource:
+                resource, file: file, voicemailSettings:
+                vmInfo})"
+        selected-audio="selectedAudio"
+        audio-type="audioSelectorType"
+        alter-resources="alterAudioResources(resources)">
+    </attendant-audio-selector>
+</div>
+
+<scrollable-table ng-if="false" column-names="tableControls.columnNames"
+                  resource-length="attendants.length"
+                  per-page="searchControls.perPage.val"
+                  current-page="tableControls.currentPage"
+                  sorting-opts="tableControls.sortingOpts">
+    <table-body>
+        <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+            <tbody>
+                <tr ng-if="loading"></tr>
+                <tr ng-show="!loading"
+                    ng-repeat="attendant in attendants |
+                               orderBy: 'created_at' |
+                               limitTo : $parent.perPage :
+                               $parent.perPage * ($parent.currentPage.page - 1)">
+                    <td class="description-col">
+                        <p>{{attendant.description}}</p>
+                    </td>
+                    <td class="additional-numbers-col">
+                        <attendant-did-select attendant="attendant"></attendant-did-select>
+                    </td>
+                    <td class="edit-col">
+                        <div ng-click="editAttendant(attendant)"
+                             ng-if="attendant.action && !attendant.loadingResources">
+                            <i class="fa fa-pencil-square-o primaryfont mainopt"></i>
+                        </div>
+                        <div ng-if="!attendant.action || attendant.loadingResources">
+                            <span class="spinner">
+                                <i class="fa fa-cog fa-spin fa-lg"></i>
+                            </span>
+                        </div>
+                    </td>
+                    <td class="clone-col">
+                        <div ng-click="triggerAttendantClone(attendant)">
+                            <i class="fa fa-clone primaryfont mainopt"></i>
+                        </div>
+                    </td>
+                    <td class="delete-col">
+                        <div ng-click="deleteAttendant(attendant)">
+                            <i class="fa fa-trash-o primaryfont mainopt"></i>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-if="attendants.length === 0">
+                    <td ng-if="loading">
+                        <span class="spinner">
+                            <i class="fa fa-cog fa-spin fa-lg"></i>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td ng-if="!loading"
+                        colspan="6"
+                        style="text-align: center;">
+                        <button class="btn btn-success btn-md"
+                                ng-show="!showAttendantCreationRow"
+                                ng-click="createAttendant()">
+                            <i class="fa fa-plus-circle"
+                               ng-show="!loading"
+                               style="margin-right: 10px;">
+                            </i>
+                            Create New Call Flow
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </table-body>
+</scrollable-table>

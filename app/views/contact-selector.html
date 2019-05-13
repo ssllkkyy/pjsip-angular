@@ -1,0 +1,122 @@
+<div class="contact-search-container">
+    <div class="clearfix">
+        <span class="selected-contact"
+                ng-repeat="contact in contactsSelected track by $index">
+            <span ng-if="contact.contact_name_full">
+                {{contact.contact_name_full}}
+            </span>
+            <span ng-if="type==='sms' || type==='conference'">
+                <span ng-if="contact.contact_name_full">: </span>{{contact.contact_mobile_number | tel2}}
+            </span>
+            <span ng-if="(type==='file' || type==='cloudlink')">
+                <span ng-if="contact.contact_name_full">: </span>{{contact.contact_email_address}}
+            </span>
+            <i class="fa fa-times"
+                ng-click="removeSelectedContact($index)">
+            </i>
+        </span>
+    </div>
+    <div class="input-group contact-select">
+        <input type="text"
+               style="min-height: 40px; padding-left: 40px;"
+               contact-select
+               ng-model="box.recipients"
+               class="form-control"
+               id="contactselect"
+               autocomplete="nope"
+               tooltip-placement="top"
+               uib-tooltip="{{inputTooltip}}"
+               placeholder="{{inputPlaceholder}}">
+               
+    </div>
+    <div class="contact-options"
+         ng-show="showContactSelection">
+        <div ng-if="(filterData.length + filterUserData.length)===0" class="no-results mdgreyfont">
+            <i class="fa fa-search fa-2x"></i><br />
+            <span>No Results Found<br />
+                Broaden Your Search</span>
+        </div>
+        <div ng-if="(filterData.length + filterUserData.length) > 50" class="partial-search mdgreyfont">
+            <span>{{(filterData.length + filterUserData.length)}} Results Found<br />
+                Showing First 50 - Please Narrow Search</span>
+        </div>
+        <div ng-if="(filterData.length + filterUserData.length) <= 50" class="partial-search mdgreyfont">
+            <span>{{(filterData.length + filterUserData.length)}} Results Found</span>
+        </div>
+        <div class="list-group">
+            <div ng-repeat="contactUuid in filterUserData = (userContacts() | filter:filterContacts) | limitTo:50"
+                ng-init="contact = theContact(contactUuid)"
+                class="list-group-item">
+                <div class="thread-list-item" >
+                    <div class="thread-list-circle">
+                        <span ng-bind-html="showContactPhoto(contact, 'small')"></span>
+                    </div>
+                    <div class="thread-list-body">
+                        <span style="padding-top: 16px;">
+                            {{contact.contact_name_full}}
+                            <br />
+                        </span>
+                        <span class="recent-message" ng-if="(type==='file' || type==='cloudlink')">
+                            <span ng-if="!contact.contact_email_address">
+                                No Email Available
+                            </span>
+                            <span ng-if="contact.contact_email_address" ng-click="addContact(contact, contact.contact_email_address)">
+                                <span class="numbers" style="margin-right: 10px; ">
+                                        Email: {{contact.contact_email_address}}
+                                </span>
+                            </span>
+                        </span>
+                        <span class="recent-message" ng-if="type==='conference' || type==='sms'">
+                            <span ng-if="contact.user_ext && type==='conference'" 
+                                ng-click="addContact(contact, contact.user_ext)">
+                                <span class="numbers" style="margin-right: 10px; ">Ext: {{contact.user_ext}}<br /></span>
+                            </span>
+                            <span ng-if="phone.phone_number"
+                                  ng-repeat="phone in contact.phones" 
+                                  ng-click="addContact(contact, phone.phone_number)">
+                                <span class="numbers" ng-show="phone.phone_number" style="margin-right: 10px; "> {{phone.phone_label}}: {{phone.phone_number | tel2}}<br /></span>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div ng-repeat="contactUuid in filterData = (contacts() | filter:filterContacts) | limitTo:50"
+                ng-init="contact = theContact(contactUuid)"
+                class="list-group-item">
+                <div class="thread-list-item" >
+                    <div class="thread-list-circle">
+                        <span ng-bind-html="showContactPhoto(contact, 'small')"></span>
+                    </div>
+                    <div class="thread-list-body">
+                        <span style="padding-top: 16px;">
+                            {{contact.contact_name_full}}
+                            <br />
+                        </span>
+                        <span class="recent-message" ng-if="(type==='file' || type==='cloudlink')">
+                            <span ng-if="!contact.contact_email_address">
+                                No Email Available
+                            </span>
+                            <span ng-if="contact.contact_email_address" ng-click="addContact(contact, contact.contact_email_address)">
+                                <span class="numbers" style="margin-right: 10px; ">
+                                        Email: {{contact.contact_email_address}}
+                                </span>
+                            </span>
+                        </span>
+                        <span class="recent-message" ng-if="type==='conference' || type==='sms'">
+                            <span ng-if="contact.user_ext && type==='conference'" 
+                                ng-click="addContact(contact, contact.user_ext)">
+                                <span class="numbers" style="margin-right: 10px; ">Ext: {{contact.user_ext}}<br /></span>
+                            </span>
+                            <span ng-if="phone.phone_number"
+                                  ng-repeat="phone in contact.phones" 
+                                  ng-click="addContact(contact, phone.phone_number)">
+                                <span class="numbers" ng-show="phone.phone_number" style="margin-right: 10px; "> {{phone.phone_label}}: {{phone.phone_number | tel2}}<br /></span>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>

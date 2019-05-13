@@ -1,0 +1,31 @@
+<div>
+    <div>  
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-edit fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Rename Channel</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+
+        <div class="modal-body" id="modal-body">
+            Display Name
+            <div class="input-group"> 
+                <span class="input-group-addon"><i class="fa fa-edit"></i></span> 
+                <input class="form-control" type="text" ng-model="vm.content.channel.display_name" ng-value="vm.content.data.display_name" required>
+            </div>
+            <slug from="vm.content.channel.display_name" to="vm.content.channel.handle"></slug>
+            Handle - Cannot be edited
+            <div class="input-group"> 
+                <span class="input-group-addon"><i class="fa fa-edit"></i></span> 
+                <input class="form-control" type="text" ng-model="vm.content.channel.handle" ng-disabled="true" required>
+            </div>
+            
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="modifyChannel('display_name', vm.content)"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Changes</button>
+        </div>
+    </div>
+</div>

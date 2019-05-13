@@ -1,0 +1,184 @@
+<div class="action-column action-top">
+    <div class="main-col col-title">Menu Options</div>
+    <div class="main-col col-title">Description</div>
+    <div class="main-col col-title">Send Call To</div>
+    <div class="main-col col-title" ng-if="selectedAttendant.show && selectedAttendant.showHead == 'Transfer to External Number' || selectedAttendant.group == 'Play Recording'"></div>
+</div>
+<div class="actions" ng-repeat="selectedAttendant in newIvr.attendantList">
+
+    <!--<div class="covers" ng-class="{'show':!selectedAttendant.show}" ng-click="selectedAttendant.show=true">-->
+    <!--<div ng-include="" src="'views/company/attendant/attendant-list.html'"></div>-->
+    <!--<button class="bt"-->
+
+    <div class="action-column action-bottom">
+        <div class="covers" ng-if="!selectedAttendant.show" ng-click="show(newIvr.attendantList.indexOf(selectedAttendant))">View</div>
+
+        <div class="main-col">
+            <md-input-container>
+                <label>Pick a Number</label>
+                <md-select ng-model="selectedAttendant.directory">
+                    <md-option ng-repeat="directory in directoryOpts" ng-value="directory" ng-click="pickingNumber(directory, $event)">
+                        {{directory}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+        <div class="main-col">
+            <md-input-container>
+                <label>Enter a Description</label>
+                <input ng-model="selectedAttendant.description" /></md-input-container>
+        </div>
+        <div class="main-col">
+            <md-input-container>
+                <label>Options</label>
+                <md-select ng-model="selectedAttendant.group">
+                    <md-option ng-repeat="sendTo in sendToOpts" ng-value="sendTo.name" ng-click="selected((newIvr.attendantList.indexOf(selectedAttendant)), sendTo.name)">
+                        {{sendTo.name}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+
+
+        <!--Send Class-->
+        <div ng-class="sendClass" ng-if="selectedAttendant.group && selectedAttendant.show && selectedAttendant.group!=='Dial By Name'">
+            <!--Individual Name-->
+            <div class="" ng-if="selectedAttendant.group === 'Individual Name'">
+                <md-input-container>
+                    <label>Pick a Number</label>
+                    <md-select ng-model="selectedAttendant.items">
+                        <md-option ng-repeat="user in userList.items" ng-value="user">
+                            {{user.ext}} - {{user.name}} - {{user.phone}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+
+            <!--Ring Group-->
+            <div class="" ng-if="selectedAttendant.group == 'Ring Group'">
+                <!--<div ng-include="" src="'views/company/attendant/ring-group.html'"></div>-->
+                <!--Ring Group-->
+
+                <div class="action-pad">
+                    <div class="alert alert-info">
+                        <strong>Instructions:</strong> Drag from the list to the main left container for the options you want the auto attendant to handle</a>
+                    </div>
+                    <div class="row col-md-12">
+                        <div class="trashbox">
+                            <!-- If you use [] as referenced list, the dropped elements will be lost -->
+                            <ul dnd-list="[]">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                <div class="attendant-drop col-md-12 no-select">
+                                    <div class="attend-row">
+
+                                        <!--Auto Attendant-->
+                                        <div class="col-md-6">
+                                            <div class="panel panel-info">
+                                                <div class="panel-heading">
+                                                    <h3 class="panel-title">Auto Attendant</h3>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <!--Container-->
+                                                    <ul dnd-list="selectedAttendant.containers" dnd-allowed-types="['container']" dnd-external-sources="true" dnd-drop="dropContainCallback((newIvr.attendantList.indexOf(selectedAttendant)) ,index, item, external, type);">
+                                                        <li ng-repeat="container in selectedAttendant.containers" dnd-draggable="container" dnd-type="'container'" dnd-effect-allowed="copyMove" dnd-moved="selectedAttendant.containers.splice($index, 1)" dnd-callback="container.items.length">
+                                                            <div class="panel panel-info">
+                                                                <div class="panel-heading">
+                                                                    <h3 class="panel-title">{{container.label}}</h3>
+                                                                </div>
+                                                                <!--Elements-->
+                                                                <ul dnd-list="container.items" dnd-allowed-types="['items']" dnd-dragover="dragoverCallback(index, external, type)" dnd-drop="dropRingCallback(index, item, external, type)" class="itemlist ring">
+                                                                    <li ng-repeat="attendant in container.items" dnd-type="'items'" dnd-draggable="attendant" dnd-effect-allowed="copyMove" dnd-moved="container.items.splice($index, 1)">
+                                                                        {{attendant.name}} <strong> {{attendant.ext}} </strong>
+                                                                    </li>
+                                                                    <li class="dndPlaceholder">
+                                                                        Drop any <strong>Contact</strong> here
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </li>
+                                                        <li class="dndPlaceholder">
+                                                            <!--Drop any <strong>{{list.allowedTypes.join(' or ')}}</strong> here-->
+                                                            Drop any <strong>Service</strong> here
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+                                        <!--Options-->
+
+                                        <div class="col-md-6 options">
+
+                                            <!--<div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Options</h3>
+                        </div>-->
+
+                                            <!--Main Options-->
+
+                                            <div class="col-md-12">
+                                                <div class="panel panel-info container-element box box-blue">
+                                                    <div class="panel-heading">
+                                                        <h2 class="panel-title">Services</h2>
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <!--<ul dnd-list="options">-->
+                                                        <ul dnd-list="containers" dnd-horizontal-list="true" dnd-disable-if="true" class="itemlist dnd-services">
+                                                            <li class="dnd-box" ng-repeat="option in options.services.items" dnd-draggable="option" dnd-type="'container'" dnd-effect-allowed="copy">
+                                                                <md-tooltip md-direction="top" style="font-size:1.4rem;">{{option.tip}}</md-tooltip>
+                                                                {{option.label}}
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!--User List-->
+
+                                            <div class="col-md-10">
+                                                <div class="panel panel-info">
+                                                    <div class="panel-heading">
+                                                        <h2 class="panel-title">Contacts</h2>
+                                                    </div>
+                                                    <div class="action-contact">
+                                                        <ul dnd-list="options.users.items" dnd-disable-if="true" class="itemlist">
+                                                            <li ng-repeat="user in options.users.items" dnd-draggable="user" dnd-type="'items'" dnd-effect-allowed="copy">
+                                                                <div>
+                                                                    {{user.name}} {{user.ext}}
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div view-source="simple"></div>
+
+                                </div>
+                        </div>
+                        </ul>
+                    </div>
+                </div>
+                <!--End-->
+            </div>
+            <!--Transfer-->
+            <div class="" ng-if="selectedAttendant.group == 'Transfer to External Number'">
+                <md-input-container>
+                    <label>Enter a Number</label>
+                    <input md-input call-phone-input ng-paste="calls.handlePaste($event)" ng-model="selectedAttendant.items" />
+                </md-input-container>
+            </div>
+            <!--Recording-->
+            <div class="" ng-if="selectedAttendant.group == 'Play Recording'">
+                <audio-selector category="'voicemail'" settings="settings">
+                </audio-selector>
+            </div>
+        </div>
+    </div>
+</div>
+<!--<button class="btn btn-primary" ng-click="addAttendant()">Add</button>-->
+</div>

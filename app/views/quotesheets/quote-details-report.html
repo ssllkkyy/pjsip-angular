@@ -1,0 +1,12 @@
+<two-axis-table ng-if="quotesByAssignedAndStatus"
+                resource-data="historyGroupedQuotes ? historyGroupedQuotes :
+                       quotesByAssignedAndStatus">
+    <td-data>
+        <p>
+            <a ng-click="showQuotes($parent.resourceData[$parent.columnName][$parent.rowName])"
+               style="cursor: pointer;">
+                {{$parent.resourceData[$parent.columnName][$parent.rowName].length || 0}}
+            </a>
+        </p>
+    </td-data>
+</two-axis-table>

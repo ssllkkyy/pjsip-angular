@@ -1,0 +1,170 @@
+<div class="modal-header"
+     id="modal-screen-share">
+    <span class="fa-stack fa-2x modal-icon">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+    </span>
+    <span class="cls-header-modal">
+        {{vm.content.data.editPermissionIndex ? 'Edit' : 'Create New'}} Permissions Group
+    </span>
+    <button type="button"
+            ng-click="vm.content.data.closeCreateGroup()"
+            class="close">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+<div class="modal-body" id="modal-body">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="input-group">
+                <span class="input-group-addon">
+                    <i class="fa fa-sitemap"></i>
+                </span>
+                <input class="form-control"
+                       type="text"
+                       ng-model="updateGroup.group_name"
+                        placeholder="Group Name">
+            </div>
+        </div>
+    </div>
+    <p>Group Color - OR - Group Image</p>
+    <div class="row">
+        <div class="col-sm-2 text-center">
+            <div class="settings-avatar">
+                <div class="group_image_add_null" style="background-color: {{ updateGroup.group_color }}"><i class="fa fa-sitemap" style="font-size: px; opacity: 0.4;" aria-hidden="true"></i></div>
+            </div>
+        </div>
+        <div class="col-sm-5" >
+            <div ng-if="!vm.content.data.showNewGroup" class="coloroptionbox2 text-center">
+                <div class="coloroptions" ng-style="{'background-color': vm.content.data.permissionsGroups[vm.content.data.editPermissionIndex].group_color && vm.content.data.permissionsGroups[vm.content.data.editPermissionIndex].group_color}">&nbsp;</div>
+                <input type="radio" name="updateGroup.group_color" ng-model="updateGroup.group_color" value="{{vm.content.data.permissionsGroups[vm.content.data.editPermissionIndex].group_color}}">
+            </div>
+            <div ng-if="!vm.content.data.showNewGroup" ng-repeat="color in vm.content.data.profilecoloroptions | limitTo: 9" class="coloroptionbox2 text-center">
+                <div class="coloroptions" ng-style="{'background-color': color && color}">&nbsp;</div>
+                <input type="radio" name="updateGroup.group_color" ng-model="updateGroup.group_color" value="{{color}}">
+            </div>
+            <div ng-if="vm.content.data.showNewGroup" ng-repeat="color in vm.content.data.profilecoloroptions | limitTo: 10" class="coloroptionbox2 text-center">
+                <div class="coloroptions" ng-style="{'background-color': color && color}">&nbsp;</div>
+                <input type="radio" name="updateGroup.group_color" ng-model="updateGroup.group_color" value="{{color}}">
+            </div>
+        </div>
+        <div class="col-sm-1 text-center" style="padding-top: 20px;">
+            - OR -
+        </div>
+        <div class="col-sm-4">
+            <div class="settings-avatar">
+                <div ng-repeat="item in vm.content.data.uploader.queue">
+                    <div ng-show="vm.content.data.uploader.isHTML5" class="center-text" ng-thumb="{ file: item._file, height: 80, width: 80 }"></div>
+                </div>
+                <img src="{{pathImgProfile + user.profile_image}}" ng-if="contact.profile_image" class="group_image_add" alt="" />
+                <div ng-if="!vm.content.data.uploader.queue.length" class="group_image_add_null" ng-style="{'background-color': updateGroup.group_color && updateGroup.group_color}" ng-show="!contact.profile_image"><i class="fa fa-user" style="font-size: px; opacity: 0.4;" aria-hidden="true"></i></div>
+                <button ng-if="vm.content.data.uploader.queue.length>0" type="button" class="btn btn-danger btn-xs" ng-click="vm.content.data.uploader.clearQueue()" ng-disabled="!vm.content.data.uploader.queue.length">
+                    <i class="fa fa-trash"></i> Remove
+                </button>
+            </div>
+            <label ng-if="!vm.content.data.uploader.queue.length" class="btn btn-default btn-file btn-block" style="border-bottom-left-radius: 0; border-top-left-radius: 0;">
+                <i class="fa fa-file"></i> Upload Image
+                <input type="file" nv-file-select="" uploader="vm.content.data.uploader" required style="display: none;" />
+            </label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <p>Communications Viewable by this Group</p>
+            <div class="col-md-4" 
+                ng-repeat="perm in vm.content.data.permissionCommunications"
+                ng-if="perm.var_name !== 'Call Center'">
+                <md-checkbox ng-model="updateGroup.communication_options[perm.var_value]"
+                             aria-label="Communications Viewable"
+                             class="md-warn md-align-top-left"
+                             flex>
+                    {{perm.var_name == "Call Center" ? "Call Centre L/W/B" : perm.var_name}}
+                </md-checkbox>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="data-table-top" class="table table-bordered table-hover table-striped" style="width: 100%-13px">
+                <thead>
+                    <tr>
+                        <th style="width: 33%">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-question-circle"></i></span>
+                                <input class="form-control normal"
+                                       type="text"
+                                       ng-model="vm.content.data.search.name"
+                                       placeholder="Filter by Name">
+                            </div>
+                            <button class="btn btn-default btn-xs"
+                                    ng-click="vm.content.data.search.name = ''">
+                                Clear Filter
+                            </button>
+                        </th>
+                        <th style="width: 33%"><strong>Managers</strong><br />
+                            <span class="smfont normal">Select the users that can view the communications in this group</span></th>
+                        <th style="width: 33%"><strong>Group Members</strong><br />
+                            <span class="smfont normal">Select users whose communications can be viewed by the managers.</span></th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="scroll-container" ng-style="{height: vm.content.data.modalTableHeight + 'px'}" style="min-height: 125px; max-height: 300px;">
+                <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <tbody>
+                        <tr ng-repeat="contact in vm.content.data.userContacts | filter:vm.content.data.search"
+                                       ng-if="!isKotterTechUser(contact) && contact.user_uuid && contact.en === 'true'">
+                            <td style="width: 33%">
+                                {{contact.name}}
+                            </td>
+                            <td style="width: 33%">
+                                <md-checkbox ng-model="updateGroup.manager[contact.user_uuid]"  aria-label="Manager" class="md-warn md-align-top-left permissions" flex>
+                                </md-checkbox>
+                            </td>
+
+                            <td style="width: 33%">
+                                <md-checkbox ng-model="updateGroup.member[contact.user_uuid]" aria-label="Member" class="md-warn md-align-top-left permissions" flex>
+                                </md-checkbox>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <hr />
+
+</div>
+<div class="modal-footer cls-incomingcall-buttons">
+    <button class="btn btn-danger btn-md"
+            ng-click="vm.content.data.closeCreateGroup()">
+        <i class="fa fa-remove"
+           style="margin-right: 10px;">
+        </i>
+        Cancel</button>
+    <button class="btn btn-primary btn-md"
+            ng-if="!vm.content.data.showNewGroup && !vm.content.data.uploader.queue.length"
+            ng-click="vm.content.data.updatePermissionsGroup(updateGroup, vm.content.data.editPermissionIndex)">
+        <i class="fa fa-save"
+           style="margin-right: 10px;"></i>
+        Update Group
+    </button>
+    <button class="btn btn-primary btn-md"
+            ng-if="!vm.content.data.showNewGroup && vm.content.data.uploader.queue.length>0"
+            ng-click="vm.content.data.uploader.uploadAll()">
+        <i class="fa fa-save" style="margin-right: 10px;"></i>
+        Update Group with Image
+    </button>
+    <button class="btn btn-primary btn-md"
+            ng-if="vm.content.data.showNewGroup && vm.content.data.uploader.queue.length>0"
+            ng-click="vm.content.data.createNewPermissionsGroup(updateGroup)">
+        <i class="fa fa-save" style="margin-right: 10px;"></i>
+        Create Group with Image
+    </button>
+    <button class="btn btn-primary btn-md"
+            ng-if="vm.content.data.showNewGroup && !vm.content.data.uploader.queue.length"
+            ng-click="vm.content.data.createNewPermissionsGroup(updateGroup)">
+        <i class="fa fa-save" style="margin-right: 10px;"></i>
+        Create Group
+    </button>
+</div>
+

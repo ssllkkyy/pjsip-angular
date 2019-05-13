@@ -1,0 +1,65 @@
+<div class="no-access-container" ng-if="!packageHasAccess('quotesheets')">
+    <div class="alert alert-warning centered no-access">
+        Your current Bridge
+        <strong>{{user.package.package_title}}</strong>
+        does not have access to
+        <strong>{{showFeatureTitle('quotesheets')}}</strong>.
+    </div>
+</div>
+<div ng-show="packageHasAccess('quotesheets')"
+     class="inner-content-container">
+    <div id="quotesheets-container">
+        <div class="top-row">
+            <h3>
+                Quote Sheets
+                <span class="text-danger">
+                    [BETA]
+                </span>
+            </h3>
+            <location-selector ng-if="selectorLocUuid"
+                               location-uuid="selectorLocUuid"
+                               on-location-change="onLocationChange"
+                               type-filter="'quotesheet'"
+                               is-manager-or-member="true">
+            </location-selector>
+            <hr>
+     
+        </div>
+
+        <md-tabs md-selected="activeTabIndex">
+            <md-tab label="Quote History">
+                <quotes-history set-editing-quote="setEditingQuote"
+                                transition-fns="transitionFns">
+                </quotes-history>
+            </md-tab>
+            <md-tab label="{{editingQuote ? 'Editing Quote' : 'New Quote'}}">
+                <quote-editor isNewQuote="!editingQuote"
+                              quote="editingQuote"
+                              transition-fns="transitionFns">
+                </quote-editor>
+            </md-tab>
+            <!-- <md-tab label="Export Settings"
+                    ng-if="isManager()">
+                <quotesheet-rater-config></quotesheet-rater-config>
+            </md-tab> -->
+            <md-tab label="Template Builder"
+                    ng-if="isManager()">
+                <template-editor template-obj="templateObj">
+                </template-editor>
+            </md-tab>
+            <md-tab label="Template Manager"
+                    ng-if="isManager()">
+                <template-manager set-editing-template="setEditingTemplate">
+                </template-manager>
+            </md-tab>
+            <md-tab label="Reports"
+                    ng-if="isManager()">
+                <quote-reports set-editing-quote="setEditingQuote">
+                </quote-reports>
+            </md-tab>
+            <!-- <md-tab label="Type Manager"> -->
+            <!-- <type-manager></type-manager> -->
+            <!-- </md-tab> -->
+        </md-tabs>
+    </div>
+</div>

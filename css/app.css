@@ -1,0 +1,75 @@
+.wizard-nav {
+	color: #2ebaae;  
+}
+.companysetup  ul li { 
+  color:#2ebaae; 
+}
+.companysetup  ul li a {
+ display:block;
+  color:#2ebaae; 
+}
+
+.companysetup  ul li a:hover, ul li a:focus {
+ color:#2ebaae; 
+} 
+.bluecolor
+{
+    color: #2ebaae; 
+    
+}
+.companysetup table tr { 
+color:white;
+background: #25958B;
+} 
+.companysetup table thead th{
+    background: #eee; 
+    color: #2ebaae;  
+} 
+.companysetup table thead th a{ 
+    color: #2ebaae;  
+} 
+
+.companysetup button
+{
+      border: 1px  #7fba00;
+      background: #2ebaae;  
+}
+
+.companysetup button:disabled
+{
+      border: 1px  #7fba00;
+      background: #2ebaae;  
+}
+.companysetup button:hover
+{
+      border: 1px  #7fba00;
+      background: #2ebaae;  
+}
+.companysetup button:active 
+{
+      border: 1px  #7fba00;
+      background: #2ebaae;  
+}
+.companysetup button:target 
+{
+      border: 1px  #7fba00;
+      background: #2ebaae;  
+}
+
+.companysetup .inputfile {
+    font-size: 1.0em;
+    font-weight: 300;
+    color: white;
+    background-color: #666666;
+    display: inline-block;
+}
+.companysetup .table-striped > tbody > tr:nth-child(2n+1) > td, .table-striped > tbody > tr:nth-child(2n+1) > th {
+   color:black;
+}
+
+.companysetup > fa {
+color:black ;
+}
+.companysetup .glyphicon {color:
+#666666  !important;}
+ 

@@ -1,0 +1,440 @@
+<md-radio-group ng-model="payment.selectedPayment" ng-change="changePaymentMethod(payment)" ng-required="true">
+    <table class="table table-bordered table-striped payment-methods">
+        <tbody>
+            <tr ng-if="(!isBillingAdminOrGreater() && (activeAgency().custompayment.source_id === defaultPayment())) || 
+                    (isBillingAdminOrGreater())">
+                <td ng-if="radios && isBillingAdminOrGreater()">
+                    <md-radio-button 
+                        aria-label="Submit manual payment"
+                        ng-value="activeAgency().custompayment.source_id">
+                    </md-radio-button>
+                </td>
+                <td colspan="4" ng-if="!isBillingAdminOrGreater() && (activeAgency().custompayment.source_id === defaultPayment())">
+                    Account is setup for manual payments<br />
+                    <span class="smfont">NOTE: Contact <a href="mailto:accounting@kotter.net">accounting@kotter.net</a> for payment arrangements.</span>
+                </td>
+                <td colspan="2" ng-if="isBillingAdminOrGreater()">
+                    Register a Manual Payment
+                    <input ng-show="payment.selectedPayment === activeAgency().custompayment.source_id" 
+                        type="text" 
+                        ng-change="changeCustomDescription(payment)"
+                        class="form-control" 
+                        placeholder="Enter description of payment"
+                        ng-model="payment.description" />
+                </td>
+                <td style="width: 120px;" ng-if="!radios && isBillingAdminOrGreater()">
+                    <i class="fa fa-check-square-o bridgeorangefont mainopt"
+                        ng-if="activeAgency().custompayment.source_id === defaultPayment()"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{tips.billing.defaultpayment}}">
+                    </i>
+                    <i class="fa fa-square-o bridgeorangefont mainopt"
+                        ng-if="activeAgency().custompayment.source_id !== defaultPayment()"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{tips.billing.setdefaultpayment}}"
+                        ng-click="setAsDefaultPayment(activeAgency().custompayment.source_id)">
+                    </i>
+                </td>
+            </tr>
+            <tr ng-if="radios && activeAgency().billingSettings.credit_balance > 0.0">
+                <td>
+                    <md-radio-button 
+                        aria-label="Account Credit Balance"
+                        ng-value="'credit-balance'">
+                    </md-radio-button>
+                </td>
+                <td colspan="3">
+                    Credit Balance ({{activeAgency().billingSettings.credit_balance | currency}} Available)
+                </td>
+            </tr>
+            <tr ng-repeat="bank in savedBanks()">
+                <td ng-if="radios"> 
+                    <md-radio-button 
+                        aria-label="{{bank.bank_name}}: XXX{{bank.last4}}"
+                        ng-disabled="bank.status === 'new'" 
+                        ng-value="bank.id">
+                    </md-radio-button>
+                </td>
+                <td>
+                    {{bank.bank_name}}: XXX{{bank.last4}}<br />
+                    {{bank.account_holder_name}}
+                    <span ng-if="bank.id === defaultPayment()" class="pull-right"> Default</span>
+                </td>
+                <td>
+                    <span ng-if="bank.status==='new'">
+                        <button class="btn btn-xs btn-default" ng-click="showVerifyBankAccount(bank)">
+                            Verify
+                        </button>
+                    </span>
+                    <span ng-if="bank.status!=='new'">Verified</span>
+                </td>
+                <td ng-if="!radios">
+                    <i class="fa fa-check-square-o bridgeorangefont mainopt"
+                        ng-if="bank.id === defaultPayment()"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{tips.billing.defaultpayment}}">
+                    </i>
+                    <i class="fa fa-square-o bridgeorangefont mainopt"
+                        ng-if="bank.id !== defaultPayment()"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{tips.billing.setdefaultpayment}}"
+                        ng-click="setAsDefaultPayment(bank.id)">
+                    </i>
+                    <i class="fa fa-trash-o redfont mainopt"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{::tips.billing.remove_card}}"
+                        ng-click="removeSource(bank)">
+                    </i>
+                </td>
+            </tr>
+            <tr ng-repeat="card in savedCards()">
+                <td ng-if="radios">
+                    <md-radio-button 
+                        aria-label="{{card.brand}} XXXX ... {{card.last4}}"
+                        ng-value="card.id">
+                    </md-radio-button>
+                </td>
+                <td>
+                    XXXX ... {{card.last4}} 
+                    <img ng-src="{{onescreenBaseUrl + '/images/icons/'+showBrand(card)}}" style="padding-left: 5px; height: 20px;">
+                    <span ng-if="card.id === defaultPayment()"> Default</span>
+                </td>
+                <td ng-if="editingCard===card.id"
+                    ng-init="newexpiry.month = card.exp_month; newexpiry.year = card.exp_year">
+                    <md-input-container>
+                        <md-select ng-model="newexpiry.month">
+                            <md-option ng-value="month.number" ng-repeat="month in months">{{month.name}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container>
+                        <md-select ng-model="newexpiry.year">
+                            <md-option ng-value="year" ng-repeat="year in years">{{year}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                </td>
+                <td ng-if="!editingCard || (editingCard && editingCard !== card.id)">{{card.exp_month}} / {{card.exp_year}}</td>
+                <td ng-if="!radios">
+                    <i class="fa fa-check-square-o bridgeorangefont mainopt"
+                        ng-if="card.id === defaultPayment()"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{tips.billing.defaultpayment}}">
+                    </i>
+                    <i class="fa fa-square-o bridgeorangefont mainopt"
+                        ng-if="card.id !== defaultPayment()"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{tips.billing.setdefaultpayment}}"
+                        ng-click="setAsDefaultPayment(card.id)">
+                    </i>
+                    <i class="fa fa-pencil-square-o primaryfont mainopt"
+                        ng-if="!editingCard"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{::tips.billing.edit_card}}"
+                        ng-click="editCard(card)">
+                    </i>
+                    <i class="fa fa-floppy-o primaryfont mainopt"
+                        ng-if="editingCard===card.id"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{::tips.billing.save_card_changes}}"
+                        ng-click="saveCard(card, newexpiry)">
+                    </i>
+                    <i class="fa fa-ban mdgreyfont mainopt"
+                        ng-if="editingCard===card.id"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{::tips.billing.cancel_edit_card}}"
+                        ng-click="cancelEdit()">
+                    </i>
+                    <i class="fa fa-trash-o redfont mainopt"
+                        ng-if="!editingCard"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{::tips.billing.remove_card}}"
+                        ng-click="removeSource(card)">
+                    </i>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</md-radio-group>
+<div style="text-align: right">
+    <button class="btn btn-default btn-xs"  
+        ng-if="!radios"
+        tooltip-placement="top-right"
+        uib-tooltip="{{::tips.billing.add_new_bank_account}}"
+        ng-click="showAddBankAccount()">
+        Add Bank Account
+    </button>
+    <button class="btn btn-default btn-xs"  
+        ng-if="!radios"
+        tooltip-placement="top-right"
+        uib-tooltip="{{::tips.billing.add_new_card}}"
+        ng-click="showAddNewCard()">
+        Add New Card
+    </button>
+</div>
+
+
+<script type="text/ng-template" id="addcreditcardmodal.html">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-credit-card fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Add Credit Card</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <add-credit-card domain="vm.content.data"></add-credit-card>
+    </div>
+</script>
+
+<script type="text/ng-template" id="addcreditcard.html">
+    <form class="signup add-card-form" stripe-form="handleStripe" name="addCard" novalidate>
+        <div class="modal-body package-edit" id="modal-body">
+            <md-input-container class="card-num">
+                <input type="text"
+                        ng-model="number"
+                        placeholder="card number"
+                        name="number"
+                        required
+                        payments-validate="card"
+                        payments-format="card"
+                        payments-type-model="type"
+                        ng-class="addCard.number.$card.type"
+                        aria-describedby="sizing-addon1">
+                <!-- <div ng-messages="addCard.number.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div> -->
+            </md-input-container>
+            <md-input-container class="card-exp">
+                <input type="text"
+                        class="input-block-level"
+                        ng-model="expiry"
+                        placeholder="card expiry mm yy"
+                        payments-validate="expiry"
+                        payments-format="expiry"
+                        name="expiry"
+                        required
+                        aria-describedby="sizing-addon1">
+                <div ng-messages="addCard.expiry.$error" >
+                    <!-- <div ng-message="required">This is required!</div> -->
+                    <div ng-message="number">Only numbers please!</div>
+                </div>
+            </md-input-container>
+            <md-input-container class="card-cvc">
+                <input type="text"
+                        ng-model="cvc"
+                        placeholder="cvc code"
+                        payments-validate="cvc"
+                        payments-format="cvc"
+                        name="cvc"
+                        required
+                        payments-type-model="type">
+                <!-- <div ng-messages="addCard.cvc.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div> -->
+            </md-input-container>
+            <md-input-container>
+                <input type="text"
+                        ng-model="name"
+                        placeholder="name on card"
+                        name="billingName"
+                        required
+                        aria-describedby="sizing-addon1">
+                <!-- <div ng-messages="addCard.billingName.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div> -->
+            </md-input-container>
+            <md-input-container>
+                <input type="text"
+                        ng-model="billing.address1"
+                        ng-change="addressLine1 = billing.address1"
+                        placeholder="billing address"
+                        name="billingAddress"
+                        required
+                        aria-describedby="sizing-addon1">
+                <!-- <div ng-messages="addCard.billingAddress.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div> -->
+            </md-input-container>
+            <md-input-container>
+                <input type="text"
+                        ng-model="billing.community"
+                        ng-change="addressCity = billing.community"
+                        placeholder="billing city"
+                        name="billingCity"
+                        required
+                        aria-describedby="sizing-addon1">
+                <!-- <div ng-messages="addCard.billingCity.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div> -->
+            </md-input-container>
+            <md-input-container class="signup-select">
+                <md-select ng-model="billing.state"
+                ng-change="addressState = billing.state"
+                name="billingState"
+                required
+                    placeholder="billing state">
+                    <md-option ng-repeat="state in billingStates"
+                            ng-value="state.state_abbr">
+                        {{state.state_name}}
+                    </md-option>
+                </md-select>
+                <!-- <div ng-messages="addCard.billingState.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div> -->
+            </md-input-container>
+            <md-input-container class="card-zip">
+                <input type="text"
+                        ng-model="billing.postalcode"
+                        ng-change="addressZip = billing.postalcode"
+                        placeholder="billing zip"
+                        name="billingZip"
+                        minlength="5"
+                        required
+                        aria-describedby="sizing-addon1">
+                <div ng-messages="addCard.billingZip.$error" >
+                    <div ng-message="minlength">Zip code must be 5 numbers!</div>
+                    <!-- <div ng-message="required">This is required!</div> -->
+                </div>
+            </md-input-container>
+            <md-checkbox
+                ng-model="billing.default"
+                aria-label="Set as Default Payment Method">
+                Set as Default Payment Method
+            </md-checkbox>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-default btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" type="submit" ng-disabled="addCard.$invalid"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Card</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/ng-template" id="addbankaccountmodal.html">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-credit-card fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Add Bank Account</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <add-bank-account domain="vm.content.data"></add-bank-account>
+    </div>
+</script>
+
+<script type="text/ng-template" id="addbankaccount.html">
+    <form class="signup add-card-form" ng-submit="validateBankInfo()" name="addAccount" novalidate>
+        <div class="modal-body package-edit" id="modal-body">
+            <p>Please complete the form below and submit. Account verification is done via two small deposits into the bank account. These deposits will take 1-2 business days to appear on your online statement. The statement description for these deposits will be AMNTS: and then the values of the two microdeposits that were sent. Once you see those, you will need to come back here and verify the account.</p>
+            <p>NOTE: The account must be a US bank account and be in U.S. Dollars.</p>
+            <div ng-show="!submittingAccount">
+                <md-input-container>
+                    <input type="text"
+                            ng-model="bank.routing_number"
+                            placeholder="routing number"
+                            name="routing_number"
+                            required
+                            aria-describedby="sizing-addon1">
+                    <div ng-messages="addAccount.routing_number.$error" >
+                        <div ng-message="required">This is required!</div>
+                    </div>
+                </md-input-container>
+                <md-input-container>
+                    <input type="text"
+                        ng-model="bank.account_number"
+                        placeholder="account number"
+                        name="account_number"
+                        required
+                        aria-describedby="sizing-addon1">
+                    <div ng-messages="addAccount.account_number.$error" >
+                        <div ng-message="required">This is required!</div>
+                        <div ng-message="number">Only numbers please!</div>
+                    </div>
+                </md-input-container>
+                <md-input-container>
+                    <input type="text"
+                            ng-model="bank.account_holder_name"
+                            placeholder="account holder name"
+                            name="account_holder_name"
+                            required>
+                    <div ng-messages="addAccount.account_holder_name.$error" >
+                        <div ng-message="required">This is required!</div>
+                    </div>
+                </md-input-container>
+                Bank Account Type
+                <md-radio-group layout="row" ng-model="bank.account_holder_type" class="md-primary">
+                    <md-radio-button value="individual">Individual </md-radio-button>
+                    <md-radio-button value="company">Company </md-radio-button>
+                </md-radio-group>
+            </div>
+            <div ng-show="submittingAccount">
+                <h4>{{submittingAccount}}</h4>
+                <i class="fa fa-cog fa-spin fa-2x"></i>
+                Please Wait
+            </div>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-default btn-md" type="button" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" type="submit" ng-disabled="addAccount.$invalid"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Account</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/ng-template" id="verifybankaccountmodal.html">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-credit-card fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Add Bank Account</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <verify-bank-account input="vm.content.data"></verify-bank-account>
+    </div>
+</script>
+
+<script type="text/ng-template" id="verifybankaccount.html">
+    <form class="signup add-card-form" ng-submit="sendVerification(deposits)" name="verifyAccount" novalidate>
+        <div class="modal-body package-edit" id="modal-body">
+            <p>Enter deposit amounts for the following account: <strong>{{input.bank.bank_name}}: XXX{{input.bank.last4}}</strong></p>
+            <p class="smfont">NOTE: Please enter the deposits in this format: 0.05.</p>
+            <div ng-show="!submittingAccount" style="margin-top: 10px;">
+                <md-input-container>
+                    <input type="text"
+                            ng-model="deposits.one"
+                            placeholder="first deposit"
+                            name="one"
+                            required
+                            currency-formatter
+                            aria-describedby="sizing-addon1">
+                    <div ng-messages="verifyAccount.one.$error" >
+                        <div ng-message="required">This is required!</div>
+                    </div>
+                </md-input-container>
+                <md-input-container>
+                    <input type="text"
+                        ng-model="deposits.two"
+                        placeholder="second deposit"
+                        name="two"
+                        required
+                        currency-formatter
+                        aria-describedby="sizing-addon1">
+                    <div ng-messages="verifyAccount.two.$error" >
+                        <div ng-message="required">This is required!</div>
+                    </div>
+                </md-input-container>
+            </div>
+            <div ng-show="submittingAccount" class="spinner-box">
+                <h4>{{submittingAccount}}</h4>
+                <i class="fa fa-cog fa-spin fa-2x"></i>
+                Please Wait
+            </div>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-default btn-md" type="button" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" type="submit" ng-disabled="verifyAccount.$invalid"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Account</button>
+        </div>
+    </form>
+</script>

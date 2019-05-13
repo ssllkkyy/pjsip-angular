@@ -1,0 +1,32 @@
+<div class="chat-post-file-container" ng-if="show">
+    <div ng-repeat="file in post.fileinfoposts"
+         class="chat-post-file">
+        <div ng-if="file.has_preview_image"
+             class="chat-post-file-thumb">
+            <a href=""
+               ng-click="showModalFull('/chat/previewfile.html',file.obj,'lg')">
+                <img src="{{file.link}}" style="{{thumbDimensions(file.link, 'thumb')}}; max-width: 100%;">
+            </a>
+        </div>
+        <div ng-if="!file.has_preview_image"
+             class="chat-post-file-thumb">
+            <a href="{{file.link}}"
+               target="_blank">
+                <div class="file-icon file-icon-lg"
+                     data-type="{{file.extension}}">
+                </div>
+            </a>
+        </div>
+        <div class="chat-post-file-details"
+             tooltip-placement="top"
+             uib-tooltip="{{::tips.chatplus.download_file}}">
+            <a href="{{file.link}}"
+               target="_blank">
+                {{file.name}}
+                <br />
+                <i class="fa fa-download"></i>
+                {{file.extension | uppercase}} {{file.size/1000 | number:0}}KB
+            </a>
+        </div>
+    </div>
+</div>

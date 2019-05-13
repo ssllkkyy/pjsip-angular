@@ -1,0 +1,293 @@
+<div ng-controller="SettingsCtrl">
+    <div class="modal-header"
+         id="modal-screen-share">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            {{vm.content.data.updateGroup.group_uuid ? 'Edit' : 'Create New'}} Contact Group
+        </span>
+        <button type="button"
+                ng-click="closeCreateGroup()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body"
+         id="modal-body">
+         <div class="contact-group-edit-top">
+            <div class="tableclass fullwidth">
+                <div class="tablecell">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="fa fa-sitemap"></i>
+                        </span>
+                        <input class="form-control"
+                            type="text"
+                            ng-model="vm.content.data.updateGroup.group_name"
+                            placeholder="Group Name">
+                    </div>
+                </div>
+                <!-- <div class="tablecell right-text pad-right-15">
+                    Private Group:
+                </div>
+                <div class="tablecell">
+                    <md-switch class="md-warn"
+                        style="margin: 0px;"
+                        ng-model="vm.content.data.updateGroup.private"
+                        aria-label="Toggle Private Group">
+                        {{vm.content.data.updateGroup.private ? 'True' : 'False'}}
+                    </md-switch>
+                </div> -->
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <h4>Group Color - OR - Group Image</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-5"
+                    ng-init="vm.content.data.updateGroup.group_color=(vm.content.data.updateGroup.group_uuid ? (vm.content.data.updateGroup.group_color !== null ? vm.content.data.updateGroup.group_color : profilecoloroptions[0]) : profilecoloroptions[0])">
+                    <div ng-if="!showNewGroup && vm.content.data.updateGroup.group_color!==null" class="coloroptionbox2 text-center" >
+                        <div class="coloroptions"
+                            ng-style="{'background-color': vm.content.data.updateGroup.group_color && vm.content.data.updateGroup.group_color}">
+                            &nbsp;
+                        </div>
+                        <input type="radio"
+                            name="vm.content.data.updateGroup.group_color"
+                            ng-model="vm.content.data.updateGroup.group_color"
+                            value="{{vm.content.data.updateGroup.group_color}}">
+                    </div>
+                    <div ng-if="!showNewGroup && vm.content.data.updateGroup.group_color!==null"
+                        ng-repeat="color in profilecoloroptions | limitTo: 9"
+                        class="coloroptionbox2 text-center">
+                        <div class="coloroptions"
+                            ng-style="{'background-color': color && color}">
+                            &nbsp;
+                        </div>
+                        <input type="radio"
+                            name="vm.content.data.updateGroup.group_color"
+                            ng-model="vm.content.data.updateGroup.group_color"
+                            value="{{color}}">
+                    </div>
+                    <div ng-if="showNewGroup || (!showNewGroup && vm.content.data.updateGroup.group_color===null)"
+                        ng-repeat="color in profilecoloroptions | limitTo: 10"
+                        class="coloroptionbox2 text-center">
+                        <div class="coloroptions"
+                            ng-style="{'background-color': color && color}">
+                            &nbsp;
+                        </div>
+                        <input type="radio"
+                            name="vm.content.data.updateGroup.group_color"
+                            ng-model="vm.content.data.updateGroup.group_color"
+                            value="{{color}}">
+                    </div>
+                </div>
+                <div class="col-sm-1 text-center">
+                    - OR -
+                </div>
+                <div class="col-sm-4">
+                    <div class="settings-avatar">
+                        <div ng-repeat="item in uploader.queue">
+                            <div ng-show="uploader.isHTML5"
+                                class="center-text"
+                                ng-thumb="{ file: item._file, height: 80, width: 80 }">
+                            </div>
+                        </div>
+                        <img src="{{pathImgProfile + vm.content.data.updateGroup.group_image}}"
+                            ng-if="vm.content.data.updateGroup.group_image && !uploader.queue.length"
+                            class="group_image_add"
+                            alt=""/>
+                        <div ng-if="!vm.content.data.updateGroup.group_image && !uploader.queue.length"
+                            class="group_image_add_null"
+                            ng-style="{'background-color': vm.content.data.updateGroup.group_color && vm.content.data.updateGroup.group_color}"
+                            ng-show="!contact.profile_image" >
+                            <i class="fa fa-user"
+                            style="font-size: px; opacity: 0.4;"
+                            aria-hidden="true">
+                            </i>
+                        </div>
+                        <button ng-if="uploader.queue.length>0"
+                                type="button"
+                                class="btn btn-danger btn-xs"
+                                ng-click="uploader.clearQueue()"
+                                ng-disabled="!uploader.queue.length">
+                            <i class="fa fa-trash"></i>
+                            Remove
+                        </button>
+                    </div>
+                    <label ng-if="!uploader.queue.length"
+                        class="btn btn-default btn-file btn-block"
+                        style="border-bottom-left-radius: 0; border-top-left-radius: 0;" >
+                        <i class="fa fa-file"></i>
+                        Upload Image
+                        <input type="file"
+                            nv-file-select=""
+                            uploader="uploader"
+                            required style="display: none;" />
+                    </label>
+                </div>
+                
+            </div>
+        </div>
+        <div class="contact-group-edit-bottom" >
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="alert alert-warning centered" 
+                        ng-if="exceedsGroupLimit()">
+                        You can not assign any more contacts to this group. The group limit is {{groupLimit()}} contacts.
+                    </div>   
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-sm-12">
+                    <h4>Specify Group Members:</h4> 
+                    ({{showMemberCount(vm.content.data.updateGroup.member_list)}} Members)
+                    <button class="btn btn-xs btn-default" ng-click="selectType = 'users'">
+                        Select Users
+                    </button>
+                    <button class="btn btn-xs btn-default" ng-click="selectType = 'contacts'">
+                        Select Contacts
+                    </button>
+                    <button ng-if="vm.content.data.fromImportDirective !== true && vm.content.data.updateGroup.group_uuid"
+                        ng-click="showSpreadsheetImport(vm.content.data.updateGroup.group_uuid)"
+                        class="btn btn-primary btn-xs"
+                        style="margin-left: 23%">
+                        Import from File
+                    </md-button>
+                </div>
+            </div>
+            <div class="row" >
+                <div class="col-sm-6">
+                    <div class="input-group" style="margin-bottom: 0;" ng-if="1==2">
+                        <span class="input-group-addon">
+                            <i class="fa fa-question-circle"></i>
+                        </span>
+                        <input class="form-control"
+                            type="text"
+                            ng-change="pagination.currentPage = 1"
+                            ng-model="groupMemberSearch"
+                            placeholder="Search by contact name">
+                    </div>
+                    <div ng-show="selectType == 'contacts'">
+                        <contact-selector type="'contactgroup'" seed="vm.content.data.updateGroup.members"></contact-selector>
+                    </div>
+                    <table id="contact-groups-table"
+                        ng-show="selectType == 'users'"
+                        class="table table-bordered table-hover table-striped"
+                        ng-style="filterData.length>pagination.perPage && {'height': '150px'}">
+                        <tbody>
+                            <tr ng-if="loadingUsers()">
+                                <td colspan="2" class="loading-users mdgreyfont">
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i><br />
+                                    <span>Users Loading<br />
+                                    Please Wait</span>
+                                </td>
+                            </tr>
+                            <tr 
+                                ng-if="!loadingUsers() && !isKotterTechUser(contact)"
+                                ng-repeat="contact in filterData = (userContacts() |  filter:groupMemberFilter) | limitTo:pagination.perPage:pagination.perPage*(pagination.currentPage-1)">
+                                <td class="col-sm-9">
+                                    <strong>
+                                        {{contact.name}} 
+                                    </strong>
+                                    ({{contact.type=='user' ? 'User' : 'Contact'}})
+                                </td>
+                                <td class="col-sm-3 select-checkboxes">
+                                    <md-checkbox
+                                        ng-model="vm.content.data.updateGroup.member_list[contact.cuuid]"
+                                        ng-init="!!vm.content.data.updateGroup.member_list[contact.cuuid]"
+                                        ng-disabled="contact.cuuid === user.contact_uuid"
+                                        ng-change="checkGroupLimit(vm.content.data.updateGroup.member_list, vm.content.data.updateGroup)"
+                                        aria-label="Contact"
+                                        class="md-warn md-align-top-left" flex>
+                                    </md-checkbox>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="text-align: center">
+                        <ul ng-show="filterData.length > pagination.perPage" 
+                            uib-pagination 
+                            class="pagination-sm pagination" 
+                            total-items="filterData.length" 
+                            ng-model="pagination.currentPage" 
+                            previous-text="&lsaquo;" 
+                            next-text="&rsaquo;" 
+                            items-per-page="pagination.perPage"
+                            rotate="false"
+                            boundary-link-numbers="true"
+                            max-size="5"></ul>
+                    </div>
+                </div>
+                <div class="col-sm-6" ng-show="contactGroups.length > 0" >
+                    <strong>
+                        Anyone in these groups:
+                    </strong>
+                    <table class="table table-bordered table-hover table-striped">
+                        <tr ng-repeat="group in contactGroups">
+                            <td class="col-sm-9">
+                                <strong>
+                                    {{group.group_name}}
+                                </strong>
+                                ({{group.members.length}} Members)
+                            </td>
+                            <td class="col-sm-3 select-checkboxes">
+                                <md-checkbox
+                                    ng-model="vm.content.data.updateGroup.group_list[group.group_uuid]"
+                                    ng-change="checkGroupLimit2(vm.content.data.updateGroup.member_list, vm.content.data.updateGroup, vm.content.data.updateGroup.group_list[group.group_uuid])"
+                                    aria-label="Group"
+                                    class="md-warn md-align-top-left"
+                                    flex>
+                                </md-checkbox>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md"
+                ng-click="closeCreateGroup()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;"></i>
+            Cancel
+        </button>
+        <button class="btn btn-primary btn-md"
+                ng-if="showNewGroup && !uploader.queue.length"
+                ng-disabled="exceedsGroupLimit(vm.content.data.updateGroup)"
+                ng-click="createNewGroup(vm.content.data.updateGroup, closeCreateGroup)">
+            <i class="fa fa-save" style="margin-right: 10px;"></i>
+            Create Group
+        </button>
+        <button class="btn btn-primary btn-md"
+                ng-if="showNewGroup && uploader.queue.length>0"
+                ng-disabled="exceedsGroupLimit(vm.content.data.updateGroup)"
+                ng-click="createGroupWithImage(vm.content.data.updateGroup, closeCreateGroup)">
+            <i class="fa fa-save"
+               style="margin-right: 10px;">
+            </i>
+            Create Group with Image
+        </button>
+        <button class="btn btn-primary btn-md"
+                ng-if="!showNewGroup && uploader.queue.length>0"
+                ng-disabled="exceedsGroupLimit(vm.content.data.updateGroup)"
+                ng-click="updateGroupWithImage(vm.content.data.updateGroup, closeCreateGroup)">
+            <i class="fa fa-save"
+               style="margin-right: 10px;"></i>
+            Update Group with Image
+        </button>
+        <button class="btn btn-primary btn-md"
+                ng-if="!showNewGroup && !uploader.queue.length"
+                ng-disabled="exceedsGroupLimit(vm.content.data.updateGroup)"
+                ng-click="updateContactGroup(vm.content.data.updateGroup, closeCreateGroup)">
+            <i class="fa fa-save"
+               style="margin-right: 10px;">
+            </i>
+            Update Group
+        </button>
+
+    </div>
+</div>

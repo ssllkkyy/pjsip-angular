@@ -1,0 +1,41 @@
+<div ng-controller="SettingsCtrl">  
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Add Multiple Contacts to {{vm.content.data.group_name}}</span>
+        <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        
+        <div class="input-group"> 
+            <span class="input-group-addon"><i class="fa fa-question-circle"></i></span> 
+            <input class="form-control" type="text" ng-model="search.contact_name_full" placeholder="Search by contact name">
+        </div>
+        <table id="contact-groups-table" class="table table-bordered table-hover table-striped">
+            <tbody>
+                <tr ng-repeat="contact in userContacts | filter:search | filter: {contact_uuid: '!'+user.contact_uuid} : true"
+                    ng-if="!isKotterTechUser(contact)">
+                    <td class="col-sm-9">
+                        <strong>{{contact.contact_name_given}} {{contact.contact_name_family}}</strong> ({{contact.contact_type=='user' ? 'User' : 'Contact'}})
+                    </td>
+                    <td class="col-sm-3">
+                        <md-checkbox
+                            ng-model="updategroup.members[contact.contact_uuid]"
+                            ng-init="updategroup.members[contact.contact_uuid]=isGroupMember(vm.content.data.members, contact.contact_uuid)"
+                            aria-label="Contact"
+                            
+                            class="md-warn md-align-top-left" flex>
+                        </md-checkbox>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md" ng-click="closeCreateGroup()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+        <button class="btn btn-primary btn-md" ng-click="updateGroupContacts(vm.content.data.group_uuid, updategroup.members)"><i class="fa fa-save" style="margin-right: 10px;"></i>Update Contact List</button>
+    </div>
+</div>

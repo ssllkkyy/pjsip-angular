@@ -1,0 +1,28 @@
+<div>
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Use a Different Template?</span>
+        <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <div class="cls-title-cont-modal">Select a new template to use for your email:</div>
+        <div class="row">
+            <div class="col-sm-4" ng-repeat="template in availEmailTemplates">
+                <img src="" ><br />
+                {{template.title}}
+                <div class="button-group">
+                    <button class="btn btn-primary btn-xs" ng-click="">Preview</button>
+                    <button class="btn btn-success btn-xs" ng-click="">Use This Template</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+    </div>
+</div>

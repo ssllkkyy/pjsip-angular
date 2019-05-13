@@ -1,0 +1,18 @@
+<textarea ng-model="$ctrl.text" rows="2" style="width: 100%;" class="form-control"></textarea>
+<button ng-click="$ctrl.synthesize($ctrl.text)"
+        ng-if="(!$ctrl.transcript && $ctrl.text) || ($ctrl.transcript &&
+                  $ctrl.transcript.transcript !== $ctrl.text) && $ctrl.text !== $ctrl.lastText"
+        class="btn btn-sm btn-default toggle-btn">
+    {{$ctrl.updating && "Re-"}}Synthesize
+</button>
+<audio-play-btn
+    ng-if="$ctrl.file && !$ctrl.synthesizing && $ctrl.text === $ctrl.lastText"
+    audio-file="$ctrl.file">
+    <btn-text>Play</btn-text>
+</audio-play-btn>
+</audio-play-btn>
+<button ng-click="$ctrl.save($ctrl.text, $ctrl.file)"
+        ng-if="$ctrl.file && !$ctrl.synthesizing && $ctrl.text === $ctrl.lastText"
+        class="btn btn-sm btn-default toggle-btn">
+    {{$ctrl.updating ? "Update" : "Save"}}
+</button>

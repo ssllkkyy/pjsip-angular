@@ -1,0 +1,129 @@
+<div class="no-access-container" ng-if="!packageHasAccess('callcenter')">
+    <div class="alert alert-warning centered no-access">
+        Your current Bridge <strong>{{user.package.package_title}}</strong> does not have access to <strong>{{showFeatureTitle('callcenter')}}</strong>.
+    </div>
+</div>
+<div ng-if="packageHasAccess('callcenter')" class="inner-content-container">
+    <div id="callcenter-container">
+        <div class="top-row">
+            <h3>Call Centre</h3>
+            <location-selector is-manager="true"
+                               on-location-change="onLocationChange"
+                               viewable="'callcenter'"
+                               boot-loc-change="true">
+            </location-selector>
+        </div>
+        {{tableControls}}
+        <scrollable-table column-names="tableControls.columnNames"
+                          resource-length="filteredUsersLength()"
+                          per-page="searchControls.perPage.val"
+                          current-page="tableControls.currentPage"
+                          sorting-opts="tableControls.sortingOpts"
+                          class="full-width">
+            <table-body>
+                <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+                    <tbody>
+                        <tr ng-repeat="user in tableControls.filteredUsers |
+                                       limitTo : $parent.perPage :
+                                       $parent.perPage * ($parent.currentPage.page - 1)">
+                            <td class="ext-col">
+                                {{user.ext}} {{user}}
+                            </td>
+                            <td class="name-col">
+                                <div class="name-container">
+                                    <contact-avatar contact="user"></contact-avatar>
+                                    <p>{{user.name}}</p> {{user}}
+                                </div>
+                            </td>
+                            <td class="status-col">
+                                <i class="{{ showicon(user.status, '') }}"
+                                   tooltip-placement="bottom"
+                                   uib-tooltip="{{user.status ? user.status : 'No Status'}}">
+                                </i>
+                            </td>
+                            <td class="on-call-with-col">
+                                <div class="col-container"
+                                     ng-show="userIsOnCall(user)"
+                                     ng-class="getStyleObj('on-call-with', user)">
+                                    <p ng-repeat="info in centerInfo[user.extension]">
+                                        {{info.calleeNum | tel}}
+                                    </p>
+                                </div>
+                            </td>
+                            <td class="in-out-col" ng-style="getInOutStyleObj(user)">
+                                <div class="col-container"
+                                     ng-show="userIsOnCall(user)"
+                                     ng-class="getStyleObj('in-out-col', user)">
+                                    <div ng-repeat="info in centerInfo[user.extension]"
+                                         class="io-container">
+                                        <img src="{{inboundOutboundSource(info, user)}}"
+                                             ng-if="info.inOut"
+                                             tooltip-placement="top"
+                                             uib-tooltip="{{info.inOut}}"
+                                             class="cls-img-call-history">
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="duration-col">
+                                <div class="col-container"
+                                     ng-show="userIsOnCall(user)"
+                                     ng-class="getStyleObj('duration', user)">
+                                    <div ng-repeat="info in centerInfo[user.extension]">
+                                        <timer interval="1000"
+                                               start-time="info.callCreated"
+                                               ng-if="info.callCreated">
+                                            {{hhours}}:{{mminutes}}:{{sseconds}}
+                                        </timer>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="lwb-col">
+                                <div class="col-container"
+                                     ng-class="getStyleObj('duration', user)">
+                                    <div class="lwb-container"
+                                         ng-show="userIsOnCall(user)"
+                                         ng-repeat="info in centerInfo[user.extension]">
+                                        <div ng-repeat="(actionName, action) in user.lwbInfo.actions"
+                                             ng-click="transitionState(info, actionName)"
+                                             class="{{actionName}}">
+                                            <i ng-style="getActionStyle(info.lwbState, action)"
+                                               tooltip-placement="top"
+                                               class="{{action.icon}}"
+                                               uib-tooltip="{{getActionTooltip(action)}}">
+                                            </i>
+                                        </div>
+                                    </div>
+                                    <div class="lwb-container"
+                                         ng-if="!centerInfo[user.extension] || !userIsOnCall(user)">
+                                        <div ng-repeat="(actionName, action) in user.lwbInfo.actions"
+                                             class="{{actionName}}">
+                                            <i ng-style="getActionStyle('disabled', action)"
+                                               tooltip-placement="top"
+                                               class="{{action.icon}}"
+                                               uib-tooltip="{{getActionTooltip(action)}}">
+                                            </i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-if="tableControls.filteredUsers.length === 0"
+                            class="loading-container">
+                            <td ng-if="!loading">
+                                <p style="text-align: center;">
+                                    We couldn't find any users. Try changing the settings above or
+                                    creating a user to see some here.
+                                </p>
+                            </td>
+                            <td ng-if="loading">
+                                <span class="spinner">
+                                    <i class="fa fa-cog fa-spin fa-lg"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </table-body>
+        </scrollable-table>
+    </div>
+</div>

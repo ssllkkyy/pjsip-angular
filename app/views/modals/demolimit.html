@@ -1,0 +1,21 @@
+<div class="modal-header" ng-controller="ModalCtrl">
+    <button type="button"
+            class="close"
+            data-dismiss="modal"
+            ng-click="closeModal()">
+        &times;
+    </button>
+    <h4 class="modal-title">Demo Time Limit Expired</h4>
+</div>
+<div class="invite-modal-body modal-body">
+    This demo account limits the duration of each call to {{user.usageLimits.calllength}} minutes. This time has elapsed. For questions about Bridge, please contact a Bridge specialist at <a href="mailto:bridge@kotter.net" target="_blank">bridge@kotter.net</a>.
+</div>
+<div class="modal-footer">
+    <button type="button"
+            class="btn btn-default"
+            data-dismiss="modal"
+            ng-click="closeModal()"
+            style="float: left;">
+        Close
+    </button>
+</div>

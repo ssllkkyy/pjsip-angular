@@ -1,0 +1,78 @@
+<div class="date-separator datedisplay"
+     ng-if="isFirstDayPost">
+    <hr class="separator__hr">
+    <div class="separator__text">
+        <span>{{post.create_at | date:'EEE MMM d, y'  }}</span>
+    </div>
+</div>
+<div class="chat-post-container"
+     ng-class="{'is-consecutive-post': isConsecutive(),
+                'highlight-item': (highlightPost && highlightPost === post.id),
+                 'is-own-post': isCurrentUsersPost()}"
+    ng-if="user().first_name != 'Kotter' && user().last_name != 'Tech' && user().first_name != 'Queue' && user().last_name != 'Manager'">
+    <div class="post-profile-image">
+        <chat-avatar ng-if="contact()"
+                     post="post"
+                     contact="contact()"
+                     chat-user="user()"
+                     is-consecutive-post="isConsecutive()">
+        </chat-avatar>
+    </div>
+    <p class="post-info"
+       data-prev-id="{{prevId}}"
+       ng-if="!isConsecutive()">
+        <span class="post-author-name">
+            {{user().first_name}} {{user().last_name}}
+        </span>
+        <span class="postdate">
+            {{post.create_at | amUtc | amLocal | amDateFormat:'h:mm a'}}
+        </span>
+        <span class="postdate" am-time-ago="post.create_at"></span>
+    </p>
+    <a href ng-if="isFirstThreadPost(post) && !rootPost.metaData.quoteLink"
+       class="commented-root-message "
+       ng-click="openThread()(rootPost)">
+        <div marked="getCommentedMessage(rootPost) | linky:'_blank' | nl2br | emojis | callouts"
+             class="thread-post-description"
+             ng-click="openThread()(rootPost)"
+             ng-if="rootPost && !isThreaded && isFirstThreadPost(post)"
+             compile="true">
+        </div>
+    </a>
+    <div class="post-message"
+         ng-if="post">
+        <span ng-if="post.delete_at">(message deleted)</span>
+        <div ng-if="!post.delete_at && !post.metaData.quoteLink"
+             marked="isEdited(post) | linky:'_blank' | nl2br | emojis | callouts"
+             compile="true"
+             class="post-message-text">
+        </div>
+        <p ng-if="post.metaData.quoteLink">
+            You have been assigned the
+            <a href="" ng-click="openQuoteSheet(post.metaData)">
+                {{post.metaData.quoteLink.display}} quote
+            </a>
+            <p ng-if="post.metaData.quoteLink">{{post.message}}</p>
+        </p>
+        <!-- <div class="giphy-img-container"> -->
+        <giphy-img ng-if="!post.delete_at && isGiphyLink(post.message) && post.message"
+            post="post">
+        </giphy-img>
+        <!-- </div> -->
+        <chat-post-files-display
+            ng-if="!post.delete_at"
+            show="showFilesDisplayForPost(post)"
+            post="post">
+        </chat-post-files-display>
+    </div>
+    <div class="post-actions">
+        <post-actions post="post"
+                      is-threaded="isThreaded"
+                      open-thread="openThread()"
+                      chat-user="user()">
+        </post-actions>
+    </div>
+    <div class="post-files"
+         ng-if="post.file_ids">
+    </div>
+</div>

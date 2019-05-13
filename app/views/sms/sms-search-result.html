@@ -1,0 +1,45 @@
+<div class="date-separator search-date-separator datedisplay">
+    <hr class="separator__hr">
+    <div class="separator__text">
+        <span style="font-weight: normal;">
+            {{message.created_at | toLocalTime | amDateFormat:'ddd, MMM Do YYYY h:mm a'}}
+        </span>
+    </div>
+</div>
+<div class="result-content">
+    <div class="chatSearchItem">
+            <div class="row">
+                <div  class="col-sm-9">
+                    <div class="message-container sms-search-result clearfix" ng-class="textAlign(message)">
+                        <div ng-class="setTextClass(message)">
+                            <div class="talktext">
+                                <span class="smfont"
+                                        style="line-height: 1.0;">
+                                    <p>
+                                        <span ng-if="message.thread.contact">
+                                            <strong>
+                                                {{message.thread.contact.name}}
+                                            </strong>
+                                            <br />
+                                        </span>
+                                        {{message.thread.contact_phone_number | tel}}
+                                    </p>
+                                </span>
+                                <p style="margin-top: 8px;">
+                                    {{message.message}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3"
+                        ng-click="showMessageInThread()(message)"  >
+                    <span tooltip-placement="bottom-right"
+                            uib-tooltip="{{::tips.sms.jump_to_result}}">
+                        <i class="fa fa-reply"></i>
+                        Jump
+                    </span>
+                </div>
+            </div>
+        </div>
+</div>

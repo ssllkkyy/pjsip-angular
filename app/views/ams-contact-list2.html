@@ -1,0 +1,75 @@
+<div uib-accordion class="contact-list">
+    <div ng-if= "activityList().length > 0">
+        <md-input-container>
+            <label>Activity Action </label>
+            <md-select ng-model="data.activity">
+                <md-option ng-repeat="activity in activityList()"
+                            ng-value="activity.Description" >
+                    {{activity.Description}}
+                </md-option>
+            </md-select>
+        </md-input-container>
+    </div>
+    <div class="loading-users mdgreyfont"
+         ng-if="contactType === 'nonUser' && loadingContacts()">
+        <i class="fa fa-spinner fa-spin fa-2x"></i>
+        <br />
+        <span>
+            Loading Contacts
+            <br />
+            Please Wait
+        </span>
+    </div>
+    <div class="loading-users mdgreyfont"
+         ng-if="!loadingContacts() && contacts().length === 0">
+        <i class="fa fa-search fa-2x"></i>
+        <br />
+        <span>No AMS Contacts Found</span>
+    </div>
+    <div ng-init="contact = theContact(contactUuid)"
+        ng-repeat="contactUuid in filterData = (contacts() | filter: searchTextFilter) | limitTo:perPage:perPage*(currentPage-1)"
+        ng-class="display_link">
+        <div class="contact-item tableclass"
+            ng-click="selectContact(contact)">
+            <div class="tablecell contact-image">
+                <h4 class="cls-img-lst-contact-null"
+                       style="{{ setProfileColor('#F56130') }}"
+                       ng-if="contact.contact_name_given && contact.contact_name_given != ' '">
+                    {{contact.contact_name_given.substring(0,1).toUpperCase()}} {{contact.contact_name_family.substring(0,1).toUpperCase()}}
+                </h4>
+                <h4 class="cls-img-lst-contact-null"
+                       style="{{ setProfileColor('#F56130') }}"
+                       ng-if="!contact.contact_name_given || contact.contact_name_given == ' ' || !contact.contact_name_family || contact.contact_name_family == ' ' && contact.contact_organization">
+                    {{contact.contact_organization.substring(0,1).toUpperCase()}}
+                </h4>
+            </div>
+            <div class="tablecell contact-name">
+                <h4 class="name-lst-contact"
+                    ng-if="contact.contact_name_full && contact.contact_name_full != ' '">
+                    {{contact.contact_name_full}}
+                </h4>
+                <h4 class="name-lst-contact"
+                    ng-if="contact.contact_organization && contact.contact_name_given == ' '">
+                    {{contact.contact_organization}}
+                </h4>
+            </div>
+            <div class="tablecell contact-icons"></div>
+        </div>
+    </div>
+    <div class="nonuser-pagination">
+        <div ng-show="filterData.length > perPage"
+             style="text-align: center">
+            <ul uib-pagination
+                class="pagination-sm pagination call-history"
+                total-items="filterData.length"
+                ng-model="currentPage"
+                previous-text="&lsaquo;"
+                next-text="&rsaquo;"
+                items-per-page="perPage"
+                rotate="false"
+                boundary-link-numbers="true"
+                max-size="5">
+            </ul>
+        </div>
+    </div>
+</div>

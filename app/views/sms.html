@@ -1,0 +1,677 @@
+<div class="sms-container"
+     ng-class="{'with-input-container' : currentThread(),
+            'with-side-panel' : search.showSearch}" ng-controller="SmsCtrl"
+     nv-file-drop=""
+     nv-file-over=""
+     uploader="uploader">
+    <div class="sms-header" ng-if="!showCompose" ng-class="{'two-col-header' : search.showSearch}">
+        <div class="header-title">
+            <h3>Text Messages
+                <span ng-if="isEmulatedUser()">
+                    - Emulating: {{getNameByUUID(emulatedUser())}}
+                </span>
+            </h3>
+        </div>
+        <div class="header-contact">
+            <div ng-if="currentThread()">
+                <div class="sms_contact">
+                    <ul class="profile-display" ng-if="threadContact(currentThread())">
+                        <li ng-if="threadContact(currentThread()).im" class="profile_display_45">
+                            <img src="{{pathImgProfile}}{{threadContact(currentThread()).im}}" class="sms_profile_image" />
+                        </li>
+                        <li ng-if="!threadContact(currentThread()).im" class="profile_display_45">
+                            <label class="sms_profile_icon"
+                                   ng-style="{'background-color': threadContact(currentThread()).color}">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li>
+                            <span ng-bind-html="showThreadContactName(currentThread())"></span>
+                            <span ng-click="makeCall(currentThread().contact_phone_number)">
+                                <strong>{{currentThread().contact_phone_number | tel}}</strong>
+                            </span>
+                        </li>
+                        <li ng-if="!isEmulatedUser() && threadContact(currentThread()) && threadContact(currentThread()).type !== 'user'"
+                            tooltip-placement="top"
+                            uib-tooltip="edit contact"
+                            ng-click="showEditContactForm(threadContact(currentThread()))">
+                                <i class="ltgreenfont fa fa-eye fa-lg"></i>
+                        </li>
+                        <li tooltip-placement="top" 
+                            uib-tooltip="open contact in {{user.exportType.partner_name}}" 
+                            ng-click="openContactInManagementSystem(currentThread().contact_phone_number.substring(1), threadContact(currentThread()))"
+                            style="padding: 0 5px;"
+                            ng-if="(!threadContact(currentThread()) || threadContact(currentThread()).type !== 'user') && ['ams360', 'qqcatalyst'].indexOf(user.exportType.partner_code) > -1">
+                            <i class="lightorangefont fa fa-external-link-square fa-lg"></i>
+                        </li>
+                    </ul>
+                    <ul class="profile-display" ng-if="!threadContact(currentThread())">
+                        <li class="profile_display_45">
+                            <label class="sms_profile_icon"
+                                   ng-style="{'background-color': currentThread().noncontact.color}">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li>
+                            <span ng-if="currentThread().noncontact.name">
+                                {{currentThread().noncontact.name}}
+                                <br />
+                            </span>
+                            <span ng-click="makeCall(currentThread().contact_phone_number)">
+                                <strong>{{currentThread().contact_phone_number | tel}}</strong>
+                            </span>
+                        </li>
+                        <li ng-if="!isEmulatedUser() && !threadContact(currentThread()) && emulationStatus()['contactgroups'].manager==='true'"
+                            tooltip-placement="top" uib-tooltip="add contact" 
+                            style="padding: 0 5px;"
+                            ng-click="showAddContactForm('sms', currentThread().contact_phone_number.substring(1))">
+                            <i class="ltgreenfont fa fa-user-plus fa-lg"></i>
+                        </li>
+                        <li tooltip-placement="top" 
+                            uib-tooltip="open contact in {{user.exportType.partner_name}}" 
+                            ng-click="openContactInManagementSystem(currentThread().contact_phone_number.substring(1), threadContact(currentThread()))"
+                            style="padding: 0 5px;"
+                            ng-if="(!threadContact(currentThread()) || threadContact(currentThread()).type !== 'user') && ['ams360', 'qqcatalyst'].indexOf(user.exportType.partner_code) > -1">
+                            <i class="lightorangefont fa fa-external-link-square fa-lg"></i>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div ng-if="!currentThread()">
+                <button class="btn btn-success"
+                        ng-show="!currentThread() && !isEmulatedUser()"
+                        ng-disabled="isCompanySms() && !currentLocation().primary_sms"
+                        ng-click="toggleComposeMode()">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i> New Text</button>
+            </div>
+        </div>
+        <div class="header-middle">
+            <div ng-if="currentThread()">
+                <button class="btn btn-success btn-sm"
+                        ng-click="showAllConversations()">
+                    Return to Conversations
+                </button>
+            </div>
+            <div ng-if="!isCompanySms() && !currentThread() && packageHasAccess('emulate')">
+                <emulate-user emulation-type="'sms'"></emulate-user>
+            </div>
+        </div>
+        <div class="header-search" ng-if="!search.showSearch">
+            <div class="input-group sms-search"
+                 ng-show="!(copyMode || assignMode)">
+                <span class="input-group-addon"
+                      title="search">
+                    <i class="fa fa-search"></i>
+                </span>
+                <input class="form-control"
+                       type="text"
+                       ng-model="search.searchText"
+                       ng-enter="sendSearch()"
+                       placeholder="Search Messages"
+                       tooltip-placement="bottom"
+                       uib-tooltip="{{::tips.sms.submit_search}}">
+            </div>
+            <div ng-show="packageHasAccess('emulate') && copyMode">
+                Select the text messages you want to export to {{showExportTarget()}}<br />
+                <span ng-show="(copySelected | objLength)>0">
+                    {{copySelected | objLength}}
+                    item{{(copySelected | objLength)>1 ? 's' : ''}}
+                    selected - Click the Save Icon to send to {{showExportTarget()}}
+                </span>
+            </div>
+            <div ng-show="assignMode">
+                Click each message you want to assign.<br />
+                <span ng-show="(copySelected | objLength)>0">
+                    {{copySelected | objLength}}
+                    item{{(copySelected | objLength)>1 ? 's' : ''}}
+                    selected - Click the Save Icon to continue
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="sms-thread-list" ng-if="!currentThread() && !showCompose"
+        style="overflow-y: hidden">
+        <div ng-cloak class="tab-header">
+            <md-content class="voicemail-table">
+                <md-tabs md-dynamic-height
+                         md-border-bottom
+                         md-selected="textTab.activeTab">
+                    <md-tab label="User Conversations ({{showUnreadUserCount()}})">
+                        <md-content class="md-padding">
+
+                        </md-content>
+                    </md-tab>
+                    <md-tab label="Agency Conversations ({{showUnreadAgencyCount()}})">
+                        <md-content class="md-padding">
+
+                        </md-content>
+                    </md-tab>
+                </md-tabs>
+            </md-content>
+        </div>
+
+        <div class="thread-header">
+            <div class="announce">
+                <h4>{{isCompanySms() ? '' : 'Your '}}Conversations
+                    <span ng-if="isCompanySms()">
+                        - {{currentLocation().group_name}} - {{showLocationNumber()}}
+                    </span>
+                </h4>
+                <p>Click a row to view the messages in that conversation.</p>
+            </div>
+            <location-selector class="locationselector"
+                               ng-if="isCompanySms()"
+                               type-filter="'texting'"
+                               on-location-change="changeLocation"
+                               boot-loc-change="true">
+            </location-selector>
+            <div class="blacklist">
+                <button class="btn btn-default "
+                        tooltip-placement="left"
+                        uib-tooltip="{{::tips.sms.manage_blacklist}}"
+                        ng-click="showBlacklistTableModal()">Blacklist</button>
+            </div>
+            <div class="deletesmsbutton">
+                <button class="btn"
+                        ng-class="{'btn-default': threadsSelectedCount() === 0, 'btn-danger': threadsSelectedCount() > 0}"
+                        ng-disabled="threadsSelectedCount() === 0"
+                        ng-click="deleteSelectedThreads()">
+                    Delete Selected
+                </button>
+            </div>
+        </div>
+        <div class="table-header">
+
+            <table class="table table-bordered table-hover table-striped cls-tab-call-history" style="margin-bottom: 0px; ">
+                <thead>
+                    <tr>
+                        <th style="width: 30%"
+                            ng-click="sortThreadBy('contact')">
+                            <span class="colsort"
+                                  tooltip-placement="top-left"
+                                  uib-tooltip="{{tips.sms.sortbycontact}}">
+                                Contact
+                                <i ng-class="showChevron('contact')"></i>
+                            </span>
+                        </th>
+                        <th style="width: 10%"
+                            ng-click="sortThreadBy('unread')">
+                            <span class="colsort"
+                                  tooltip-placement="top-left"
+                                  uib-tooltip="{{tips.sms.sortbyunread}}">
+                                Unread
+                                <i ng-class="showChevron('unread')"></i>
+                            </span>
+                        </th>
+                        <th style="width: 49%"
+                            ng-click="sortThreadBy('mostrecent')">
+                            <span class="colsort"
+                                  tooltip-placement="top-left"
+                                  uib-tooltip="{{tips.sms.sortbymostrecent}}">
+                                Most Recent Message
+                                <i ng-class="showChevron('mostrecent')"></i>
+                            </span>
+                        </th>
+                        <th style="width: 11%">
+                            <md-checkbox
+                                class="md-warn"
+                                style="margin-bottom: 0;"
+                                ng-model="threads.selectAll"
+                                ng-change="selectAllThreads(filteredThreads)"
+                                aria-label="Select All Threads">
+                                Check All
+                            </md-checkbox>
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="thread-content">
+            
+            <md-virtual-repeat-container>
+                <table class="table table-bordered table-hover table-striped cls-tab-call-history" >
+                    <tbody class="cls-body-table-pos">
+                        <tr ng-if="loadingThreads()">
+                            <td colspan="4" class="loading-users mdgreyfont">
+                                <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+                                <span>Loading Threads<br />
+                                    Please Wait</span>
+                                </td>
+                            </tr>
+                            <tr ng-if="!loadingThreads() && availThreads().length==0">
+                                <td colspan="4">
+                                    You do not have any active threads at this time.
+                                </td>
+                            </tr>
+                    
+                        <!-- <tr md-virtual-repeat="thread in filteredThreads = (threadList | orderBy : threadSortFunction : threadreverse) | limitTo:pagination.perPage:pagination.perPage*(pagination.currentPage-1)" -->
+                        <tr md-virtual-repeat="thread in filteredThreads = (threadList | orderBy : threadSortFunction : threadreverse)"
+                            ng-show="!loadingThreads() && thread.deleted!=='true'">
+                            <td ng-if="threadContact(thread)" style="width: 30%;">
+                                <ul class="profile-display" >
+                                    <li ng-if="threadContact(thread).im"
+                                        class="profile_display_45">
+                                        <img src="{{imageBaseUrl}}{{threadContact(thread).im}}"
+                                            class="sms_profile_image" /></li>
+                                        <li ng-if="!threadContact(thread).im"
+                                            class="profile_display_45">
+                                            <label class="sms_profile_icon"
+                                                style="background-color: {{threadContact(thread).color}} !important;">
+                                                <i class="fa fa-user"></i>
+                                            </label>
+                                        </li>
+                                        <li style="display: inline-block;" ng-click="setCurrentThread(thread.thread_uuid)">
+                                            <span ng-bind-html="showThreadContactName(thread)"></span>
+                                            {{thread.contact_phone_number | tel}}
+                                        </li>
+                                        <li tooltip-placement="top"
+                                            ng-if="(!threadContact(thread) || threadContact(thread).type !== 'user')"
+                                            uib-tooltip="Open Client profile"
+                                            ng-click="openContactInManagementSystem(thread.contact_phone_number.substring(1), threadContact(thread))"
+                                            style='float:right;'>
+                                            <h4>
+                                                <span style="color: #f8a632;">
+                                                    <i class="fa fa-external-link-square fa-lg">
+                                                    </i>
+                                                </span>
+                                            </h4>
+                                        </li>
+                                </ul>
+                            </td>
+                            <td ng-if="!threadContact(thread) && thread.noncontact" style="width: 30%;">
+                                <ul class="profile-display">
+                                    <li class="profile_display_45">
+                                        <label class="sms_profile_icon"
+                                            style="background-color: {{thread.noncontact.color}} !important;">
+                                            <i class="fa fa-user"></i>
+                                        </label>
+                                    </li>
+                                    <li ng-if="thread.noncontact.name"
+                                        style="display: inline-block;"
+                                        ng-click="setCurrentThread(thread.thread_uuid)">
+                                        <span class="capitalize">
+                                            {{thread.noncontact.name}}
+                                            <br />
+                                        </span>
+                                        <strong>
+                                            {{thread.contact_phone_number | tel}}
+                                        </strong>
+                                    </li>
+                                    <li ng-if="!thread.noncontact.name"
+                                        style="display: inline-block;"
+                                        ng-click="setCurrentThread(thread.thread_uuid)">
+                                        <strong>
+                                            {{thread.contact_phone_number | tel}}
+                                        </strong>
+                                    </li>
+                                    <li tooltip-placement="top"
+                                        uib-tooltip="Open Client profile"
+                                        ng-click="openContactInManagementSystem(thread.contact_phone_number.substring(1), null)"
+                                        style='float:right;'>
+                                        <h4>
+                                            <i class="lightorangefont fa fa-external-link-square fa-lg"></i>
+                                        </h4>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td ng-if="!thread.noncontact && !threadContact(thread)" style="width: 30%;">
+                                <ul class="profile-display">
+                                    <li class="profile_display_45">
+                                        <label class="sms_profile_icon">
+                                            <i class="fa fa-user"></i>
+                                        </label>
+                                    </li>
+                                    <li style="display: inline-block;"
+                                        ng-click="setCurrentThread(thread.thread_uuid)">
+                                        <strong>
+                                            {{thread.contact_phone_number | tel}}
+                                        </strong>
+                                    </li>
+                                    <li tooltip-placement="top"
+                                        uib-tooltip="Open Client profile"
+                                        ng-click="openContactInManagementSystem(thread.contact_phone_number.substring(1), null)"
+                                        style='float:right;'>
+                                        <h4>
+                                            <i class="lightorangefont fa fa-external-link-square fa-lg"></i>
+                                        </h4>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td style="width: 10%;" ng-click="setCurrentThread(thread.thread_uuid)">{{thread.unread_count}}</td>
+                            <td style="width: 50%;" ng-class="unreadThreadClass(thread)" ng-click="setCurrentThread(thread.thread_uuid)">
+                                <span class="smfont cls-color-blue-tkg"
+                                    ng-if="isToday(thread.most_recent.created_at)">
+                                    {{thread.most_recent.created_at | toLocalTime | amDateFormat: 'h:mm a'}}
+                                </span>
+                                <span class="smfont cls-color-blue-tkg"
+                                    ng-if="!isToday(thread.most_recent.created_at)">
+                                    {{thread.most_recent.created_at | toLocalTime | amDateFormat: 'ddd, MMM D, h:mm a'}}
+                                </span>
+                                <br />
+                                {{thread.most_recent.message.length > 75 ? thread.most_recent.message.substring(0,75)+' ...' : thread.most_recent.message}}
+                            </td>
+                            <td style="width: 10%">
+                                <md-checkbox
+                                    class="md-warn"
+                                    style="margin-bottom: 0;"
+                                    ng-model="threads.selectedThreads[thread.thread_uuid]"
+                                    ng-change="selectThread(thread.thread_uuid)"
+                                    aria-label="Delete This Thread">
+                                </md-checkbox>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-virtual-repeat-container>
+            <div style="text-align: center">
+                <p>{{filteredThreads.length}} Conversations</p>
+                <!-- commented lines below are the pagination navigator from before md-virtual repeat-->
+                <!-- <ul ng-show="filteredThreads.length > pagination.perPage"
+                    uib-pagination
+                    class="pagination-sm pagination"
+                    total-items="filteredThreads.length"
+                    ng-model="pagination.currentPage"
+                    previous-text="&lsaquo;"
+                    next-text="&rsaquo;"
+                    items-per-page="pagination.perPage"
+                    rotate="false"
+                    boundary-link-numbers="true"
+                    max-size="10"></ul> -->
+            </div>
+        </div>
+    </div>
+    <div class="sms-message-actions tableclass" ng-if="currentThread()">
+        <div class="tablecell" ng-if="isDomainOrLocationManager() && isCompanySms() && !copyMode && !assignMode">
+            <i class="fa fa-user-plus"
+               ng-click="enableAssignMode()"
+               tooltip-placement="bottom-right"
+               uib-tooltip="{{::tips.sms.assign_messages}}"></i>
+        </div>
+        <div class="tablecell"
+             ng-show="packageHasAccess('integration') && !copyMode && !assignMode"
+             ng-click="enableCopyMode()" >
+            <img ng-show="user.exportType.partner_code == 'hawksoft'"
+                 src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                 tooltip-placement="bottom-right"
+                 uib-tooltip="{{::tips.chatplus.toggle_hawksoft_copy}}" >
+            <img ng-show="user.exportType.partner_code != 'hawksoft'"
+                 src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                 tooltip-placement="bottom-right"
+                 uib-tooltip="{{::tips.sms.toggle_generic_copy}}" >
+        </div>
+        <div class="tablecell" ng-show="(packageHasAccess('integration') && copyMode) || ( assignMode)">
+            <i class="fa fa-undo fa-2x"
+               ng-click="cancelCopyMode()"
+               tooltip-placement="bottom-right"
+               uib-tooltip="{{assignMode ? tips.sms.cancel_assign_sms : tips.sms.cancel_copy_sms}}"></i>
+        </div>
+        <div class="tablecell" ng-show="packageHasAccess('integration') && copyMode">
+            <i class="fa fa-floppy-o fa-2x"
+               ng-click="saveCopiedTexts()"
+               tooltip-placement="bottom-right"
+               uib-tooltip="{{showSaveCopyToolTip()}}"></i>
+        </div>
+        <div class="tablecell" ng-show="assignMode">
+            <i class="fa fa-floppy-o fa-2x"
+               ng-click="assignCopiedTexts()"
+               tooltip-placement="bottom-right"
+               uib-tooltip="{{::tips.sms.assign_copied_texts}}"></i>
+        </div>
+        <div class="tablecell" ng-if="!hasSearchResults() && !isEmulatedUser() && (!isCompanySms() || (isCompanySms() && isDomainOrLocationManager()))">
+            <i class="fa fa-trash-o" style="font-size: 30px;"
+               ng-click="removeThread()"
+               tooltip-placement="bottom-right"
+               uib-tooltip="{{::tips.sms.delete_thread}}"></i>
+        </div>
+    </div>
+    <div class="blacklist-box" ng-if="!showCompose && currentThread() && !hasSearchResults() && !isEmulatedUser()">
+        <i class="fa fa-times fa-2x"
+           ng-click="addThreadToBlackList()"
+           tooltip-placement="top-right"
+           uib-tooltip="{{::tips.sms.blacklist}}"></i>
+    </div>
+    <div class="sms-message-list" ng-if="!showCompose &&currentThread()">
+        <div ng-if="!showCompose && currentThread() && currentThread().total_count > currentThread().messages.length && !hasSearchResults()" ng-click="loadPreviousMessages()" class="go-to-current">
+            Click Here to load previous messages. <i class="fa fa-up-arrow"></i>
+        </div>
+        <sms-message
+            id="sms-{{message.message_uuid}}"
+            ng-if="!hasSearchResults()"
+            ng-repeat="message in currentThread().messages | filter:filterText | limitTo: loadLimit"
+            message="message"
+            ng-click="(copyMode || assignMode) && copyText(message.message_uuid)"
+            ng-class="{'copy-highlight': (search.highlightMessage === message.message_uuid
+                || copySelected[message.message_uuid])}"
+            highlight-message="search.highlight"
+            copy-selected="copySelected"
+            copy-text="copyText"
+            data-message-uuid="{{message.message_uuid}}">
+        </sms-message>
+        <sms-message
+            id="sms-{{message.message_uuid}}"
+            ng-if="hasSearchResults()"
+            ng-repeat="message in currentThread().searchInfo.messages | filter:filterText"
+            message="message"
+            ng-click="(copyMode || assignMode) && copyText(message.message_uuid)"
+            ng-class="{'copy-highlight': (search.highlightMessage === message.message_uuid
+                || copySelected[message.message_uuid])}"
+            copy-text="copyText"
+            data-message-uuid="{{message.message_uuid}}">
+        </sms-message>
+        <div id="sms-bottom">&nbsp;</div>
+    </div>
+    <div ng-if="!showCompose && currentThread() && hasSearchResults()" ng-click="goToRecentMessages()" class="go-to-current">
+        Click Here to jump to recent messages. <i class="fa fa-down-arrow"></i>
+    </div>
+    <div class="input-container" ng-if="!showCompose && currentThread()">
+        <span class="sms-input">
+            <div class="textarea-wrapper">
+                <div class="sms-create-body">
+                    <div class="input-group message-input-container">
+                        <span class="input-group-addon mms">
+                            <label style="width: 100%; height: 100%; cursor: pointer; padding: 5px; "
+                                ng-if="!isTollFree()"
+                                   tooltip-placement="top-left"
+                                   uib-tooltip="{{::tips.sms.add_media}}">
+                                <i class="fa fa-paperclip"
+                                   style="font-size: 20px;"></i>
+                                <input ng-if="uploader"
+                                       type="file"
+                                       ng-disabled="isDisabled()"
+                                       nv-file-select=""
+                                       multiple
+                                       uploader="uploader"
+                                       required
+                                       style="display: none;" />
+                            </label>
+                        </span>
+                        <chat-macro-suggestion-list
+                            ng-if="mainSmsInput && showMacroList"
+                            input-element="mainSmsInput"
+                            is-sms="true"
+                            parent-data="macrosListData" >
+                        </chat-macro-suggestion-list>
+                        <textarea class="form-control"
+                                  ng-disabled="isDisabled()"
+                                  when-pasted
+                                  style="padding-right: 35px;"
+                                  ng-model="delivery.message"
+                                  ng-attr-placeholder="Type your message here"
+                                  msd-elastic
+                                  id="smsInput">
+                        </textarea>
+                        <span style="margin-left: -30px; z-index: 999999; padding-top: 5px; height:22px"
+                              emoji-picker="delivery.message"
+                              placement="right"
+                              title="Emoji"
+                              recent-limit="10"
+                              output-format="unicode">
+                        </span>
+                        <span class="input-group-addon send">
+                            <button class="btn btn-default btn-sm"
+                                    ng-disabled="isDisabled()"
+                                    ng-click="deliverSmsMessage('thread')">
+                                Send
+                            </button>
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+        </span>
+        <div class="sms-uploading"
+             ng-if="showUploadingFiles">
+            <div class="chat-post-create-footer">
+                <div class="chat-post-upload-preview">
+                    <div class="light-font">
+                        Type a message above describing the files and hit enter. -- or --
+                        <button class="btn btn-default btn-xs"
+                                ng-click="deliverSmsMessage('thread')">
+                            Send Files
+                        </button>
+                        - Total Size: {{totalSize}} KB<br />
+                        <span ng-if="totalSize>1000" class="smfont">
+                            <i class="fa fa-exclamation-triangle bridgeorangefont"
+                               style="font-size: 20px;">
+                            </i>
+                            ALERT: Individual MMS size must be under 1,000KB. We will spread your delivery over multiple messages.
+                        </span>
+                    </div>
+                    <div ng-repeat="item in uploader.queue"
+                         class="chat-file-preview" >
+                        <div ng-if="!uploadIsImage(item._file)"
+                             class="file-icon file-icon-lg"
+                             data-type="{{item._file.name | extension}}">
+                        </div>
+                        <div ng-if="uploadIsImage(item._file)"
+                             ng-thumb="{ file: item._file, height: 100, width: 120 }"
+                             tooltip-placement="top"
+                             uib-tooltip="{{::tips.chatplus.remove_temp_upload}}">
+                        </div>
+                        <span class="file-preview-remove"
+                              ng-click="item.remove()" >
+                            <i class="fa fa-remove"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="side-panel" ng-show="search.showSearch">
+        <sms-search-message-display
+            search="search"
+            close-display="closeSearchDisplay()">
+        </sms-search-message-display>
+    </div>
+    <div class="sms-header-compose" ng-if="showCompose"
+         nv-file-drop=""
+         nv-file-over=""
+         uploader="uploader">
+        <div class="header-title">
+            <h3 class="compose-header">
+                Compose <span ng-if="isCompanySms()">- {{currentLocation().group_name}}, {{currentLocation().primary_sms | tel}}</span>
+            </h3>
+        </div>
+        <div class="header-button">
+            <button class="btn btn-success btn-sm"
+                    ng-click="toggleComposeMode()">
+                Return to Conversations
+            </button>
+        </div>
+    </div>
+    <div class="compose-body" ng-if="showCompose">
+        <contact-selector type="'sms'"></contact-selector>
+        <div class="sms-create">
+            <div class="textarea-wrapper">
+                <div class="input-group message-input-container">
+                    <chat-macro-suggestion-list
+                        ng-if="mainSmsInput && showMacroList"
+                        input-element="mainSmsInput"
+                        is-sms="true"
+                        parent-data="macrosListData" >
+                    </chat-macro-suggestion-list>
+
+                    <textarea class="form-control"
+                              name="messageHolder"
+                              ng-disabled="isDisabled()"
+                              ng-model="delivery.message"
+                              ng-attr-placeholder="Type your message here"
+                              msd-elastic
+                              rows="6"
+                              id="smsInput">
+                    </textarea>
+                    <span style="position: absolute; margin-left: -30px; z-index: 100; padding-top: 5px; height:22px"
+                          emoji-picker="delivery.message"
+                          placement="left-relative"
+                          title="Emoji"
+                          recent-limit="10"
+                          output-format="unicode">
+                    </span>
+                    <span class="input-group-addon">
+                        <div ng-if="!isTollFree()">
+                            <label style="width: 100%; height: 100%; cursor: pointer; padding: 5px; "
+                                   tooltip-placement="top-left"
+                                   uib-tooltip="{{::tips.sms.add_media}}">
+                                <i class="fa fa-paperclip"
+                                   style="font-size: 20px;"></i>
+                                <input ng-if="uploader"
+                                       type="file"
+                                       ng-disabled="isDisabled()"
+                                       nv-file-select=""
+                                       multiple
+                                       uploader="uploader"
+                                       required
+                                       style="display: none;" />
+                            </label>
+                        </div>
+                        <div>
+                            <button class="btn btn-default btn-sm"
+                                    ng-disabled="isEmulatedUser() || totalSize > 1000"
+                                    ng-click="deliverSmsMessage('compose')">
+                                Send
+                            </button>
+                        </div>
+                    </span>
+
+                </div>
+                <div class="chat-post-create-footer">
+                    <div class="chat-post-upload-preview"
+                         ng-show="showUploadingFiles">
+                        <div class="light-font">
+                            Type a message above describing the files and hit enter. -- or --
+                            <button ng-disabled="isDisabled()"
+                                    class="btn btn-default btn-xs"
+                                    ng-click="deliverSmsMessage('compose')">
+                                Send Files
+                            </button>
+                            - Total Size: {{totalSize}} KB
+                            <div ng-if="totalSize>1000"
+                                 style="display: inline-block;"
+                                 uib-alert
+                                 ng-class="'alert-danger'">
+                                ALERT: Total Media Size must be under 1000KB.
+                            </div>
+                        </div>
+                        <div ng-repeat="item in uploader.queue"
+                             class="chat-file-preview" >
+                            <div ng-if="!uploadIsImage(item._file)"
+                                 class="file-icon file-icon-lg"
+                                 data-type="{{item._file.name | extension}}">
+                            </div>
+                            <div ng-if="uploadIsImage(item._file)"
+                                 ng-thumb="{ file: item._file, height: 100, width: 120 }"
+                                 tooltip-placement="top"
+                                 uib-tooltip="{{::tips.chatplus.remove_temp_upload}}">
+                            </div>
+                            <span class="file-preview-remove"
+                                  ng-click="item.remove()" >
+                                <i class="fa fa-remove"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

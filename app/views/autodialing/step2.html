@@ -1,0 +1,451 @@
+<div class="row">
+    <div id="top" class="col-lg-12">
+        <!-- //////////********** TAB 0 CONTACT LIST  **********////////// -->
+        <uib-tabset
+            active="contact.activeTab"
+            id="automarketing-contacts"
+            justified="false">
+            <uib-tab
+                index="0"
+                heading="Recipient List">
+                <div ng-if="displayLineErrors.length>0" class="contact-import alert-warning">
+                    <button type="button" class="close" ng-click="closeMessage()">
+                        <span aria-hidden="true">×</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <span ng-bind-html="displayLineErrors"></span>
+                </div>
+                <div class="jumbotron">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    Use the Import Files tab and Add Individually tab to add recipients to this list.
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="input-group">
+                                        <span
+                                            class="input-group-addon"
+                                            title="Filter Contacts">
+                                            <i class="fa fa-filter"></i>
+                                        </span>
+                                        <input
+                                            class="form-control"
+                                            type="text"
+                                            ng-model="contacts.amContactSearch"
+                                            placeholder="Filter Recipients">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- Table -->
+                        <table
+                            class="table table-bordered table-hover table-striped am-contact-header cls-tab-call-history"
+                            ng-init="contacts.predicate = 'lastname'">
+                            <thead>
+                                <tr>
+                                    <!-- <td><input type="checkbox"/> </td>-->
+                                    <th class="am-contact-firstname">
+                                        <a
+                                            href
+                                            ng-click="contactSortBy('firstname')"
+                                            tooltip-placement="top-left"
+                                            uib-tooltip="{{tips.automated.sortbyfirstname}}"
+                                            class="tableheader">
+                                            First Name
+                                            <i class="fa fa-{{!contacts.reverse && contacts.predicate==='firstname'?'chevron-up':'chevron-down'}}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="am-contact-lastname">
+                                        <a
+                                            href
+                                            ng-click="contactSortBy('lastname')"
+                                            tooltip-placement="top-left"
+                                            uib-tooltip="{{tips.automated.sortbylastname}}"
+                                            class="tableheader">
+                                            Last Name
+                                            <i class="fa fa-{{!contacts.reverse && contacts.predicate==='lastname'?'chevron-up':'chevron-down'}}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="am-contact-phone">
+                                        <a
+                                            href
+                                            ng-click="contactSortBy('contact_phone1')"
+                                            tooltip-placement="top-left"
+                                            uib-tooltip="{{tips.automated.sortbyphonenumber}}"
+                                            class="tableheader">
+                                            Phone
+                                            <i class="fa fa-{{!contacts.reverse && contacts.predicate==='contact_phone1'?'chevron-up':'chevron-down'}}"></i>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a
+                                            href
+                                            ng-click="contactSortBy('email_address')"
+                                            tooltip-placement="top-left"
+                                            uib-tooltip="{{tips.automated.sortbyemailaddress}}"
+                                            class="tableheader">
+                                            Email
+                                            <i class="fa fa-{{!contacts.reverse && contacts.predicate==='email_address'?'chevron-up':'chevron-down'}}"></i>
+                                        </a>
+                                    </th>
+                                    <!--<th class="am-contact-notes">
+                                        Notes
+                                    </th>-->
+                                    <th class="am-contact-buttons">
+                                        <br />
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-if="!broadcast.contacts || broadcast.contacts.length === 0">
+                                    <td colspan="6">
+                                        You have not imported any recipients yet.
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="contact in filterData = (broadcast.contacts | orderBy : contacts.predicate :contacts.reverse | filter:searchAmContacts) | limitTo:perPage:perPage*(currentPage-1)">
+                                    <td colspan="6" style="margin: 0; background: none; padding: 0;">
+                                        <table class="table table-bordered am-contact masterdata">
+                                            <tr ng-if="showEdit!==contact.robocall_contact_uuid">
+                                                <td class="am-contact-firstname">{{contact.firstname}}</td>
+                                                <td class="am-contact-lastname">{{contact.lastname}}</td>
+                                                <td class="am-contact-phone">{{contact.contact_phone1 | tel}}</td>
+                                                <td>{{contact.email_address}}</td>
+                                                <!--<td class="am-contact-notes">{{contact.notes}}</td>-->
+                                                <td class="am-contact-buttons" >
+                                                    <button
+                                                        class="btn btn-primary btn-xs editbtn"
+                                                        ng-click="editContact(contact.robocall_contact_uuid);"
+                                                        tooltip-placement="top"
+                                                        uib-tooltip="{{tips.automated.editcontact}}">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                    <button
+                                                        class="btn btn-danger btn-xs"
+                                                        ng-click="removeCampaignContact(contact.robocall_contact_uuid)"
+                                                        tooltip-placement="top"
+                                                        uib-tooltip="{{tips.automated.removecontact}}">
+                                                        <i class="fa fa-times"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr ng-if="showEdit===contact.robocall_contact_uuid" style="background-color: #e0e0e0;">
+                                                <td colspan="5">
+                                                    <div class="contact-edit-field">
+                                                        <md-input-container>
+                                                            <label>First Name</label>
+                                                            <input ng-model="tempContact.firstname">
+                                                        </md-input-container>
+                                                    </div>
+                                                    <div class="contact-edit-field">
+                                                        <md-input-container>
+                                                            <label>Last Name</label>
+                                                            <input ng-model="tempContact.lastname">
+                                                        </md-input-container>
+                                                    </div>
+                                                    <div class="contact-edit-field">
+                                                        <md-input-container>
+                                                            <label>Phone</label>
+                                                            <input phone-input ng-model="tempContact.contact_phone1">
+                                                        </md-input-container>
+                                                    </div>
+                                                    <div class="contact-edit-field">
+                                                        <md-input-container>
+                                                            <label>Email</label>
+                                                            <input ng-model="tempContact.email_address">
+                                                        </md-input-container>
+                                                    </div>
+                                                    <div class="contact-edit-field-full">
+                                                        <md-input-container style="width: 100%">
+                                                            <label>Notes</label>
+                                                            <input ng-model="tempContact.notes">
+                                                        </md-input-container>
+                                                    </div>
+                                                    <div ng-if="broadcast.customFields.length>0" class="contact-edit-field-full">
+                                                        Custom Fields:
+                                                    </div>
+                                                    <div ng-if="broadcast.customFields.length>0" ng-repeat="field in broadcast.customFields" class="contact-edit-field">
+                                                        <md-input-container>
+                                                            <label>{{field.field_name}}</label>
+                                                            <input ng-model="tempContact.custom_fields[field.field_key]">
+                                                        </md-input-container>
+                                                    </div>
+                                                </td>
+                                                <td class="am-contact-buttons">
+                                                    <button
+                                                        class="btn btn-success btn-xs"
+                                                        ng-click="saveContact(tempContact)"
+                                                        tooltip-placement="top"
+                                                        uib-tooltip="{{tips.automated.savecontact}}">
+                                                        <i class="fa fa-floppy-o"></i>
+                                                    </button>
+                                                    <button
+                                                        class="btn btn-default btn-xs"
+                                                        ng-click="cancelEdit()"
+                                                        tooltip-placement="top"
+                                                        uib-tooltip="{{tips.automated.canceleditcontact}}">
+                                                        <i class="fa fa-undo"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div ng-show="filterData.length > perPage" style="text-align: center">
+                            <ul
+                                uib-pagination
+                                class="pagination-sm pagination"
+                                force-ellipses="true"
+                                total-items="filterData.length"
+                                ng-model="currentPage"
+                                previous-text="&lsaquo;"
+                                next-text="&rsaquo;"
+                                boundary-link-numbers="true"
+                                items-per-page="perPage"
+                                max-size="5">
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div
+                        class="alert alert-success"
+                        role="alert"
+                        ng-show="listCntcRecMess.length > 1">
+                        <i class="fa fa-check-circle-o fa-2x"
+                           style="margin-right: 15px;">
+                        </i>
+                        <strong>
+                            Click the Next button
+                        </strong>
+                        when you're done adding Recipients...
+                    </div>
+                </div>
+            </uib-tab>
+            <!-- //////////********** TAB 2 UPLOAD FILES  **********////////// -->
+            <uib-tab
+                index="2"
+                heading="Import Files">
+                <div
+                    ng-if="displayLineErrors.length>0"
+                    uib-alert
+                    ng-class="'alert-warning'"
+                    close="closeMessage()"
+                    ng-bind-html="displayLineErrors">
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div
+                            class="jumbotron import"
+                            ng-show="!gridOptions.data.length && !csv.result">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label
+                                        class="btn btn-default btn-file btn-block"
+                                        style="border-top-left-radius: 5; border-bottom-left-radius: 5;">
+                                        <span class="cls-color-blue-tkg">
+                                            <span ng-if="!ctrl.loadingFile">
+                                                <i class=" fa fa-file-excel-o cls-color-blue-tkg"
+                                                    style="margin-right: 10px;"></i>
+                                                    Import spreadsheet file
+                                            </span>
+                                            <span ng-if="ctrl.loadingFile"><i class="fa fa-spinner fa-spin"></i> Loading File - Please Wait</span>
+                                        </span>
+                                        <input
+                                            type="file"
+                                            accept=".xls,.xlsx,.ods"
+                                            fileread=""
+                                            opts="gridOptions"
+                                            multiple="false"
+                                            style="display: none;" />
+                                    </label>
+                                    <span
+                                        class="smfont">
+                                        NOTE: First row of file must contain the headers for the columns.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="jumbotron import"
+                             ng-show="!gridOptions.data.length && !csv.result">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <ng-csv-import
+                                        class="import"
+                                        content="csv.content"
+                                        separator="csv.separator"
+                                        accept="csv.accept"
+                                        separator-visible="csv.separatorVisible"
+                                        result="csv.result"
+                                        encoding="csv.encoding"
+                                        callback="csv.callback">
+                                        
+                                    </ng-csv-import>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="cls-company-setup-mnu">
+                    <div class="cls-cont-company-setup" ng-if="gridOptions.data.length">
+                        <div ng-if="exceedsLimits(gridOptions.data)" class="alert alert-danger">
+                            <p>Importing this file would exceed the demo account limit. Please limit your imported contacts to {{user.usageLimits.contact}}. For questions about Bridge, please contact a Bridge specialist at <a href="mailto:bridge@kotter.net" target="_blank">bridge@kotter.net</a>.</p>
+                            <button class="btn btn-default" ng-click="cancelXlsxUpload()">Clear</button>
+                        </div>
+                        <div ng-if="!exceedsLimits(gridOptions.data)" ng-include="'views/autofilesprocess/fileprocessxlsx.html'"></div>
+                    </div>
+                    <div class="cls-cont-company-setup" ng-if="csv.result">
+                        <div ng-if="exceedsLimits(csv.result)" class="alert alert-danger">
+                            <p>Importing this file would exceed the demo account limit. Please limit your imported contacts to {{user.usageLimits.contact}}. For questions about Bridge, please contact a Bridge specialist at <a href="mailto:bridge@kotter.net" target="_blank">bridge@kotter.net</a>.</p>
+                            <button class="btn btn-default" ng-click="cancelCsvUpload()">Clear</button>
+                        </div>
+                        <div ng-if="!exceedsLimits(csv.result)" ng-include="'views/autofilesprocess/fileprocesscsv.html'"></div>
+                    </div>
+                </div>
+            </uib-tab>
+            <!-- //////////********** TAB 3 ADD INDIVIDUALLY  **********////////// -->
+            <uib-tab
+                index="3"
+                heading="Add Individually">
+                <div
+                    ng-if="displayLineErrors.length>0"
+                    uib-alert
+                    ng-class="'alert-warning'"
+                    close="closeMessage()"
+                    ng-bind-html="displayLineErrors">
+                </div>
+                <div class="jumbotron">
+                    <div ng-show="!procAddIndError">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="input-group">
+                                    <span
+                                        class="input-group-addon"
+                                        title="First Name">
+                                        <i class="fa fa-edit"></i>
+                                    </span>
+                                    <input
+                                        class="form-control" type="text"
+                                        placeholder="First Name"
+                                        ng-model="list.name"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="input-group">
+                                    <span
+                                        class="input-group-addon"
+                                        title="Last Name">
+                                        <i class="fa fa-edit"></i>
+                                    </span>
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        placeholder="Last Name"
+                                        ng-model="list.lastname"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="input-group">
+                                    <span
+                                        class="input-group-addon"
+                                        title="Phone Number">
+                                        <i class="fa fa-phone"></i>
+                                    </span>
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        placeholder="Phone Number"
+                                        phone-input
+                                        ng-model="list.phone"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon"
+                                          title="email">
+                                        <i class="fa fa-at"></i>
+                                    </span>
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        placeholder="email"
+                                        ng-model="list.email"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="input-group">
+                            <span class="input-group-addon"
+                                  title="Notes">
+                                <i class="fa fa-edit"></i>
+                            </span>
+                            <input
+                                class="form-control"
+                                type="text"
+                                placeholder="Notes"
+                                ng-model="list.notes"
+                                required>
+                        </div>
+                        <button
+                            class="btn btn-default"
+                            style="margin-top: 15px; margin-right: 15px;"
+                            ng-click="clearIndividually();">
+                            <i class="fa fa-eraser"></i>
+                            Clear Entry
+                        </button>
+                        <button
+                            class="btn btn-default"
+                            style="margin-top: 15px;"
+                            ng-click="addListIndividually(list);">
+                            <i class="fa fa-bars"></i>
+                            Put on list
+                        </button>
+                        <!-- <button class="btn btn-default" style="margin-top: 20px;"><i class="fa fa-eraser"></i>  Cancel  </button> -->
+                    </div>
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        ng-show="procAddIndError">
+                        <div class="row">
+                            <div class="col-lg-1">
+                                <i
+                                    class="fa fa-times-circle-o fa-3x"
+                                    style="margin-right: 15px;">
+                                </i>
+                            </div>
+                            <div class="col-lg-11">
+                                <strong>
+                                    This phone number is already being used.
+                                </strong>
+                            </div>
+                        </div><br/>
+                        <div class="row">
+                            <center>
+                                <button
+                                    class="btn btn-default"
+                                    ng-click="dropAlert()">
+                                    <i
+                                        class="fa fa-file-o"
+                                        style="margin-right: 10px"></i>
+                                    Accept
+                                </button>
+                            </center>
+                        </div>
+                    </div>
+                </div>
+        </uib-tabset>
+    </div>
+</div>

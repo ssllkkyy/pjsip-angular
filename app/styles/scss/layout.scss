@@ -1,0 +1,291 @@
+@import "variables";
+#main-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    flex-direction: row;
+    // overflow: auto;
+    &.login-main {
+        padding: 0;
+        background-color: $logingrey;
+    }
+    #leftbar {
+        width: 25%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding-right: 10px;
+        
+        .left-column-calling {
+            flex: 1 0 auto;
+            margin-bottom: 0.5rem;
+            // flex-basis: content;
+        }
+        .left-column-user {
+            flex: 1 0 auto;
+            margin-bottom: 0.5rem;
+        }
+        .left-column-contacts, .left-column-chat {
+            flex: 90 1 auto;
+            overflow-y: auto;
+        }
+    }
+    
+    #right-container {
+        border: lavender solid 1px;
+        flex: 7.6 1 0;
+        // max-width: 74vw;
+        display: flex;
+        flex-direction: column;
+        &.login-right {
+            width: 100%;
+            margin: 0px !important;
+            padding: 0px;
+            border-width: 0px;
+            max-width: 100% !important;
+            
+        }
+        &.full-width-page {
+            max-width: 100% !important;
+        }
+        #header {
+            flex: 6 1 0;
+            z-index: 3;
+        }
+        #content-container {
+            display: flex;
+            flex: 93 1 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-width: 452px;
+        }
+        .padded-content-container {
+            padding: 1%;
+        }
+        .content-header {
+            padding-top: 10px;
+            border-bottom: 1px solid #ddd;
+            &.padd {
+                padding: 25px 15px 5px 15px;
+            }
+            .vm-selector {
+                padding-top: 25px;
+                md-input-container {
+                    margin-bottom: 0px !important;
+                    margin-top: 0px !important;
+                }
+            }
+        }
+    }
+}
+
+#try-mobile {
+    display: none !important;
+}
+
+html,
+body {
+    // height: 100vh;
+}
+
+
+
+#login-page-container {
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: row;
+    margin: 0 auto;
+    font-family: 'Open Sans', sans-serif;
+    .tableclass {
+        height: 100%;
+        width: 100%;
+        max-width: none;
+        .tablecell {
+            width: 50%;
+        }
+    }
+    md-select {
+        border-width: 0 0 1px 0;
+        border-style: solid;
+        border-color: #ccc;
+        border-radius: 0;
+        box-shadow: none;
+        transition: none;
+        padding: 0;
+    }
+    
+    .login-left {
+        flex: 1 1 55%;
+        display: flex;
+        flex-direction: column;
+        // background-color: red;
+        .login-logo {
+            flex: 0 0 160px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .login-feature-image {
+            flex: 1 1 auto;
+            margin-top: 40px;
+            background-image: url("/images/Bridge+Background+Girl.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+        }
+    }
+    .login-right {
+        flex: 1 1 45%;
+        display: flex;
+        flex-direction: column;
+        .relationships {
+            flex: 0 0 160px;
+            font-family: 'Open Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            .primary {
+                font-size: 34px;
+                font-weight: 900;
+                color: $bridgeorange;
+                line-height: 60px;
+            }
+            .secondary {
+                font-size: 24px;
+                color: $bridgeteal;
+                line-height: 28px;
+                font-weight: 600;
+            }
+        }
+        .bridge-logo {
+            margin: 20px 0 10px;
+            flex: 0 1 200px;
+            min-height: 125px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-image: url("/images/logo.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+        .form-container {
+            flex: 1 1 auto;
+            overflow-y: scroll;
+            md-input-container {
+                margin: 6px 0;
+                width: 32%;
+                label {
+                    margin: 0;
+                }
+            }
+            .bridge-logo-box {
+                text-align: center;
+                padding: 10px;
+                width: 100%;
+            }
+            .login-container {
+                input:-webkit-autofill {
+                    -webkit-box-shadow: 0 0 0 1000px white inset;
+                }
+                md-input-container {
+                    width: 49%;
+                }
+            }
+            .forgot-container {
+                md-input-container {
+                    width: 100%;
+                }
+            }
+            .form-wrapper {
+                padding: 20px;
+                background-color: lighten( $logingrey, 2% );
+                .panel {
+                    background: none;
+                    border: 1px solid $bridgeteal;
+                }
+                .pricing {
+                    padding-top: 10px;
+                }
+            }
+            md-checkbox {
+                margin-bottom: 2rem;
+            }
+            
+            md-input-container.card-num {
+                width: 48%;
+            }
+            md-input-container.card-exp {
+                width: 24% !important; 
+            }
+            md-input-container.card-cvc {
+                width: 22% !important;
+            }
+            md-input-container.signup-select {
+                margin-bottom: 32px;
+                md-select {
+                    border-width: 0 0 1px 0;
+                    border-style: solid;
+                    border-color: #ccc;
+                    border-radius: 0;
+                    box-shadow: none;
+                    transition: none;
+                    padding: 0;
+                }
+            } 
+            
+        }
+    }
+}
+
+#right-container.full-screen-right-container {
+    //width: 100% !important;
+    //max-width: 100%;
+    // margin-left: 10px !important;
+}
+
+
+
+.contact-imports {
+    position: absolute;
+    left: 10px;
+    bottom: 0;
+    z-index: 999999999;
+    .import-box {
+        border: lavender solid 1px;
+        border-bottom: none;
+        background-color:rgba(255,255,255,0.8);
+        padding: 10px 10px 15px 10px;
+        font-size: 18px;
+        border-radius: 5px 5px 0 0;
+        margin: 5px 10px 0 10px;
+        float: left;
+        .close-icon {
+            color: $ltgrey;
+            float: right;
+        }
+    }
+}
+
+@media (max-width: 1269px) {
+    #leftbar {
+        flex-basis: 30%;
+    }
+}
+
+@media (max-width: 1049px) {
+    #leftbar {
+        flex-basis: 32%;
+    }
+}
+
+@media (max-height: 739px) {
+    #chat-channel-header {
+        height: 20% !important;
+    }
+}

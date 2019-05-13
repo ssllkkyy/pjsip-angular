@@ -1,0 +1,50 @@
+<div>
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-mobile fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Edit Mobile Settings</span>
+        <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <md-input-container class="md-block" flex-gt-sm>
+            <label>Channel Name</label>
+            <input ng-model="vm.content.data.channel.display_name" required>
+        </md-input-container>
+        <md-input-container class="md-block">
+            <label>Purpose of the Channel (optional)</label>
+            <textarea ng-model="vm.content.data.channel.purpose" md-maxlength="150" rows="2" md-select-on-focus></textarea>
+        </md-input-container>
+
+        <div ng-if="1==3 && vm.content.data.channel.type==='P'">
+            <strong>Select Members of the Private Channel:</strong> 
+            <div class="input-group"> 
+                <span class="input-group-addon"><i class="fa fa-question-circle"></i></span> 
+                <input class="form-control" type="text" ng-model="search.contact_name_full" placeholder="Search by contact name">
+            </div>
+            <table id="contact-groups-table" class="table table-bordered table-hover table-striped">
+                <tbody>
+                    <tr ng-if="member.id !== memberId && member.roles" ng-repeat="member in vm.content.data.teamMembers | filter:search | orderBy : 'first_name' :false">
+                        <td class="col-sm-9">
+                            <strong>{{member.first_name}} {{member.last_name}}</strong>
+                        </td>
+                        <td class="col-sm-3">
+                            <md-checkbox
+                                ng-model="vm.content.data.channel.channelmember[member.id]"
+                                aria-label="Member"
+                                class="md-warn md-align-top-left permissions" flex>
+                            </md-checkbox>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+        <button class="btn btn-success btn-md" ng-click="vm.content.data.doEditChannel(vm.content.data.channel)"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Channel</button>
+    </div>
+</div>

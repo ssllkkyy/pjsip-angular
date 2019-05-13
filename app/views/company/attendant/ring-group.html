@@ -1,0 +1,81 @@
+<div class="action-pad">
+    <div class="alert alert-info">
+        <a><strong>Instructions:</strong> Drag from the list to the main left container for the options you want the auto attendant to handle</a>
+    </div>
+    <div class="row col-md-12">
+        <div class="trashbox">
+            <!-- If you use [] as referenced list, the dropped elements will be lost -->
+            <ul dnd-list="[]">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+                <div class="attendant-drop col-md-12 no-select">
+                    <div class="attend-row">
+                        <div class="col-md-6">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Auto Attendant</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <ul dnd-list="newIvr.currentAttendant.containers" dnd-allowed-types="['container']" dnd-external-sources="true" dnd-drop="dropContainCallback(index, item, external, type)">
+                                        <li ng-repeat="container in newIvr.currentAttendant.containers" dnd-draggable="container" dnd-type="'container'" dnd-effect-allowed="copyMove" dnd-moved="newIvr.currentAttendant.containers.splice($index, 1)" dnd-callback="container.items.length">
+                                            <div class="panel panel-info">
+                                                <div class="panel-heading">
+                                                    <h3 class="panel-title">{{container.label}}</h3>
+                                                </div>
+                                                <ul dnd-list="container.items" dnd-allowed-types="['items']" dnd-dragover="dragoverCallback(index, external, type)"
+                                                    dnd-drop="dropRingCallback(index, item, external, type)" class="itemlist ring">
+                                                    <li ng-repeat="attendant in container.items" dnd-type="'items'" dnd-draggable="attendant" dnd-effect-allowed="copyMove" dnd-moved="container.items.splice($index, 1)">
+                                                        {{attendant.name}} <strong> {{attendant.ext}} </strong>
+                                                    </li>
+                                                    <li class="dndPlaceholder">
+                                                        Drop any <strong>Contact</strong> here
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+                                        <li class="dndPlaceholder">
+                                            Drop any <strong>Service</strong> here
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 options">
+                            <div class="col-md-12">
+                                <div class="panel panel-info container-element box box-blue">
+                                    <div class="panel-heading">
+                                        <h2 class="panel-title">Services</h2>
+                                    </div>
+                                    <div class="panel-body">
+                                        <ul dnd-list="containers" dnd-horizontal-list="true" dnd-disable-if="true" class="itemlist dnd-services">
+                                            <li class="dnd-box" ng-repeat="option in options.services.items" dnd-draggable="option" dnd-type="'container'" dnd-effect-allowed="copy">
+                                                <md-tooltip md-direction="top" style="font-size:1.4rem;">{{option.tip}}</md-tooltip>
+                                                {{option.label}}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-10">
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h2 class="panel-title">Contacts</h2>
+                                    </div>
+                                    <div class="action-contact">
+                                        <ul dnd-list="options.users.items" dnd-disable-if="true" class="itemlist">
+                                            <li ng-repeat="user in options.users.items" dnd-draggable="user" dnd-type="'items'" dnd-effect-allowed="copy">
+                                                <div>
+                                                    {{user.name}} {{user.ext}}
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div view-source="simple"></div>
+                </div>
+            </ul>
+        </div>
+    </div>
+</div>

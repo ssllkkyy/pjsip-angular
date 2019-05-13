@@ -1,0 +1,64 @@
+<div ng-controller="CallsParkedCtrl" style="width:25px;">
+    <span class="badge" style="margin-top:-5px;margin-left:20px;opacity:0.6;" ng-hide="showCallParkingIconLoading" ng-style="callsParkedCount > 0 && {'background-color':'red'}" 
+        tooltip-placement="bottom-left" uib-tooltip={{tooltipParked}}>
+        {{callsParkedCount}}
+    </span>
+    <span class="badge" style="margin-top:-5px;margin-left:20px;opacity:0.6;background-color:orange;" ng-show="showCallParkingIconLoading" 
+        tooltip-placement="bottom-left" uib-tooltip={{tooltipParkedLoading}}>
+        ...
+    </span>
+    <div id="div-parked-calls-outer">
+        <img src={{iconCallParking}}
+        alt="Parked Calls"
+        id="slideout-image"
+        style="width: 25px;margin-top:-20px;" 
+        />
+        <div id="div-parked-calls-list" ng-show="showingCallsParked" >
+            <table class="table table-hover table-striped data-table-top" 
+                style="width: 100%;"> 
+                <tr>
+                    <th colspan=4 >
+                        {{callsParkedTableHeader}}
+                    </th>
+                    <th>
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan=3>
+                        <div ng-show="showLoaderLine">
+                            <div class="loader-line"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-repeat="c in callsParked">
+                    <td>
+                        <div ng-show="showPhoto">
+                            <div class="cls-circle-arround-1">
+                                <img src='{{c.avatar1}}' class="cls-img-incomingcall" alt="" />
+                            </div>
+                        </div>
+                        <div ng-show="!showPhoto">
+                            <div class="cls-circle-arround-1">
+                                <img src='./images/icons/avatar-default.png' class="cls-img-incomingcall" alt="" />
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-size: 1.3em;">{{ c.caller }}</span> <br />
+                        Parked at: <span style="font-weight:bolder;">{{ c.parked_at }}</span> <br />
+                        Parked by: <span style="font-weight:bolder;">{{ c.parked_by }}</span>
+                    </td>
+                    <td>
+                        <img src={{iconPhonePickup}} 
+                        alt="Parked Calls"
+                        style="width: 25px;" 
+                        ng-click="callExtension(c.parked_at)"
+                        tooltip-placement="bottom-left" uib-tooltip={{tooltipUnParkCall}}
+                        />                                                        
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>    
+</div>
+

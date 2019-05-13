@@ -1,0 +1,44 @@
+<div class="modal-header"
+     id="modal-screen-share">
+    <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+
+    <span class="cls-header-modal">
+            <center>How to Send Fax via E-Mail</center>
+        </span>
+</div>
+<div class="modal-body" id="modal-body">
+    <div class="row">
+        <div class="col-md-offset-1 col-md-10 col-md-offset-1 fax2email-sample" >
+            <p>To send a fax using our Email-to-Fax service simply send an email using the parameters provided below. Email-to-Fax supports up to 5 attachments. Attachments may be sent in JPG, PDF, Adobe PostScript, TIFF, Microsoft Word, Excel, CSV, HTML & Plain Text formats.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-offset-2 col-md-8 col-md-offset-2 fax2email-sample">
+            <div class="col-md-2"> <b>To:</b> </div>
+            <div class="col-md-10">{{vm.content.data.sendTo}}</div>
+        </div> 
+        <div class="col-md-offset-2 col-md-8 col-md-offset-2 fax2email-sample">
+            <div class="col-md-2"><b>From:</b> </div>
+            <div class="col-md-10">{{vm.content.data.sendFrom}}</div>
+        </div>
+        <div class="col-md-offset-2 col-md-8 col-md-offset-2 fax2email-sample">
+            <div class="col-md-2"><b>Subject:</b> </div>
+            <div class="col-md-10">[Fax] 10_digit_target_vfax_number</div>
+        </div>
+        <div class="col-md-offset-2 col-md-8 col-md-offset-2 fax2email-sample">
+            <div class="col-md-2"> <b>Body:</b> </div>
+            <div class="col-md-10"> Content put in the body of the email will be included on a cover page. </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-offset-1 col-md-10 col-md-offset-1 fax2email-sample" >
+            <p>You may only send faxes from the email address associated with your Bridge account. Upon submission our system will reply with a confirmation or rejection notice.</p>
+        </div>
+    </div>
+    <div style="text-align: center;">
+        <span ></span>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Ok</button>
+</div>

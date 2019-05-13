@@ -1,0 +1,92 @@
+<md-content class="user-settings-content">
+    <md-input-container>
+        <input type="text"
+               ng-value="user.contact_name_given"
+               ng-model="settings.firstName"
+               placeholder="first name">
+    </md-input-container>
+    <md-input-container>
+        <input type="text"
+               ng-value="user.contact_name_family"
+               ng-model="settings.lastName"
+               placeholder="last name">
+    </md-input-container>
+    <md-input-container>
+        <input type="text"
+               ng-value="user.user_ext"
+               ng-model="settings.phoneExtension"
+               placeholder="extension"
+               ng-readonly="true">
+    </md-input-container>
+    <md-input-container>
+        <input type="text"
+               ng-value="user.email_address"
+               ng-model="settings.email"
+               placeholder="email">
+    </md-input-container>
+    <md-input-container>
+        <input type="text"
+               phone-input
+               ng-value="user.phone_number"
+               ng-model="settings.phoneNumber"
+               placeholder="phone number">
+    </md-input-container>
+    <md-input-container>
+        <label>Time zone</label>
+        <md-select ng-model="settings.timeZone">
+            <md-option ng-repeat="timezone in timeZones"
+                       ng-value="timezone.display">
+                {{timezone.display}}
+            </md-option>
+        </md-select>
+    </md-input-container>
+    <md-input-container>
+        <input type="text"
+               ng-model="did_extension"
+               ng-value="::user.symphony_user_settings.sms_phone_number | tel"
+               placeholder="DID extension"
+               ng-readonly="true">
+    </md-input-container>
+    <md-input-container>
+        <label>Outbound Caller ID</label>
+        <md-select ng-model="outboundDID"
+                   aria-label="choices" 
+                   ng-change="setCallerId(user, outboundDID)">
+            <md-option ng-if="!did.port_status || did.port_status == 'porting'" 
+                ng-repeat="did in validDids"
+                ng-value="did">
+                {{did.destination_number | tel}}
+                <span class="greyfont capitalize"
+                      ng-if="did.port">
+                    - {{did.port.port_status}}
+                </span>
+                <span class="greyfont capitalize"
+                      ng-if="did.type">
+                    ({{did.type}})
+                </span>
+            </md-option>
+        </md-select>
+    </md-input-container>
+    <md-input-container>
+    <md-switch class="md-warn"
+                ng-model="user.external_device_transfer"
+                ng-change="updateEDTSetting()"
+                aria-label="EDT Enable/Disable" 
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                {{ user.external_device_transfer === 'true' ? 'Transfer calls to External Device' : 'Transfer calls to External Device'}}
+    </md-switch>
+    </md-input-container>
+    <md-input-container>
+        <input type="number"
+               ng-model="settings.idleTimeout"
+               ng-value="user.settings.idleTimeout"
+               placeholder="Idle Timeout in Hours">
+    </md-input-container>
+
+    <br>
+    <md-button ng-click="triggerUpdate()"
+               class="md-primary md-raised">
+        Update Information
+    </md-button>
+</md-content>

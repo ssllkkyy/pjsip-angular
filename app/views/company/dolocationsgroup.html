@@ -1,0 +1,154 @@
+<div class="modal-header"
+     id="modal-screen-share">
+    <span class="fa-stack fa-2x modal-icon">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+    </span>
+    <span class="cls-header-modal">
+        {{vm.content.data.editLocationIndex != null ? 'Edit' : 'Create New'}} Locations Group
+    </span>
+    <button type="button"
+            ng-click="vm.content.data.closeCreateGroup()"
+            class="close">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+<div class="modal-body" id="modal-body">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="input-group">
+                <span class="input-group-addon">
+                    <i class="fa fa-sitemap"></i>
+                </span>
+                <input class="form-control"
+                       type="text"
+                       ng-model="updateGroup.group_name"
+                        placeholder="Group Name">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <p>Communications Viewable by this Group</p>
+            <div class="col-md-4" ng-repeat="location in vm.content.data.locationCommunications">
+                <md-checkbox ng-model="updateGroup.communication_options[location.var_value]"
+                             
+                             aria-label="Communications Viewable"
+                             class="md-warn md-align-top-left"
+                             flex>
+                    {{location.var_name}}
+                </md-checkbox>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            Choose a Time Zone for users in this location
+            <md-input-container style="margin: 0px;">
+                <label>Time zone</label>
+                <md-select ng-model="updateGroup.timeZone">
+                    <md-option ng-repeat="timezone in timeZones"
+                               ng-value="timezone.display">
+                        {{timezone.display}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+    </div>
+    <div class="row" ng-if="vm.content.data.textingSelected(updateGroup.communication_options)">
+        <div class="col-sm-12">
+            Choose Default SMS Number for this location
+            <md-input-container >
+                <label>Primary Sms Number: </label>
+                <md-select ng-model="updateGroup.primary_sms"
+                    
+                    tooltip-placement="bottom"
+                    uib-tooltip="{{::tips.voicemail.select_months}}">
+                    <md-option ng-repeat="num in vm.content.data.locationsGroups[vm.content.data.editLocationIndex].phones"
+                        ng-value="num.number" >
+                    {{num.number | tel}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="data-table-top" class="table table-bordered table-hover table-striped" style="width: 100%-13px">
+                <thead>
+                    <tr>
+                        <th style="width: 33%">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-question-circle"></i></span>
+                                <input class="form-control normal"
+                                       type="text"
+                                       ng-model="vm.content.data.search.name"
+                                       placeholder="Filter by Name">
+                            </div>
+                            <button class="btn btn-default btn-xs"
+                                    ng-click="vm.content.data.search.name = ''">
+                                Clear Filter
+                            </button>
+                        </th>
+                        <th style="width: 33%"><strong>Managers</strong><br />
+                            <span class="smfont normal">Select the users that can view the communications in this group</span></th>
+                        <th style="width: 33%"><strong>Group Members</strong><br />
+                            <span class="smfont normal">Select users whose communications can be viewed by the managers.</span></th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="scroll-container" ng-style="{height: vm.content.data.modalTableHeight + 'px'}" style="min-height: 125px; max-height: 300px;">
+                <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <tbody>
+                        <tr ng-repeat="contact in vm.content.data.userContacts | filter:vm.content.data.search |
+                                       filter: {en : 'true'}"
+                            ng-if="!isKotterTechUser(contact)">
+                            <td style="width: 33%">
+                                {{contact.name}}
+                            </td>
+                            <td style="width: 33%">
+                                <md-checkbox ng-model="updateGroup.manager[contact.user_uuid]"  aria-label="Manager" class="md-warn md-align-top-left permissions" flex>
+                                </md-checkbox>
+                            </td>
+
+                            <td style="width: 33%">
+                                <md-checkbox ng-model="updateGroup.member[contact.user_uuid]" aria-label="Member" class="md-warn md-align-top-left permissions" flex>
+                                </md-checkbox>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <hr />
+</div>
+<div class="modal-footer cls-incomingcall-buttons">
+    <button class="btn btn-danger btn-md"
+            ng-click="vm.content.data.closeCreateGroup()">
+        <i class="fa fa-remove"
+           style="margin-right: 10px;">
+        </i>
+        Cancel</button>
+    <button class="btn btn-primary btn-md"
+            ng-if="!vm.content.data.showNewGroup && !vm.content.data.uploader.queue.length"
+            ng-click="vm.content.data.updateLocationsGroup(updateGroup, vm.content.data.editLocationIndex)">
+        <i class="fa fa-save"
+           style="margin-right: 10px;"></i>
+        Update Group
+    </button>
+    <button class="btn btn-primary btn-md"
+            ng-if="vm.content.data.showNewGroup && !vm.content.data.uploader.queue.length &&
+                   !vm.content.data.loading()"
+            ng-click="vm.content.data.createNewLocationsGroup(updateGroup)">
+        <i class="fa fa-save" style="margin-right: 10px;"></i>
+        Create Group
+    </button>
+    <div ng-if="vm.content.data.loading()"
+         style="display: inline-block; margin-left: 2rem;">
+        <span class="spinner">
+            <i class="fa fa-cog fa-spin fa-lg"></i>
+        </span>
+    </div>
+</div>
+

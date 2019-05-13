@@ -1,0 +1,26 @@
+<div>
+    <div>  
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-edit fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Edit Channel Header</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+
+        <div class="modal-body" id="modal-body">
+
+            Set text that will appear in the header of the Channel beside the Channel name. For example, include frequently used links by typing [Link Title](http://example.com).
+            <div class="input-group"> 
+                <span class="input-group-addon" title="first name"><i class="fa fa-edit"></i></span> 
+                <textarea class="form-control" type="text" ng-init="vm.content.channel.header=vm.content.data.header" ng-model="vm.content.channel.header" placeholder="Header for the Channel (optional)"></textarea>
+            </div>
+            
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="modifyChannel('header', vm.content)"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Changes</button>
+        </div>
+    </div>
+</div>

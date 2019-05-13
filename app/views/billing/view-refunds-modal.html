@@ -1,0 +1,36 @@
+<div>
+    <view-refunds refunds="vm.content.data"></view-refunds>
+</div>
+
+<script type="text/ng-template" id="view-refunds.html">
+        <div class="modal-body package-edit" id="modal-body">
+            
+            <table class="table table-bordered table-striped cls-tab-call-history">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Refund Number</th>
+                        <th>Details</th>
+                        <th>Refunded Amount</th>
+                        <th>Confirmation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="refund in refunds | orderBy : 'created_at' : true">
+                        <td>
+                            {{refund.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                            {{refund.created_at | toLocalTime | amDateFormat:'h:mm a'}}
+                        </td>
+                        <td>RE{{refund.refund_num}}</td>
+                        <td>{{refund.description}}</td>
+                        <td>{{refund.amount | currency}}</td>
+                        <td>{{refund.refund_id}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+        </div>
+    </form>
+</script>

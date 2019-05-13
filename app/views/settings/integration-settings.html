@@ -1,0 +1,212 @@
+<md-content>
+    <div ng-show="partner == 'hawksoft' || partner == 'generic'">
+        <h4 ng-if="partner == 'hawksoft'">{{partner_name}} Settings</h4>
+        <div class="integration-settings">
+            <md-checkbox 
+                ng-model="user.copyExportToClipboard" 
+                ng-change="updateGreenbox('CopyExportToClipboard', user.copyExportToClipboard)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Copy Exports to Clipboard
+            </md-checkbox>
+            <md-checkbox 
+                ng-model="user.copyExportToFile" 
+                ng-change="updateGreenbox('CopyExportToFile', user.copyExportToFile)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Export to Inbox as Files (requires Bridge Desktop be enabled)
+            </md-checkbox>
+        </div>
+        <div class="integration-settings">
+            <md-checkbox ng-model="user.automaticExports" 
+                ng-change="updateGreenbox('automaticExports', user.automaticExports)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Turn on Automatic {{partner == 'ams360' ? 'Activity' : 'Task'}} Exports
+            </md-checkbox>
+        </div>
+        <!-- <div class="integration-settings">
+            <md-switch class="md-warn"
+                ng-model="enableGreenbox"
+                ng-change="updateGreenbox('IntegrationStatus', enableGreenbox)"
+                aria-label="BridgeDsk Enable/Disable" 
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                {{enableGreenbox === 'true' ? 'Bridge Desktop is Enabled' : 'Bridge Desktop is Disabled'}} 
+                <span class="orangefont" 
+                    ng-if="user.copyExportToFile === 'true' && (!enableGreenbox || enableGreenbox === 'false')" >
+                    (Must be enabled to export to inbox as files)
+                </span>
+            </md-switch>
+        </div> -->
+        <div class="integration-settings" ng-show="user.copyExportToFile && user.copyExportToFile == 'true'">
+            <div class="row">
+            <div class="col-md-6">
+                <div class="path-label">Inbox file path </div>
+                <small style="color:red" ng-show="inbox_error"> The Inbox file path was not found.</small>
+                <input type="text" name="filepath" class="form-control filepath" placeholder="Insert file path here." ng-model="filepath">
+                <md-button ng-click="submitFilePath(filepath, 'InboxFilePath')"
+                            class="md-primary md-raised">
+                            Save
+                </md-button>
+            </div>
+            <div class="col-md-6">
+                <div class="path-label">CMS path</div>
+                <input type="text" name="filepath" class="form-control filepath" placeholder="Insert file path here." ng-model="hsfilepath">
+                <md-button ng-click="submitFilePath(hsfilepath, 'CmsPath')"
+                            class="md-primary md-raised">
+                            Save
+                </md-button>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div ng-show="partner == 'ams360' || partner == 'qqcatalyst'">
+        <h4>{{partner == 'ams360' ? 'AMS360' : 'QQCatalyst'}} Settings</h4>
+        <div class="integration-settings">
+            <div>
+                <md-checkbox ng-model="user.openClient" 
+                            ng-change="updateGreenbox('OpenClient', user.openClient)"
+                            ng-true-value="'true'" 
+                            ng-false-value="'false'">
+                    Open Client on Call
+                </md-checkbox>
+                <md-checkbox ng-model="user.openClientOnAnswer" 
+                            ng-change="updateGreenbox('OpenClientOnAnswer', user.openClientOnAnswer)"
+                            ng-true-value="'true'" 
+                            ng-false-value="'false'">
+                    Open Client on Answer
+                </md-checkbox>
+                <md-checkbox ng-model="user.automaticExports" 
+                    ng-change="updateGreenbox('automaticExports', user.automaticExports)"
+                    ng-true-value="'true'" 
+                    ng-false-value="'false'">
+                    Turn on Automatic {{partner == 'ams360' ? 'Activity' : 'Task'}} Exports
+                </md-checkbox>
+            </div>
+            <form name="idform" id="idform" autocomplete="off" ng-show="partner == 'qqcatalyst'">
+                <div class="row">
+                    <div class="col-md-2">
+                        <h4>User Name</h4>
+                    </div>
+                    <div class="col-md-3">
+                        <md-input-container style="margin: 0px">
+                            <label>Enter User Name.</label>
+                            <input type="text" name="fakeusernameremembered"  ng-model="user.integrations.userName" autocomplete="nope">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-2">
+                        <h4>Password</h4>
+                    </div>
+                    <div class="col-md-3">
+                        <md-input-container style="margin: 0px">
+                            <label>Enter Password.</label>
+                            <input type="password" name="fakepasswordremembered" ng-model="user.integrations.password" autocomplete="new-password">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-2">
+                        <md-button ng-click="updateUserNamePass(user.integrations.userName, user.integrations.password)"
+                                class="md-primary md-raised">
+                                Save Settings
+                        </md-button>
+                    </div>
+                </div>
+            </form>
+            <!-- <md-switch class="md-warn"
+                ng-model="enableGreenbox"
+                ng-change="updateGreenbox('IntegrationStatus', enableGreenbox)"
+                aria-label="BridgeDsk Enable/Disable" 
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                {{enableGreenbox === 'true' ? 'Bridge Desktop is Enabled' : 'Bridge Desktop is Disabled'}}
+            </md-switch> -->
+            <div class="row" ng-show="partner =='qqcatalyst' && user.copyExportToFile && user.copyExportToFile == 'true'">
+                <div class="col-md-6">
+                    <div class="path-label">Inbox file path </div>
+                    <small style="color:red" ng-show="inbox_error"> The Inbox file path was not found.</small>
+                    <input type="text" name="filepath" class="form-control filepath" placeholder="Insert file path here." ng-model="filepath">
+                    <md-button ng-click="submitFilePath(filepath, 'InboxFilePath')"
+                                class="md-primary md-raised">
+                                Save
+                    </md-button>
+                </div>
+            </div>
+            <div class="row" ng-show="partner == 'ams360'">
+                <div class="col-md-6">
+                    <div class="path-label">Short Name</div>
+                    <input type="text" name="shortName" class="form-control filepath" placeholder="Enter your Short Name here." ng-model="user.shortName">
+                    <md-button ng-click="updateGreenbox('ShortName', user.shortName)"
+                                class="md-primary md-raised">
+                                Save Settings
+                    </md-button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-show="partner == 'agencymatrix' || partner == 'ezlynx' || partner == 'e-agent' || partner == 'epic'">
+        <h4>{{partner_name}} Settings</h4>
+        <div class="integration-settings">
+            <md-checkbox ng-model="user.openClient" 
+                        ng-show="partner != 'epic'"
+                        ng-change="updateGreenbox('OpenClient', user.openClient)"
+                        ng-true-value="'true'" 
+                        ng-false-value="'false'">
+                Open Client on Call
+            </md-checkbox>
+            <md-checkbox ng-model="user.openClientonAnswer" 
+                        ng-show="partner != 'epic'"
+                        ng-change="updateGreenbox('OpenClientOnAnswer', user.openClientonAnswer)"
+                        ng-true-value="'true'" 
+                        ng-false-value="'false'">
+                Open Client on Answer
+            </md-checkbox>
+            <md-checkbox ng-model="user.automaticExports" 
+                ng-change="updateGreenbox('automaticExports', user.automaticExports)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Turn on Automatic Call Exports
+            </md-checkbox>
+        </div>
+        <div class="integration-settings">
+            <md-checkbox 
+                ng-model="user.copyExportToClipboard" 
+                ng-change="updateGreenbox('CopyExportToClipboard', user.copyExportToClipboard)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Copy Exports to Clipboard
+            </md-checkbox>
+            <md-checkbox 
+                ng-model="user.copyExportToFile" 
+                ng-change="updateGreenbox('CopyExportToFile', user.copyExportToFile)"
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                Export to Inbox as Files (requires Bridge Desktop be running)
+            </md-checkbox>
+        </div>
+        <!-- <div class="integration-settings">
+            <md-switch class="md-warn"
+                ng-model="enableGreenbox"
+                ng-change="updateGreenbox('IntegrationStatus', enableGreenbox)"
+                aria-label="BridgeDsk Enable/Disable" 
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                {{enableGreenbox === 'true' ? 'Bridge Desktop is Enabled' : 'Bridge Desktop is Disabled'}}
+                <span class="orangefont" 
+                    ng-if="user.copyExportToFile === 'true' && (!enableGreenbox || enableGreenbox === 'false')" >
+                    (Must be enabled to export to inbox as files)
+                </span>
+            </md-switch>
+        </div> -->
+        <div class="row" ng-show="user.copyExportToFile && user.copyExportToFile === 'true'">
+            <div class="col-md-6">
+                <div class="path-label">Inbox file path </div>
+                <small style="color:red" ng-show="inbox_error"> The Inbox file path was not found.</small>
+                <input type="text" name="filepath" class="form-control filepath" placeholder="Insert file path here." ng-model="filepath">
+                <md-button ng-click="submitFilePath(filepath, 'InboxFilePath')"
+                            class="md-primary md-raised">
+                            Save
+                </md-button>
+            </div>
+        </div>
+    </div>
+</md-content>

@@ -1,0 +1,186 @@
+<md-button ng-click="back()"
+           class="user-edit-back-btn">
+    <md-icon> arrow_back </md-icon>
+</md-button>
+<div class="user-edit">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2 md-truncate flex>
+                {{user.contact_name_full}}
+            </h2>
+        </div>
+    </md-toolbar>
+    <md-content class="user-edit-content">
+        <md-input-container>
+            <input type="text"
+                   ng-value="user.contact_name_given"
+                   ng-change="settings.userInfoChanged = true"
+                   ng-model="settings.firstName"
+                   placeholder="first name">
+        </md-input-container>
+        <md-input-container>
+            <input type="text"
+                   ng-value="user.contact_name_family"
+                   ng-change="settings.userInfoChanged = true"
+                   ng-model="settings.lastName"
+                   placeholder="last name">
+        </md-input-container>
+        <md-input-container>
+            <input type="text"
+                   ng-change="settings.userInfoChanged = true"
+                   phone-input
+                   ng-value="user.phones[0].phone_number"
+                   ng-model="settings.phoneNumber"
+                   autocomplete="off"
+                   id="phone-input"
+                   placeholder="phone number">
+        </md-input-container>
+        <md-divider></md-divider>
+        <md-label class="sub-header">
+            Password
+        </md-label>
+        <br>
+        <form name="passwordForm" id="passwordForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <md-input-container class="password-input">
+                        <input type="password"
+                            name="password"
+                            ng-model="fields.password"
+                            autocomplete="off"
+                            ng-change="analyze(fields.password)"
+                            md-minlength="8"
+                            ng-minlength="8"
+                            ng-maxlength="20"
+                            ng-pattern="/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@.#,\$%\^&\*()_+[\]{}<>=?;:|'&quot;\-`~])(?=.{8,})^[^/\\]+$/"
+                            placeholder="new password">
+                        <div ng-messages="passwordForm.password.$error">
+                            <div ng-message="minlength">
+                                Password must be at least 8 characters.
+                            </div>
+                            <div ng-message="maxlength">
+                                Password must be less than 20 characters.
+                            </div>
+                            <div ng-message="pattern">
+                                Password must contain 1 Uppercase Character, 1 Lowercase Character, 1 Number, and 1 Special character ( \ / are not allowed ).
+                            </div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-md-6">
+                    <md-input-container class="password-input">
+                        <input type="password"
+                            name="passwordConfirmation"
+                            md-minlength="8"
+                            ng-minlength="8"
+                            ng-maxlength="20"
+                            autocomplete="off"
+                            ng-pattern="/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@.#,\$%\^&\*()_+[\]{}<>=?;:|'&quot;\-`~])(?=.{8,})^[^/\\]+$/"
+                            ng-model="fields.password_confirmation"
+                            placeholder="confirm new password">
+                        <div ng-messages="passwordForm.passwordConfirmation.$error">
+                            <small ng-show="passwordForm.passwordConfirmation.$dirty && fields.password != fields.password_confirmation" >
+                                Password confirmation does not match.
+                            </small>
+                            <div ng-message="minlength">
+                                Password must be at least 8 characters.
+                            </div>
+                            <div ng-message="maxlength">
+                                Password must be less than 20 characters.
+                            </div>
+                            <div ng-message="pattern">
+                                Password must contain 1 Uppercase Character, 1 Lowercase Character, 1 Number, and 1 Special character ( \ / are not allowed ).
+                            </div>
+                        </div>
+                    </md-input-container>
+                </div>
+            </div>
+        </form>
+        <md-divider></md-divider>
+        <br>
+        <md-label class="sub-header">
+            Administration Settings
+        </md-label>
+        <div class="administration-settings">
+            <div class="switches">
+                <md-switch class="md-warn"
+                    ng-change="toggleEnableUser()"
+                    ng-model="settings.userProfileStatus"
+                    aria-label="Toggle User"
+                    ng-true-value="'true'"
+                    ng-false-value="'false'">
+                    <p ng-if="settings.userProfileStatus==='true'">User Enabled</p>
+                    <p ng-if="settings.userProfileStatus==='false'">User Disabled</p>
+                </md-switch>
+                <md-switch class="md-warn"
+                ng-model="user.has_fax"
+                ng-change="setUserFax(settings.user_uuid, user.did)"
+                aria-label="Toggle User Fax Status">
+                <p ng-if="user.has_fax">User Fax Enabled</p>
+                <p ng-if="!user.has_fax">User Fax Disabled</p>
+                </md-switch>
+                <md-switch ng-if="packageHasAccess('autocallrecording')"
+                    class="md-warn"
+                    ng-change="toggleRecordAll()"
+                    ng-model="settings.recordAll">
+                    Record All Calls
+                </md-switch>
+                <md-switch class="md-warn"
+                    ng-disabled="isSameUser()"
+                    ng-change="toggleAdminStatus()"
+                    ng-model="settings.userIsAdmin"
+                    aria-label="Toggle User Admin Status"
+                    ng-true-value="'true'"
+                    ng-false-value="'false'">
+                    <p>User is Company Admin</p>
+                </md-switch>
+                <md-input-container ng-if="isBillingAdminOrGreater()" style="min-width: 180px;">
+                    <label>User Group</label>
+                    <md-select ng-model="settings.userGroup"
+                        ng-change="settings.userInfoChanged = true">
+                        <md-option ng-repeat="group in userGroups"
+                                    ng-value="group.group_name">
+                            {{group.group_name | capitalize}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <md-button class="md-warn md-raised delete-user-btn"
+                       ng-click="deleteUserProfile()">
+                Delete User
+            </md-button>
+            <div class="change-extension">
+                <md-checkbox style="margin:auto;"
+                    class="md-warn"
+                    ng-model="extensionchange.confirm"
+                    aria-label="changeextension">
+                    Change User's Extension
+                </md-checkbox><br />
+                <br />
+                <md-input-container ng-init="settings.userExt">
+                    <input type="number"
+                        ng-disabled="!extensionchange.confirm"
+                        ng-value="user.user_ext"
+                        ng-change="settings.userInfoChanged = true"
+                        ng-model="newUserExt"
+                        placeholder="User Extension">
+                </md-input-container>
+                    <br />
+                <md-button class="md-warn md-raised delete-user-btn"
+                        ng-click="changeUserExtension(newUserExt)">
+                    Change Extension
+                </md-button>
+            </div>
+        </div>
+        <br>
+        <md-divider></md-divider>
+        <md-button ng-click="triggerUpdate()" ng-if="!showingAlert"
+                   class="md-primary md-raised">
+            Update Information
+        </md-button>
+        <span ng-if="showingAlert">
+            <div class="tableclass"><div class="tablecell" style="width: 40px;"><i class="fa fa-cog fa-spin fa-3x"></i></div><div class="tablecell" style="font-size: 18px;">Working</div></div>
+        </span>
+        <br /><br /><br />
+    </md-content>
+</div>

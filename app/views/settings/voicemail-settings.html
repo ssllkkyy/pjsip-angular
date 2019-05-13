@@ -1,0 +1,107 @@
+<md-content class="user-settings-content voicemail">
+    <form name="voicemailForm"
+        autocomplete="off"
+        id="voicemailForm">
+        <md-switch class="md-warn"
+                   ng-model="isActive"
+                   ng-click="setVoicemailStatus()">
+            {{ isActive ? 'Voicemail is ON' : 'Voicemail is OFF'}}
+        </md-switch>
+        <md-input-container>
+            <label>Forwarding Email</label>
+            <input type="email"
+                name="voicemail_mail_to"
+                autocomplete="off"
+                ng-value="user.voicemail.voicemail_mail_to"
+                ng-model="settings.voicemail_mail_to"
+                ng-disabled="!isActive">
+            <div ng-messages="voicemailForm.voicemail_mail_to.$error">
+                <div ng-message="email">
+                    Must be valid email address
+                </div>
+            </div>
+        </md-input-container>
+        <md-input-container>
+            <label>Change Voicemail PIN (4 digit min)</label>
+            <input type="text"
+                name="voicemail_password"
+                ng-model="settings.voicemail_password"
+                ng-minlength="4"
+                md-minlength="4"
+                ng-disabled="!isActive"
+                autocomplete="off">
+            <div ng-messages="voicemailForm.voicemail_password.$error">
+                <div ng-message="minlength">
+                    PIN must be a min of 4 digits
+                </div>
+            </div>
+        </md-input-container>
+        <p>NOTE: You only need enter a PIN if you want to change / update the PIN</p>
+        
+<!-- 
+        <md-switch class="md-warn"
+                   ng-model="settings.isNoAnswerActive"
+                   ng-click="setNoAnswerStatus()">
+            {{ settings.isNoAnswerActive ? 'No Answer is ON' : 'No Answer is OFF'}}
+        </md-switch>
+
+        <md-input-container>
+            <input type="text"
+                   phone-input
+                   ng-value="user.extension.forward_no_answer_destination"
+                   ng-model="settings.noAnsNumber"
+                   placeholder="No Answer Number"
+                   ng-disabled="!settings.isNoAnswerActive">
+        </md-input-container>
+        
+        <md-switch class="md-warn"
+                   ng-model="settings.isNotRegisterActive"
+                   ng-click="setNotRegisteredStatus()">
+            {{ settings.isNotRegisterActive ? 'Not Registered is ON' : 'Not Registered is OFF'}}
+        </md-switch>
+
+        <md-input-container>
+            <input type="text"
+                   phone-input
+                   ng-value="user.extension.forward_user_not_registered_destination"
+                   ng-model="settings.noRegNumber"
+                   placeholder="Not Registered  Number"
+                   ng-disabled="!settings.isNotRegisterActive">
+        </md-input-container> -->
+
+        <md-button class="md-primary md-raised"
+                   ng-click="triggerUpdate()"
+                   ng-disabled="!isActive"
+                   form="voicemailForm"
+                   type="submit">
+            Update Information
+        </md-button>
+        <br>
+        <div class="audio-selector-container">
+            <md-button class="md-default md-raised vm-button"
+                       ng-click="showAudioModal(getCurrentGreeting(user.voicemail.greeting_id), 'voicemail-greeting')"
+                       ng-if="user.voicemail.greeting_id"
+                       type="submit">
+                <i class="fa fa-play"></i>
+                Play Current Greeting
+            </md-button>
+            <md-button class="md-default md-raised vm-button"
+                       ng-click="showAudioSelector = !showAudioSelector"
+                       type="submit">
+                <i class="fa fa-edit"></i>
+                Change Voicemail Greeting
+            </md-button>
+            <br>
+            <!-- <audio-selector category="'voicemail'" -->
+            <!-- settings="settings" -->
+            <!-- ng-show="showAudioSelector" -->
+            <!-- user="user"> -->
+            <!-- </audio-selector> -->
+            <audio-selector-dos settings="settings"
+                                user="user"
+                                ng-show="showAudioSelector">
+            </audio-selector-dos>
+        </div>
+        <br>
+    </form>
+</md-content>

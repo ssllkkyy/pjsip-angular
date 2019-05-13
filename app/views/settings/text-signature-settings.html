@@ -1,0 +1,19 @@
+<md-content>
+<md-switch class="md-warn"
+           ng-model="textSignatureStatus"
+           aria-label="Text Signature Enable/Disable" 
+           ng-true-value="'true'" 
+           ng-false-value="'false'">
+    {{ textSignatureStatus === 'true' ? 'Text Signature ON' : 'Text Signature OFF'}}
+</md-switch>
+<md-input-container style="width: 50%;">
+    <textarea type="text"
+              ng-model="textSignatureResponse"
+              placeholder="Put your text signature here..."></textarea>
+</md-input-container>
+<br>
+<md-button ng-click="updateResponse()"
+           class="md-primary md-raised">
+    Update Information
+</md-button>
+</md-content>

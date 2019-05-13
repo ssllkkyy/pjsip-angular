@@ -1,0 +1,144 @@
+<div ng-if="limitReached() || exceedsLimits(xlsx.data)" class="alert alert-danger">
+    Importing this file would exceed the demo account limit. Please limit your imported contacts to {{user.usageLimits.contact}}. For questions about Bridge, please contact a Bridge specialist at <a href="mailto:bridge@kotter.net" target="_blank">bridge@kotter.net</a>.
+</div>
+<div ng-if="!limitReached() && !exceedsLimits(xlsx.data)">
+    <p>Match the columns to your data and then click Import Contacts to add them to your Contacts.</p>
+    <p><span style="font-weight: bold;">*</span>First name, last name, and a phone number are required for each contact.</p>
+    <p><span style="font-weight: bold;">**</span>Contact Groups may contain a maximum of 100 contacts.</p>
+    <div class="jumbotron">
+        <div class="row">
+            <div class="col-sm-7">
+                <md-checkbox
+                    ng-model="data.integrationContacts"
+                    aria-label="integration_contact">
+                    {{data.partner_name}} Contacts
+                </md-checkbox>
+            </div>
+            <div class="col-sm-5">
+                <md-select 
+                    class="csv-group-select" 
+                    ng-model="import.destination" 
+                    ng-change="processImportDestinationChange()">
+                    <md-option ng-value="null">Import To Contacts List</md-option>
+                    <md-option ng-value="true" ng-if="!target">Create New Group</md-option>
+                    <md-option ng-repeat="group in groups()" ng-value="group.group_uuid">
+                        Import to {{group.group_name}} Group
+                    </md-option>
+                </md-select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="refine-margin">
+                    <button
+                        ng-if="(!processingImport && !showNameEntry && !showUpdate)"
+                        class="btn btn-primary"
+                        ng-click="enterImportSettingsName()">
+                        Save Import Settings
+                    </button>
+                    <button class="btn btn-default"
+                        ng-if="!compareSettings() && showUpdate && !processingImport"
+                        ng-click="updateSettings(selectedSettings)">
+                        Update {{selectedSettings.import_settings_name}}
+                    </button>
+                </div>
+                <md-input-container class="refine-margin"
+                    ng-if="(!processingImport && showNameEntry)">
+                        <input type="text" 
+                            ng-model="nameData" 
+                            placeholder="Name for Saved Settings">
+                        <button
+                            class="btn btn-primary"
+                            ng-click="processImportSettings(nameData)">
+                            Save
+                        </button>
+                        <button
+                            class="btn btn-danger"
+                            ng-click="cancelShowNameEntry()">
+                            Cancel
+                        </button>
+                </md-input-container>
+
+                <!-- Load Settings -->
+                <md-input-container class="refine-margin" ng-if="!showNameEntry">
+                    <md-select ng-model="selectedSettings" ng-change="processImportSettingsChange(selectedSettings)">
+                        <md-option ng-value="null">{{'Load Import Settings'}}</md-option>
+                        <md-option ng-repeat="setting in importSettings" ng-value="setting">
+                            {{setting.import_settings_name}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+                <button class="btn btn-danger"
+                    ng-if="checkSelectedSettings() != null && !processingImport"
+                    ng-click="deleteSingleImportSetting(selectedSettings.contact_import_setting_uuid)">
+                    Delete {{selectedSettings.import_settings_name}}
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-warning centered" 
+                    ng-if="import.selectedGroup && exceedsTotalLimit()">
+                    You can not assign this number of contacts to a group. The group limit is {{groupLimit()}} contacts.
+                </div>
+                <div class="alert alert-warning centered" 
+                    ng-if="import.selectedGroup && exceedsGroupLimit() && !exceedsTotalLimit()">
+                    You can not import this number of contacts to {{import.selectedGroup.group_name}}. The total group limit is {{groupLimit()}} contacts and {{import.selectedGroup.group_name}} already has {{import.selectedGroup.members.length}} contacts.
+                </div>
+            </div>
+        </div>
+        <div class="csv-container">
+            <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                <thead>
+                    <tr>
+                    <th ng-repeat="n in [] | range:xlsx.columnDefs.length">
+                            <select
+                                ng-model="colSelect[n]"
+                                ng-change="allowSettingsCompare()"
+                                ng-options="option.key as option.value for option in colOptions">
+                            </select>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in xlsx.data | limitTo:10">
+                        <td ng-repeat="col in xlsx.columnDefs">
+                        {{row[col.field]}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <span ng-if="xlsx.data.length>10">NOTE: Displaying first 10 rows of {{xlsx.data.length}} rows.</span>
+        <div class="button-box right-text">
+            <button
+                class="btn btn-default"
+                ng-click="endImport()">
+                <i class="fa fa-times"></i>
+                Cancel Import
+            </button>
+            <button
+                class="btn btn-success"
+                ng-disabled="import.selectedGroup && (exceedsGroupLimit() || exceedsTotalLimit())"
+                ng-if="(!processingImport && import.destination !== true)"
+                ng-click="handleXlsxImport()">
+                <i class="fa fa-upload"></i>
+                Import Contacts
+            </button>
+            <button
+                ng-if="(!processingImport && import.destination === true)"
+                class="btn btn-danger"
+                ng-click="handleXlsxImport()">
+                Create Contact Group
+            </button>
+            <div ng-if="processingImport" class="loading-users loading-side mdgreyfont" >
+                <i class="fa fa-spinner fa-spin fa-2x"></i><br />
+                <span ng-if="preparingImport">Preparing Import<br />
+                Please Wait</span>
+                <span ng-if="sendingImport">Sending Contacts<br />
+                Please Wait</span>
+            </div>
+        </div>
+    </div>
+</div>

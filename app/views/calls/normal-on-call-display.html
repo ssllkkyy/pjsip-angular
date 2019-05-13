@@ -1,0 +1,52 @@
+<div class="on-call-avatar clearfix">
+    <div class="call-timer">
+        <timer interval="1000"
+               start-time="call.startTime">
+            {{mminutes}}:{{sseconds}}
+        </timer>
+    </div>
+    <div class="top-container">
+        <div class="conference-avatar"
+             ng-show="call.isConferenceCall"
+             style="margin-top: -15px;">
+            <span class="fa-stack fa-3x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+            </span>
+        </div>
+        <div class="avatar"
+            ng-if="!call.isConferenceCall"
+            ng-bind-html="showCallerPhoto(call, 'outbound')">
+        </div>
+    </div>
+    <div class="bottom-container">
+        <div class="cls-incomingcall-name">
+            <span ng-show="call.contact">
+                {{call.contact.name}}
+            </span>
+            <span ng-show="!call.contact && !call.isConferenceCall">
+                {{call.params.remote_caller_id_number | tel}}
+            </span>
+            <span ng-show="call.isConferenceCall"
+                  style="font-size: 20px !important;">
+                Conference call
+            </span>
+        </div>
+        <div class="cls-incomingcall-number">
+            <span ng-if="isUserCaller(call)">
+                    Ext: {{call.contact.user_ext}}
+            </span>
+            <div ng-if="!isUserCaller(call)">
+                <span ng-if="callIsConference(call)">
+                    Ext: {{number | callerId}}
+                </span>
+                <span ng-if="!callIsConference(call)">
+                    <span ng-if="number.length < 10">
+                        Ext:
+                    </span>
+                    {{number | callerId}}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

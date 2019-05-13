@@ -1,0 +1,135 @@
+<div class="modal-header">
+    <span class="fa-stack fa-2x modal-icon">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-cloud-upload fa-stack-1x fa-inverse"></i>
+    </span>
+    <span class="cls-header-modal">Port New Number</span>
+    <button type="button" ng-click="closeModal()" class="close">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+<form name="numberport" id="numberport">
+    <div class="modal-body" id="modal-body">
+        <p>Adding a new number for {{vm.content.data.domain.domain_description}}.</p>
+        <div class="port-info">
+            <md-input-container>
+                <input type="text"
+                       required
+                       phone-input
+                       name="didNumber"
+                       ng-model="portInfo.number"
+                       placeholder="Did number being ported">
+                <div ng-messages="numberport.didNumber.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div>
+            </md-input-container>
+            <md-input-container>
+                <input type="text"
+                       name="Description"
+                       ng-model="portInfo.description"
+                       placeholder="Did description">
+            </md-input-container>
+        </div>
+        <div class="radio-buttons">
+            Number Type:
+            <md-input-container ng-init="portInfo.number_type = 'did'">
+                <md-radio-group
+                    layout="row"
+                    ng-model="portInfo.number_type"
+                    ng-required="true">
+                    <md-radio-button
+                        value="did"
+                        class="md-primary">
+                        Did
+                    </md-radio-button>
+                    <md-radio-button
+                        value="action"
+                        class="md-primary">
+                        Actions
+                    </md-radio-button>
+                    <md-radio-button
+                        value="fax"
+                        class="md-primary">
+                        Fax Number
+                    </md-radio-button>
+                </md-radio-group>
+            </md-input-container>
+            <div ng-if="portInfo.number_type === 'fax'">
+                Location Group:
+                <md-input-container style ="overflow-x: auto">
+                    <md-radio-group layout="row"
+                                    ng-model="portInfo.location_group_uuid"
+                                    ng-required="true">
+                        <md-radio-button
+                            ng-repeat="location in vm.content.data.showLocationGroups()"
+                            ng-if="location.communications.indexOf('faxing')!==-1"
+                            ng-disabled="location.vfax"
+                            ng-value="location.locations_group_uuid"
+                            class="md-primary">
+                            {{location.group_name}}
+                            <span ng-if="location.vfax">
+                                (has fax)
+                            </span>
+                        </md-radio-button>
+                        <md-radio-button value="newlocation" class="md-primary">
+                            Create New Location
+                        </md-radio-button>
+                    </md-radio-group>
+                </md-input-container>
+                <md-input-container ng-if="portInfo.location_group_uuid ==='newlocation'">
+                    <input type="text"
+                           name="Description"
+                           ng-model="portInfo.new_location_name"
+                           placeholder="New Location Group Name">
+                </md-input-container>
+            </div>
+
+            <div ng-if="portInfo.number_type === 'did'">
+                Target:<br />
+                <span class="smfont">
+                    Optional: Choose which User to point the DID to
+                </span>
+                <md-input-container>
+                    <md-select ng-model="portInfo.target_ext"
+                               placeholder="Target">
+                        <md-option></md-option>
+                        <md-option ng-repeat="user in vm.content.data.users"
+                                   ng-value="user.extension.extension">
+                            User: {{user.contact.contact_name_given}}
+                            {{user.contact.contact_name_family}} - Ext:
+                            {{user.extension.extension}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div ng-if="portInfo.number_type === 'action'">
+                Target Action:
+                <br />
+                <span class="smfont">
+                    Optional: Specify which Action to point the DID to
+                </span>
+                <md-input-container>
+                    <md-select ng-model="portInfo.target_action"
+                               placeholder="Target">
+                        <md-option ng-repeat="action in vm.content.data.actions"
+                                   ng-value="action">
+                            {{action.display}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md"  ng-click="closeModal()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i>
+            Close Window
+        </button>
+        <button class="btn btn-success btn-md"
+                ng-disabled="numberport.$invalid"
+                ng-click="vm.content.data.createPortNumber(portInfo)">
+            <i class="fa fa-floppy-o" style="margin-right: 10px;"></i>
+            Save Port
+        </button>
+    </div>
+</form>

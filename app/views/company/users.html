@@ -1,0 +1,20 @@
+<company-setup-users-table id="company-setup-user-table-container"
+                           ng-show="!editingUser && !emulateProfileEditing"
+                           domain="domain"
+                           editing-user="editingUser">
+</company-setup-users-table>
+<company-setup-user-edit user="editingUser"
+                         ng-show="editingUser">
+</company-setup-user-edit>
+<md-button ng-click="back()"
+           ng-if="emulateProfileEditing"
+           class="user-edit-back-btn">
+    <md-icon> arrow_back </md-icon>
+</md-button>
+<user-profile-edit uploader="uploader"
+                   user="emulateProfileEditing"
+                   class="user"
+                   ng-if="emulateProfileEditing"
+                   trigger-upload="triggerUpload()"
+                   uploader-option="uploaderOption">
+</user-profile-edit>

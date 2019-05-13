@@ -1,0 +1,39 @@
+<button class="btn btn-sm btn-default toggle-btn"
+        ng-if="$ctrl.stateIs('default')"
+        ng-init="$ctrl.registerEvalAsync($evalAsync)"
+        ng-click="$ctrl.toggle()">
+    <i class="fa fa-play-circle play-icon"
+       ng-if="!$ctrl.playing">
+    </i>
+    <i class="fa fa-stop-circle stop-icon"
+       ng-if="$ctrl.playing">
+    </i>
+    <span ng-transclude="btnText"
+          class="btn-text">
+    </span>
+</button>
+
+<i class="fa fa-play-circle play-icon"
+   ng-init="$ctrl.registerEvalAsync($evalAsync)"
+   ng-if="!$ctrl.playing && $ctrl.stateIs('iconsOnly')">
+</i>
+<i class="fa fa-stop-circle stop-icon"
+   ng-if="$ctrl.playing && $ctrl.stateIs('iconsOnly')">
+</i>
+
+<div ng-if="$ctrl.stateIs('bodyOnly')"
+     ng-init="$ctrl.registerEvalAsync($evalAsync)"
+     ng-transclude="btnBody">
+</div>
+
+<i class="fa fa-play-circle play-icon"
+   ng-if="!$ctrl.playing && $ctrl.stateIs('contentsOnly')">
+</i>
+<i class="fa fa-stop-circle stop-icon"
+   ng-if="$ctrl.playing && $ctrl.stateIs('contentsOnly')">
+</i>
+<span ng-transclude="btnText"
+      ng-init="$ctrl.registerEvalAsync($evalAsync)"
+      ng-if="$ctrl.stateIs('contentsOnly')"
+      class="btn-text">
+</span>

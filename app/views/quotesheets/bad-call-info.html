@@ -1,0 +1,23 @@
+<div class="bad-call-info">
+    <md-dialog-content>
+        <h2 class="md-title">Info</h2>
+        <div class="md-dialog-content-body">
+            We're sorry, an error occurred while placing your call. Please refresh this page
+            and try again. If the problem persists, please contact The Kotter Group by email
+            at support@kotter.net,
+            <a ng-click="openSupportChat()">
+                Chatting with support
+            </a>,
+            or by calling 770-717-1777.
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions>
+        <button class="md-primary md-confirm-button md-button md-autofocus md-ink-ripple
+                       md-default-theme"
+                type="button"
+                ng-click="hideBadCallPrompt()"
+                md-autofocus="dialog.$type==='alert'">
+            Got it!
+        </button>
+    </md-dialog-actions>
+</div>

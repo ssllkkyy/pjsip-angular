@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <span class="cls-header-modal">
+        <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+        <center>{{vm.content.data.tileTitle}}</center>
+    </span>
+</div>
+<div class="modal-body">
+    <div ng-if="vm.content.data.description && vm.content.data.description!=='Description coming soon'" class="option-modal-description">
+        {{vm.content.data.description}}
+    </div>
+    <div ng-if="vm.content.data.isAdminGroupOrGreater()" class="option-modal-upgrade-button center-text fullwidth">
+        <button 
+            class="btn btn-danger btn-md" 
+            ng-click="vm.content.data.doUpgrade()">
+            <i class="fa fa-times" style="margin-right: 10px;"></i>
+            Upgrade Now
+        </button>
+    </div>
+    <div ng-if="vm.content.data.videoUrl">
+        <iframe width="560" height="315" ng-src="{{vm.content.data.videoUrl}}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+</div>
+<div class="modal-footer cls-incomingcall-buttons">
+    <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+</div>

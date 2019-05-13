@@ -1,0 +1,12 @@
+<div class="contact-avatar-container">
+    <img ng-src="{{pathImgProfile + contact.im}}"
+         ng-if="contact.im"
+         class="profile-image"
+         alt=""/>
+    <div class="profile-icon"
+           ng-if="!contact.im"
+           ng-style="{'background-color': contact.color}">
+        <i class="fa fa-user"></i>
+        <!-- {{contact.contact_name_given.substring(0,1)}} {{contact.contact_name_family.substring(0,1)}} -->
+    </div>
+</div>

@@ -1,0 +1,66 @@
+<div class="modal-header quotesheet-assign-header">
+    <span class="fa-stack fa-2x modal-icon">
+        <i class="fa fa-circle fa-stack-2x">
+        </i>
+        <i class="fa fa-paper-plane fa-stack-1x fa-inverse">
+        </i>
+    </span>
+    <span class="cls-header-modal">
+        Assign {{vm.content.data.type? vm.content.data.type : 'Text Messages'}} to:
+    </span>
+    <md-input-container>
+        <md-select class="assign-to-modal-ddl"
+                   ng-model="vm.content.data.assignedTo"
+                   placeholder="Select a User">
+            <md-option ng-value="member"
+                       ng-repeat="member in vm.content.data.peopleListData | orderBy: 'name'"
+                       ng-if="member.name && member.name !==' '"
+                       ng-click="vm.content.data.setAsignee(member)">
+                {{ member.name }}
+            </md-option>
+        </md-select>
+    </md-input-container>
+    <button type="button"
+            ng-click="closeModal()"
+            class="close">
+        <i class="fa fa-times">
+        </i>
+    </button>
+</div>
+<div class="modal-body"
+     ng-show="!vm.content.data.assignedTo.isThisUser"
+     id="modal-body">
+    <p>Clicking “Assign {{vm.content.data.type ? vm.content.data.type : 'Texts'}}” below will send this information as a direct Chat Plus message to your selected recipient.  You may also attach files and type notes below.</p>
+    <quotesheet-modal-chat assigned-to ="vm.content.data.assignedTo"
+                           people-list = "vm.content.data.peopleListData"
+                           initial-value="vm.content.data.initialValue"
+                           fns="vm.content.data.chatFns">
+    </quotesheet-modal-chat>
+    <p><md-checkbox
+        ng-model="vm.content.data.sendEmail"
+        aria-label="Send Email">
+        Also send via email
+    </md-checkbox></p>
+    <div ng-if="vm.content.data.sendEmail">
+        <md-input-container class="md-block" flex-gt-sm>
+            <label>Email Subject</label>
+            <input name="email_subject" value="Assign Texts" ng-model="vm.content.data.email_subject">
+        </md-input-container>
+    </div>
+</div>
+<div class="modal-footer cls-incomingcall-buttons">
+    <button class="btn btn-danger btn-md"
+            ng-click="closeModal()">
+        <i class="fa fa-remove"
+           style="margin-right: 10px;">
+        </i>
+        Cancel
+    </button>
+    <button class="btn btn-danger btn-md"
+            ng-click="vm.content.data.assign(vm.content.data)">
+        <i class="fa fa-check"
+           style="margin-right: 10px;">
+        </i>
+        Assign {{vm.content.data.type ? vm.content.data.type : 'Texts'}}
+    </button>
+</div>

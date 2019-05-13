@@ -1,0 +1,41 @@
+<div>
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Save Template?</span>
+        <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <div class="cls-title-cont-modal">Save Template to use in a future email:</div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="input-group"> 
+                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                    <input class="form-control" type="text" placeholder="Title / Description" ng-model="vm.content.data.title">
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    <input class="form-control" type="text" placeholder="Keywords (Comma Separated)" ng-model="vm.content.data.keywords">
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <p>Template Availability</p>
+                <md-radio-group ng-model="vm.content.data.public" class="md-primary">
+                    <md-radio-button value="true" ><strong>Public:</strong> Available for anyone in your company to use. </md-radio-button>
+                    <md-radio-button value="false"><strong>Private:</strong> Only you can see this template. </md-radio-button>
+                    <md-radio-button value="kotter"><strong>KOTTER:</strong> Available to all Kotter customers (WILL ONLY SHOWN IF USER IS KOTTER STAFF). </md-radio-button>
+                </md-radio-group>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+        <button class="btn btn-primary btn-md" ng-click="saveAsTemplate(vm.content.data)"><i class="fa fa-floppy-o" style="margin-right: 10px;"></i>Save Template</button>
+    </div>
+</div>

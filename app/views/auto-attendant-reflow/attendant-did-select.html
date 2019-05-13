@@ -1,0 +1,45 @@
+<div class="input-group">
+    <span class="input-group-addon">
+        <i class="fa fa-question-circle"></i>
+    </span>
+    <input class="form-control"
+           type="text"
+           ng-model="$ctrl.attendantEdits.search"
+           placeholder="Search by did or contact name">
+</div>
+<p ng-if="!$ctrl.orderingNumber && !$ctrl.hideOrder">
+    Or
+    <button class="btn btn-default btn-xs newdidbutton"
+            ng-click="$ctrl.orderNewNumber()">
+        Order a new Number
+    </button>
+</p>
+<span class="spinner"
+      ng-if="$ctrl.orderingNumber">
+    <i class="fa fa-cog fa-spin fa-sm"></i>
+</span>
+<div class="dest-table-container">
+    <table class="table table-bordered table-hover table-striped dest-table">
+        <tbody>
+            <tr ng-repeat="dest in $ctrl.attendantCheckboxDestinations($ctrl.attendant)">
+                <td class="col-sm-3">
+                    <strong>
+                        <p> {{dest.destination_number | tel}} </p>
+                    </strong>
+                </td>
+                <td class="col-sm-3" >
+                    <p> {{$ctrl.getDestDisplayName(dest)}} </p>
+                </td>
+                <td class="col-sm-3">
+                    <md-checkbox
+                        ng-model="$ctrl.attendantEdits.additional_destinations[dest.destination_uuid]"
+                        aria-label="Member"
+                        ng-change="$ctrl.changeAttendantDestination($ctrl.attendant, dest)"
+                        class="md-warn md-align-top-left permissions"
+                        flex>
+                    </md-checkbox>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

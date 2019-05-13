@@ -1,0 +1,135 @@
+<div ng-if="!isAdminGroupOrGreater()" >
+    You do not have access to this page.
+</div>
+<div ng-if="isAdminGroupOrGreater()">
+    <button class="btn btn-primary btn-sm"
+            style="margin-bottom: 10px;"
+            ng-click="showEditPermissions(null)">
+        Add Permission Group
+    </button>
+    <div class="permissions-table table-head-container">
+      <table class="table table-bordered table-hover table-striped ">
+        <thead>
+            <tr>
+                <th class="group-image">Group Image</th>
+                <th class="group-name">Group Name</th>
+                <th class="members">Members</th>
+                <th class="managers">Managers</th>
+                <th class="dissolve-group">Dissolve Group</th>
+            </tr>
+        </thead>
+      </table>
+    </div>
+    <div class="permissions-table table-body-container">
+      <table class="table table-bordered table-hover table-striped">
+        <tr ng-if="permissionsGroups.length===0">
+            <td colspan="5">
+                No permission groups have been created yet. Use the button above to create the first group.
+            </td>
+        </tr>
+        <tr ng-repeat="group in permissionsGroups">
+            <td class="group-image">
+                <div class="settings-avatar">
+                    <div ng-if="group.group_image">
+                        <img class="group_image_add"
+                             src="{{pathImgProfile + group.group_image}}">
+                    </div>
+                    <div class="group_image_add_null"
+                         ng-if="!group.group_image"
+                         ng-style="{'background-color': group.group_color && group.group_color}" >
+                        <i class="fa fa-sitemap"
+                           style="font-size: px; opacity: 0.4;"
+                           aria-hidden="true">
+                        </i>
+                    </div>
+                </div>
+            </td>
+            <td class="group-name">
+                <strong>{{group.group_name}}</strong>
+                <i class="fa fa-edit grouptableicon-right table-green"
+                   ng-click="showEditPermissions($index)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.edit_group}}"></i>
+                <br />
+                {{showCommunications($index)}}
+            </td>
+            <td class="members">
+                <i class="fa fa-user-circle-o grouptableicon-left table-ltblue"
+                   style="">
+                </i>
+                <i ng-if="!groupActive[group.permissions_group_uuid]"
+                   class="fa fa-chevron-down grouptableicon-left table-orange"
+                   ng-click="showAllMembers(group, 'permissions')"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.show_members}}">
+                </i>
+                <i ng-if="groupActive[group.permissions_group_uuid]"
+                   class="fa fa-chevron-up grouptableicon-left table-orange"
+                   ng-click="hideMembers(group, 'permissions')"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.hide_members}}">
+                </i>
+                <i ng-if="groupActive[group.permissions_group_uuid]"
+                   class="fa fa-user-plus grouptableicon-right table-green"
+                   ng-click="showEditPermissions($index)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.manage_members}}">
+                </i>
+                <div ng-if="groupActive[group.permissions_group_uuid]">
+                    <table class="table " >
+                        <tr ng-repeat="member in group.members">
+                            <td>{{getUserName(member.user_uuid)}}</td>
+                            <td><i ng-if="contact !== user.user_uuid"
+                                   ng-click="postRemovePermissionGroupMember(group, $index, 'member')"
+                                   class="fa fa-user-times grouptableicon-right table-red"
+                                   tooltip-placement="bottom"
+                                   uib-tooltip="{{tips.groups.remove_member}}"></i>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td class="managers">
+                <i class="fa fa-lock grouptableicon-left table-ltblue"></i>
+                <i ng-if="!groupActive[group.permissions_group_uuid]"
+                   class="fa fa-chevron-down grouptableicon-left table-orange"
+                   ng-click="showAllMembers(group, 'permissions')"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.show_managers}}">
+                </i>
+                <i ng-if="groupActive[group.permissions_group_uuid]"
+                   class="fa fa-chevron-up grouptableicon-left table-orange"
+                   ng-click="hideMembers(group, 'permissions')"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.hide_managers}}">
+                </i>
+                <i ng-if="groupActive[group.permissions_group_uuid]"
+                   class="fa fa-user-plus grouptableicon-right table-green"
+                   ng-click="showEditPermissions($index)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.manage_managers}}"></i>
+                <div ng-if="groupActive[group.permissions_group_uuid]">
+                    <table class="table " >
+                        <tr ng-repeat="manager in group.managers">
+                            <td>{{getUserName(manager.user_uuid)}}</td>
+                            <td><i ng-if="manager !== user.user_uuid"
+                                   ng-click="postRemovePermissionGroupMember(group, $index, 'manager')"
+                                   class="fa fa-user-times grouptableicon-right table-red"
+                                   tooltip-placement="bottom"
+                                   uib-tooltip="{{tips.groups.remove_manager}}"></i>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td class="dissolve-group">
+                <i class="fa fa-window-close-o grouptableicon-left table-red"
+                   ng-click="openDissolveGroupModal(group)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.dissolve_group}}">
+                </i>
+            </td>
+        </tr>
+      </table>
+    </div>
+</div>

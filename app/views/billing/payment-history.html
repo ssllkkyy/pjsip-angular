@@ -1,0 +1,59 @@
+<table ng-if="!activePayment" class="table table-bordered table-hover table-striped cls-tab-call-history">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th class="right-text">Net Payment/Refund Amount</th>
+            <th ng-if="isBillingAdminOrGreater()">Manage</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-if="loadingInvoices">
+            <td colspan="3" class="loading-users mdgreyfont">
+                <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+                <span>Loading History<br />
+                Please Wait</span>
+            </td>
+        </tr>
+        <tr ng-if="!loadingInvoices" 
+            ng-class="{'unpaid' : (item.invoice_num && item.balance != 0.0)}"
+            ng-repeat="item in filterData = (agencyInfo().paymentHistory | orderBy : predicate :reverse | filter : paymentKeywordFilter) |  limitTo:paginate.perPage:paginate.perPage*(paginate.currentPage-1)">
+            <td>{{item.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}</td>
+            <td>
+                <span ng-if="item.payment_num">
+                    <a href ng-click="viewPayment(item)">Payment # PA{{item.payment_num}} - Thank you</a>
+                </span>
+                <span ng-if="item.refund_num">
+                    <a href ng-click="viewRefund(item)">Refund # RE{{item.refund_num}}</a>
+                </span>
+                <span class="pull-right" ng-if="item.refunds.length>0">
+                    {{sumOfRefunds(item) | currency }} Refunded
+                </span>
+            </td>
+            <td class="right-text">
+                <span ng-if="item.payment_num">
+                    {{((item.amount_paid - sumOfRefunds(item)) * -1.0) | currency}}
+                </span>
+                <span ng-if="item.refund_num">
+                    {{item.amount | currency}}
+                </span>
+            </td>
+            <td ng-if="isBillingAdminOrGreater()">
+                
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div ng-if="!activePayment" style="text-align: center">
+    <ul uib-pagination
+        class="pagination-sm pagination call-history"
+        total-items="filterData.length"
+        ng-model="paginate.currentPage"
+        previous-text="&lsaquo;"
+        next-text="&rsaquo;"
+        items-per-page="paginate.perPage">
+    </ul>
+</div>
+<div ng-if="activePayment">
+    <view-payment payment="activePayment"></view-payment>
+</div>

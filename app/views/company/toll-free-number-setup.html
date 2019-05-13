@@ -1,0 +1,142 @@
+<div class="tableclass fullwidth">
+    <div class="tablecell">
+        <h4>Toll Free Number Setup</h4>
+    </div>
+    <div class="tablecell button">
+        <md-button ng-click="showOrderTollFree()"
+            class="pull-right md-default md-raised">
+            <i class="fa fa-plus"></i> Order New Toll Free Number
+        </md-button>
+    </div>
+</div>
+<p>NOTE: Toll free numbers are {{agencyInfo.package.per_tollfree_num ? agencyInfo.package.per_tollfree_num : 10.0 | currency}} monthly and inbound minutes are {{agencyInfo.package.per_tollfree_min ? agencyInfo.package.per_tollfree_min : 0.03 | currency}}.</p>
+<table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+    <thead>
+        <tr>
+            <th>Number</th>
+            <!-- <th>Use</th> -->
+            <th style="width: 300px;">Minutes for {{agencyInfo.prevWeek}}</th>
+            <th style="width: 100px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-if="loading">
+            <td colspan="3">
+                <span class="spinner"
+                        ng-show="loading">
+                    <i class="fa fa-cog fa-spin fa-lg"></i>
+                </span>
+            </td>
+        </tr>
+        <tr ng-if="agencyInfo.tfNumbers.length === 0">
+            <td colspan="3">There are no toll-free numbers for this agency.</td>
+        </tr>
+        <tr ng-if="!loading" 
+            ng-repeat="number in filteredNumbers = (agencyInfo.tfNumbers | orderBy : 'didnumber') | limitTo:pagination.perPage:pagination.perPage*(pagination.currentPage-1)">
+            <td>{{number.didnumber | tel}}</td>
+            <!-- <td>
+                <span ng-if="number.aa">Auto Attendant: {{number.aa.ivr_menu_name}}</span>
+                <span ng-if="number.loc">Agency Sms: {{number.loc.group_name}}</span>
+                <span ng-if="number.fax">Fax Account: {{number.fax.caller_id_name}}</span>
+                <span ng-if="number.user">User DID: {{showUserName(number.user.user_uuid)}}</span>
+            </td> -->
+            <td><span ng-if="minutes[number.bandwidth_number_uuid]">{{minutes[number.bandwidth_number_uuid] | number : 0}}</span></td>
+            <td>
+                <i class="fa fa-pencil-square-o mainopt"
+                    ng-click="editTollfreeNumber(number, domain)"
+                    tooltip-placement="top"
+                    uib-tooltip="{{tips.number_setup.edittollfree}}">
+                 </i>
+                 <i class="fa fa-times-circle redfont mainopt"
+                    ng-click="cancelTollFreeNumber(number)"
+                    tooltip-placement="top"
+                    uib-tooltip="{{tips.number_setup.canceltollfree}}">
+                 </i>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div ng-show="filteredNumbers.length > pagination.perPage" style="text-align: center">
+    <ul uib-pagination
+        class="pagination-sm pagination call-history"
+        total-items="filteredNumbers.length"
+        ng-model="pagination.currentPage"
+        previous-text="&lsaquo;"
+        next-text="&rsaquo;"
+        items-per-page="pagination.perPage">
+    </ul>
+</div>
+
+<script type="text/ng-template" id="new-toll-free-modal.html">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-key fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Order New Toll Free</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <new-toll-free domain="vm.content.data"></new-toll-free>
+    </div>
+</script>
+
+<script type="text/ng-template" id="new-toll-free.html">
+    <form id="addPackage" name="addPackage">
+        <div ng-if="!ordering" class="modal-body" id="fax-did-ordering">
+            <div class="row">
+                <div class="col-sm-12">
+                    <p>Select wildcard or vanity seach option below. </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    Search Type: 
+                </div>
+                <div class="col-sm-8">
+                    <md-radio-group ng-model="data.searchtype" class="md-primary">
+                        <md-radio-button value="wildcard">Toll Free Wildcard </md-radio-button>
+                        <md-radio-button value="vanity" ng-disabled="true">Toll Free Vanity (Coming) </md-radio-button>
+                    </md-radio-group>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    Wildcard Option: 
+                </div>
+                <div class="col-sm-8">
+                    <md-select ng-model="data.wildcard"
+                        style="width: 80px;"
+                        aria-label="choices">
+                        <md-option ng-repeat="option in wildcards"
+                            ng-value="option">
+                            {{option}}
+                        </md-option>
+                    </md-select>
+                </div>
+                
+            </div>
+            <div ng-if="loadingDids" class="loading-dids">
+                <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+                <span>Loading Available Numbers<br />
+                Please Wait</span>
+            </div>
+            <div ng-if="!loadingDids && availableDids.length>0" class="loaded-dids">
+                <p>Select one or more toll free numbers.</p>
+                <div class="col-md-3 did-box" ng-repeat="did in availableDids">
+                    <button ng-click="selectDid(did)" class="btn btn-block" ng-class="isSelected(did) ? 'btn-success' : 'btn-default'">
+                        {{did.number | tel}}
+                    </span>
+                </div>
+                <div class="cleared"></div>
+            </div>
+            <button ng-click="getAvailableDids()" ng-disabled="!data.searchtype || (data.searchtype == 'wildcard' && !data.wildcard) || (data.searchtype == 'vanity' && !data.vanity)" class="btn btn-default">{{availableDids.length === 0 ? 'Load Available Dids' : 'Load New Dids'}}</button>
+            <div class="modal-footer" style="text-align: right; margin-top: 15px;">
+                <button ng-click="orderTollFreeNumbers()" ng-disabled="selectedNumArray().length === 0" class="btn btn-primary order-button fax-order-btn" >Order Selected Number<span ng-if="selectedNumArray().length > 1">s</span></button>
+            </div>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-default btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+        </div>
+    </form>
+</script>

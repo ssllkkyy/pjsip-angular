@@ -1,0 +1,91 @@
+<div class="cls-incomingcall-oncall">
+    <div style="border: lavender solid 1px; margin-bottom: 15px;">
+        <div layout="row"
+             ng-repeat="call in calls()"
+             style="height: 55px !important; padding-top: 10px; background-color: #F5FBEF; ">
+            <div layout-md="column"
+                 flex="60"
+                 style="text-align: center;">
+                <span class="cls-list-3way-call"
+                      ng-if="call.contact.name">
+                    {{call.contact.name}}
+                </span>
+                <span class="cls-list-3way-call"
+                      ng-if="!call.contact.name">
+                    {{call.params.remote_caller_id_name | callerId}}
+                </span>
+                <br/>
+            </div>
+            <div layout-md="column"
+                 flex="15">
+                <timer interval="1000"
+                       ng-if="call.startTime"
+                       start-time="call.startTime"
+                       style="margin-top: 5px;">
+                    {{mminutes}}:{{sseconds}}
+                </timer>
+            </div>
+            <div layout-md="column"
+                 flex="25">
+                <div class="btn-group"
+                     role="group"
+                     aria-label="...">
+                    <button type="button"
+                            class="btn btn-link btn-sm cls-color-red-tkg three-way-button"
+                            ng-if="call.startTime"
+                            style="text-align: center;"
+                            ng-click="hangUpCallById(call.callID)"
+                            tooltip-placement="top"
+                            uib-tooltip="Hangup">
+                        <img src="images/icons/end-call-red-icon.png"
+                             class="cls-color-red-tkg"
+                             width="20"
+                             height="20"
+                             alt="" />
+                    </button>
+                    <button type="button"
+                            class="btn btn-link btn-sm three-way-button"
+                            ng-if="call.startTime"
+                            style="cursor: default;">
+                        <!-- tooltip-placement="top-right" -->
+                        <!-- uib-tooltip="{{call.onHold ? 'Remove from Hold' : 'Put on Hold'}}"> -->
+                        <span style="" class="fa-stack fa-stack">
+                            <i class="fa fa-pause fa-stack-1x"></i>
+                            <i ng-show="call.onHold" class="fa fa-ban fa-stack-2x text-danger"></i>
+                        </span>
+                    </button>
+                    <button type="button"
+                        class="btn btn-link btn-sm three-way-button"
+                        ng-if="!call.startTime"
+                        style="cursor: default;">
+                        <i  class="fa fa-spinner fa-spin fa-2x cls-color-blue-tkg"></i>
+                    </button>
+                    <button style="cursor: default;" class="btn btn-link btn-sm cls-color-red-tkg three-way-button"
+                            ng-show="!call.startTime"
+                            tooltip-placement="top"
+                            uib-tooltip="Cancel">
+                        <i class="fa fa-times-circle fa-2x"
+                           ng-click="hangUpCallBeforeAnswer(call)"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary callbtn"
+                ng-click="swap()"
+                ng-style="swapButtonStyle()"
+                tooltip-placement="top"
+                uib-tooltip="Swap call">
+            <i class="fa fa-refresh"
+               aria-hidden="true">
+            </i>
+            Swap Call
+        </button>
+        <button class="btn mdi mdi-call-merge callbtn"
+                ng-click="mergeCalls()"
+                ng-if="!onConferenceCall()"
+                tooltip-placement="top"
+                uib-tooltip="Merge calls">
+            Merge Calls
+        </button>
+    </div>
+</div>

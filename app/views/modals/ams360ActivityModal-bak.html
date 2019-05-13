@@ -1,0 +1,54 @@
+<div>
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-question fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">{{vm.content.data.title}}</span>
+        <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="modal-body" ng-if="vm.content.data.activityList">
+        <h4>Please select an Activity Action from the following DropDown before you export your Data.</h4>
+            <div ng-if= "vm.content.data.activityList.length > 0">
+                <md-input-container>
+                    <label>Activity Action </label>
+                    <md-select ng-model="vm.content.data.selectedActivity">
+                        <md-option ng-repeat="activity in vm.content.data.activityList"
+                                    ng-value="activity.Description" >
+                            {{activity.Description}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+
+        <div>
+            <textarea class="form-control"
+                rows="4" 
+                ng-model="vm.content.data.activityDescription" 
+                placeholder="Enter Activity Description."></textarea>
+        </div>
+    </div>
+    <div class="modal-body" id="modal-body" ng-if="vm.content.data.customerList">
+            <h4>We have found {{vm.content.data.customerList.length}} customers associated to the same number. Please select one from the following before you export your Data.</h4>
+                    <div ng-click="vm.content.data.selectCustomer(customer.customer_details, vm.content.data)" 
+                        ng-repeat="customer in vm.content.data.customerList"><br />
+                        <a href=""><span ng-if="customer.customer_details.FirstName">{{customer.customer_details.FirstName}} {{customer.customer_details.LastName}}</span></a>
+                        <a href=""><span ng-if="!customer.customer_details.FirstName && customer.customer_details.FirmName">{{customer.customer_details.FirmName}}</span></a>
+                    </div>
+        </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md" 
+                ng-click="closeModal()">
+                <i class="fa fa-remove" 
+                    style="margin-right: 10px;">
+                </i>Cancel
+        </button>
+        <button class="btn btn-primary btn-md" 
+                ng-click="vm.content.data.exportDataToAms360(vm.content.data)" 
+                ng-if="vm.content.data.activityList">
+                <i class="fa fa-save" 
+                    style="margin-right: 10px;">
+                </i>Export
+        </button>
+    </div>
+</div>

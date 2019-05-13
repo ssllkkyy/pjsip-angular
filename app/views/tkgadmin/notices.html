@@ -1,0 +1,156 @@
+<md-toolbar id="contact-groups-toolbar">
+    <div class="md-toolbar-tools">
+        <h2 md-truncate flex>Bridge Notices</h2>
+    </div>
+</md-toolbar>
+<md-content class="package-content">
+        <div class="alert alert-warning">
+            Notice: Do we want a notice in here?
+        </div>
+        <div class="tableclass fulltable padd10">
+            <div class="tablecell">
+                <h4>Notices</h4>
+            </div>
+            <div class="tablecell right-text">
+                <button class="btn btn-primary" ng-click="showEditNotice()">Compose New Notice</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-5 pull-right">
+                <div class="input-group">
+                    <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+                    <input class="form-control" type="text" ng-model="codeSearch" placeholder="Filter group codes by keyword">
+                </div>
+            </div>
+        </div>
+        <table class="table table-bordered table-striped cls-tab-call-history">
+            <thead>
+                <tr>
+                    <th>Edited At</th>
+                    <th>Deliver At</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Manage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="availNotices().length === 0">
+                    <td colspan="6">There are no notices created yet.</td>
+                </tr>
+                <tr ng-if="availNotices().length>0" ng-repeat="notice in availNotices() | orderBy: predicate : reverse">
+                    <td>{{notice.updated_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                        {{notice.updated_at | toLocalTime | amDateFormat:'h:mm a'}}</td>
+                    <td>{{notice.send_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                        {{notice.send_at | toLocalTime | amDateFormat:'h:mm a'}}</td>
+                    <td>
+                        {{notice.subject}}
+                    </td>
+                    <td>{{notice.notice_type | capitalize}}</td>
+                    <td>
+                        {{notice.status | capitalize}}
+                        <span ng-if="notice.status === 'sent'"> ({{notice.readcount}} read}})</span>
+                    </td>
+                    <td>
+                        <i class="fa fa-pencil-square-o primaryfont mainopt"
+                            ng-click="showEditMessage(notice)"></i>
+                        <i class="fa fa-times-circle redfont mainopt"
+                            ng-click="deleteMessage(notice)"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</md-content>
+<script type="text/ng-template" id="edit-bridge-notice-modal.html">
+    <edit-bridge-notice notice="vm.content.data"></edit-bridge-notice>
+</script>
+
+
+
+        <edit-package brpackage="vm.content.data"></edit-package>
+    </div>
+<script type="text/ng-template" id="edit-bridge-notice.html">
+    <form id="addNotice" name="addNotice">
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-key fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Manage Notice</span>
+            <button type="button" ng-click="notice.closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="modal-body package-edit" id="modal-body">
+            <div class="row">
+                <div class="col-sm-8">
+                    <md-input-container class="md-block" flex-gt-sm>
+                        <label>Notice Subject</label>
+                        <input name="package_title" ng-model="brpackage.package_title" required>
+                        <div ng-messages="addNotice.package_title.$error">
+                            <div ng-message="missing">The package title is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container ng-init="notice.notice_type = notice.notice_type ? notice.notice_type : 'deployment'">
+                        <label>Notice Type</label>
+                        <md-select ng-model="notice.notice_type">
+                            <md-option value="deployment">Deployment</md-option>
+                            <md-option value="general">General</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4" ng-init="notice.target = notice.target ? notice.target : 'all'">
+                    <md-input-container>
+                        <label>Agency Target</label>
+                        <md-select ng-model="notice.target">
+                            <md-option value="all">All Agencies</md-option>
+                            <md-option ng-disabled="true" value="package">By Package</md-option>
+                            <md-option ng-disabled="true" value="domains">Specific Domains</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-8" ng-init="notice.usertarget = notice.usertarget ? notice.usertarget : 'users'" >
+                    <label class="smfont">User Target</label>
+                    <md-radio-group ng-model="notice.usertarget"  layout="row">
+                        <md-radio-button value="admins"> Admin Only</md-radio-button>
+                        <md-radio-button value="users"> All Users</md-radio-button>
+                    </md-radio-group>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4" ng-init="notice.send_email ? notice.send_email : 'true'">
+                    <label class="smfont">Send Email</label>
+                    <md-radio-group ng-model="notice.send_email"  layout="row">
+                        <md-radio-button value="'true'"> Yes</md-radio-button>
+                        <md-radio-button value="'false'"> No</md-radio-button>
+                    </md-radio-group>
+                </div>
+                <div class="col-sm-4" ng-init="notice.send_now ? notice.send_now : 'true'">
+                        <label class="smfont">Deliver At</label>
+                    <md-radio-group ng-model="notice.send_now"  layout="row">
+                        <md-radio-button value="'true'"> Now</md-radio-button>
+                        <md-radio-button value="'false'"> Later</md-radio-button>
+                    </md-radio-group>
+                </div>
+                <div class="col-sm-4" ng-if="notice.send_now === 'false'">
+                        <md-datepicker ng-model="myDate" md-placeholder="Enter date"
+                        md-open-on-focus></md-datepicker>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <label>Package Description</label>
+                    <ng-wig ng-model="brpackage.package_description"></ng-wig>
+                </div>
+            </div>
+            
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="notice.closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="savePackage(brpackage)" ng-disabled="addNotice.$invalid"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Package</button>
+        </div>
+    </form>
+</script>

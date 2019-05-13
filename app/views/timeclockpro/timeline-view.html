@@ -1,0 +1,120 @@
+<div class = "timeline-controller">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 style="display: inline-block;"  ng-if="user.contact_name_full">{{user.contact_name_full}}</h4>
+			<h4 style="display: inline-block;" ng-if="!user.contact_name_full">{{user.contact_name_given}} {{user.contact_name_family}}</h4>
+		</div>
+		<div class="panel-body">
+			<div class="month">
+				<a href="" ng-click="previous(today)"><i class="fa fa-caret-left" aria-hidden="true"></i></a>
+					 <span> {{today.tmonthname}} {{today.tyear}} </span>
+				<a href="" ng-click="next(today)"><i class="fa fa-caret-right" aria-hidden="true"></i></a>
+				<a href="" ng-click="initializeDate()">Today</a>
+
+				<div class="add-offline-bottom" ng-if=isAdminOrManager()>
+	            	<span ng-click="addOfflineTime(user)">
+	            		<i class="fa fa-plus"></i>&nbsp;<a href class="weaklink"> Add time</a>
+	            	</span>
+            	</div>
+			</div>
+
+			<div class= "calendar-wrapper">
+				<table class="calendar">
+					<tbody>
+						<tr>
+							<td ng-repeat="day in days" ng-class="{selected : day === selectedDay}" style="border:{{day.border}}" ng-click="selectedDate(day)"><a href=""><small>{{day.day}}</small><br><span>{{day.date}}</span></a><span class="dayprogress" ng-style="{width: day.totalTime +'%'}"></span></td>
+						</tr>
+					</tbody>
+				</table>
+            </div>
+            <div class="timeline-overview">
+            	<div class="info-outer">
+	            	<table class="info">
+	            		<tbody>
+	            			<tr ng-if="records.length > 0">
+	            				<td class="big" rowspan="2">
+	            					<div class="day">
+	            						{{fulldate1}}
+	            						<span>
+	            						</span>
+	            					</div>
+	            					<div class="dur"> {{userRecords.activity.totalTime}}</div>
+	            				</td>
+	            				<td class="tsk-outer" rowspan="2">
+	            					<table class="timeline-overview-tsk">
+	            						<tbody>
+	            							<tr ng-repeat="activity in userRecords.activity.activityData">
+	            								<td>
+	            									<div class="note">
+	            										
+	            											<span class="status-label">
+	            												{{activity.status_name}}
+	            											</span>
+	            										
+	            									</div>
+	            								</td>
+	            								<td style="width: 70%;">
+	            									<div class="progressBar" ng-style="{width: activity.width +'%'}" >
+	            										&nbsp;
+	            									</div>
+	            									<span class="progressTime">{{activity.duration}}</span>
+	            								</td>
+	            							</tr>
+	            						</tbody>
+	            					</table>
+	            				</td>
+	            			</tr>
+	            			<tr ng-if="records.length == 0">
+	            				<td class="big" rowspan="1">
+	            					<div class="dur">0h 0m</div>
+	            				</td>	
+	            				<td class="big2">
+	            					<div class="day">{{fulldate1}}</div>
+	            				</td>
+	            			</tr>
+	            		</tbody>
+	            	</table>
+	            </div>
+            </div>
+            <!-- <div class="timeline-hours">
+            	<table class="calendar">
+					<tbody>
+						<tr>
+							<td ng-repeat="hour in hours" ng-style="{'background-color': red}">{{hour}}</td>
+						</tr>
+					</tbody>
+				</table>
+            </div> -->
+            <div class="timeline-screens">
+            	<div class="activity" ng-repeat="record in records">
+            		<a ng-if=isAdminOrManager() class="head" href>
+            			<span class="time">{{record.start_stamp | toLocalTime | amDateFormat: 'hh:mm a'}} - {{record.end_stamp | toLocalTime | amDateFormat: 'hh:mm a'}} </span>
+            			<span class="note">{{record.status_name}} </span><i tooltip-placement="top-left" uib-tooltip="Edit time" ng-click="editRecord(record, user)" class="fa fa-pencil edit"></i><i tooltip-placement="top-left" uib-tooltip="Delete record" ng-click="deleteRecord(record, user)" class="fa fa-trash deleterec" ></i>
+            		</a>
+            		<a ng-if=!isAdminOrManager() class="head" href>
+            			<span class="time">{{record.start_stamp | toLocalTime | amDateFormat: 'hh:mm a'}} - {{record.end_stamp | toLocalTime | amDateFormat: 'hh:mm a'}} </span>
+            			<span class="note">{{record.status_name}} </span>
+            		</a>
+            		<div ng-if="record.screenshots.length == 0">
+            			<h4>No Screenshots Available.</h4>
+            		</div>
+            		<div class="screens" ng-if="record.screenshots.length > 0">
+            			<div class="timeline-screen" ng-repeat="screenshot in record.screenshots">
+            				<span class="time">
+            					{{screenshot.created_at | toLocalTime | amDateFormat: 'hh:mm a'}}
+            					<span><small>{{screenshot.screenshot_title != null ? screenshot.screenshot_title : '' }}</small></span>
+            				</span>
+            				<a class="delete fa fa-trash" href title="Delete Screenshot" ng-click="deleteScreenshot(screenshot, record)"></a>
+
+            				<a class="delete fa fa-download" href="{{downloadUrl(screenshot)}}" download title="Download Screenshot"></a>
+            				<div>
+            					<a class="image" href="{{snapshotUrl(screenshot)}}" data-lightbox="screenshot" data-title="{{screenshot.screenshot_title}}"><img ng-src="{{thumbnailUrl(screenshot)}}" class="timeline-src">
+            					</a>
+            				</div>
+            			</div>
+            		</div>
+            	</div>
+            </div>
+		</div>
+	</div>
+</div>

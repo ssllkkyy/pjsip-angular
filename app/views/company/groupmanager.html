@@ -1,0 +1,410 @@
+<md-toolbar id="contact-groups-toolbar">
+    <div class="md-toolbar-tools">
+        <h3 class="header">
+            Contact Groups
+        </h3>
+        <div class="groups-actions" >
+            <md-button ng-click="showEditGroup(null)"
+                ng-if="emulationStatus()['contactgroups'].manager==='true'"
+                       class="md-primary md-raised">
+                Create Group
+            </md-button>
+            <md-button 
+                ng-click="obtainTargetGroup()"
+                ng-if="emulationStatus()['contactimports'].manager==='true'"
+                class="md-primary md-raised">
+                Import Google Contacts
+            </md-button>
+            <md-button 
+                ng-click="showSpreadsheetImport()"
+                ng-if="emulationStatus()['contactimports'].manager==='true'"
+                class="md-primary md-raised">
+                Import from File
+            </md-button>
+        </div>
+    </div>
+</md-toolbar>
+<md-content class="contact-groups-content">
+    <!-- <div ng-if="emulationStatus()['contactgroups'].manager!=='true'" class="alert alert-warning centered no-access">
+            Your agency admininstrator has not given you permission to create contact groups.
+        </div> -->
+    <p>NOTE: Contact groups are limited to {{groupLimit()}} contacts.</p>
+    <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+        <thead>
+            <tr>
+                <th>Group Image</th>
+                <th>Group Name</th>
+                <th>Managers</th>
+                <th>Members</th>
+                <th>Who can see this group?</th>
+                <th>Dissolve Group</th>
+                <th>Hide Group</th>
+            </tr>
+        </thead>
+        <tr ng-if="filteredGroups.length == 0">
+            <td colspan="7">There are no Contact Groups created or none that you have access to at this time. Click Create Group button above to get started.</td>
+        </tr>
+        <tr ng-repeat="group in filteredGroups = (contactGroups() | filter: groupFilter) track by $index">
+            <td>
+                <div class="settings-avatar">
+                    <div ng-if="group.group_image" >
+                        <img class="group_image_add"
+                             src="{{pathImgProfile + group.group_image}}">
+                    </div>
+                    <div class="group_image_add_null"
+                         ng-if="!group.group_image"
+                         ng-style="{'background-color': group.group_color && group.group_color}" >
+                        <i class="fa fa-object-group"
+                           style="font-size: px; opacity: 0.4;"
+                           aria-hidden="true">
+                        </i>
+                    </div>
+                </div>
+            </td>
+            <td>
+                {{group.group_name}}
+                <i ng-if="userIsManagerOfGroup(group)"
+                   class="fa fa-edit grouptableicon-right table-green"
+                   ng-click="showEditGroup(group)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.edit_group}}">
+                </i>
+            </td>
+            <td>
+                <i class="fa fa-user-circle-o grouptableicon-left table-ltblue">
+                </i>
+                <i ng-if="!group.showManagers"
+                   class="fa fa-chevron-down grouptableicon-left table-orange"
+                   ng-click="toggleShowGroupManagers(group)"
+                   tooltip-placement="bottom">
+                </i>
+                <i ng-if="group.showManagers"
+                   class="fa fa-chevron-up grouptableicon-left table-orange"
+                   ng-click="toggleShowGroupManagers(group)"
+                   tooltip-placement="bottom">
+                </i>
+                <i ng-if="group.showManagers && userIsManagerOfGroup(group)"
+                   class="fa fa-user-plus grouptableicon-right table-green"
+                   ng-click="openGroupManagerModal(group)"
+                   tooltip-placement="bottom">
+                </i>
+                <div ng-if="group.showManagers">
+                    <table class="table">
+                        <tr ng-repeat="manager in group.managers">
+                            <td>
+                                {{getUserName(manager)}}
+                            </td>
+                            <td>
+                                <i ng-show="userIsManagerOfGroup(group)"
+                                   ng-click="removeManager(manager, group)"
+                                   class="fa fa-user-times grouptableicon-right table-red"
+                                   tooltip-placement="bottom"
+                                   uib-tooltip="{{tips.groups.remove_manager}}">
+                                </i>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td class="group-column">
+                <i class="fa fa-user-circle-o grouptableicon-left table-ltblue"></i>
+                <i class="fa grouptableicon-left table-orange"
+                    ng-class="group.showGroupMembers ? 'fa-chevron-up' : 'fa-chevron-down'"
+                    ng-click="toggleShowGroupMembers(group)"
+                    tooltip-placement="bottom"
+                    uib-tooltip="{{group.showGroupMembers ? tips.groups.hide_members : tips.groups.show_members}}">
+                </i>
+                <i ng-if="group.showGroupMembers && userIsManagerOfGroup(group)"
+                    class="fa fa-user-plus grouptableicon-right table-green"
+                    ng-click="showEditGroup(group)"
+                    tooltip-placement="bottom"
+                    uib-tooltip="{{tips.groups.manage_members}}">
+                </i>
+                <div ng-if="group.showGroupMembers">
+                    <table class="table" >
+                        <tr ng-if="group.members.length <= 20"
+                            ng-repeat="contact in group.members">
+                            <td>
+                                {{getMemberName(contact)}}
+                            </td>
+                            <td>
+                                <i ng-show="userIsManagerOfGroup(group)"
+                                   ng-click="removeGroupContact(group, contact)"
+                                   class="fa fa-user-times grouptableicon-right table-red"
+                                   tooltip-placement="bottom"
+                                   uib-tooltip="{{tips.groups.remove_member}}">
+                                </i>
+                            </td>
+                        </tr>
+                        <tr ng-if="group.members.length > 20">
+                            <td colspan="2">{{group.members.length}} members
+                                <button class="btn btn-default btn-xs pull-right button-pad-left"
+                                    ng-click="showEditGroup(group)">
+                                    Manage Members
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                </div>
+            </td>
+            <td>
+                <i class="fa fa-lock grouptableicon-left table-ltblue">
+                </i>
+                <i ng-class="group.showViewAccessMembers ? 'fa-chevron-up' : 'fa-chevron-down'"
+                    class="fa grouptableicon-left table-orange"
+                   ng-click="toggleShowViewAccessMembers(group)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{group.showViewAccessMembers ? tips.groups.hide_viewers : tips.groups.show_viewers}}{{tips.groups.show_viewers}}">
+                </i>
+                <i ng-if="group.showViewAccessMembers && userIsManagerOfGroup(group)"
+                   class="fa fa-user-plus grouptableicon-right table-green"
+                   ng-click="openGroupViewerModal(group)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.manage_viewers}}">
+                </i>
+                <div ng-if="group.showViewAccessMembers">
+                    <table class="table" ng-if="group.viewer_groups.length > 0">
+                        <tr ng-repeat="item in group.viewer_groups" ng-if="userHasGroup(item)">
+                            <td>
+                                {{getGroupName(item)}} user members
+                            </td>
+                            <td>
+                                <i ng-show="userIsManagerOfGroup(group)"
+                                   ng-click="removeGroupFromViewGroup(group.group_uuid, item)"
+                                   class="fa fa-user-times grouptableicon-right table-red"
+                                   tooltip-placement="bottom"
+                                   uib-tooltip="{{tips.groups.remove_viewer_group}}">
+                                </i>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="table" >
+                        <tr ng-repeat="contact in group.viewer_users">
+                            <td>
+                                {{getMemberName(contact)}}
+                            </td>
+                            <td>
+                                <i ng-show="userIsManagerOfGroup(group)"
+                                   ng-click="removeUserFromViewGroup(group, contact)"
+                                   class="fa fa-user-times grouptableicon-right table-red"
+                                   tooltip-placement="bottom"
+                                   uib-tooltip="{{tips.groups.remove_viewer_user}}">
+                                </i>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td>
+                <i ng-show="userIsManagerOfGroup(group)"
+                   class="fa fa-window-close-o grouptableicon-left table-red"
+                   ng-click="dissolveContactGroup(group)"
+                   tooltip-placement="bottom"
+                   uib-tooltip="{{tips.groups.dissolve_group}}">
+                </i>
+            </td>
+            <td>
+                <i class="fa fa-eye-slash grouptableicon-left table-red"
+                   ng-show="isHidden(group)"
+                   ng-click="hideGroup(group)">
+                </i>
+                <i class="fa fa-eye grouptableicon-left"
+                   ng-show="!isHidden(group)"
+                   ng-click="hideGroup(group)">
+                </i>
+            </td>
+        </tr>
+    </table>
+</md-content>
+<script type="text/ng-template" id="setcontactgroupmanagers.html">
+    <div class="modal-header"
+            id="modal-screen-share">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            Who can manage this group?
+        </span>
+        <button type="button"
+                ng-click="closeModal()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <manage-group-managers 
+        group="vm.content.data.group"
+        managers="vm.content.data.setmanagers">
+    </manage-group-managers>
+</script>
+<script type="text/ng-template" id="manage-group-managers.html">
+    <div class="modal-body"
+         id="modal-body">
+        <h4>{{group.group_name}}</h4>
+        <!-- <div ng-show="filteredGroups.length > 1">
+            <strong>
+                Any user in these groups with contact group permissions:
+            </strong>
+            <table class="table table-bordered table-hover table-striped">
+                <tr ng-repeat="group in filteredGroups | filter: {group_uuid: '!' + group.group_uuid} : true ">
+                    <td class="col-sm-9">
+                        <strong>
+                            {{group.group_name}}
+                        </strong>
+                        ({{group.members.length}} Total Members)
+                    </td>
+                    <td class="col-sm-3">
+                        <md-checkbox
+                            ng-model="managerGroups[group.group_uuid]"
+                            aria-label="Group"
+                            class="md-warn md-align-top-left"
+                            flex>
+                        </md-checkbox>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <hr /> -->
+        <div class="input-group">
+            <span class="input-group-addon">
+                <i class="fa fa-question-circle"></i>
+            </span>
+            <input class="form-control"
+                   type="text"
+                   ng-model="search.name"
+                   placeholder="Search by contact name">
+        </div>
+        <table id="contact-groups-table"
+               class="table table-bordered table-hover table-striped">
+            <tbody>
+                <tr ng-repeat="contact in availGroupManagers() | filter: managerFilter">
+                    <td class="col-sm-9">
+                        <strong>
+                            {{contact.name}}
+                        </strong> ({{contact.type=='user' ? 'User' : 'Contact'}})
+                    </td>
+                    <td class="col-sm-3">
+                        <md-checkbox
+                            ng-model="managers[contact.user_uuid]"
+                            class="md-warn md-align-top-left"
+                            aria-label="contact.name"
+                            flex>
+                        </md-checkbox>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <span class="smallfont">NOTE: Only users that have been assigned to a Permission Group with contact group permissions can be a group manager.</span>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md"
+                ng-click="closeModal()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;">
+            </i>
+            Cancel
+        </button>
+        <button class="btn btn-primary btn-md"
+                ng-click="updateGroupManagers(group, managers)">
+            <i class="fa fa-save"
+               style="margin-right: 10px;"></i>
+            Update Manager List
+        </button>
+    </div>
+</script>
+<script type="text/ng-template" id="setcontactgroupviewers.html">
+    <div class="modal-header"
+            id="modal-screen-share">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            Who can see this group?
+        </span>
+        <button type="button"
+                ng-click="closeModal()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <manage-group-viewers 
+        group="vm.content.data.group">
+    </manage-group-viewers>
+</script>
+<script type="text/ng-template" id="manage-group-viewers.html">
+    <div class="modal-body"
+         id="modal-body">
+        <h4>{{group.group_name}}</h4>
+        <div ng-if="contactGroups().length > 1">
+            <strong>
+                Any user in these groups:
+            </strong>
+            <table class="table table-bordered table-hover table-striped">
+                <tr ng-repeat="group in contactGroups() | filter: {group_uuid: '!'+group.group_uuid} : true ">
+                    <td class="col-sm-9">
+                        <strong>
+                            {{group.group_name}}
+                        </strong>
+                        ({{group.members.length}} Members)
+                    </td>
+                    <td class="col-sm-3">
+                        <md-checkbox
+                            ng-model="updateviewgroup.groups[group.group_uuid]"
+                            ng-init="updateviewgroup.groups[group.group_uuid]=isGroupViewGroup(group.viewer_groups, group.group_uuid)"
+                            aria-label="Group"
+                            class="md-warn md-align-top-left" flex>
+                        </md-checkbox>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <hr />
+        <strong>User Contacts:</strong>
+        <div class="input-group" style="margin-bottom: 0px;">
+            <span class="input-group-addon">
+                <i class="fa fa-question-circle"></i>
+            </span>
+            <input class="form-control"
+                   type="text"
+                   ng-model="search.name"
+                   placeholder="Search by contact name">
+        </div>
+        <table id="contact-groups-table"
+               class="table table-bordered table-hover table-striped">
+            <tbody>
+                <tr ng-repeat="contact in userContacts() | filter:viewerFilter">
+                    <td class="col-sm-9">
+                        <strong>
+                            {{contact.name}}
+                        </strong> ({{contact.type=='user' ? 'User' : 'Contact'}})
+                    </td>
+                    <td class="col-sm-3">
+                        <md-checkbox
+                            ng-model="updateviewgroup.members[contact.cuuid]"
+                            ng-init="updateviewgroup.members[contact.cuuid]=isGroupViewMember(group.viewer_users, contact.cuuid)"
+                            aria-label="Contact"
+                            ng-disabled="contact.cuuid === user.contact_uuid"
+                            class="md-warn md-align-top-left" flex>
+                        </md-checkbox>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md"
+                ng-click="closeModal()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;"></i>
+            Cancel
+        </button>
+        <button class="btn btn-primary btn-md"
+                ng-click="updateGroupViewers(group.group_uuid, updateviewgroup.groups, updateviewgroup.members)">
+            <i class="fa fa-save"
+               style="margin-right: 10px;"></i>
+            Update Viewer List
+        </button>
+    </div>
+</script>

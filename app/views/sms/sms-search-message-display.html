@@ -1,0 +1,18 @@
+<div class="sms-search-header">
+    <div class="input-group">
+        <span class="input-group-addon" title="search"><i class="fa fa-search"></i></span>
+        <input class="form-control" type="text" ng-enter="search.sendSearch(search.searchText)" ng-model="search.searchText" placeholder="Search" tooltip-placement="bottom" uib-tooltip="{{::tips.chatplus.submit_search}}">
+    </div>
+</div>
+<div class="sms-search-subheader">
+    <p class="title">Search Results: {{search.results.length}} Result(s) Found</p>
+    <i class="fa fa-sign-out md-icon" ng-click="closeDisplay()" tooltip-placement="bottom-right" uib-tooltip="{{::tips.chatplus.close_search}}"></i>
+</div>
+<div class="sms-search-content">
+    <sms-search-result
+        ng-repeat="message in search.results"
+        message="message"
+        search="search"
+        show-message-in-thread="showMessageInThread">
+    </sms-search-result>
+</div>

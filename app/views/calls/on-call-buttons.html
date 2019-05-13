@@ -1,0 +1,98 @@
+<div class="cls-oncall-buttons-left-bar">
+  <!-- ***** HANG UP  ***** -->
+  <button class="btn btn-link btn-sm mdi mdi-phone-hangup cls-color-red-tkg"
+    ng-click="hangUp()"
+    tooltip-placement="top"
+    uib-tooltip="Hang up">
+  </button>
+  <!-- *****  MUTE  ***** -->
+  <button class="btn btn-link btn-sm mdi mdi-headset cls-color-teal-tkg"
+    ng-click="muteAllCalls()"
+    ng-show="!muteActive()"
+    tooltip-placement="top"
+    uib-tooltip="Mute"
+    style=" margin: 0px !important; padding: 0px !important;">
+  </button>
+  <button class="btn btn-link btn-sm mdi mdi-headset-off cls-color-teal-tkg"
+    ng-click="unMuteAllCalls()"
+    ng-show="muteActive()"
+    tooltip-placement="top"
+    uib-tooltip="Unmute"
+    style=" margin: 0px !important; padding: 0px !important;">
+  </button>
+  <!-- ***** RECORDING  ***** -->
+  <button ng-show="!recordingActive()"
+    class="btn btn-link btn-sm mdi mdi-record-rec cls-color-teal-tkg"
+    ng-click="recordCall()"
+    tooltip-placement="top"
+    uib-tooltip="Start Recording"
+    style="padding: 0 !important;">
+  </button>
+  <button ng-show="recordingActive()"
+    class="btn btn-link btn-sm mdi mdi-record-rec cls-color-teal-tkg"
+    ng-click="stopRecording()"
+    tooltip-placement="top"
+    uib-tooltip="Stop Recording"
+    style="padding: 0 !important; color: red;">
+  </button>
+  <!-- ***** HOLD  ***** -->
+  <button class="btn btn-link btn-sm mdi mdi-phone-paused cls-color-teal-tkg"
+    ng-click="holdCall()"
+    ng-hide="onHold() || showThreeWayCallDisplay()()"
+    tooltip-placement="top"
+    uib-tooltip="Hold">
+  </button>
+  <button class="btn btn-link btn-sm mdi mdi-phone-paused cls-color-teal-tkg"
+    ng-click="unHoldCall()"
+    ng-hide="!onHold() || showThreeWayCallDisplay()()"
+    tooltip-placement="top"
+    uib-tooltip="Unhold"
+    style="color: orange;">
+  </button>
+  <!-- ***** TRANSFER CALL  ***** -->
+  <!-- ng-hide="showAddCallDisplay()() || isConferenceCall()|| showThreeWayCallDisplay()()" -->
+  <button class="btn btn-link btn-sm mdi mdi-phone-forward cls-color-teal-tkg"
+    ng-click="toggleCallTransfer()()"
+    ng-hide="showAddCallDisplay()() || isConferenceCall()"
+    ng-class="{'cls-color-yellow-tkg' : showTransferCallDisplay()()}"
+    tooltip-placement="top"
+    uib-tooltip="{{showTransferCallDisplay()() ? 'Cancel Transfer Call' : 'Transfer Call'}}">
+  </button>
+  <!-- ***** NEW CALL  ***** -->
+  <button class="btn btn-link btn-sm mdi mdi-phone-plus cls-color-teal-tkg"
+    ng-click="toggleAddCallDisplay()()"
+    ng-disabled=""
+    ng-hide="showTransferCallDisplay()()|| showThreeWayCallDisplay()() || isConferenceCall() || showIncomingCallThreeWay()"
+    ng-class="{'cls-color-yellow-tkg' : showAddCallDisplay()()}"
+    tooltip-placement=""
+    uib-tooltip="{{showAddCallDisplay()() ?'Cancel Add Call' :  'Add Call'}}">
+  </button>
+  <!-- ***** MERGE CALL  ***** -->
+  <button class="btn btn-link btn-sm mdi mdi-call-merge cls-color-teal-tkg"
+    ng-click="mergeCalls()"
+    ng-show="showThreeWayCallDisplay()() && !isConferenceCall()"
+    tooltip-placement="top"
+    uib-tooltip="Merge calls">
+  </button>
+  <!-- ***** DIAL PAD  ***** -->
+  <button class="btn btn-link btn-sm mdi mdi-dialpad cls-color-teal-tkg"
+    ng-click="toggleOnCallDialPad()()"
+    tooltip-placement="top"
+    uib-tooltip="Show Dial Pad"
+    style=" margin: 0px !important; padding: 0px !important;">
+  </button>
+  <!-- ***** QUEUE INCOMING CALLS  *****   -->
+  <button class="btn btn-link btn-sm pull-right"
+    ng-click="calls.showListIncomingCalls()"
+    ng-show="calls.queueIncomingCalls.length > 1"
+    tooltip-placement="top"
+    uib-tooltip="Show queue Incoming calls"
+    style="">
+    <span class="badge  cls-color-green-tkg"
+      style="background-color: white !important;">
+      {{calls.queueIncomingCalls.length}}
+      <i class="fa fa-bell faa-ring animated"
+        style="font-size: 18px; margin-left: 10px;"></i>
+    </span>
+  </button>
+</div>

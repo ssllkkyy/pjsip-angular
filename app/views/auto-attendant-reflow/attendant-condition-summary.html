@@ -1,0 +1,13 @@
+<h3>My Call Flow Summary</h3>
+<div ng-repeat="action in $ctrl.scheduledActions">
+    <h4>Go To: {{$ctrl.displayAction(action)}}</h4>
+    <div class="action-time-summary">
+        <div ng-repeat="group in action.conditionGroups | orderBy: 'priority'">
+            <h4>Priority Group: {{group.priority}}</h4>
+            <p ng-repeat="condition in group.conditions">
+                {{condition.conditionType.summaryDisplay(action, condition)}}
+            </p>
+            <hr />
+        </div>
+    </div>
+</div>

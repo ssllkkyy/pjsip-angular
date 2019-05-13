@@ -1,0 +1,136 @@
+<div id="videoconference-container"
+     ng-controller="VideoConferenceCtrl">
+    <div class="alert alert-warning centered no-access" ng-if="!packageHasAccess('videoconference')">
+        Your current Bridge Package ({{user.package.package_title}}) does not have access to this section.
+    </div>
+    <div ng-if="packageHasAccess('videoconference')">
+        <div class="row top-row">
+            <div class="col-sm-8">
+                <h3>
+                    Video Conferencing
+                    <span ng-if="showTable() && emulatedUser()">
+                        - Emulating: {{getUserNameByUUID(emulatedUser())}}
+                    </span>
+                </h3>
+            </div>
+            <div class="col-sm-4" ng-if="packageHasAccess('emulate')">
+                <emulate-user emulation-type="'videoconference'"></emulate-user>
+            </div>
+        </div>
+        <div ng-if="!showTable()"
+            style="width: 250px; text-align: center; opacity: 0.6; margin: 40px;">
+            <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            <br />
+            Loading...
+        </div>
+        <div ng-if="showTable()">
+            <div class="row">
+                <div class="col-sm-8">
+                    <label for="conferenceroom">
+                        Customize your conference room name:
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-addon"
+                            id="basic-addon3">
+                            {{vcUrl}}
+                        </span>
+                        <input class="form-control"
+                            type="text"
+                            ng-keyup="isRoomAvailable(roomData.roomName)"
+                            id="conferenceroom"
+                            ng-model="roomData.roomName"
+                            placeholder="Choose a custom conference room name"
+                            aria-describedby="basic-addon3">
+                        <span class="input-group-addon"
+                            ng-if="urlNotAvailable">
+                            {{availMessage}}
+                        </span>
+                        <span class="input-group-addon"
+                            ng-if="!urlNotAvailable">
+                            <i class="fa fa-check"
+                            style="color: green"
+                            tooltip-placement="top"
+                            uib-tooltip="{{::tips.videoconference.roomsuccess}}">
+                            </i>
+                        </span>
+                    </div>
+                    <span class="smfont">
+                        {{vcUrl}}/{{conference.room}}
+                        (<button class="btn btn-default btn-xs"
+                                ng-disabled="urlNotAvailable"
+                                ng-click="clickHandler()">
+                        Copy to Clipboard
+                        </button>)
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 video-button">
+                    <button class="btn btn-primary btn-lg startbtn"
+                            ng-disabled="urlNotAvailable"
+                            ng-click="joinConference()">
+                        Start Video Call
+                    </button>
+                </div>
+            </div>
+            <h4>Recorded Video Conferences<span ng-if="emulatedUser()">- Emulating: {{getUserNameByUUID(emulatedUser())}}</span></h4>
+            <scrollable-table class="archives-table"
+                              column-names="tableControls.columnNames"
+                              resource-length="videoArchives.length"
+                              current-page="tableControls.currentPage"
+                              sorting-opts="tableControls.sortingOpts">
+                <table-body>
+                    <table>
+                        <tbody class="cls-body-table-pos">
+                            <tr ng-if="videoArchives.length===0">
+                                <td colspan="5">
+                                    There are no video recordings available at this time.
+                                </td>
+                            </tr>
+                            <tr ng-repeat="recording in videoArchives | orderBy : tableControls.sortingOpts.selectedColumn : tableControls.sortingOpts.sortDirection">
+                                <td class="created-at-col">
+                                    {{::recording.created_at | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                                </td>
+                                <td class="name-col">
+                                    {{::recording.name}}
+                                </td>
+                                <td class="view-col">
+                                    <button class="btn btn-primary btn-xs"
+                                            ng-click="viewArchive(recording)"
+                                            tooltip-placement="top"
+                                            uib-tooltip="{{::tips.videoconference.playrecording}}">
+                                        <i class="fa fa-eye"
+                                           style="margin-right: 10px;"></i>
+                                        View Recording
+                                    </button>
+                                </td>
+                                <td class="copy-col button-column-md">
+                                    <span ng-click="copyConferenceToHawksoft(recording)" >
+                                        <img ng-show = "user.exportType.partner_code == 'hawksoft'"
+                                             src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                                             style="width: 24px; height: 24px;"
+                                             tooltip-placement="top"
+                                             uib-tooltip="{{::tips.videoconference.copytohawksoft}}">
+                                        <img ng-show = "user.exportType.partner_code != 'hawksoft'"
+                                             src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                                             style="width: 24px; height: 24px;"
+                                             tooltip-placement="top"
+                                             uib-tooltip="{{::tips.videoconference.copytomanagement}}">
+                                    </span>
+                                </td>
+                                <td class="remove-col button-column-md">
+                                    <i ng-disabled="emulatedUser()"
+                                       ng-click="removeArchive(recording)"
+                                       class="fa fa-minus-circle fa-2x redfont"
+                                       tooltip-placement="top"
+                                       uib-tooltip="{{::tips.videoconference.remove}}">
+                                    </i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </table-body>
+            </scrollable-table>
+        </div>
+    </div>
+</div>

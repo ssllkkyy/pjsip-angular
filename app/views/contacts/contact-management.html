@@ -1,0 +1,546 @@
+<md-toolbar id="contact-groups-toolbar">
+    <div class="md-toolbar-tools">
+        <h3 class="header">
+            Manage Contacts
+        </h3>
+        <div class="groups-actions" >
+            <md-button ng-click="showAddContactForm()"
+                        class="md-primary md-raised">
+                Add a Contact
+            </md-button>
+            <md-button 
+                ng-click="obtainTargetGroup()"
+                ng-if="emulationStatus()['contactimports'].manager==='true'"
+                class="md-primary md-raised">
+                Import Google Contacts
+            </md-button>
+            <md-button 
+                ng-click="showSpreadsheetImport()"
+                ng-if="emulationStatus()['contactimports'].manager==='true'"
+                class="md-primary md-raised">
+                Import from File
+            </md-button>
+        </div>
+    </div>
+</md-toolbar>
+<md-content class="package-content contact-management">
+    <div class="tableclass fullwidth">
+        <div class="tablecell" style="width: 70px;">
+                Per page:
+        </div>
+        <div class="tablecell" style="width: 50px;">
+            <md-input-container class="location-selector">
+                <md-select class="location-selector"
+                    aria-label="Per Page"
+                    ng-model="paginate.perPage">
+                    <md-option ng-repeat="page in ppOptions"
+                        ng-value="page" >
+                        {{page}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+        <div class="tablecell" style="width: 110px;">
+            Filter By Group:
+        </div>
+        <div class="tablecell" style="width: 20%;">
+            <md-input-container class="location-selector">
+                <md-select class="location-selector"
+                    aria-label="Select Group"
+                    ng-model="search.group">
+                    <md-option value>Clear Group Filter</md-option>
+                    <md-option ng-repeat="group in contactGroups()"
+                        ng-value="group" >
+                        {{group.group_name}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+        <div class="tablecell" ng-if="user.exportType.partner_code !== 'generic'" style="width: 140px;">
+            <md-checkbox
+                class="md-warn"
+                style="margin-bottom: 0;"
+                ng-model="select.partnerOnly"
+                aria-label="{{user.exportType.partner_name}} Contacts Only">
+                {{user.exportType.partner_name}} Contacts Only
+            </md-checkbox>
+        </div>
+
+        <div class="tablecell">
+            <div class="input-group">
+                <span class="clear-contact-search-box">
+                    <i class="fa fa-times greyfont clear-search"
+                        ng-if="search.filter.length>0"
+                        tooltip-placement="bottom-left"
+                        uib-tooltip="{{tips.contactselect.clearfield}}"
+                        ng-click="clearContactSearch()">
+                    </i>
+                </span>
+                <input class="form-control" 
+                    type="text" 
+                    style="padding-left: 30px;"
+                    ng-model="search.filter" 
+                    debounce="500"
+                    ng-change="doIndexSearch()"
+                    placeholder="Filter By Name, Org, Phone or Email">
+                <span class="input-group-addon" title="Filter contacts"><i class="fa fa-filter"></i></span>
+            </div>
+        </div>
+    </div>
+    <div class="tableclass fullwidth">
+        <div class="tablecell contact-count">
+            Num contacts: {{contacts().length}}
+        </div>
+        <div class="tablecell">
+            <button class="btn btn-default"
+                ng-click="showAdvancedFilter()">
+                {{showAdvanced ? 'Cancel ' : ''}}Advanced Filter
+            </button> 
+        </div>
+        <div class="tablecell right-text">
+            <button class="btn"
+                ng-if="contactsSelectedCount()>0"
+                ng-class="{'btn-danger': contactsSelectedCount() > 0}"
+                ng-disabled="contactsSelectedCount() === 0" 
+                ng-click="deleteSelectedContacts()">
+                Delete {{contactsSelectedCount()}} Selected
+            </button> 
+            
+            <button class="btn" 
+                ng-if="contactsSelectedCount()>0 && search.group"
+                ng-class="{'btn-default': contactsSelectedCount() === 0, 'btn-primary': contactsSelectedCount() > 0}"
+                ng-disabled="contactsSelectedCount() === 0" 
+                ng-click="removeContactsFromGroup()">
+                Remove {{contactsSelectedCount()}} from {{search.group.group_name}}
+            </button> 
+            
+            <button class="btn"
+                ng-if="contactsSelectedCount()>0"
+                ng-class="{'btn-primary': contactsSelectedCount() > 0}"
+                ng-click="openGroupSelect()">
+                Assign {{contactsSelectedCount()}} to a Group
+            </button> 
+
+            <button class="btn"
+                ng-if="contactsSelectedCount()>0"
+                ng-class="{'btn-primary': contactsSelectedCount() > 0}"
+                ng-click="openTagAssign()">
+                Assign tags to {{contactsSelectedCount()}} Selected
+            </button> 
+
+            <button class="btn btn-default"
+                ng-if="contactsSelectedCount()>0"
+                ng-click="clearSelected()">
+                Clear selection
+            </button> 
+        </div>
+    </div>
+    <div class="list-group custom-filter" ng-if="showAdvanced">
+        <div ng-repeat="item in activeFilters track by $index" class="list-group-item">
+            <div class="tableclass">
+                <div class="filter-type tablecell">
+                    <md-input-container class="location-selector">
+                        <md-select class="location-selector"
+                            aria-label="Select Type"
+                            ng-model="item.filter_type">
+                            <md-option ng-repeat="type in filter.types"
+                                ng-value="type.type" >
+                                {{type.name}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div class="tablecell" ng-if="!item.filter_type"><br /></div>
+                <div class="filter-condition tablecell" ng-if="item.filter_type">
+                    <md-input-container class="location-selector">
+                        <md-select class="location-selector"
+                            aria-label="Select Condition"
+                            ng-model="item.condition">
+                            <md-option value="equals" ng-if="['tags','address','birthday','expiry_date'].indexOf(item.filter_type) < 0">Equals</md-option>
+                            <md-option value="dateequals" ng-if="['birthday','expiry_date'].indexOf(item.filter_type) > -1">Date Equals</md-option>
+                            <md-option value="contains" ng-if="['tags','birthday','expiry_date'].indexOf(item.filter_type) < 0">Contains</md-option>
+                            <md-option value="greaterthan" ng-if="['birthday','expiry_date'].indexOf(item.filter_type) > -1">Greater Than</md-option>
+                            <md-option value="lessthan" ng-if="['birthday','expiry_date'].indexOf(item.filter_type) > -1">Less Than</md-option>
+                            <md-option value="daysprior" ng-if="['birthday','expiry_date'].indexOf(item.filter_type)>-1">Days Before</md-option>
+                            <md-option value="daysafter" ng-if="['birthday','expiry_date'].indexOf(item.filter_type)>-1">Days After</md-option>
+                            <md-option value="hasall" ng-if="item.filter_type === 'tags'">Has All</md-option>
+                            <md-option value="hasone" ng-if="item.filter_type === 'tags'">Has At Least One</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div class="tablecell" ng-if="item.condition && ['equals', 'contains', 'greaterthan', 'lessthan'].indexOf(item.condition) > -1">
+                    <div class="input-group">
+                        <input class="form-control" ng-model="item.field1">
+                    </div>
+                </div>
+                <div class="tablecell" ng-if="item.condition && ['hasall', 'hasone'].indexOf(item.condition) > -1">
+                    <md-input-container class="location-selector">
+                        <span ng-if="tags().length == 0">There are no tags created for this agency.</span>
+                        <md-select class="location-selector"
+                            ng-if="tags().length > 0"
+                            placeholder="Select a tag"
+                            ng-model="selectedTag" 
+                            ng-change="chooseTag(selectedTag)">
+                            <md-option ng-repeat="tag in tags() | orderBy:'tag_name'" ng-value="tag">
+                                {{tag.tag_name}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <div class="tag-container" ng-if="item.tags.length > 0">
+                        <div ng-repeat="tagname in item.tags track by $index"
+                            ng-init="tag = getTagByName(tagname)"
+                            class="tag-item">
+                            {{tag.tag_name}} <i class="fa fa-trash" ng-click="removeActiveTag($index, $parent.$index)"></i>
+                        </div>
+                        <div class="cleared"></div>
+                    </div>
+                </div>
+                <div class="filter-actions tablecell">
+                    <button class="btn btn-xs btn-danger" ng-click="clearFilter($index)">Remove</button>
+                    <button class="btn btn-xs btn-success" ng-click="applyFilterChange($index, item)">Apply</button>
+                </div>
+            </div>
+        </div>
+        <div class="list-group-item ">
+            <div class="tableclass">
+                <div class="filter-type tablecell">
+                    <md-input-container class="location-selector">
+                        <md-select class="location-selector"
+                            aria-label="Select Type"
+                            ng-model="custom.filter_type">
+                            <md-option ng-repeat="item in filter.types"
+                                ng-value="item.type" >
+                                {{item.name}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div class="tablecell" ng-if="!custom.filter_type"><br /></div>
+                <div class="filter-condition tablecell" ng-if="custom.filter_type">
+                    <md-input-container class="location-selector">
+                        <md-select class="location-selector"
+                            aria-label="Select Condition"
+                            ng-model="custom.condition">
+                            <md-option value="equals" ng-if="['tags','address','birthday','expiry_date'].indexOf(custom.filter_type) < 0">Equals</md-option>
+                            <md-option value="dateequals" ng-if="['birthday','expiry_date'].indexOf(custom.filter_type) > -1">Date Equals</md-option>
+                            <md-option value="contains" ng-if="['tags','birthday','expiry_date'].indexOf(custom.filter_type) < 0">Contains</md-option>
+                            <md-option value="greaterthan" ng-if="['birthday','expiry_date'].indexOf(custom.filter_type) > -1">Greater Than</md-option>
+                            <md-option value="lessthan" ng-if="['birthday','expiry_date'].indexOf(custom.filter_type) > -1">Less Than</md-option>
+                            <md-option value="daysprior" ng-if="['birthday','expiry_date'].indexOf(custom.filter_type)>-1">Days Before</md-option>
+                            <md-option value="daysafter" ng-if="['birthday','expiry_date'].indexOf(custom.filter_type)>-1">Days After</md-option>
+                            <md-option value="hasall" ng-if="custom.filter_type === 'tags'">Has All</md-option>
+                            <md-option value="hasone" ng-if="custom.filter_type === 'tags'">Has At Least One</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div class="tablecell" ng-if="custom.condition && ['equals', 'contains', 'greaterthan', 'lessthan'].indexOf(custom.condition) > -1">
+                    <div class="input-group">
+                        <input class="form-control" ng-model="custom.field1">
+                    </div>
+                </div>
+                <div class="tablecell" ng-if="custom.condition && ['hasall', 'hasone'].indexOf(custom.condition) > -1">
+                    <md-input-container class="location-selector">
+                        <span ng-if="tags().length == 0">There are no tags created for this agency.</span>
+                        <md-select class="location-selector"
+                            ng-if="tags().length > 0"
+                            placeholder="Select a tag"
+                            ng-model="selectedTag" 
+                            ng-change="chooseTag(selectedTag)">
+                            <md-option ng-repeat="tag in tags() | orderBy:'tag_name'" ng-value="tag">
+                                {{tag.tag_name}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <div class="tag-container" ng-if="custom.tags.length > 0">
+                        <div ng-repeat="tagname in custom.tags track by $index"
+                            class="tag-item">
+                            {{getTagNameByName(tagname)}} <i class="fa fa-trash" ng-click="removeTag($index)"></i>
+                        </div>
+                        <div class="cleared"></div>
+                    </div>
+                </div>
+                <div class="filter-actions tablecell">
+                    <button class="btn btn-xs btn-default" ng-click="clearNewFilter()">Clear</button>
+                    <button class="btn btn-xs btn-success" ng-click="addNewFilter()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="table table-bordered table-hover table-striped cls-tab-call-history manage-contacts">
+        <thead>
+            <tr>
+                <th style="min-width: 220px;">Contact Name</th>
+                <th style="min-width: 250px;">Phone / Email</th>
+                <th >Tags</th>
+                <th>Favorite</th>
+                <th style="width: 130px;">Manage</th>
+                <th>
+                    <md-input-container style="margin: 0px;" dir="rtl">
+                        <md-checkbox
+                            class="md-warn"
+                            style="margin-bottom: 0;"
+                            ng-model="select.selectAll"
+                            ng-change="selectAllContacts()"
+                            aria-label="Select All Contacts">
+                            All
+                        </md-checkbox>
+                    </md-input-container>
+                </th>
+            </tr>
+        </thead>
+        <tr>
+            <td colspan="6" ng-if="contactsLoading()" class="loading-users mdgreyfont">
+                <i class="fa fa-spinner fa-spin fa-2x"></i><br />
+                <span>Contacts Loading<br />
+                Please Wait</span>
+            </td>
+        </tr>
+        <tr ng-if="search.filter && (search.searching || search.short || (!search.searching && !search.short && contacts().length === 0))">
+            <td colspan="6">
+                <span ng-if="search.searching">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i> <span>Searching - Please Wait</span>
+                </span>
+                <span ng-if="search.short">
+                    Search must be 3 characters or more
+                </span>
+                <span ng-if="!search.searching && !search.short && contacts().length === 0">
+                    <i class="fa fa-search fa-1x"></i> <span>No Contacts Found - Broaden Your Search</span>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6" ng-if="!contactsLoading() && !search.filter && contacts().length===0">
+                    None of your contacts match the selected search criteria.
+            </td>
+        </tr>
+        <tr ng-repeat="contact in filterData = (currentContactSlice() )">
+            <td>
+                <div class="tableclass">
+                    <div class="tablecell contact-image" style="width: 36px;">
+                        <img ng-if="contact.im"
+                            ng-src="{{pathImgProfile + contact.im}}"
+                            class="cls-img-lst-contact"
+                            alt=""/>
+                        <span class="fa-stack fa-lg" ng-if="!contact.im">
+                            <i class="fa fa-circle fa-stack-2x icon-border circle-icon-xs" ng-style="{'color': contact.color}" ></i>
+                            <i class="fa fa-user fa-stack-1x contact-icon-xs"></i>
+                        </span>
+                    </div>
+                    <div class="tablecell contact-name">
+                        <label class="name-lst-contact">
+                            <span ng-if="contact.name.length>3">{{contact.name}}</span>
+                            <span ng-if="contact.org">
+                                <br />
+                                {{contact.org}}
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div ng-repeat="phone in contact.nums" ng-if="phone.num">
+                    <span ng-if="phone.lab">{{phone.lab}}:</span> <span ng-click="makeCall(phone.num)">{{phone.num | tel}}</span>
+                </div>
+                <div ng-if="contact.ext">
+                    Ext: <span ng-click="makeCall(contact.ext)">{{contact.ext}}</span>
+                </div>
+                <div ng-if="contact.em">
+                    Email: <span ng-click="startEmailClient(contact.em)">{{contact.em}}</span>
+                </div>
+            </td>
+            <td>
+                <div class="tag-container" ng-if="contact.tags">
+                    <div ng-repeat="tagname in contactTags(contact)"
+                        class="tag-item">
+                        {{getTagNameByName(tagname)}} <i class="fa fa-trash" ng-click="removeTagFromContact(contact, tagname)"></i>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span tooltip-placement="top"
+                    uib-tooltip="{{isFavorite(contact.cuuid) ? 'Remove From Favorites' : 'Add to Favorites'}}">
+                    <i class="fa {{isFavorite(contact.cuuid) ? 'fa-star' : 'fa-star-o'}}  orangefont mainopt"
+                    ng-click="toggleFavorite(contact.cuuid)">
+                    </i>
+                </span>
+            </td>
+            <td>
+                <button class="btn btn-success btn-xs" 
+                    tooltip-placement="top-right"
+                    uib-tooltip="Edit/View contact"
+                    ng-click="editContact(contact.cuuid)">
+                    Edit 
+                    <i class="fa fa-pencil-square-o"></i>
+                </button>
+                <button class="btn btn-danger btn-xs" 
+                    ng-if="contact.type !== 'user'"
+                    ng-click="deleteContact(contact.cuuid)"
+                    ng-disabled="deletingContact===contact.cuuid"
+                    tooltip-placement="top-right"
+                    uib-tooltip="Delete contact">
+                    Delete 
+                    <i class="fa" ng-class="{'fa-spinner fa-spin' : deletingContact===contact.cuuid, 'fa-times-circle': (!deletingContact || deletingContact !== contact.cuuid)}"></i>
+                </button>
+            </td>
+            <td>
+                <md-checkbox
+                    class="md-warn"
+                    style="margin-bottom: 0;"
+                    ng-if="contact.type !== 'user'"
+                    ng-model="select.selectedContacts[contact.cuuid]"
+                    ng-change="selectMessage(contact.cuuid)"
+                    aria-label="Delete This Contact">
+                </md-checkbox>
+            </td>
+        </tr>
+    </table>
+    <div style="text-align: center" >
+            <ul uib-pagination
+            class="pagination pagination-sm call-history"
+            total-items="contacts().length"
+            ng-model="paginate.currentPage"
+            previous-text="&lsaquo;"
+            next-text="&rsaquo;"
+            items-per-page="paginate.perPage"
+            rotate="false"
+            boundary-link-numbers="true"
+            max-size="10">
+        </ul>
+    </div>
+</md-content>
+<script type="text/ng-template" id="addcontactstogroup.html">
+    <div class="modal-header"
+            id="modal-screen-share">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            Choose Group?
+        </span>
+        <button type="button"
+                ng-click="closeModal()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <h4>Adding {{vm.content.data.selected.length}} contacts to which group?</h4>
+        <div class="alert alert-warning centered" 
+            ng-if="vm.content.data.exceedsTotalLimit(vm.content.data.selected)">
+            You can not assign this number of contacts to a group. The group limit is {{vm.content.data.groupLimit}} contacts.
+        </div>
+        <div class="alert alert-warning centered" 
+            ng-if="vm.content.data.selectedGroup && vm.content.data.exceedsGroupLimit(vm.content.data.selected, vm.content.data.selectedGroup) && 
+                !vm.content.data.exceedsTotalLimit(vm.content.data.selected)">
+            You can not assign this number of contacts to {{vm.content.data.selectedGroup.group_name}}. The total group limit is {{vm.content.data.groupLimit}} contacts and {{vm.content.data.selectedGroup.group_name}} already has {{vm.content.data.selectedGroup.members.length}} contacts.
+        </div>
+        <md-select class="csv-group-select" 
+            ng-model="vm.content.data.selectedGroup" 
+            ng-show="!vm.content.data.exceedsTotalLimit(vm.content.data.selected)">
+            <md-option ng-repeat="group in vm.content.data.groups" ng-value="group">
+                Add to {{group.group_name}} Group
+            </md-option>
+        </md-select>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md"
+                ng-click="closeModal()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;">
+            </i>
+            Cancel
+        </button>
+        <button class="btn btn-primary btn-md"
+            ng-disabled="vm.content.data.exceedsGroupLimit(vm.content.data.selected, vm.content.data.selectedGroup) || 
+            vm.content.data.exceedsTotalLimit(vm.content.data.selected)"
+                ng-click="vm.content.data.addContactsToGroup(vm.content.data.selectedGroup, vm.content.data.selected)">
+            <i class="fa fa-save"
+               style="margin-right: 10px;"></i>
+            Add To Group
+        </button>
+    </div>
+</script>
+<script type="text/ng-template" id="addtagstocontacts.html">
+    <div class="modal-header"
+            id="modal-screen-share">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            Choose Tags to Apply
+        </span>
+        <button type="button"
+                ng-click="closeModal()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <contact-tags-bulk selected="vm.content.data.selected"></contact-tags-bulk>
+</script>
+<script type="text/ng-template" id="contact-tags-bulk.html">
+    <div class="modal-body" id="modal-body">
+        <h4>Adding tags to {{selected.length}} contacts</h4>
+        
+        <div class="tableclass">
+            <div class="tablecell" style="width: 150px;">
+                Choose Tag:
+            </div>
+            <div class="tablecell" ng-show="!createNewTag">
+                <md-select class="csv-group-select"
+                    placeholder="Select a tag"
+                    ng-model="selectedTag" 
+                    ng-change="chooseTag(selectedTag)">
+                    <md-option value="newtag">Create New Tag</md-option>
+                    <md-option ng-repeat="tag in tags() | orderBy:'tag_name'" ng-if="tag.tag_name" ng-value="tag">
+                        {{tag.tag_name}}
+                    </md-option>
+                </md-select>
+            </div>
+            <div class="tablecell" ng-show="createNewTag">
+                <input type="text" ng-model="newtag">
+                <i class="icon-folder-close fa fa-save" ng-show="!showSpinner" ng-click="saveNewTag(newtag)"></i>
+                <span ng-show="showSpinner"><i class="icon-folder-close fa fa-spinner fa-spin" ></i></span>
+            </div>
+        </div>
+        <div class="tableclass">
+            <div class="tablecell" style="width: 150px;">
+                Selected Tags:
+            </div>
+            <div class="tablecell">
+                <div class="tag-container" ng-if="selectedTags.length > 0">
+                    <div ng-repeat="tagname in selectedTags track by $index"
+                        ng-init="tag = getTagByName(tagname)"
+                        class="tag-item">
+                        {{tag.tag_name}} <i class="fa fa-trash" ng-click="removeTag($index)"></i>
+                    </div>
+                    <div class="cleared"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md"
+                ng-click="closeModal()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;">
+            </i>
+            Cancel
+        </button>
+        <button class="btn btn-primary btn-md"
+        ng-if="!showSubmitSpinner"
+                ng-click="addTagsToContacts(selectedTags)">
+            <i class="fa fa-save"
+               style="margin-right: 10px;"></i>
+            Add Tags to Contacts
+        </button>
+        <button class="btn btn-primary btn-md"
+            ng-if="showSubmitSpinner"
+                ng-disabled="true">
+            <i class="fa fa-spinner fa-spin"
+               style="margin-right: 10px;"></i>
+            Saving
+        </button>
+    </div>
+</script>

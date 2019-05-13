@@ -1,0 +1,48 @@
+<div class="add-call-container">
+    <div class="on-call-with-container"
+         style="margin-top: -5px;">
+        <span>On call with: </span>
+        <strong class="contact-name cls-color-blue-tkg">
+            {{call.contact.name}}
+        </strong>
+        <strong class="cls-color-blue-tkg"
+                ng-show="!call.contact.name">
+            {{call.params.remote_caller_id_name | callerId}}
+        </strong>
+    </div>
+    <div class="add-call-input-box">
+        <div class="frmAddCall">
+            <md-input-container style="display: none;">
+                <label>Enter phone number here</label>
+                <input name="phoneNumber"
+                       add-call-phone-input
+                       ng-model="inputNumber"
+                       style="text-align: center;"
+                       autocomplete="off"
+                       required>
+            </md-input-container>
+            <callbox-selector2 placement="'addcall'"></callbox-selector2>
+            <div class="add-call-btns-container">
+                <button type="button"
+                        class="btn btn-default btn-sm cls-color-blue-tkg"
+                        ng-click="addCall() "
+                        ng-disabled="frmAddCall.$invalid"
+                        tooltip-placement="top"
+                        uib-tooltip="Make Call">
+                    <i class="fa fa-phone cls-color-green-tkg"
+                       style=" margin-right: 10px;"></i>
+                    Make call
+                </button>
+                <button type="button"
+                        class="btn btn-default btn-sm cls-color-blue-tkg"
+                        ng-click="toggleAddCallDisplay()()"
+                        tooltip-placement="top"
+                        uib-tooltip="Cancel">
+                    Cancel
+                    <i class="fa fa-times cls-color-red-tkg"
+                       style="margin-left: 10px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,1016 @@
+<div>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <div class="row" style="width: 100%">
+                <div class="col-sm-8">
+                    <h2>Billing Admin<span ng-if="agencyLoaded()"> - {{agencyLoaded().domain_description}}<span ng-if="agencyLoaded() && agencyLoaded().domain_enabled === 'false'"> (Domain is Disabled)</span></h2>
+                </div>
+                <div class="col-sm-4">
+                    <md-autocomplete
+                        ng-show="!loadingAgencies"
+                        class="company-emulate pull-right"
+                        md-selected-item="filter.selectedItem"
+                        md-search-text-change="filter.searchTextChange(filter.searchText)"
+                        md-search-text="filter.searchText"
+                        md-selected-item-change="filter.selectedItemChange(item)"
+                        md-items="item in filter.querySearch(filter.searchText) | filter: emptyFilter | orderBy : 'domain_description'"
+                        md-item-text="item.domain_description"
+                        md-min-length="0"
+                        placeholder="Choose an Agency to Display?">
+                        <md-item-template>
+                            <span md-highlight-text="filter.searchText" md-highlight-flags="^i">{{showDomainName(item)}}</span>
+                        </md-item-template>
+                        <md-not-found>
+                            No agencies matching "{{filter.searchText}}" were found.
+                        </md-not-found>
+                    </md-autocomplete>
+                    <div class="tableclass loading-agencies pull-right" ng-show="loadingAgencies">
+                        <div class="tablecell">
+                            <i class="fa fa-spinner fa-spin"></i>
+                        </div>
+                        <div class="tablecell">
+                            Loading Agencies
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </md-toolbar>
+    <md-content class="agency-content">
+        <div class="loading-info" ng-if="loadingAgency">
+            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+            <span>Loading Agency Info<br />
+            Please Wait</span>
+        </div>
+        <div class="default-choice" ng-if="!agencyLoaded() && !loadingAgency">
+            <span>Choose an agency above.</span>
+        </div>
+        <div ng-if="agencyLoaded()">
+            <div ng-if="!showInvoice && !showPayment">
+                <h4>Summary</h4>
+                <div class="blue-billing-settings">
+                    <div class="settings-col col-sm-3">
+                        <strong>Balance Due:</strong> {{agencyLoaded().billingSettings.account_balance | currency}}
+                    </div>
+                    <div class="settings-col col-sm-3">
+                        <strong>Last Renewal:</strong> {{agencyLoaded().billingSettings.last_renewal}}
+                    </div>
+                    <div class="settings-col col-sm-3">
+                        <strong>Next Renewal:</strong> {{agencyLoaded().billingSettings.next_renewal}}
+                    </div>
+                    <div class="settings-col col-sm-3">
+                        <strong>Credit Balance:</strong> {{agencyLoaded().billingSettings.credit_balance | currency}}
+                    </div>
+                    <div class="blue-settings-col col-sm-3">
+                        <strong>Bridge Package:</strong> {{agencyLoaded().billingSettings.package_name | capitalize}} - {{packagePrice() | currency}}
+                    </div>
+                    <div class="blue-settings-col col-sm-3">
+                        <strong>Code:</strong> {{agencyLoaded().billingSettings.group_code | capitalize}} - {{groupDiscount()}}%
+                    </div>
+                    <div class="blue-settings-col col-sm-3">
+                        <strong>Number of Users:</strong> {{agencyLoaded().registeredUsers.length}}
+                    </div>
+                    <div class="settings-col col-sm-3">
+                        <strong>Creation Date:</strong> {{agencyLoaded().created_at | amDateFormat:'MMM D, YYYY'}}
+                    </div>
+                    <div class="settings-col col-sm-3">
+                        <strong>Activation Date:</strong> {{agencyLoaded().billingSettings.activated_at | amDateFormat:'MMM D, YYYY'}}
+                    </div>
+                    <div class="cleared"></div>
+                </div>
+                <hr />
+                <h4>Settings</h4>
+                <div class="billing-settings">
+                    <div class="settings">
+                        <div class="thumbnail">
+                            <div class="caption">
+                                <div class="agency-col">
+                                    Company Name
+                                    <md-input-container>
+                                        <input type="text" 
+                                            ng-model="agencyLoaded().domain_description">
+                                    </md-input-container>
+                                </div>
+                                <div class="agency-col status" ng-if="isBillingAdminOrGreater()">
+                                    Domain Enabled (Disabling a domain prevents login): 
+                                    <md-switch class="md-warn"
+                                        ng-model="agencyLoaded().domain_enabled"
+                                        ng-change="toggleDomainStatus(agencyLoaded().domain_enabled)"
+                                        aria-label="Domain Enable/Disable" 
+                                        ng-true-value="'true'" 
+                                        ng-false-value="'false'">
+                                        {{agencyLoaded().domain_enabled === 'true' ? 'Enabled' : 'Disabled'}}
+                                    </md-switch>
+                                </div>
+                                <div class="agency-col">
+                                    <md-input-container>
+                                        <label>Group Code</label>
+                                        <md-select ng-model="agencyLoaded().billingSettings.group_code"
+                                            placeholder="- Choose Group Code -">
+                                            <md-option ng-if="code.enabled" ng-repeat="code in customerGroupCodes()"
+                                                        ng-value="code.customer_group_code">
+                                                {{code.customer_group_code}} 
+                                                <span ng-if="code.discount>0"> ({{code.discount}}% discount)</span>
+                                                <span ng-if="code.dollar_discount>0.0"> ({{code.dollar_discount | currency}} discount)</span>
+                                                <span ng-if="code.free_months>0"> ({{code.free_months}} free months)</span>
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                                <div class="agency-col">
+                                    <md-input-container>
+                                        <label>Bridge Package</label>
+                                        <md-select ng-model="agencyLoaded().billingSettings.package_name"
+                                            placeholder="- Choose Package -">
+                                            <md-option 
+                                                ng-if="item.enabled !== 'false'"
+                                                ng-repeat="item in availPackages() | orderBy:'level'"
+                                                ng-value="item.package_name">
+                                            {{item.package_title}} ({{showPackageStatus(item)}})
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                                <div class="agency-col status">
+                                    Billing Status (Monthly Automated Billing): 
+                                    <md-switch class="md-warn"
+                                        ng-model="agencyLoaded().billingSettings.billing_active"
+                                        ng-change="toggleBillingStatus(agencyLoaded().billingSettings.billing_active)"
+                                        aria-label="Billing Enable/Disable" 
+                                        ng-true-value="'true'" 
+                                        ng-false-value="'false'">
+                                        {{agencyLoaded().billingSettings.billing_active === 'true' ? 'Active' : 'In-Active'}}
+                                    </md-switch>
+                                </div>
+
+                                <div class="agency-col day">
+                                    Renewal Cycle
+                                    <md-radio-group layout="row" ng-model="agencyLoaded().billingSettings.renew_cycle" class="md-primary">
+                                        <md-radio-button value="monthly" >Monthly </md-radio-button>
+                                        <md-radio-button value="annually">Annually </md-radio-button>
+                                    </md-radio-group>
+                                </div>
+                                <div class="agency-col day" ng-if="agencyLoaded().billingSettings.renew_cycle === 'monthly'">
+                                    Account Renewal Day
+                                    <md-radio-group layout="row" ng-model="agencyLoaded().billingSettings.renewal_day" class="md-primary">
+                                        <md-radio-button value="5" >5th of the month </md-radio-button>
+                                        <md-radio-button value="20">20th of the month </md-radio-button>
+                                    </md-radio-group>
+                                </div>
+                                <div class="agency-col">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            Last Renewal Date
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="date-picker">
+                                                <div class="input-group" style="margin-top: 18px;">
+                                                    <span class="input-group-addon" ng-click="OpenLastRenewDatePicker()">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </span>
+                                                    <input type="text" 
+                                                        class="form-control" 
+                                                        uib-datepicker-popup="{{dateFormat}}" 
+                                                        ng-model="last_renew_date" 
+                                                        is-open="lastRenewDatePopup.opened" 
+                                                        datepicker-options="dateOptions" 
+                                                        close-text="Close" 
+                                                        ng-click="OpenLastRenewDatePicker()"
+                                                        ng-change="updateLastRenewDate(last_renew_date)"
+                                                        placeholder="Renew Date" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="agency-col">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            Next Renewal Date
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="date-picker">
+                                                <div class="input-group" style="margin-top: 18px;">
+                                                    <span class="input-group-addon" ng-click="OpenRenewDatePicker()">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </span>
+                                                    <input type="text" 
+                                                        class="form-control" 
+                                                        uib-datepicker-popup="{{dateFormat}}" 
+                                                        ng-model="renew_date" 
+                                                        is-open="renewDatePopup.opened" 
+                                                        datepicker-options="dateOptions" 
+                                                        close-text="Close" 
+                                                        ng-click="OpenRenewDatePicker()"
+                                                        ng-change="updateRenewDate(renew_date)"
+                                                        placeholder="Renew Date" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="agency-col">
+                                    <md-checkbox ng-model="agencyLoaded().billingSettings.skip_month">
+                                        Skip Monthly Billing <span ng-if="agencyLoaded().billingSettings.skip_month">(set {{agencyLoaded().billingSettings.skip_set | toLocalTime | amDateFormat:'MMM D, YYYY'}})</span>
+                                    </md-checkbox>
+                                </div>
+                                <div class="agency-col">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            Account Activation Date
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="date-picker">
+                                                <div class="input-group" style="margin-top: 18px;">
+                                                    <span class="input-group-addon" ng-click="OpenDatePicker()">
+                                                        <i class="fa fa-calendar"></i>
+                                                    </span>
+                                                    <input type="text" 
+                                                        class="form-control" 
+                                                        uib-datepicker-popup="{{dateFormat}}" 
+                                                        ng-model="activated_at" 
+                                                        is-open="datePopup.opened" 
+                                                        datepicker-options="dateOptions" 
+                                                        close-text="Close" 
+                                                        ng-click="OpenDatePicker()"
+                                                        ng-change="updateActivation(activated_at)"
+                                                        placeholder="Activation Date" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="agency-col" ng-if="isKeithUser()">
+                                    Blue Fixed Invoice
+                                    <md-input-container>
+                                        <input type="text" 
+                                            ng-model="agencyLoaded().billingSettings.blue_sept_invoice">
+                                    </md-input-container>
+                                </div>
+                                <div class="cleared"></div>
+                                <button ng-click="updateAgencyBillingSettings()" class="btn btn-success">Update Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings">
+                        <div class="thumbnail">
+                            <div class="caption">
+                                <h4>Payment Methods Available</h4>
+                                <payment-methods 
+                                    radios="false"
+                                    domain="agencyLoaded()">
+                                </payment-methods>
+                                <h4>Billing Contacts</h4>
+                                <p>All billing related emails (ie invoices, upgrades, payments, etc.) will be sent to the emails below. Please enter one email per line.</p>
+                                <div class="input-group"> 
+                                    <textarea id="am-sms-message" 
+                                        class="form-control" 
+                                        ng-change="contactsChanged=true"
+                                        rows="5"
+                                        ng-model="agencyLoaded().billingSettings.billing_contacts">
+                                    </textarea>
+                                </div>
+                                <div class="right-text">
+                                    <button class="btn btn-primary" 
+                                        ng-click="updateContacts()"
+                                        ng-disabled="!contactsChanged">
+                                        <i class="fa fa-floppy-o"></i> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="tableclass fulltable padd10">
+                    <div class="tablecell">
+                        <h4>Invoices</h4>
+                    </div>
+                    <div class="tablecell">
+                        <div class="input-group" style="margin-top: 14px;">
+                            <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+                            <input class="form-control" type="text" ng-model="filters.searchInvoices" placeholder="Filter invoices by invoice number">
+                        </div>
+                    </div>
+                    <div class="tablecell right-text">
+                        <button ng-if="!loadingDomains" class="btn btn-primary" ng-click="showEditInvoice()">New Custom Invoice</button>
+                    </div>
+                </div>
+                <div ng-if="!activeInvoice">
+                    <table class="table table-bordered table-striped cls-tab-call-history" style="text-align: left !important;">
+                        <thead>
+                            <tr>
+                                <th ng-click="sort_by('invoice_num')">
+                                    Invoice Number
+                                    <i ng-class="showChevron('invoice_num')"></i>
+                                </th>
+                                <th ng-click="sort_by('created_at')">
+                                    Invoice Date
+                                    <i ng-class="showChevron('created_at')"></i>
+                                </th>
+                                <th ng-click="sort_by('due_at')">
+                                    Invoice Due
+                                    <i ng-class="showChevron('due_at')"></i>
+                                </th>
+                                <th ng-click="sort_by('total')">
+                                    Total
+                                    <i ng-class="showChevron('total')"></i>
+                                </th>
+                                <th ng-click="sort_by('balance')">
+                                    Balance
+                                    <i ng-class="showChevron('balance')"></i>
+                                </th>
+                                <th ng-click="sort_by('status')">
+                                    Status
+                                    <i ng-class="showChevron('status')"></i>
+                                </th>
+                                <th style="width: 150px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td ng-if="filterData.length===0" colspan="7">There are no invoices {{(!filters.searchInvoices || filters.searchInvoices.length === 0) ? ' for this agency' : 'that match your search keyword(s)'}}.</td>
+                            </tr>
+                            <tr ng-if="!loadingInvoices" ng-repeat="invoice in filterData = (agencyLoaded().invoices | orderBy : predicate :reverse | filter : keywordFilter) | limitTo : paginate.perPage : paginate.perPage*(paginate.currentPage-1)">
+                                <td ng-click="viewInvoice(invoice)">{{invoice.invoice_num}}</td>
+                                <td ng-click="viewInvoice(invoice)">{{invoice.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}</td>
+                                <td ng-click="viewInvoice(invoice)">{{invoice.due_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}</td>
+                                <td ng-click="viewInvoice(invoice)">{{invoice.total | currency}}</td>
+                                <td ng-click="viewInvoice(invoice)">{{invoice.balance | currency}}</td>
+                                <td ng-click="viewInvoice(invoice)">
+                                    <span ng-if="invoice.status !== 'unpaid'">
+                                        {{invoice.status | capitalize}}
+                                    </span>
+                                    <button ng-if="invoice.status === 'unpaid'" 
+                                        class="btn btn-xs btn-success" 
+                                        ng-click="submitPayment(invoice)">
+                                        Pay Now
+                                    </button>
+
+                                    <span ng-if="invoice.refunds.length>0">
+                                        <br /><button class="btn btn-xs btn-default" 
+                                            tooltip-placement="top-right"
+                                            uib-tooltip="{{::tips.billing.refund_details}}"
+                                            ng-click="showRefundDetails(invoice)">
+                                            {{sumOfRefunds(invoice) | currency}} Refunded <i class="fa fa-info-circle"></i>
+                                        </button>
+                                    </span>
+                                </td>
+                                <td>
+
+                                    <button class="btn btn-xs btn-success"
+                                        ng-if="invoiceRefundable(invoice)"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{::tips.billing.refund}}"
+                                        ng-click="showRefundInvoice(invoice)">Refund</button>
+                                    <button class="btn btn-xs btn-default"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{::tips.billing.edit_invoice}}"
+                                        ng-if="(invoice.invoice_type === 'custom' || invoice.invoice_type === 'initial') && invoice.status === 'draft'"
+                                        ng-click="showEditInvoice(invoice)">Edit</button>
+                                    <i class="fa fa-trash redfont pull-right"
+                                        ng-if="isKeithUser()"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{::tips.billing.delete_invoice}}"
+                                        ng-click="deleteInvoice(invoice)"></i>
+                                    <button class="btn btn-xs btn-danger pull-right"
+                                        ng-if="invoice.status !== 'cancelled'"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{::tips.billing.cancel_invoice}}"
+                                        ng-click="confirmCancelInvoice(invoice)">Cancel</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="smfont">NOTE: Only custom invoices still in Draft status can be edited.</p>
+                    <div style="text-align: center">
+                        <ul uib-pagination
+                            class="pagination-sm pagination call-history"
+                            total-items="filterData.length"
+                            ng-model="paginate.currentPage"
+                            previous-text="&lsaquo;"
+                            next-text="&rsaquo;"
+                            items-per-page="paginate.perPage">
+                        </ul>
+                    </div>
+                </div>
+
+                <hr />
+                <div class="tableclass fulltable padd10">
+                    <div class="tablecell">
+                        <h4>Payments</h4>
+                    </div>
+                    <div class="tablecell">
+                        <div class="input-group" style="margin-top: 14px;">
+                            <span class="input-group-addon" title="Filter Payments"><i class="fa fa-filter"></i></span>
+                            <input class="form-control" type="text" ng-model="filters.searchPayments" placeholder="Filter payments by payment number or amount">
+                        </div>
+                    </div>
+                    <div class="tablecell right-text">
+                        <button ng-if="!loadingDomains" class="btn btn-primary" ng-click="addOpenPayment()">Add Open Payment</button>
+                    </div>
+                </div>
+                <payment-history filters="filters"></payment-history>
+
+                <hr id="credits" />
+                <h4>Account Credit Activity (Current Credit Balance):
+                    <md-button ng-click="showNewCredit()"
+                                class="pull-right md-default md-raised">
+                        <i class="fa fa-plus"></i> Add Account Credit
+                    </md-button>
+                </h4>
+                <table class="table table-bordered table-striped cls-tab-call-history account-credits">
+                    <thead>
+                        <tr>
+                            <th>Activity Date</th>
+                            <th>Details</th>
+                            <th>Added By</th>
+                            <th>Amount</th>
+                            <th style="width: 100px;">Manage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-if="addCredit">
+                            <td colspan="3">
+                                <md-input-container>
+                                    <label>Credit Details</label>
+                                    <input type="text" ng-model="newCredit.details">
+                                </md-input-container>
+                            </td>
+                            <td>
+                                <md-input-container>
+                                    <label>Credit Amount – enter as a positive number</label>
+                                    <input type="text" ng-model="newCredit.credit">
+                                </md-input-container>
+                            </td>
+                            <td>
+                                <button class="btn btn-xs btn-success" ng-click="createNewAccountCredit(newCredit)">
+                                    Save
+                                </button>
+                                <button class="btn btn-xs btn-default" ng-click="canceNewAccountCredit()">
+                                    Cancel
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td ng-if="agencyLoaded().credits.length===0" colspan="6">There is no credit activity for this agency.</td>
+                        </tr>
+                        <tr ng-repeat="credit in agencyLoaded().credits | orderBy : 'created_at' : true">
+                            <td>{{credit.created_at | toLocalTime | amDateFormat: 'MMM D, YYYY'}}</td>
+                            <td>{{credit.details}}</td>
+                            <td>{{showAddedBy(credit)}}</td>
+                            <td>{{credit.credit_amount | currency}}</td>
+                            <td>
+                                <i ng-click="removeAccountCredit(credit)" 
+                                    ng-if="!credit.invoice_payment_uuid"
+                                    class="fa fa-times-circle redfont mainopt" 
+                                    tooltip-placement="top-right" 
+                                    ib-tooltip="{{tips.billing.deletecredit}}"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr />
+                <billing-addresses domain="agencyLoaded()"></billing-addresses>
+                <hr />
+                <h4>Package Add-ons: 
+                    <md-button ng-click="showNewAddon()"
+                                class="pull-right md-default md-raised">
+                        <i class="fa fa-plus"></i> Add Package Addon
+                    </md-button>
+                </h4>
+                <table class="table table-bordered table-striped cls-tab-call-history">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Details</th>
+                            <th>Quantity</th>
+                            <th>Monthly Cost</th>
+                            <th>Date Added</th>
+                            <th>Manage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td ng-if="agencyLoaded().addons.length===0" colspan="6">There are no addons for this agency at this time.</td>
+                        </tr>
+                        <tr ng-repeat="addon in agencyLoaded().addons | orderBy : 'created_at'">
+                            <td>{{addon.addon.title}}</td>
+                            <td>{{addon.addon.quantity}} {{addon.addon.units}}</td>
+                            <td>{{addon.quantity ? addon.quantity : 1}}</td>
+                            <td>{{addon.quantity ? addon.quantity*addon.cost : addon.cost | currency}}</td>
+                            <td>{{addon.created_at | toLocalTime | amDateFormat: 'MMM D, YYYY'}}</td>
+                            <td>
+                                <i ng-click="cancelAddon(addon)" 
+                                    class="fa fa-times-circle redfont mainopt" 
+                                    tooltip-placement="top-right" 
+                                    ib-tooltip="{{tips.numberporting.canceladdon}}"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr />
+                <toll-free-number-setup domain="agencyLoaded()"></toll-free-number-setup>
+                <hr />
+                <billing-user-setup domain="agencyLoaded()" bluewave="false"></billing-user-setup>
+            </div>
+            <div ng-if="showInvoice">
+                <view-invoice invoice="activeInvoice"></view-invoice>
+            </div>
+            <div ng-if="showPayment">
+                <div class="center-text">
+                    <button class="btn btn-default" 
+                        ng-click="cancelPayment()">
+                        <i class="fa fa-window-close-o"></i> Close Payment Window
+                    </button>
+                </div>
+                <billing-payment-tab 
+                    domain="agencyLoaded()"
+                    invoice="activeInvoice"
+                    class="content-box company-setup-user-tab company-setup-tab">
+                </billing-payment-tab>
+            </div>
+        </div>
+        
+    </md-content>
+</div>
+
+<script type="text/ng-template" id="edit-bridge-invoice-modal.html">
+    <edit-bridge-invoice 
+        invoice="vm.content.data.invoice"
+        domain="vm.content.data.domain" 
+        domains="vm.content.data.domains">
+    </edit-bridge-invoice>
+</script>
+
+<script type="text/ng-template" id="edit-bridge-invoice.html">
+    <form id="addInvoice" name="addInvoice">
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-dollar fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">{{invoice.invoice_uuid ? 'Edit Invoice' : 'Create New Invoice'}}</span>
+            <button type="button" ng-click="closeInvoiceModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="modal-body invoice-edit" id="modal-body">
+            <h4>Agency: {{domain.domain_description}}</h4>
+            <div class="row">
+                <div class="col-sm-2 agency-col">
+                    <span class="inv-status">{{invoice.status | capitalize}}</span>
+                </div>
+                <div class="col-sm-4">
+                    Invoice Type: 
+                    <md-radio-group layout="row" ng-model="invoice.invoice_type" class="md-primary">
+                        <md-radio-button value="custom" >Custom </md-radio-button>
+                        <md-radio-button value="initial">Initial </md-radio-button>
+                        <md-radio-button value="monthly">Monthly</md-radio-button>
+                    </md-radio-group>
+                </div>
+                <div class="col-sm-3">
+                    Invoice Date: 
+                    <div class="input-group">
+                        <span class="input-group-addon" ng-click="openInvoiceDate()">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                        <input type="text" 
+                            class="form-control" 
+                            uib-datepicker-popup="{{dateFormat}}" 
+                            ng-model="invoice.created_at" 
+                            name="invoice.created_at" 
+                            is-open="invoiceDatePopup.opened" 
+                            datepicker-options="invoiceDateOptions" 
+                            ng-required="true" 
+                            close-text="Close" 
+                            ng-click="openInvoiceDate()"
+                            placeholder="Invoice Date" 
+                            required />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    Due Date: 
+                    <div class="input-group">
+                        <span class="input-group-addon" ng-click="openDueDate()">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                        <input type="text" 
+                            class="form-control" 
+                            uib-datepicker-popup="{{dateFormat}}" 
+                            ng-model="invoice.due_at" 
+                            name="invoice.due_at" 
+                            is-open="dueDatePopup.opened" 
+                            datepicker-options="dueDateOptions" 
+                            ng-required="true" 
+                            close-text="Close" 
+                            ng-click="openDueDate()"
+                            placeholder="Due Date" 
+                            required />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered table-striped cls-tab-call-history invoice-items">
+                        <thead>
+                            <tr>
+                                <th>Details</th>
+                                <th style="width: 80px">Quantity</th>
+                                <th style="width: 120px">Unit Price</th>
+                                <th>Line Total</th>
+                                <!-- <th>Taxes</th> -->
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-if="item.item_type === 'custom'" ng-repeat="item in invoice.items track by $index">
+                                <td>
+                                    <span ng-if="editingIndex == null || editingIndex !== $index">{{item.item_info}}</span>
+                                    <md-input-container ng-if="editingIndex === $index">
+                                            <input type="text"
+                                                    ng-model="editingLine.item_info">
+                                    </md-input-container>
+                                </td>
+                                <td>
+                                    <span ng-if="editingIndex == null || editingIndex !== $index">{{item.item_quantity}}</span>
+                                    <md-input-container ng-if="editingIndex === $index">
+                                        <input type="number"
+                                                ng-model="editingLine.item_quantity">
+                                    </md-input-container>
+                                </td>
+                                <td>
+                                    <span ng-if="editingIndex == null || editingIndex !== $index">{{item.unit_cost | currency}}</span>
+                                    <md-input-container ng-if="editingIndex === $index">
+                                        <input type="text"
+                                                ng-model="editingLine.unit_cost"
+                                                currency-formatter>
+                                    </md-input-container>
+                                </td>
+                                <td>
+                                    <span ng-if="editingIndex == null || editingIndex !== $index">{{item.item_total | currency}}</span>
+                                    <span ng-if="editingIndex === $index">{{lineTotal(editingLine) | currency}}</span>
+                                </td>
+                                <td>
+                                    <i ng-if="editingIndex == null || editingIndex !== $index"
+                                        class="fa fa-pencil-square-o primaryfont mainopt"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{::tips.billing.edit_line}}"
+                                        ng-click="editLine(item, $index)"></i>
+                                    <i ng-if="editingIndex == null || editingIndex !== $index"
+                                        class="fa fa-trash redfont mainopt"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{::tips.billing.delete_line}}"
+                                        ng-click="deleteLine($index)"></i>
+                                    
+                                    <i ng-if="editingIndex === $index"
+                                        class="fa fa-floppy-o primaryfont mainopt"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{::tips.billing.save_line}}"
+                                        ng-click="saveEditLine(editingLine, $index)"></i>
+                                    <i ng-if="editingIndex === $index"
+                                        class="fa fa-undo redfont mainopt"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{::tips.billing.cancel_edit}}"
+                                        ng-click="cancelEdit()"></i>
+                                </td>
+                            </tr>
+                            <tr ng-if="!editingItem">
+                                <td>
+                                    <md-input-container>
+                                        <input type="text"
+                                                ng-model="newLine.item_info">
+                                    </md-input-container>
+                                </td>
+                                <td>
+                                    <md-input-container>
+                                        <input type="number"
+                                                ng-model="newLine.item_quantity">
+                                    </md-input-container>
+                                </td>
+                                <td>
+                                    <md-input-container>
+                                        <input ng-model="newLine.unit_cost" 
+                                            currency-formatter>
+                                    </md-input-container>
+                                </td>
+                                <td>{{newLineSubtotal(newLine) | currency}}</td>
+                                <!-- <td>
+                                    <md-checkbox
+                                        ng-model="newLine.includeTax">
+                                        Tax
+                                    </md-checkbox>
+                                </td> -->
+                                <td>
+                                    <button class="btn btn-xs btn-primary" 
+                                        ng-click="saveNewLine(newLine)">
+                                        Save Line
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="5"><br /></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="right-text">Subtotal:</td>
+                                <td colspan="2">{{invoiceSums().subtotal | currency}}</td>
+                            </tr>
+                            <!-- <tr>
+                                <td colspan="3" class="right-text">Taxes & Fees:</td>
+                                <td colspan="3">{{invoiceSums().taxes | currency}}</td>
+                            </tr> -->
+                            <tr>
+                                <td colspan="3" class="right-text">Total:</td>
+                                <td colspan="2">{{invoiceSums().total | currency}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <md-input-container class="md-block">
+                        <label>Invoice Notes</label>
+                        <textarea ng-model="invoice.invoice_note" md-maxlength="250" rows="3" md-select-on-focus></textarea>
+                    </md-input-container>
+                </div>
+            </div>
+            
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeInvoiceModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-default btn-md" ng-click="saveInvoice(invoice, true)" ng-disabled="addInvoice.$invalid || invoice.items.length === 0"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Draft & Close</button>
+            <button class="btn btn-primary btn-md" ng-click="saveInvoice(invoice, false)" ng-disabled="addInvoice.$invalid || invoice.items.length === 0"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Invoice & Activate</button>
+        </div>
+    </form>
+</script>
+
+
+<script type="text/ng-template" id="agencyaddonmodal.html">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-key fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Add Add-on to {{vm.content.data.domain_description}}</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <add-agency-addon agency="vm.content.data"></add-agency-addon>
+    </div>
+</script>
+
+<script type="text/ng-template" id="add-agency-addon.html">
+    <form id="addPackage" name="addPackage">
+        <div class="modal-body package-edit" id="modal-body">
+            <h4>Available Add-ons</h4>
+            <p class="smfont">NOTE: Custom Price is optional. It is only used if the agency was quoted a special price for the given add-on. Please include a note if using custom price.</p>
+            <table class="table table-bordered table-striped cls-tab-call-history">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Details</th>
+                        <th>Monthly Cost</th>
+                        <th>Custom Price</th>
+                        <th>Quantity</th>
+                        <th>Note for Agency</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-if="availAddons().length === 0">
+                        <td colspan="4">There are no addons created yet.</td>
+                    </tr>
+                    <tr ng-if="availAddons().length>0 && addon.enabled && packageHasAccessToAddon(addon.type)" ng-repeat="addon in availAddons() | orderBy:'title'">
+                        <td style="width: 200px;">{{addon.title}}</td>
+                        <td>{{addon.quantity}} {{addon.units}}</td>
+                        <td style="width: 110px;">{{addon.cost | currency}}</td>
+                        <td style="width: 110px;">
+                            <md-input-container>
+                                <label>Custom Addon Cost</label>
+                                <input ng-model="addon.custom" currency-formatter />
+                            </md-input-container>
+                        </td>
+                        <td style="width: 110px;" ng-init="addon.count = 1">
+                            <md-input-container>
+                                <input type="number"
+                                    ng-change="checkCount(addon.count)"
+                                        ng-model="addon.count">
+                            </md-input-container>
+                        </td>
+                        <td>
+                            <md-input-container style="width: 100%">
+                                <label>Note</label>
+                                <input ng-model="addon.note" />
+                            </md-input-container>
+                        </td>
+                        <td style="width: 80px;">
+                            <button
+                                class="btn btn-xs btn-success" 
+                                ng-disabled="!addon.count || (addon.count && addon.count < 1)"
+                                ng-click="chooseAddon(addon)">Add
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/ng-template" id="refundmodal.html">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-key fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Issue Refund</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <refund-payment invoice="vm.content.data"></refund-payment>
+    </div>
+</script>
+
+<script type="text/ng-template" id="refund-payment.html">
+    <form id="addPackage" name="addPackage">
+        <div class="modal-body package-edit" id="modal-body">
+            <p>Invoice # {{invoice.invoice_num}} Summary: </p>
+            <table class="table table-bordered">
+                <tr>
+                    <td class="info-column"><strong>Total Invoice:</strong></td>
+                    <td><strong>{{invoice.total | currency}}</strong></td>
+                </tr>
+                <tr>
+                    <td class="info-column">Payments (see below):</td>
+                    <td class="bot-border">{{invoice.paymentsTotal | currency}}</td>
+                </tr>
+                <tr>
+                    <td class="info-column"><h4>Balance:</h4></td>
+                    <td><h4>{{invoice.balance | currency}}</h4></td>
+                </tr>
+            </table>
+            <div ng-if="invoice.payments.length>0">
+                <div ng-if="!payment">
+                    <h3>Payments Applied:</h3>
+                    <table class="table table-bordered table-striped cls-tab-call-history">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Payment Number</th>
+                                <th>Details</th>
+                                <th>Payment Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="payment in invoice.payments | orderBy : 'created_at' : true" class="smfont">
+                                <td>
+                                    {{payment.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                                    {{payment.created_at | toLocalTime | amDateFormat:'h:mm a'}}
+                                </td>
+                                <td>PA{{payment.payment.payment_num}}</td>
+                                <td>{{payment.payment.description}}</td>
+                                <td>
+                                    {{payment.amount | currency}}
+                                    <span ng-if="payment.refunds.length>0">
+                                        <br /><button class="btn btn-xs btn-default" 
+                                            style="margin-right: 10px;" 
+                                            tooltip-placement="top-right"
+                                            uib-tooltip="{{::tips.billing.refund_details}}"
+                                            ng-click="showRefundDetails(invoice)">
+                                            {{sumOfRefunds(payment) | currency}} Refunded <i class="fa fa-info-circle"></i>
+                                        </button>
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-xs btn-danger"
+                                        ng-if="sumOfRefunds(payment) < payment.net_amount"
+                                        tooltip-placement="top"
+                                        uib-tooltip="{{::tips.billing.refund}}"
+                                        ng-click="refundPayment(payment)">
+                                        Refund
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div ng-if="payment">
+                    <h3>Refunding Payment PA{{payment.payment.payment_num}}</h3>
+                    <table class="table table-bordered">
+                        <tr>
+                            <td class="info-column">Date:</td>
+                            <td>{{payment.payment.created_at | toLocalTime | amDateFormat:'MMM D, YYYY h:mm a'}}</td>
+                        </tr>
+                        <tr>
+                            <td class="info-column">Details:</td>
+                            <td>{{payment.payment.description}}</td>
+                        </tr>
+                        <tr>
+                            <td class="info-column">Payment amount:</td>
+                            <td>{{payment.amount | currency}}</td>
+                        </tr>
+                        <tr>
+                            <td class="info-column">Refunded amount:</td>
+                            <td><strong>{{payment.refunded_amount | currency}}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="info-column">Net payment:</td>
+                            <td><strong>{{payment.net_amount | currency}}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="info-column"><h4>Amount to Refund:</h4></td>
+                            <td>
+                                <input class="form-control" 
+                                    type="text" 
+                                    ng-model="refund.amount" 
+                                    currency-formatter
+                                    placeholder="Filter invoices by invoice number">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="info-column">Reason for Refund:</td>
+                            <td>
+                                <md-radio-group layout="row" ng-model="refund.reason" class="md-primary">
+                                    <md-radio-button value="duplicate" >Duplicate </md-radio-button>
+                                    <md-radio-button value="fraudulent">Fraudulent </md-radio-button>
+                                    <md-radio-button value="requested_by_customer">Customer Request</md-radio-button>
+                                </md-radio-group>
+                            </td>
+                        </tr>
+                        <tr ng-show="refund.reason === 'requested_by_customer'">
+                            <td class="info-column"><h4>Details:</h4></td>
+                            <td>
+                                <input class="form-control" 
+                                    type="text" 
+                                    ng-model="refund.details"
+                                    placeholder="Details for refund">
+                            </td>
+                        </tr>
+                        <tr ng-show="refundingAllInvoice(refund)">
+                            <td class="info-column"><h4>Mark invoice as cancelled:</h4></td>
+                            <td>
+                                <md-checkbox
+                                    ng-model="refund.action">
+                                    Cancel Invoice after refund
+                                </md-checkbox>
+                            </td>
+                        </tr>
+                    </table>
+                    <button class="btn btn-success"
+                        tooltip-placement="top"
+                        uib-tooltip="{{::tips.billing.refund}}"
+                        ng-click="submitRefund(refund)">
+                        Submit Refund
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+        </div>
+    </form>
+</script>
+
+<script type="text/ng-template" id="cancelinvoicemodal.html">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x cls-color-blue-tkg">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-dollar fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Cancel Invoice Num {{vm.content.data.invoice_num}}</span>
+        <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    <cancel-invoice invoice="vm.content.data"></cancel-invoice>
+</script>
+
+<script type="text/ng-template" id="cancel-invoice.html">
+    <div class="modal-body package-edit" id="modal-body">
+        <p>Are you sure you want to cancel this invoice? This will permanently disable this invoice and remove it from the Agency's view.</p>
+        <div ng-if="invoice.payments.length > 0">
+            <p>There {{invoice.payments.length === 1 ? 'is 1 payment' : 'are '+invoice.payments.length+' payments'}} associated with this invoice. Please indicate what you would like to do with these payments.</p>
+            <md-radio-group layout="row" ng-model="cancel.action" class="md-primary">
+                <md-radio-button value="refund" >Refund payment </md-radio-button>
+                <md-radio-button value="credit">Move payment to credit balance </md-radio-button>
+                <md-radio-button value="ignore">Ignore payment and cancel</md-radio-button>
+            </md-radio-group>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" 
+            ng-click="closeModal()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i> Close
+        </button>
+        <button class="btn btn-success btn-md" 
+            ng-if="!working"
+            ng-click="cancelInvoice()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i> Cancel Invoice
+        </button>
+        <button ng-disabled="true" class="btn btn-success btn-md" ng-if="working">
+            <i class="fa fa-spinner fa-spin" style="margin-right: 10px;"></i> Working
+        </button>
+    </div>
+</script>

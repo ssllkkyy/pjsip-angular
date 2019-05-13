@@ -1,0 +1,198 @@
+<div class="settings-profile-row">
+    <div class="settings-avatar">
+        <img ng-src="{{avatarPath}}"
+             ng-show="avatarPath"
+             class="settings-avatar-img"
+             alt="" />
+        <div class="mask" ng-if="avatarPath && isMainUser()">
+            <i class="fa fa-times-circle redfont"
+            aria-hidden="true"
+            tooltip-placement="bottom-right"
+            uib-tooltip="Delete Avatar"
+            ng-click="removeAvatar()"></i>
+        </div>
+        <div class="cls-settings-img-profile-null"
+             style="background-color: {{ user.profile_color ? user.profile_color : '' }};"
+             ng-show="!avatarPath">
+            <i class="fa fa-user"
+               style="font-size: 75px; opacity: 0.4;"
+               aria-hidden="true">
+            </i>
+        </div>
+        <md-button ng-if="uploader.queue.length>0"
+                   ng-click="uploader.uploadAll()"
+                   class="md-raised md-secondary">
+            Upload
+        </md-button>
+        <md-button ng-click="triggerContactUpload()"
+                   class="md-raised md-secondary">
+            Change Avatar
+        </md-button>
+        <input type="file"
+               nv-file-select
+               uploader="uploader"
+               id="cloud-upload"
+               style="display: none;">
+    </div>
+    <div class="profile-update-include">
+        <div id="profileUpdate">
+            <div ng-material-collapse
+                 ng-if="true"
+                 open="true">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 md-truncate
+                            flex>
+                            My Profile Info
+                        </h2>
+                    </div>
+                </md-toolbar>
+                <div uib-collapse="isCollapsedVertical"
+                     class="collapsible-content">
+                    <user-info-settings user="user">
+                    </user-info-settings>
+                </div>
+            </div>
+            <div ng-material-collapse
+                 ng-if="true">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 md-truncate
+                            flex>
+                            Change Password
+                        </h2>
+                    </div>
+                </md-toolbar>
+                <div uib-collapse="isCollapsedVertical"
+                     class="collapsible-content">
+                    <change-password-settings user="user">
+                    </change-password-settings>
+                </div>
+            </div>
+            <div ng-material-collapse
+                ng-if="true">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 md-truncate
+                            flex>
+                            Call Forwarding
+                        </h2>
+                    </div>
+                </md-toolbar>
+                <div uib-collapse="isCollapsedVertical"
+                        class="collapsible-content">
+                    <call-forwarding-settings user="user" >
+                    </call-forwarding-settings>
+                </div>
+            </div>
+            <div ng-material-collapse
+                 ng-if="true">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 md-truncate flex>Voicemail</h2>
+                    </div>
+                </md-toolbar>
+                <div uib-collapse="isCollapsedVertical"
+                     class="collapsible-content">
+                    <voicemail-settings user="user">
+                    </voicemail-settings>
+                </div>
+            </div>
+            <div ng-material-collapse
+                ng-if="true">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 md-truncate
+                            flex>
+                            Notifications
+                        </h2>
+                    </div>
+                </md-toolbar>
+                <div uib-collapse="isCollapsedVertical"
+                     class="collapsible-content">
+                    <ringtone-settings user="user">
+                    </ringtone-settings>
+                </div>
+            </div>
+            <div ng-material-collapse
+                 ng-if="packageHasAccess('sms')">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 md-truncate
+                            flex>
+                            Out Of Office Text Responder
+                        </h2>
+                    </div>
+                </md-toolbar>
+                <div uib-collapse="isCollapsedVertical"
+                     class="collapsible-content">
+                    <out-of-office-settings user="user" >
+                    </out-of-office-settings>
+                </div>
+            </div>
+            <div ng-material-collapse
+                ng-if="packageHasAccess('sms')">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 md-truncate
+                            flex>
+                            Text Signature
+                        </h2>
+                    </div>
+                </md-toolbar>
+                <div uib-collapse="isCollapsedVertical"
+                     class="collapsible-content">
+                    <text-signature-settings user="user" >
+                    </text-signature-settings>
+                </div>
+            </div>
+            <div ng-material-collapse
+                ng-if="packageHasAccess('integration')">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 md-truncate flex>
+                            Screen Pop
+                        </h2>
+                    </div>
+                </md-toolbar>
+                <div uib-collapse="isCollapsedVertical"
+                    class="collapsible-content">
+                    <screenpop-settings user="user">
+                    </screenpop-settings>
+                </div>
+            </div>
+            <div ng-material-collapse
+                ng-if="packageHasAccess('integration')">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 md-truncate
+                            flex>
+                            Integration
+                        </h2>
+                    </div>
+                </md-toolbar>
+                <div uib-collapse="isCollapsedVertical"
+                     class="collapsible-content">
+                    <integration-settings user="user">
+                    </integration-settings>
+                </div>
+            </div>
+            <div ng-material-collapse
+                 ng-if="true">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 md-truncate
+                            flex>
+                            Mobile Settings
+                        </h2>
+                    </div>
+                </md-toolbar>
+                <div uib-collapse="isCollapsedVertical"
+                     class="collapsible-content">
+                    <mobile-settings user="user">
+                    </mobile-settings>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

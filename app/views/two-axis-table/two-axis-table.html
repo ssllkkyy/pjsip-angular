@@ -1,0 +1,39 @@
+<div class="table-head-container"
+     ng-class="{'body-has-scrollbar': hasScrollbar}">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead ng-style="styleObj.tableHead">
+            <tr>
+                <th class="spacer-th"
+                    ng-style="styleObj.spacerThStyle">
+                    {{additionalData.tableName}}
+                </th>
+                <th ng-repeat="columnName in xAxisVals"
+                    ng-style="styleObj['columnNameTh'+$index]"
+                    class="column-name-th">
+                    {{columnName}}
+                </th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div class="table-body-container">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <tbody ng-style="styleObj.tableBody">
+            <tr ng-repeat="rowName in yAxisVals"
+                ng-style="styleObj['trRow'+$index]"
+                class="tr-row tr-row-{{$index}}">
+                <td class="rowname-td"
+                    ng-style="styleObj['rowHeaderStyle']">
+                    {{rowName}}
+                </td>
+                <td ng-repeat="columnName in xAxisVals"
+                    class="rowdata-td"
+                    ng-style="styleObj['td'+$index]">
+                    <div ng-transclude="tdData">
+                        {{resourceData[columnName][rowName]}}
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,55 @@
+<div  ng-if="!showPaymentTab" class="invoice-options">
+    <button class="btn btn-default" ng-click="closeRefund()">
+        <i class="fa fa-window-close-o"></i> Close Refund Record
+    </button>
+    <a class="btn btn-default" 
+        href="{{onescreenBaseUrl}}/billing/printrefund/{{refund.invoice_refund_uuid}}?token={{userToken}}"
+        target="_blank">
+        <i class="fa fa-print"></i> Download / Print Refund
+    </a>
+</div>
+
+<div id="invoice-view">
+    <div class="center-text"><h3>Refund Record</h3></div>
+    
+    <table class="table payment-amount">
+        <tr>
+            <td style="width: 180px;"><strong>Refunded To:</strong></td>
+            <td>
+                <span ng-if="domain">
+                    {{domain.domain_description}}<br />
+                    <span ng-if="domain.address">{{domain.address.address}}<br />
+                    {{domain.address.city}}, {{domain.address.state}}<br />
+                    {{domain.address.zipcode}}</span>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Date:</strong></td>
+            <td>{{refund.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}</td>
+        </tr>
+        <tr>
+            <td><strong>Refund number:</strong></td>
+            <td>RE{{refund.refund_num}}</td>
+        </tr>
+        <tr>
+            <td><strong>Amount Refunded:</strong></td>
+            <td>{{refund.amount | currency}}</td>
+        </tr>
+        <tr>
+            <td><strong>Refund Details:</strong></td>
+            <td>{{refund.description}}</td>
+        </tr>
+        <tr ng-if="refund.refund_id">
+            <td><strong>Confirmation number:</strong></td>
+            <td>{{refund.refund_id}}</td>
+        </tr>
+    </table>
+    <div class="kotter-address">
+        <strong>The Kotter Group</strong><br />
+                    3100 Five Forks Trickum Rd SW Suite #403<br />
+                    Lilburn, Georgia  30047<br />
+                    (770) 717-1777<br />
+                    sales@kotter.net
+    </div>
+</div>

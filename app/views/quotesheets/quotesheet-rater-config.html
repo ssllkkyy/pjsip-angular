@@ -1,0 +1,89 @@
+<div class="search-controls">
+    <div class="select-template">
+        <label>Template:</label>
+        <select class="selectpicker form-control"
+                ng-options="template as template.description for template in templateOptions"
+                ng-model="selectedTemplate"
+                ng-change="getTemplateQuestions(selectedTemplate)">
+        </select>
+    </div>
+    <div class="select-rater">
+        <label>Rater:</label>
+        <select class="selectpicker form-control"
+                ng-options="rater.rater_name for rater in raters"
+                ng-change="loadRaterFields(selectedType)"
+                ng-model="selectedRater">
+        </select>
+        
+    </div>
+    <div class="save-fields">
+        <md-button ng-click="saveExportSettings()"
+                   class="md-primary md-raised"
+                   ng-disabled="!canSave()">
+            Save Export Settings
+        </md-button>
+    </div>
+</div>
+<div class="hawksoft-fields"
+     ng-show="!collapseIsLoading">
+    <div ng-material-collapse
+         ng-repeat="(category, fields) in selectedRater.fields">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2 md-truncate
+                    flex>
+                    {{category}}
+                </h2>
+            </div>
+        </md-toolbar>
+        <div uib-collapse="isCollapsedVertical"
+             class="collapsible-content">
+            <scrollable-table column-names="tableControls.columnNames">
+                <!-- ng-if="!isCollapsedVertical"> -->
+                <table-body>
+                    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+                        <tbody>
+                            <tr ng-show="!loading"
+                                ng-if="selectedRater.fields[category][key]"
+                                ng-repeat="(key, value) in tableControls.raterFields.fields">
+                                <td class="template-field-col">
+                                    <md-select ng-model="value.fieldName">
+                                        <md-option
+                                            ng-value="null">
+                                        </md-option>
+                                        <md-option
+                                            ng-value="tempField.label"
+                                            ng-repeat="tempField in templateQuestions | filter:searchField">
+                                        {{tempField.label}}
+                                        </md-option>
+                                    </md-select>
+                                </td>
+                                <td class="rater-field-col">
+                                    <span>{{selectedRater.fields[category][key]}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-if="raterFieldsLength() === 0">
+                                <td ng-if="!loading">
+                                    <p style="text-align: center;">
+                                        Please select from the dropdowns above.
+                                    </p>
+                                </td>
+                                <td ng-if="loading">
+                                    <span class="spinner">
+                                        <i class="fa fa-cog fa-spin fa-lg"></i>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </table-body>
+            </scrollable-table>
+        </div>
+    </div>
+</div>
+<div ng-show="collapseIsLoading"
+     class="collapse-spinner">
+    <span class="spinner">
+        <i class="fa fa-cog fa-spin fa-lg"></i>
+    </span>
+</div>

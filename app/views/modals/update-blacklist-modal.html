@@ -1,0 +1,45 @@
+<div>
+    <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-times fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Update Blacklist Action</span>
+            <button type="button" ng-click="vm.content.data.closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <table class="table table-bordered table-hover table-striped">      
+                <tbody class="tableBody">  
+                    <tr>
+                        <td>
+                          <md-input-container>
+                            <label ng-show="!vm.content.data.selectedAction">{{vm.content.data.currentAction}}</label>
+                              <md-select ng-model="vm.content.data.selectedAction">
+                                <md-option ng-value="action" ng-repeat="action in vm.content.data.actions"> {{action.description}} </md-option>
+                              </md-select>
+                            </md-input-container>
+                        </td>
+                        <td ng-show="vm.content.data.selectedAction.value === 'play_audio' || vm.content.data.currentAction ==='play_audio'">
+                            <md-input-container>
+                                <label ng-show="!vm.content.data.selectedFile && !vm.content.data.currentFile">Selected File: </label>
+                                <label ng-show="vm.content.data.currentFile && !vm.content.data.selectedFile">{{vm.content.data.currentFile}} </label>
+                                <md-select ng-model="vm.content.data.selectedFile">
+                                  <md-option ng-repeat="audioFile in vm.content.data.audioFiles()" ng-value="audioFile">
+                                    {{audioFile.file_title}}
+                                  </md-option>
+                                </md-select>
+                           </md-input-container>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger btn-md" style="margin-top: 20px;"
+                                ng-click="vm.content.data.updateBlacklist(vm.content.data)" 
+                                ng-disabled="!vm.content.data.selectedAction || (vm.content.data.selectedAction.value==='play_audio' && !vm.content.data.selectedFile)">
+                                <i class="fa fa-ban" style="margin-right: 10px;">
+                                </i>Update</button>
+                        </td>
+                    </tr>                   
+                </tbody>
+            </table>
+    </div>
+
+</div>

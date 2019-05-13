@@ -1,0 +1,962 @@
+a,
+a:hover,
+a:link,
+a:focus,
+a:visited {
+  text-decoration: none !important; }
+
+.thin-hr {
+  margin: 8px 0; }
+
+.nonuser-pagination {
+  margin-top: 15px; }
+
+#leftbar .left-column-user {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-flow: row-wrap;
+  align-items: stretch;
+  background-color: #fbfbfb;
+  border: lavender solid 1px;
+  padding: 10px; }
+  #leftbar .left-column-user .left-container {
+    flex: 2;
+    width: 50%;
+    flex-direction: column; }
+  #leftbar .left-column-user .right-container {
+    flex: 2;
+    width: 50%;
+    align-content: center;
+    justify-content: center; }
+    #leftbar .left-column-user .right-container .user-controls-box {
+      padding: 6px 15px 0 15px; }
+      #leftbar .left-column-user .right-container .user-controls-box .status-icon {
+        padding: 0 5px; }
+    #leftbar .left-column-user .right-container .timer {
+      margin-top: 20px;
+      text-align: center; }
+      #leftbar .left-column-user .right-container .timer span {
+        font-size: calc(10px + 0.7vmax); }
+      #leftbar .left-column-user .right-container .timer .mdi-timetable {
+        color: darkgreen; }
+      #leftbar .left-column-user .right-container .timer .mdi::before {
+        font-size: 2vw !important; }
+    #leftbar .left-column-user .right-container .did-container {
+      min-width: 100px;
+      color: #473E3F;
+      white-space: nowrap;
+      font-size: calc(5px + 0.8vw);
+      text-align: center; }
+    #leftbar .left-column-user .right-container .profile-avatar-container1 {
+      min-width: 50px;
+      min-height: 50px; }
+      #leftbar .left-column-user .right-container .profile-avatar-container1 a .profile-avatar {
+        border: #0073a5 solid 2px;
+        min-width: 50px;
+        min-height: 50px;
+        width: 3vw;
+        height: 3vw;
+        border-radius: 100%;
+        object-fit: fill;
+        margin: 0px auto;
+        display: block; }
+      #leftbar .left-column-user .right-container .profile-avatar-container1 a .profile-avatar-initials {
+        color: #fff;
+        border: #999 solid 1px;
+        background-color: #cfdef0;
+        font-size: calc(15px + 0.6vmax);
+        font-weight: 400;
+        padding-top: 10px;
+        text-align: center;
+        width: 3vw;
+        height: 3vw;
+        border-radius: 100%;
+        min-width: 50px;
+        min-height: 50px;
+        margin: 0px auto; }
+  #leftbar .left-column-user .logo-container img {
+    width: 100%;
+    min-width: 100px; }
+  #leftbar .left-column-user .status-dropdown-container {
+    margin-top: 5px;
+    text-align: center;
+    min-width: 100px;
+    display: flex;
+    align-self: center;
+    align-items: center; }
+    #leftbar .left-column-user .status-dropdown-container .status {
+      padding: 0px 5px; }
+    #leftbar .left-column-user .status-dropdown-container .dropdown {
+      width: 100%; }
+      #leftbar .left-column-user .status-dropdown-container .dropdown button {
+        font-size: calc(7px + 0.4vmax); }
+  #leftbar .left-column-user .bottom-controls {
+    margin-top: 5px;
+    text-align: center;
+    min-width: 100px;
+    display: flex;
+    align-self: center;
+    align-items: center; }
+    #leftbar .left-column-user .bottom-controls .status {
+      padding: 0px 5px; }
+    #leftbar .left-column-user .bottom-controls .dropdown {
+      width: 100%; }
+      #leftbar .left-column-user .bottom-controls .dropdown button {
+        font-size: calc(7px + 0.4vmax); }
+    #leftbar .left-column-user .bottom-controls .missed-call-img {
+      width: 25px;
+      padding: 2px; }
+    #leftbar .left-column-user .bottom-controls .call-btns {
+      width: 100%;
+      display: flex;
+      justify-content: space-around; }
+      #leftbar .left-column-user .bottom-controls .call-btns .missed-call-btn,
+      #leftbar .left-column-user .bottom-controls .call-btns .voicemail-btn {
+        overflow: hidden;
+        display: flex;
+        height: 70%;
+        width: 45%;
+        justify-content: space-around; }
+      #leftbar .left-column-user .bottom-controls .call-btns .badge-container {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-around; }
+        #leftbar .left-column-user .bottom-controls .call-btns .badge-container .badge {
+          padding: 4px;
+          font-size: 13px; }
+      #leftbar .left-column-user .bottom-controls .call-btns .missed-call-btn {
+        padding: 1px 2px; }
+        #leftbar .left-column-user .bottom-controls .call-btns .missed-call-btn .missed-call-img-container {
+          display: flex; }
+          #leftbar .left-column-user .bottom-controls .call-btns .missed-call-btn .missed-call-img-container .missed-call-img {
+            width: 25px;
+            padding: 2px 0;
+            height: 100%; }
+      #leftbar .left-column-user .bottom-controls .call-btns .voicemail-btn {
+        padding: 1px 2px; }
+        #leftbar .left-column-user .bottom-controls .call-btns .voicemail-btn .voicemail-img-container {
+          display: flex; }
+          #leftbar .left-column-user .bottom-controls .call-btns .voicemail-btn .voicemail-img-container .voicemail-img {
+            height: 25px;
+            width: 25px;
+            padding: 2px 0;
+            height: 100%; }
+
+callbox-selector {
+  width: 100%; }
+
+.three-way-button {
+  padding: 5px 4px !important; }
+
+.callbox-search-container, .partner-filter-container {
+  display: inline-block;
+  padding: 10px 0;
+  position: relative;
+  width: 100%;
+  max-height: 200px;
+  height: auto; }
+  .callbox-search-container .use-number, .partner-filter-container .use-number {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    padding: 0 5px; }
+  .callbox-search-container md-input-container, .partner-filter-container md-input-container {
+    position: relative;
+    margin-bottom: 0px;
+    width: 100%;
+    margin-top: 15px !important; }
+    .callbox-search-container md-input-container label, .partner-filter-container md-input-container label {
+      text-align: center; }
+    .callbox-search-container md-input-container input, .partner-filter-container md-input-container input {
+      text-align: center;
+      font-size: calc(10px + .8vmax); }
+    .callbox-search-container md-input-container .md-errors-spacer, .partner-filter-container md-input-container .md-errors-spacer {
+      min-height: 0; }
+  .callbox-search-container .list-group, .partner-filter-container .list-group {
+    overflow-y: auto;
+    height: auto;
+    max-height: 26rem;
+    position: absolute;
+    width: 98%;
+    z-index: 99999;
+    background-color: #F9F9F9;
+    border: 1px solid #ddd; }
+    .callbox-search-container .list-group .list-group-item, .partner-filter-container .list-group .list-group-item {
+      background-color: #F9F9F9;
+      padding: 5px 8px; }
+      .callbox-search-container .list-group .list-group-item:hover, .partner-filter-container .list-group .list-group-item:hover {
+        background-color: #f1f1f1; }
+      .callbox-search-container .list-group .list-group-item .previous, .partner-filter-container .list-group .list-group-item .previous {
+        color: #336566;
+        font-size: 1.45rem; }
+      .callbox-search-container .list-group .list-group-item .numbers, .partner-filter-container .list-group .list-group-item .numbers {
+        color: #336566;
+        font-size: 1.35rem; }
+        .callbox-search-container .list-group .list-group-item .numbers:hover, .partner-filter-container .list-group .list-group-item .numbers:hover {
+          text-decoration: underline; }
+  .callbox-search-container .contact-chips-container, .partner-filter-container .contact-chips-container {
+    display: inline-block;
+    width: 100%; }
+  .callbox-search-container .clearfix, .partner-filter-container .clearfix {
+    max-height: 5rem;
+    overflow-y: auto; }
+  .callbox-search-container .messagebox, .partner-filter-container .messagebox {
+    width: 100%;
+    position: absolute;
+    bottom: 0; }
+
+.partner-filter-container .input-group {
+  margin: 15px 0 0 0; }
+  .partner-filter-container .input-group .form-control {
+    font-size: 17px; }
+
+.partner-filter-container .contact-options {
+  width: 100%; }
+
+.partner-filter-container .list-group {
+  width: 100%; }
+
+.slight-opacity {
+  opacity: 0.5; }
+
+.left-column-calling {
+  z-index: 10;
+  width: 100%;
+  background-color: #fbfbfb;
+  border: lavender solid 1px;
+  padding: 15px; }
+  .left-column-calling .call-box-container {
+    min-height: 12rem; }
+    .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container {
+      /* flex: 0.6 1 0; */
+      margin-top: 10px;
+      height: 100%;
+      display: grid;
+      padding: 2% 0;
+      grid-gap: 5%;
+      grid-template-columns: 0.5fr 1.5fr 3.5fr 0.5fr;
+      grid-template-areas: "spacer1 button transfer-btn spacer2";
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      text-align: center;
+      border: #9f9f9f solid 1px;
+      background-color: #E7E9E3; }
+      .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .parking-spot, .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .transfer-btn {
+        height: 100%;
+        padding: 2% 1%;
+        background: white; }
+      .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .parking-spot {
+        grid-area: button; }
+        .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .parking-spot .parking-spot-content-container {
+          display: grid;
+          grid-template-columns: 30% 70%; }
+          .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .parking-spot .parking-spot-content-container i {
+            display: grid;
+            color: white; }
+            .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .parking-spot .parking-spot-content-container i.occupied {
+              color: red; }
+            .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .parking-spot .parking-spot-content-container i.free {
+              color: green; }
+          .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .parking-spot .parking-spot-content-container p {
+            display: grid;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            display: block; }
+      .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .transfer-btn {
+        grid-area: transfer-btn; }
+        .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .transfer-btn .parking-spot-content-container {
+          display: grid;
+          grid-template-columns: 30% 70%; }
+          .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .transfer-btn .parking-spot-content-container i {
+            display: grid; }
+            .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .transfer-btn .parking-spot-content-container i.occupied {
+              color: red; }
+            .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .transfer-btn .parking-spot-content-container i.free {
+              color: green; }
+          .left-column-calling .call-box-container .call-box .call-parking-buttons .call-parking-buttons-container .transfer-btn .parking-spot-content-container p {
+            display: grid;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            display: block; }
+  .left-column-calling .video-invite {
+    height: 100%;
+    text-align: center; }
+    .left-column-calling .video-invite .fa-user-circle-o, .left-column-calling .video-invite .cls-circle-arround-1 {
+      margin: auto; }
+    .left-column-calling .video-invite .options {
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      margin-top: 5rem;
+      width: 100%;
+      height: 4vh;
+      padding: 0;
+      text-align: center;
+      border: #9f9f9f solid 1px;
+      background-color: #E7E9E3;
+      align-items: center;
+      padding-left: 30%;
+      padding-right: 30%;
+      font-size: 0; }
+      .left-column-calling .video-invite .options button {
+        margin-left: 10%;
+        margin-right: 10%;
+        flex: 1 1 0; }
+  .left-column-calling .call-input-box {
+    min-height: 100%; }
+    .left-column-calling .call-input-box .call-input-form .call-input-container {
+      width: 100%; }
+      .left-column-calling .call-input-box .call-input-form .call-input-container input {
+        text-align: center;
+        font-size: calc(10px + .8vmax); }
+    .left-column-calling .call-input-box .call-buttons {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 10px; }
+      .left-column-calling .call-input-box .call-buttons .dial-pad-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center; }
+        .left-column-calling .call-input-box .call-buttons .dial-pad-btn .dial-pad-txt {
+          flex: 1 1 0;
+          height: 100%; }
+        .left-column-calling .call-input-box .call-buttons .dial-pad-btn .dial-pad-icon-container {
+          display: flex;
+          flex: 1 1 0;
+          margin-right: 0.2vw; }
+          .left-column-calling .call-input-box .call-buttons .dial-pad-btn .dial-pad-icon-container md-icon {
+            color: black;
+            font-size: 0.92vmax;
+            line-height: inherit;
+            min-height: initial;
+            min-width: initial;
+            height: initial;
+            width: initial; }
+  .left-column-calling .dial-pad,
+  .left-column-calling .on-call-dial-pad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 90%; }
+    .left-column-calling .dial-pad .dial-pad-input,
+    .left-column-calling .on-call-dial-pad .dial-pad-input {
+      width: 90%;
+      margin-top: 0;
+      font-size: calc(6px + 1.5vmax);
+      font-weight: bold; }
+      .left-column-calling .dial-pad .dial-pad-input input,
+      .left-column-calling .on-call-dial-pad .dial-pad-input input {
+        border: none;
+        text-align: center; }
+    .left-column-calling .dial-pad .phone,
+    .left-column-calling .on-call-dial-pad .phone {
+      z-index: 4;
+      width: 90%; }
+      .left-column-calling .dial-pad .phone table,
+      .left-column-calling .dial-pad .phone tr,
+      .left-column-calling .dial-pad .phone td,
+      .left-column-calling .on-call-dial-pad .phone table,
+      .left-column-calling .on-call-dial-pad .phone tr,
+      .left-column-calling .on-call-dial-pad .phone td {
+        display: flex;
+        justify-content: space-between; }
+      .left-column-calling .dial-pad .phone table,
+      .left-column-calling .on-call-dial-pad .phone table {
+        flex-direction: column; }
+      .left-column-calling .dial-pad .phone tr,
+      .left-column-calling .dial-pad .phone td,
+      .left-column-calling .on-call-dial-pad .phone tr,
+      .left-column-calling .on-call-dial-pad .phone td {
+        display: flex;
+        flex: 1 1 0;
+        justify-content: center; }
+      .left-column-calling .dial-pad .phone .btn-dial-pad,
+      .left-column-calling .on-call-dial-pad .phone .btn-dial-pad {
+        font-weight: bold;
+        -webkit-transition: .1s ease-in background-color;
+        -webkit-font-smoothing: antialiased;
+        letter-spacing: 1px;
+        width: 3.2vw;
+        min-width: 50px;
+        height: 3.2vw;
+        min-height: 50px;
+        border: 1px solid #9e9e9e;
+        -webkit-border-radius: 50%;
+        border-radius: 50%;
+        -moz-border-radius: 50%;
+        background-color: #fff;
+        color: #333;
+        cursor: pointer;
+        font-family: 'Lato', sans-serif;
+        text-align: center; }
+        .left-column-calling .dial-pad .phone .btn-dial-pad span,
+        .left-column-calling .on-call-dial-pad .phone .btn-dial-pad span {
+          font-size: calc(10px + .6vmax);
+          text-align: center;
+          width: 100%; }
+        .left-column-calling .dial-pad .phone .btn-dial-pad p,
+        .left-column-calling .on-call-dial-pad .phone .btn-dial-pad p {
+          font-size: 8px;
+          text-align: center;
+          width: 100%; }
+        .left-column-calling .dial-pad .phone .btn-dial-pad:hover,
+        .left-column-calling .on-call-dial-pad .phone .btn-dial-pad:hover {
+          transition-property: background-color .2s linear 0s;
+          -moz-transition: background-color .2s linear 0s;
+          -webkit-transition: background-color .2s linear 0s;
+          -o-transition: background-color .2s linear 0s;
+          background-color: #9e9e9e;
+          color: #fff;
+          transition-property: background-color .2s linear 0s;
+          -moz-transition: background-color .2s linear 0s;
+          -webkit-transition: background-color .2s linear 0s;
+          -o-transition: background-color .2s linear 0s; }
+      .left-column-calling .dial-pad .phone .option-btn,
+      .left-column-calling .on-call-dial-pad .phone .option-btn {
+        flex: 1 1 0; }
+      .left-column-calling .dial-pad .phone button,
+      .left-column-calling .on-call-dial-pad .phone button {
+        margin: auto; }
+  .left-column-calling .on-call-dial-pad {
+    z-index: 10; }
+    .left-column-calling .on-call-dial-pad .on-call-dial-pad-input {
+      width: 90%;
+      margin-top: 0;
+      margin-bottom: 2rem;
+      font-size: 2vmax;
+      font-weight: bold; }
+      .left-column-calling .on-call-dial-pad .on-call-dial-pad-input input {
+        text-align: center; }
+  .left-column-calling .cls-cont-img-incomingcall {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    text-align: center;
+    padding: 5px; }
+    .left-column-calling .cls-cont-img-incomingcall .phone-shake {
+      flex: 1 1 0; }
+      .left-column-calling .cls-cont-img-incomingcall .phone-shake i {
+        color: #2ECCFA;
+        margin-top: 25px; }
+    .left-column-calling .cls-cont-img-incomingcall .arrow-point {
+      flex: 1 1 0; }
+      .left-column-calling .cls-cont-img-incomingcall .arrow-point i {
+        color: #3ADF00;
+        font-size: 50px; }
+    .left-column-calling .cls-cont-img-incomingcall .avatar {
+      flex: 1 1 0; }
+      .left-column-calling .cls-cont-img-incomingcall .avatar i {
+        color: #2E9AFE;
+        font-size: 60px; }
+    .left-column-calling .cls-cont-img-incomingcall .current-call-info {
+      flex: 1 1 80%;
+      font-size: 16px; }
+    .left-column-calling .cls-cont-img-incomingcall .cls-outgoingcall-buttons {
+      flex: 1 1 80%;
+      height: 40px !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      text-align: center;
+      border: #9f9f9f solid 1px;
+      background-color: #E7E9E3;
+      margin-top: 5px !important; }
+  .left-column-calling .anon-user-container-xs .fa {
+    font-size: 2vmax;
+    color: #2E9AFE;
+    margin-top: 10px; }
+  .left-column-calling .anon-user-container-sm .fa {
+    font-size: 3vmax;
+    color: #2E9AFE; }
+  .left-column-calling .anon-user-container-lg .fa {
+    font-size: 5vmax;
+    color: #2E9AFE; }
+  .left-column-calling #onCallContainer {
+    /* flex: 1 1 0; */
+    height: 100%;
+    min-height: 12rem;
+    display: flex;
+    flex-direction: column; }
+    .left-column-calling #onCallContainer .on-call-avatar {
+      /* flex: 2 1 0; */
+      height: 20vh;
+      justify-content: center; }
+      .left-column-calling #onCallContainer .on-call-avatar .call-timer {
+        float: right;
+        text-align: right; }
+      .left-column-calling #onCallContainer .on-call-avatar .top-container {
+        display: flex;
+        width: 100%;
+        height: 10vh;
+        justify-content: center; }
+        .left-column-calling #onCallContainer .on-call-avatar .top-container .call-mate-container {
+          display: flex;
+          justify-content: center;
+          flex: 1 1 0; }
+          .left-column-calling #onCallContainer .on-call-avatar .top-container .call-mate-container .cls-circle-arround-2 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 6.8rem;
+            height: 6.8rem; }
+            .left-column-calling #onCallContainer .on-call-avatar .top-container .call-mate-container .cls-circle-arround-2 .cls-circle-arround-1 {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              width: 6rem;
+              height: 6rem; }
+              .left-column-calling #onCallContainer .on-call-avatar .top-container .call-mate-container .cls-circle-arround-2 .cls-circle-arround-1 .cls-img-incomingcall {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 5rem;
+                height: 5rem; }
+          .left-column-calling #onCallContainer .on-call-avatar .top-container .call-mate-container .anon-user-container .fa {
+            font-size: 3vmax;
+            color: #2E9AFE; }
+      .left-column-calling #onCallContainer .on-call-avatar .bottom-container {
+        display: flex;
+        width: 100%;
+        margin-top: 0.5vh;
+        height: 5vh;
+        justify-content: center;
+        flex-wrap: wrap; }
+        .left-column-calling #onCallContainer .on-call-avatar .bottom-container .cls-incomingcall-name {
+          display: flex;
+          width: 100%;
+          height: 2vh;
+          justify-content: center;
+          font-size: 1vmax;
+          color: grey;
+          font-weight: bold; }
+          .left-column-calling #onCallContainer .on-call-avatar .bottom-container .cls-incomingcall-name span {
+            flex: 1 1 0;
+            text-align: center; }
+        .left-column-calling #onCallContainer .on-call-avatar .bottom-container .cls-incomingcall-number {
+          /* flex: 1 1 20vw; */
+          width: 100%;
+          color: navy;
+          line-height: 1.8vh;
+          font-size: 1vmax;
+          font-weight: bold;
+          text-align: center;
+          margin-top: 1.5rem; }
+    .left-column-calling #onCallContainer .transfer-container {
+      /* flex: 2 1 0; */
+      display: flex;
+      flex-direction: column;
+      align-items: center; }
+      .left-column-calling #onCallContainer .transfer-container .on-call-with {
+        flex: 0.2 1 0; }
+        .left-column-calling #onCallContainer .transfer-container .on-call-with span {
+          white-space: nowrap; }
+      .left-column-calling #onCallContainer .transfer-container .transfer-interim {
+        padding: 10px; }
+      .left-column-calling #onCallContainer .transfer-container .transfer-controls-container {
+        width: 100%;
+        display: flex;
+        margin-bottom: 10px; }
+        .left-column-calling #onCallContainer .transfer-container .transfer-controls-container .frmTransfer, .left-column-calling #onCallContainer .transfer-container .transfer-controls-container form {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          flex: 1 1 0; }
+          .left-column-calling #onCallContainer .transfer-container .transfer-controls-container .frmTransfer .cls-opt-transfer, .left-column-calling #onCallContainer .transfer-container .transfer-controls-container form .cls-opt-transfer {
+            flex: 1 1 0;
+            display: flex;
+            justify-content: center;
+            min-height: 25px; }
+            .left-column-calling #onCallContainer .transfer-container .transfer-controls-container .frmTransfer .cls-opt-transfer label, .left-column-calling #onCallContainer .transfer-container .transfer-controls-container form .cls-opt-transfer label {
+              font-size: 12px;
+              margin-right: 1vw;
+              white-space: nowrap; }
+          .left-column-calling #onCallContainer .transfer-container .transfer-controls-container .frmTransfer md-input-container, .left-column-calling #onCallContainer .transfer-container .transfer-controls-container form md-input-container {
+            margin-top: 25%;
+            margin-bottom: 0;
+            width: 100%;
+            z-index: 1; }
+            .left-column-calling #onCallContainer .transfer-container .transfer-controls-container .frmTransfer md-input-container label, .left-column-calling #onCallContainer .transfer-container .transfer-controls-container form md-input-container label {
+              text-align: center; }
+    .left-column-calling #onCallContainer .add-call-container {
+      /* flex: 2 1 0; */
+      display: flex;
+      flex-direction: column;
+      align-items: center; }
+      .left-column-calling #onCallContainer .add-call-container .on-call-with {
+        flex: 0.2 1 0; }
+        .left-column-calling #onCallContainer .add-call-container .on-call-with span {
+          white-space: nowrap; }
+      .left-column-calling #onCallContainer .add-call-container .add-call-input-box {
+        display: flex;
+        margin-bottom: 10px;
+        width: 100%; }
+        .left-column-calling #onCallContainer .add-call-container .add-call-input-box .form, .left-column-calling #onCallContainer .add-call-container .add-call-input-box .frmAddCall {
+          display: flex;
+          flex: 1 1 0;
+          flex-direction: column;
+          align-items: center; }
+          .left-column-calling #onCallContainer .add-call-container .add-call-input-box .form md-input-container, .left-column-calling #onCallContainer .add-call-container .add-call-input-box .frmAddCall md-input-container {
+            width: 100%;
+            margin-top: 25%;
+            z-index: 1; }
+            .left-column-calling #onCallContainer .add-call-container .add-call-input-box .form md-input-container label, .left-column-calling #onCallContainer .add-call-container .add-call-input-box .frmAddCall md-input-container label {
+              text-align: center; }
+    .left-column-calling #onCallContainer .callbtn {
+      width: 50%;
+      float: left;
+      margin-bottom: 5px; }
+  .left-column-calling .callbtn {
+    width: 50%;
+    float: left;
+    margin-bottom: 5px; }
+  .left-column-calling .cls-oncall-buttons-left-bar {
+    /* flex: 0.6 1 0; */
+    height: 4vh;
+    display: flex;
+    width: 100%;
+    text-align: center;
+    border: #9f9f9f solid 1px;
+    background-color: #E7E9E3; }
+    .left-column-calling .cls-oncall-buttons-left-bar .mdi {
+      flex: 1 1 0;
+      font-size: 4px;
+      margin-top: 0.6vh;
+      padding: 0; }
+  .left-column-calling .call-parking-display {
+    display: grid;
+    justify-items: center;
+    align-items: center; }
+  .left-column-calling #incomingCall {
+    /* flex: 1 1 0; */
+    display: flex;
+    flex-direction: column;
+    align-items: center; }
+    .left-column-calling #incomingCall .incoming-call-animations {
+      display: flex;
+      height: 8vh;
+      /* flex: 1 1 0; */
+      width: 70%;
+      justify-content: center; }
+      .left-column-calling #incomingCall .incoming-call-animations i {
+        flex: 1 1 0;
+        margin-left: 5%;
+        margin-right: 5%; }
+    .left-column-calling #incomingCall .incoming-call-info {
+      height: 8vh;
+      /* flex: 1 1 0; */
+      font-size: 16px; }
+    .left-column-calling #incomingCall .incoming-call-buttons {
+      display: flex;
+      width: 100%;
+      /* flex: 1 1 0; */
+      height: 4vh;
+      padding: 0;
+      margin: 0;
+      text-align: center;
+      border: #9f9f9f solid 1px;
+      background-color: #E7E9E3;
+      margin-top: 5px;
+      justify-content: center;
+      align-items: center;
+      padding-left: 30%;
+      padding-right: 30%;
+      font-size: 0; }
+      .left-column-calling #incomingCall .incoming-call-buttons button {
+        margin-left: 10%;
+        margin-right: 10%;
+        flex: 1 1 0; }
+    .left-column-calling #incomingCall .three-way-call {
+      display: flex;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      border: #9f9f9f solid 1px;
+      background-color: #E7E9E3;
+      margin-top: 5px;
+      justify-content: center;
+      align-items: center; }
+      .left-column-calling #incomingCall .three-way-call .three-way-call-buttons {
+        float: right;
+        width: 30%;
+        display: table;
+        border-collapse: separate;
+        margin-right: 5px; }
+        .left-column-calling #incomingCall .three-way-call .three-way-call-buttons i {
+          display: table-cell;
+          text-align: center;
+          vertical-align: middle; }
+      .left-column-calling #incomingCall .three-way-call .three-way-call-labels {
+        width: 70%;
+        justify-content: center;
+        align-items: center; }
+        .left-column-calling #incomingCall .three-way-call .three-way-call-labels .three-way-call-animations {
+          display: flex;
+          width: 50%;
+          justify-content: center; }
+          .left-column-calling #incomingCall .three-way-call .three-way-call-labels .three-way-call-animations i {
+            flex: 1 1 0;
+            margin-left: 5%;
+            margin-right: 5%; }
+
+.left-column-chat {
+  display: flex;
+  margin-top: 5px;
+  border: lavender solid 1px;
+  flex-direction: column; }
+  .left-column-chat .chat-block-side-header {
+    height: 65px;
+    background: #eee;
+    border-bottom: solid 1px #ccc;
+    padding: 8px;
+    width: 100%; }
+    .left-column-chat .chat-block-side-header .user-settings {
+      text-align: right;
+      opacity: 0.5; }
+  .left-column-chat .chat-block-side-content {
+    flex: 1 1 auto;
+    display: flex;
+    background: #fff;
+    border: solid 1px lavender;
+    padding: 10px;
+    overflow-y: auto; }
+    .left-column-chat .chat-block-side-content .chat-contacts-list {
+      flex: 1 1 0;
+      margin-left: 0;
+      list-style: none;
+      overflow-y: scroll; }
+      .left-column-chat .chat-block-side-content .chat-contacts-list ul {
+        list-style: none;
+        margin-left: 15px; }
+      .left-column-chat .chat-block-side-content .chat-contacts-list li {
+        line-height: 16px;
+        padding: 4px 0; }
+      .left-column-chat .chat-block-side-content .chat-contacts-list li.cat {
+        padding-top: 15px; }
+      .left-column-chat .chat-block-side-content .chat-contacts-list .fa-stack {
+        float: right;
+        height: 1rem;
+        font-size: 1.8rem; }
+        .left-column-chat .chat-block-side-content .chat-contacts-list .fa-stack:hover .bg-icon {
+          display: inline-block; }
+      .left-column-chat .chat-block-side-content .chat-contacts-list .fa-stack-1x {
+        line-height: 2.5rem; }
+      .left-column-chat .chat-block-side-content .chat-contacts-list .fa-star, .left-column-chat .chat-block-side-content .chat-contacts-list .fa-star-o, .left-column-chat .chat-block-side-content .chat-contacts-list .bg-icon {
+        color: gold;
+        text-shadow: 0 0 0.1px black; }
+      .left-column-chat .chat-block-side-content .chat-contacts-list .bg-icon {
+        color: gold;
+        display: none; }
+      .left-column-chat .chat-block-side-content .chat-contacts-list topic-channels-list .favorite-star .fa-stack {
+        margin-right: 3rem; }
+        .left-column-chat .chat-block-side-content .chat-contacts-list topic-channels-list .favorite-star .fa-stack .fa-stack-1x {
+          float: left; }
+      .left-column-chat .chat-block-side-content .chat-contacts-list .favorite-channels-list ul.channellist.fa-ul {
+        margin-left: 0;
+        padding-left: 0; }
+      .left-column-chat .chat-block-side-content .chat-contacts-list .favorite-channels-list topic-channels-list ul.channellist.fa-ul {
+        margin-left: 15px;
+        padding-left: 20px; }
+
+.left-column-contacts {
+  display: flex;
+  flex: 75 1 30vh;
+  flex-direction: column;
+  border: lavender solid 1px;
+  margin-top: 5px;
+  z-index: 3;
+  display: flex;
+  background-color: #f9f9f9;
+  border-top: solid 1px #e1e1e1; }
+  .left-column-contacts .filter-contact-group {
+    width: 100%;
+    padding: 5px; }
+    .left-column-contacts .filter-contact-group .filter-contact {
+      border-right: none; }
+    .left-column-contacts .filter-contact-group span a {
+      text-decoration: none;
+      width: 15px;
+      padding: 0 10px;
+      margin: 0px;
+      color: #473E3F; }
+      .left-column-contacts .filter-contact-group span a:hover {
+        color: #f15922;
+        cursor: pointer; }
+    .left-column-contacts .filter-contact-group .input-group-addon {
+      padding: 6px 4px; }
+  .left-column-contacts .contact-loading-message {
+    text-align: center; }
+  .left-column-contacts .list-contacts {
+    height: calc(100% - 55px) !important;
+    width: 100% !important;
+    overflow-y: auto;
+    overflow-x: hidden; }
+    .left-column-contacts .list-contacts .list-group {
+      background-color: transparent !important; }
+    .left-column-contacts .list-contacts .contactsside .fa-spinner-container {
+      margin-left: 40%; }
+    .left-column-contacts .list-contacts .contactsside .contact-list .pagination-sm > li > a, .left-column-contacts .list-contacts .contactsside .contact-list .pagination-sm > li > span {
+      padding: 3px 7px;
+      font-size: 11px;
+      line-height: 1.5; }
+    .left-column-contacts .list-contacts .contactsside .contact-list .pagination-page, .left-column-contacts .list-contacts .contactsside .contact-list .pagination-prev, .left-column-contacts .list-contacts .contactsside .contact-list .pagination-next {
+      padding: 0px !important; }
+    .left-column-contacts .list-contacts .contactsside .contact-list .panel-group {
+      margin-bottom: 13px; }
+    .left-column-contacts .list-contacts .contactsside .contact-list .more-contacts-btn {
+      text-align: center;
+      margin-top: 3rem; }
+    .left-column-contacts .list-contacts .contactsside .panel-heading {
+      padding: 0 !important; }
+      .left-column-contacts .list-contacts .contactsside .panel-heading .contact-item {
+        border: #fff solid 1px;
+        padding: 5px 15px; }
+        .left-column-contacts .list-contacts .contactsside .panel-heading .contact-item .contact-image {
+          width: 40px; }
+        .left-column-contacts .list-contacts .contactsside .panel-heading .contact-item .contact-name {
+          text-align: left !important; }
+        .left-column-contacts .list-contacts .contactsside .panel-heading .contact-item .contact-icons {
+          width: 25px;
+          font-size: 20px; }
+          .left-column-contacts .list-contacts .contactsside .panel-heading .contact-item .contact-icons i {
+            float: right; }
+        .left-column-contacts .list-contacts .contactsside .panel-heading .contact-item:hover {
+          background-color: #f0f0f0 !important;
+          border: lavender solid 1px;
+          border-radius: 5px; }
+        .left-column-contacts .list-contacts .contactsside .panel-heading .contact-item .group-image-side {
+          border: #0073a5 solid 2px;
+          width: 30px;
+          height: 30px;
+          border-radius: 6px 6px 6px 6px !important;
+          -moz-border-radius: 6px 6px 6px 6px !important;
+          -webkit-border-radius: 6px 6px 6px 6px !important; }
+        .left-column-contacts .list-contacts .contactsside .panel-heading .contact-item .group-image-side-null {
+          width: 30px;
+          height: 30px;
+          color: #fff;
+          background-color: #cfdef0;
+          border: #777 solid 1px;
+          font-size: 16px;
+          font-weight: 400;
+          padding: 5px;
+          text-align: center !important;
+          border-radius: 6px 6px 6px 6px !important;
+          -moz-border-radius: 6px 6px 6px 6px !important;
+          -webkit-border-radius: 6px 6px 6px 6px !important;
+          flex: 1 1 0; }
+        .left-column-contacts .list-contacts .contactsside .panel-heading .contact-item .name-lst-contact {
+          font-size: 13px;
+          color: #444444;
+          cursor: pointer;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis; }
+          .left-column-contacts .list-contacts .contactsside .panel-heading .contact-item .name-lst-contact span {
+            color: #777777; }
+
+.fa-clock-o {
+  color: #ff9900; }
+
+.fa-check-circle-o {
+  color: #00cc00; }
+
+.fa-minus-circle {
+  color: #e30400; }
+
+.fa-pause-circle-o {
+  color: #99cc00; }
+
+.fa-user-o {
+  color: #009900; }
+
+.fa-handshake-o {
+  color: #ff9933; }
+
+.fa-bank {
+  color: #6699ff; }
+
+.fa-calendar-o {
+  color: #00b3b3; }
+
+.fa-coffee {
+  color: #734d26; }
+
+.fa-group {
+  color: #0066cc; }
+
+.fa-car {
+  color: #4d9900; }
+
+.fa-cutlery {
+  color: #d1e0e0; }
+
+.fa-file-text {
+  color: #ffc433; }
+
+.red {
+  color: red; }
+
+@media (max-height: 782px) {
+  .phone table {
+    margin-bottom: 0; } }
+
+@media (max-height: 555px) {
+  .phone table {
+    margin-bottom: 0; }
+  .phone td {
+    padding: 0 !important; }
+  .left-column-chat {
+    min-height: 0px !important; }
+    .left-column-chat .chat-block-side-header {
+      display: none !important; } }
+
+@media (max-width: 980px) {
+  #leftbar .call-buttons .btn {
+    padding: 5px; } }
+
+@media (max-width: 846px) {
+  #leftbar .call-buttons .btn {
+    padding: 2px; } }
+
+@media (max-height: 707px) {
+  #leftbar .cls-oncall-buttons-left-bar .btn:before {
+    font-size: 16px;
+    line-height: 10px; }
+  #leftbar #onCallContainer .on-call-avatar .top-container .call-mate-container .cls-circle-arround-2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 4.7rem;
+    height: 4.7rem; }
+    #leftbar #onCallContainer .on-call-avatar .top-container .call-mate-container .cls-circle-arround-2 .cls-circle-arround-1 {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 4rem;
+      height: 4rem; }
+      #leftbar #onCallContainer .on-call-avatar .top-container .call-mate-container .cls-circle-arround-2 .cls-circle-arround-1 .cls-img-incomingcall {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 3.3rem;
+        height: 3.3rem; } }
+
+@media (max-height: 561px) {
+  #leftbar .cls-oncall-buttons-left-bar .btn:before {
+    font-size: 16px;
+    line-height: 10px; }
+  #leftbar #onCallContainer .on-call-avatar .cls-incomingcall-number {
+    font-size: 1rem; } }
+
+@media (max-height: 604px) {
+  #leftbar #onCallContainer .on-call-avatar .top-container .conference-avatar .fa-stack {
+    font-size: 3.5rem; } }

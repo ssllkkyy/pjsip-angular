@@ -1,0 +1,71 @@
+<!--Individual Name-->
+<div class="" ng-if="selectedAttendant.group === 'Individual Name'">
+    <!--<div ng-include="" src="'views/company/attendant/individual-name.html'"></div>-->
+    <!--Individual Name-->
+
+    <div class="action-pad">
+        <div class="alert alert-info">
+            <strong>Instructions:</strong> Drag from the list to the main left container for the contact you want to use</a>
+        </div>
+
+        <div class="no-float row col-md-12 no-select">
+            <div class="trashbox">
+                <!-- If you use [] as referenced list, the dropped elements will be lost -->
+                <ul dnd-list="[]">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                    <!--<li>-->
+                    <div class="attendant-drop col-md-12">
+                        <div class="attend-row">
+                            <!--Auto Attendant-->
+                            <div class="col-md-6">
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Selection</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <ul dnd-list="selectedAttendant.items" dnd-external-sources="true" dnd-effect-allowed="copyMove" dnd-dragover="dragoverCallback(index, external, type)" dnd-drop="selectedAttendant.items.splice(0); dropIndCallback(index, item, external, type)" class="itemlist">
+                                            <li class="" ng-repeat="attendant in selectedAttendant.items" dnd-draggable="attendant" dnd-effect-allowed="copyMove" dnd-dragstart="logEvent('Started to drag an item')" dnd-dragend="logEvent('Drag operation ended. Drop effect: ' + dropEffect)">
+                                                {{attendant.name}} <strong> {{attendant.ext}} </strong>
+                                            </li>
+                                            <li class="dndPlaceholder">
+                                                <!--Drop any <strong>{{list.allowedTypes.join(' or ')}}</strong> here-->
+                                                Drop any <strong>contact</strong> here
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--User List-->
+
+                            <div class="col-md-6">
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h2 class="panel-title ">Contacts</h2>
+                                    </div>
+                                    <div class="action-contact">
+                                        <ul dnd-list="options.users.items" dnd-disable-if="true" class="itemlist">
+                                            <li ng-repeat="user in options.users.items" dnd-draggable="user" dnd-type="'user'" dnd-effect-allowed="copy" dnd-moved="options.users.items.splice($index, 1)">
+                                                <div class="">
+                                                    {{user.name}} <strong>ext: {{user.ext}} </strong>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <div view-source="simple"></div>
+
+                    </div>
+                    <!--</li>-->
+                </ul>
+            </div>
+
+        </div>
+    </div>
+    <!--End-->
+</div>

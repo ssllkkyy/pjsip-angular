@@ -1,0 +1,148 @@
+<div id="file-share-container">
+    <div ng-if="!showTable" style="width: 250px; text-align: center; opacity: 0.6; margin: 40px;">
+        <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i><br />
+        Loading...
+    </div>
+    <div ng-show="showTable">
+        <table class="table" style="margin-bottom: 0;">
+            <tr>
+                <td style="width: 200px;">
+                    <label class="bluecolor" for="search">Files per page:</label>
+                    <select class="selectpicker form-control per-page" ng-options="page as page for page in ppOptions" ng-model="perPage"></select>
+                </td>
+                <td style="width: 200px;">
+                    <div class="input-group">
+                        <span class="input-group-addon" ng-click="OpenfromDate()">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                        <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="fromDate" name="fromDate" is-open="fromDatePopup.opened" datepicker-options="fromDateOptions" ng-required="true" close-text="Close" ng-click="OpenfromDate()" ng-change="ChangeToMinDate(fromDate)"
+                            placeholder="From" />
+                    </div>
+                </td>
+                <td style="width: 200px;">
+                    <div class="input-group">
+                        <span class="input-group-addon" ng-click="OpentoDate()"><i class="fa fa-calendar"></i></span>
+                        <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="toDate" name="toDate" is-open="toDatePopup.opened" datepicker-options="toDateOptions" ng-required="true" close-text="Close" ng-click="OpentoDate()" ng-change="processToDate(toDate)" placeholder="To"
+                        />
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group">
+                        <span class="input-group-addon" title="Filter Shares"><i class="fa fa-filter"></i></span>
+                        <input class="form-control" type="text" ng-model="shareSearch" placeholder="Filter by Recipient or Filename">
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="file-table-container">
+            <div class="table-shared-files">
+                <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;"
+                                ng-click="sortBy('created_at')">
+                                <span class="colsort" 
+                                    tooltip-placement="top-left" 
+                                    uib-tooltip="{{tips.fileshare.sortbydate}}">
+                                    Date / Time
+                                    <i ng-class="showChevron('created_at')"></i>
+                                </span>
+                            </th>
+                            <th style="width: 230px;" 
+                                ng-click="sortBy('recipient_email')">
+                                <span class="colsort" 
+                                    tooltip-placement="top-left" 
+                                    uib-tooltip="{{tips.fileshare.sortbyrecipientemail}}">
+                                    Recipient / Sender
+                                    <i ng-class="showChevron('recipient_email')"></i>
+                                </span>        
+                            </th>
+                            <th class="direction" 
+                                style="width: 85px;" 
+                                ng-click="sortBy('direction')">
+                                <span class="colsort" 
+                                    tooltip-placement="top-left" 
+                                    uib-tooltip="{{tips.fileshare.sortbydirection}}">
+                                    <i class="fa fa-arrow-up orangefont" tooltip-placement="top" uib-tooltip="Inbound"></i>/<i class="fa fa-arrow-down dktealfont" tooltip-placement="top" uib-tooltip="Outbound"></i>
+                                    <i style="font-size: 14px;" ng-class="showChevron('direction')" ></i>
+                                </span>
+                            </th>
+                            <th ng-click="sortBy('original_filename')">
+                                <span class="colsort" 
+                                    tooltip-placement="top-left"
+                                    uib-tooltip="{{tips.fileshare.sortbyfilename}}">
+                                    File
+                                    <i ng-class="showChevron('original_filename')"></i>
+                                </span>
+                            </th>
+                            <th style="width: 120px;" 
+                                ng-click="sortBy('downloaded_at')">
+                                <span class="colsort" 
+                                        tooltip-placement="top-left" 
+                                        uib-tooltip="{{tips.fileshare.sortbydownloaded}}">
+                                        Downloaded / Received
+                                    <i ng-class="showChevron('downloaded_at')"></i>
+                                </span>
+                            </th>
+                            <!--<th>Download IP <i class="fa fa-chevron-down"></i></th>-->
+                            <th class="button-column">Resend</th>
+                            <th class="button-column">Copy</th>
+                        </tr>
+                    </thead>
+                    <tbody class="cls-body-table-pos">
+                        <tr ng-if="filterData.length===0">
+                            <td colspan="6">
+                                There are no File Shares to display
+                            </td>
+                        </tr>
+                        <tr ng-repeat="fileShare in filterData = (sharedFiles | orderBy : predicate :reverse | filter:searchRecipients | filter:filterByMonth) | limitTo:perPage:perPage*(currentPage-1)">
+                            <td>{{fileShare.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                            {{fileShare.created_at | toLocalTime | amDateFormat:'h:mm a'}}</td>
+                            <td ng-if="contact(fileShare)">
+                                <ul class="profile-display" >
+                                    <li ng-if="contact(fileShare).im" class="profile_display_30"><img src="{{pathImgProfile}}{{contact(fileShare).im}}" class="profile_image" /></li>
+                                    <li ng-if="!contact(fileShare).im" class="profile_display_30"><label class="profile_icon" style="background-color: {{contact(fileShare).color}} !important;"><i class="fa fa-user"></i></label></li>
+                                    <li style="display: inline-block;"><strong>{{contact(fileShare).name}}</strong><br />
+                                        <a ng-click="startEmailClient(contact(fileShare).em)" tooltip-placement="bottom" uib-tooltip="{{tips.fileshare.sendanemail + contact(fileShare).em}}">{{showEmail(contact(fileShare).em)}}</a>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td ng-if="!contact(fileShare)">
+                                <ul class="profile-display">
+                                    <li  class="profile_display_30"><label class="profile_icon"><i class="fa fa-user"></i></label></li>
+                                    <li style="display: inline-block;">
+                                        <i tooltip-placement="top" uib-tooltip="{{tips.contacts.addcontact}}" ng-click="showAddContactForm('fileshare', fileShare)" class="fa fa-user-plus addcontact-icon greenfont"></i>
+                                        <a ng-click="startEmailClient(fileShare.recipient_email)" tooltip-placement="bottom" uib-tooltip="{{tips.fileshare.sendanemail}}">{{fileShare.recipient_email.length>30 ? fileShare.recipient_email.substring(0,13)+'...'+fileShare.recipient_email.substring(fileShare.recipient_email.length-13,fileShare.recipient_email.length) : fileShare.recipient_email}}</a>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="direction">
+                                <i ng-if="fileShare.direction==='inbound'" class="fa fa-arrow-up orangefont" tooltip-placement="top" uib-tooltip="Inbound"></i>
+                                <i ng-if="fileShare.direction!=='inbound'" class="fa fa-arrow-down dktealfont" tooltip-placement="top" uib-tooltip="Outbound"></i>
+                            </td>
+                            <td><span tooltip-placement="bottom" uib-tooltip="{{tips.fileshare.downloadfile}}"><span ng-bind-html="showFileName(fileShare)"></span></span></td>
+                            <td>
+                                <span ng-if="fileShare.direction!=='inbound' && fileShare.downloaded_at!=''">{{fileShare.downloaded_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                                    {{fileShare.downloaded_at | toLocalTime | amDateFormat:'h:mm a'}}</span>
+                                <span ng-if="fileShare.direction==='inbound'">{{fileShare.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                                    {{fileShare.created_at | toLocalTime | amDateFormat:'h:mm a'}}</span>
+                            </td>
+                            <td class="button-column">
+                                <span ng-if="fileShare.direction!=='inbound' && !shareExpired(fileShare)"><i ng-click="resendFileShareNotice(fileShare.shared_file_uuid, fileShare.file_uuid)" class="fa fa-share" style="cursor: pointer; font-size: 18px; color: orange;" tooltip-placement="top" uib-tooltip="{{tips.fileshare.resendfileshare}}"></i></span>
+                                <span ng-if="fileShare.direction!=='inbound' && shareExpired(fileShare)"><i  class="fa fa-share" tooltip-placement="top" style="font-size: 18px; color:grey;" uib-tooltip="{{tips.fileshare.share_expired}}"></i></span>
+                            </td>
+                            <td class="button-column">
+                                <span ng-show="user.exportType.partner_code == 'hawksoft'" ng-click="copyShareToHawksoft(fileShare)" ><img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 24px; height: 24px;" tooltip-placement="top-right" uib-tooltip="{{::tips.fileshare.copytohawksoft}}"></span>
+                                <span ng-show="user.exportType.partner_code != 'hawksoft'" ng-click="copyShareToHawksoft(fileShare)" ><img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 24px; height: 24px;" tooltip-placement="top-right" uib-tooltip="{{::tips.fileshare.copytomanagement}}"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div ng-show="filterData.length > perPage" style="text-align: center">
+            <ul uib-pagination class="pagination-sm pagination" total-items="filterData.length" ng-model="currentPage" previous-text="&lsaquo;" next-text="&rsaquo;" items-per-page="perPage"></ul>
+        </div>
+    </div>
+</div>

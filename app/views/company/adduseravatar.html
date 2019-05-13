@@ -1,0 +1,43 @@
+<div id="addcontact">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-paper-plane fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Change Profile Photo</span>
+        <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    <form name="addUserAvatar" id="addUserAvatar" enctype="multipart/form-data">
+        <div class="modal-body" id="modal-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group"> 
+            <span class="input-group-addon" title="post content"><i class="fa fa-user"></i></span> 
+            <input type="text" class="form-control" ng-model="avatar.data">
+        </div>
+                    <div class="settings-avatar">
+                        <img src="{{pathImgProfile + user.profile_image}}" ng-show="user.profile_image" class="cls-img-profile" alt=""/> 
+                        <div class="cls-img-full-profile-null" style="{{ user.profile_color ? 'background-color: '+user.profile_color : '' }};" ng-show="!user.profile_image" ><i class="fa fa-user" style="font-size: 120px; opacity: 0.4;" aria-hidden="true"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group"> 
+                        <span class="input-group-addon" title="Title"><i class="fa fa-file"></i></span> 
+                        <input type="file" ng-model="avatar.image">
+                        <label class="btn btn-default btn-file">
+                            Browse for File <input class="form-control" accept="image/*" type="file" 
+                            ng-model="avatar.contact_image" 
+                            set-file-data="avatar.contact_image = value;" 
+                            file-model="avatar.contact_image" 
+                            value="{{avatar.contact_image}}" style="display: none;" required>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="sendUserAvatar(avatar)"><i class="fa fa-save" style="margin-right: 10px;"></i>Add Contact</button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,63 @@
+<div ng-if="calls.showQueueIncomingCalls">
+    <div class="row">
+        <span>
+            On call with:
+        </span>
+        <strong class="cls-color-blue-tkg">
+            {{call.contact.name}}
+        </strong>
+        <strong class="cls-color-blue-tkg"
+                ng-show="!calls.contactOncall.name">
+            {{call.params.remote_caller_id_name | callerId}}
+        </strong>
+    </div>
+    <div class="cls-queue-incoming-calls">
+        <div style="border: lavender solid 1px; margin-bottom: 15px;">
+            <div layout="row"
+                 ng-if="calls.queueIncomingCalls.length > 1"
+                 ng-repeat="queueInCalls in calls.queueIncomingCalls"
+                 style="height: 55px !important; padding-top: 10px; background-color: #F5FBEF; ">
+                <div layout-md="column"
+                     flex="60">
+                    <span class="cls-list-3way-call"
+                          ng-if="queueInCalls.name">
+                        {{queueInCalls.name}}
+                    </span>
+                    <span class="cls-list-3way-call"
+                          ng-if="!queueInCalls.name">
+                        {{queueInCalls.phone_number}}
+                    </span>
+                    <br/>
+                    <span style=" margin-top: -20px !important; font-size: 10px;">
+                        {{queueInCalls.phone_number | tel}}
+                    </span>
+                </div>
+                <div layout-md="column"
+                     flex="15">
+                    <button class="btn btn-link btn-sm mdi mdi-phone-incoming mdi-24px faa-ring animated cls-color-green-tkg"
+                            ng-click="calls.answerCall(queueInCalls)"
+                            tooltip-placement="top"
+                            uib-tooltip="Answer call  {{queueInCalls.id}}">
+                    </button>
+                </div>
+                <div layout-md="column"
+                     flex="15">
+                    <button class="btn btn-link btn-sm mdi mdi-voicemail mdi-24px cls-color-blue-tkg"
+                            ng-click="calls.sendToVoicemail(queueInCalls.id)"
+                            tooltip-placement="top"
+                            uib-tooltip="Send to voicemail">
+                    </button>
+                </div>
+                <div layout-md="column"
+                     flex="25">
+                    <!--  hangUpdMultiCalls(queueInCalls.id) -->
+                    <button class="btn btn-link btn-sm mdi mdi-phone-missed mdi-24px cls-color-red-tkg"
+                            ng-click="calls.declineCall(queueInCalls.id)"
+                            tooltip-placement="top"
+                            uib-tooltip="Decline call">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

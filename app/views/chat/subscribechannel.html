@@ -1,0 +1,65 @@
+<div>  
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            Subscribe to Available Channels
+        </span>
+        <button type="button"
+                ng-click="closeModal()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <div class="input-group">
+            <span class="input-group-addon">
+                <i class="fa fa-question-circle"></i>
+            </span>
+            <input class="form-control"
+                   type="text"
+                   ng-model="search.display_name"
+                   placeholder="Search by channel name">
+        </div>
+        <table class="table table-bordered table-hover table-striped">
+            <tr ng-repeat="channel in unsubscribedChannels | filter:search">
+                <td class="col-sm-9">
+                    {{channel.display_name}}<br />
+                    <span ng-if="channel.purpose != ''">
+                        {{channel.purpose}}
+                    </span>
+                </td>
+                <td class="col-sm-3">
+                    <button class="btn btn-success btn-sm"
+                            ng-click="subscribeToChannel(channel)">
+                        <i class="fa fa-plus"></i>
+                        Subscribe
+                    </button>
+                </td>
+            </tr>
+            <tr ng-if="unsubscribedChannels.length===0">
+                <td colspan="2">
+                    <h4>No more channels to join</h4>
+                    Click 'Create New Channel' to make a new one
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success btn-md"
+                ng-click="closeModal();showModal('/chat/addchannel.html');">
+            <i class="fa fa-plus"
+               style="margin-right: 10px;">
+            </i>
+            Create New Channel
+        </button>
+        <button class="btn btn-danger btn-md"
+                ng-click="closeModal()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;"></i>
+            Close Window
+        </button>
+    </div>
+</div>

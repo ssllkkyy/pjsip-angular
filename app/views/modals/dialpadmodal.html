@@ -1,0 +1,133 @@
+<div modaldraggable>
+    
+    <div class="modal-header" id="modal-screen-share" style="border-radius: 6px 6px 0px 0px">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-calculator fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Dial Pad</span>
+        <button type="button" class="close" id="iconClose" ng-click="closeInComingCall()"><i class="fa fa-times"></i></button>
+    </div>
+    
+    <div class=" phone">
+        <input type="tel" ng-model="phone_number" name="name" id="telNumber" class="form-control tel" value="" />
+        <div class="num-pad">
+            <div class="span4">
+                <div class="num" ng-click="dialPadClick('1')"><div class="txt"> 1 tetst </div></div>
+            </div>
+            <div class="span4">
+                <div class="num">
+                    <div class="txt" ng-click="dialPadClick('2')"> 2 <span class="small"><p>ABC</p></span></div>
+                </div>
+            </div>
+            <div class="span4">
+                <div class="num">
+                    <div class="txt" ng-click="dialPadClick('3')"> 3 <span class="small"><p>DEF</p></span></div>
+                </div>
+            </div>
+            <div class="span4">
+                <div class="num">
+                    <div class="txt" ng-click="dialPadClick('4')"> 4 <span class="small"><p>GHI</p></span></div>
+                </div>
+            </div>
+            <div class="span4">
+                <div class="num">
+                    <div class="txt" ng-click="dialPadClick('5')"> 5 <span class="small"><p>JKL</p></span></div>
+                </div>
+            </div>
+            <div class="span4">
+                <div class="num">
+                    <div class="txt" ng-click="dialPadClick('6')"> 6 <span class="small"><p>MNO</p></span></div>
+                </div>
+            </div>
+            <div class="span4">
+                <div class="num">
+                    <div class="txt" ng-click="dialPadClick('7')"> 7 <span class="small"><p>PQRS</p></span></div>
+                </div>
+            </div>
+            <div class="span4">
+                <div class="num">
+                    <div class="txt" ng-click="dialPadClick('8')"> 8 <span class="small"><p>TUV</p></span></div>
+                </div>
+            </div>
+            <div class="span4">
+                <div class="num">
+                    <div class="txt" ng-click="dialPadClick('9')"> 9 <span class="small"><p>WXYZ</p></span></div>
+                </div>
+            </div>
+            <div class="span4">
+                <div class="num" ng-click="dialPadClick('*')"><div class="txt"> * </div></div>
+            </div>
+            <div class="span4">
+                <div class="num" ng-click="dialPadClick('0')">
+                    <div class="txt"> 0 <span class="small"><p> + </p></span></div>
+                </div>
+            </div>
+            <div class="span4">
+                <div class="num" ng-click="dialPadClick('#')"><div class="txt"> # </div></div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <!-- <a href="" class="btn btn-success btn-block flatbtn" ng-click="makeCall()">CALL</a>   -->
+        
+        
+            <div class="btn-toolbar" role="group" aria-label="...">
+                <button ng-click="makeCall()" type="button" class="btn btn-success pull-left" style="width: 40%; margin-left: 20px"><i class="fa fa-phone"></i></button>
+                <button type="button" class="btn btn-primary pull-right" ng-click="backSpace()"  style="width: 40%; margin-right: 20px"><i class="fa fa-arrow-left"> </i></button>
+            </div>            
+        
+
+        
+        <div class="clearfix"></div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+            <div class="row">
+                <div class="col-md-12">
+                    <div>
+                        <div class="spanicons">
+                            <span class="glyphicon glyphicon-star"></span><span class="small">
+                                <p>
+                                    Favorites</p>
+                            </span>
+                        </div>
+                        <div class="spanicons">
+                            <span class="glyphicon glyphicon-earphone"></span><span class="small">
+                                <p>
+                                    Calls</p>
+                            </span>
+                        </div>
+                        <div class="spanicons">
+                            <span class="glyphicon glyphicon-user"></span><span class="small">
+                                <p>
+                                    Contacts</p>
+                            </span>
+                        </div>
+                        <div class="spanicons active">
+                            <span class="glyphicon glyphicon-th"></span><span class="small">
+                                <p>
+                                    Keyboard</p>
+                            </span>
+                        </div>
+                        <div class="spanicons">
+                            <i class="fa fa-microphone"></i><span class="small">
+                                <p>
+                                    Voice mail</p>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            -->

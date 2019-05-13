@@ -1,0 +1,272 @@
+<md-content class="user-settings-content ringtones">
+  <div class="row">
+    <div class="col-xs-3">
+    <md-switch class="md-warn"
+               ng-model="show_notifications"
+               ng-click="setNotificationsStatus()">
+        {{ show_notifications ? 'Notifications ON' : 'Notifications OFF'}}
+    </md-switch>
+    </div>
+    <div class="col-xs-3">
+    <md-switch class="md-warn"
+               ng-model="show_waiting"
+               ng-click="setCallWaitingStatus()"
+               ng-true-value="'true'" 
+               ng-false-value="'false'">
+        {{ show_waiting === "true" ? 'Call Waiting ON' : 'Call Waiting OFF'}}
+    </md-switch>
+    </div>
+    <div class="col-xs-6">
+    <md-button ng-click="showRingtonesModal()"
+               class="md-primary md-raised modal-btn">
+        Manage My Ringtones
+        <i class="fa fa-gear"></i>
+    </md-button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-3">
+      <md-input-container class="ringtone-select-container">
+        <label>Call Ringtone</label>
+        <md-select ng-model="callRingtone"
+                   class="ringtone-select"
+                   ng-change="updateRingtones()">
+            <md-option ng-repeat="ringtone in ringtones()"
+                       ng-value="ringtone">
+                {{ringtone.file_title}}
+                <span ng-if="isDomainDefault(ringtone, 'call')">
+                    (Default)
+                </span>
+            </md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div class="col-xs-3">
+      <md-input-container class="ringtone-select-container">
+        <label>Call Output Source</label>
+        <md-select ng-model="callRingtoneMedia"
+                   class="ringtone-select"
+                   ng-change="updateRingtonesMediaSource()">
+            <md-option ng-if="media.kind == 'audiooutput'" 
+                       ng-repeat="media in mediaDevices"
+                       ng-value="media">
+                {{media.label}}
+            </md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div class="col-xs-1">
+        <i class="fa fa-2x fa-play-circle ringtone-play-btn"
+           ng-show="ringtonePlaying != 'call'"
+           ng-click="playRingtone(callRingtone, 'call', callRingtoneMedia)">
+        </i>
+        <i class="fa fa-2x fa-stop-circle ringtone-play-btn"
+           ng-show="ringtonePlaying == 'call'"
+           ng-click="stopRingtone()">
+        </i>
+    </div>
+    <div class="col-xs-5">
+      <rzslider rz-slider-model="callRingtoneVolume"
+                  rz-slider-options="{floor: 0, ceil: 10, onEnd: updateRingtonesVolume}">
+        </rzslider>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-xs-3">
+      <md-input-container class="ringtone-select-container">
+        <label>Text Ringtone</label>
+        <md-select ng-model="textRingtone"
+                   class="ringtone-select"
+                   ng-change="updateRingtones()">
+            <md-option ng-repeat="ringtone in ringtones()"
+                       ng-value="ringtone">
+                {{ringtone.file_title}}
+                <span ng-if="isDomainDefault(ringtone, 'text')">
+                    (Default)
+                </span>
+            </md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div class="col-xs-3">
+      <md-input-container class="ringtone-select-container">
+        <label>Text Output Source</label>
+        <md-select ng-model="textRingtoneMedia"
+                   class="ringtone-select"
+                   ng-change="updateRingtonesMediaSource()">
+            <md-option ng-if="media.kind == 'audiooutput'" 
+                       ng-repeat="media in mediaDevices"
+                       ng-value="media">
+                {{media.label}}
+            </md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div class="col-xs-1">
+        <i class="fa fa-2x fa-play-circle ringtone-play-btn"
+           ng-show="ringtonePlaying != 'text'"
+           ng-click="playRingtone(textRingtone, 'text', textRingtoneMedia)">
+        </i>
+        <i class="fa fa-2x fa-stop-circle ringtone-play-btn"
+           ng-show="ringtonePlaying == 'text'"
+           ng-click="stopRingtone()">
+        </i>
+    </div>
+    <div class="col-xs-5">
+      <rzslider rz-slider-model="textRingtoneVolume"
+                  rz-slider-options="{floor: 0, ceil: 10, onEnd: updateRingtonesVolume}">
+      </rzslider>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-xs-3">
+      <md-input-container class="ringtone-select-container">
+        <label>Chat Ringtone</label>
+        <md-select ng-model="chatRingtone"
+                   class="ringtone-select"
+                   ng-change="updateRingtones()">
+            <md-option ng-repeat="ringtone in ringtones()"
+                       ng-value="ringtone">
+                {{ringtone.file_title}}
+                <span ng-if="isDomainDefault(ringtone, 'chat')">
+                    (Default)
+                </span>
+            </md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div class="col-xs-3">
+      <md-input-container class="ringtone-select-container">
+        <label>Chat Output Source</label>
+        <md-select ng-model="chatRingtoneMedia"
+                   class="ringtone-select"
+                   ng-change="updateRingtonesMediaSource()">
+            <md-option ng-if="media.kind == 'audiooutput'" 
+                       ng-repeat="media in mediaDevices"
+                       ng-value="media">
+                {{media.label}}
+            </md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div class="col-xs-1">
+        <i class="fa fa-2x fa-play-circle ringtone-play-btn"
+           ng-show="ringtonePlaying != 'chat'"
+           ng-click="playRingtone(chatRingtone, 'chat', chatRingtoneMedia)">
+        </i>
+        <i class="fa fa-2x fa-stop-circle ringtone-play-btn"
+           ng-show="ringtonePlaying == 'chat'"
+           ng-click="stopRingtone()">
+        </i>
+    </div>
+    <div class="col-xs-5">
+        <rzslider rz-slider-model="chatRingtoneVolume"
+                  rz-slider-options="{floor: 0, ceil: 10, onEnd: updateRingtonesVolume}">
+        </rzslider>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-xs-3">
+      <md-input-container class="ringtone-select-container">
+        <label>Video Invite Ringtone</label>
+        <md-select ng-model="videoInviteRingtone"
+                   class="ringtone-select"
+                   ng-change="updateRingtones()">
+            <md-option ng-repeat="ringtone in ringtones()"
+                       ng-value="ringtone">
+                {{ringtone.file_title}}
+                <span ng-if="isDomainDefault(ringtone, 'videoInvite')">
+                    (Default)
+                </span>
+            </md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div class="col-xs-3">
+      <md-input-container class="ringtone-select-container">
+        <label>Video Output Source</label>
+        <md-select ng-model="videoInviteRingtoneMedia"
+                   class="ringtone-select"
+                   ng-change="updateRingtonesMediaSource()">
+            <md-option ng-if="media.kind == 'audiooutput'" 
+                       ng-repeat="media in mediaDevices"
+                       ng-value="media">
+                {{media.label}}
+            </md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div class="col-xs-1">
+        <i class="fa fa-2x fa-play-circle ringtone-play-btn"
+           ng-show="ringtonePlaying != 'videoInvite'"
+           ng-click="playRingtone(videoInviteRingtone, 'videoInvite', videoInviteRingtoneMedia)">
+        </i>
+        <i class="fa fa-2x fa-stop-circle ringtone-play-btn"
+           ng-show="ringtonePlaying == 'videoInvite'"
+           ng-click="stopRingtone()">
+        </i>
+    </div>
+    <div class="col-xs-5">
+        <rzslider rz-slider-model="videoInviteRingtoneVolume"
+                  rz-slider-options="{floor: 0, ceil: 10, onEnd: updateRingtonesVolume}">
+        </rzslider>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-xs-3">
+      <md-input-container class="ringtone-select-container">
+        <label>Call Output Source</label>
+        <md-select ng-model="callOutputSource"
+                   class="ringtone-select"
+                   ng-change="updateRingtonesMediaSource()">
+            <md-option ng-if="media.kind == 'audiooutput'" 
+                       ng-repeat="media in mediaDevices"
+                       ng-value="media">
+                {{media.label}}
+            </md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div class="col-xs-1">
+        <i class="fa fa-2x fa-play-circle ringtone-play-btn"
+           ng-show="ringtonePlaying != 'callOutputSrc'"
+           ng-click="playRingtone(callRingtone, 'callOutputSrc', callOutputSource)">
+        </i>
+        <i class="fa fa-2x fa-stop-circle ringtone-play-btn"
+           ng-show="ringtonePlaying == 'callOutputSrc'"
+           ng-click="stopRingtone()">
+        </i>
+    </div>
+    <div class="col-xs-5">
+      <rzslider rz-slider-model="callOutputSourceVolume"
+                  rz-slider-options="{floor: 0, ceil: 10, onEnd: updateRingtonesVolume}">
+        </rzslider>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-xs-3">
+      <md-input-container class="ringtone-select-container">
+        <label>Microphone Input Source</label>
+        <md-select ng-model="microphoneMedia"
+                   class="ringtone-select"
+                   ng-change="updateRingtonesMediaSource()">
+            <md-option ng-if="media.kind == 'audioinput'" 
+                       ng-repeat="media in mediaDevices"
+                       ng-value="media">
+                {{media.label}}
+            </md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+  </div>
+    <!-- <br>
+    <md-button class="md-primary md-raised"
+               ng-click="updateRingtones()">
+        Update Information
+    </md-button> -->
+</md-content>

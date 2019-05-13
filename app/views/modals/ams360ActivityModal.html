@@ -1,0 +1,141 @@
+<ams-activity-export data="vm.content.data"></ams-activity-export>
+<script type="text/ng-template" id="ams-activity-export.html">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-question fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">{{data.title}}</span>
+        <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <div ng-if="data.data.number && (!data.customerList || data.customerList.length === 0)">
+            <h4>Contact Not Found</h4>
+            <p>Unable to locate a contact matching {{data.data.number | tel2}}.</p>
+            <a class="btn btn-success btn-sm"
+                ng-if="data.integrationUrl"
+                href="{{data.integrationUrl}}"
+                onclick="window.close()"
+                target="_blank">Open {{user.exportType.partner_name}} Search</a>
+        </div>
+        <div ng-if="!data.data.number && noContacts()">
+            <div class="partner-filter-container">
+                <div class="input-group">
+                    <span class="input-group-addon" title="Filter Contacts"><i class="fa fa-filter"></i></span>
+                    <input class="form-control" 
+                        type="text" 
+                        ng-change="applyFilters(filter.contactSearch)"
+                        ng-model-options="{debounce: 750}"
+                        ng-focus="showList()"
+                        ng-blur="hideList()"
+                        ng-model="filter.contactSearch" 
+                        placeholder="Search contacts by name">
+                </div>
+                <div class="contact-options" ng-show="showContacts">
+                    <div class="list-group">
+                        <div ng-if="(contacts.length) > 50" class="partial-search mdgreyfont">
+                            <span>{{(contacts.length)}} Results Found (Click to Select)<br />
+                                Showing First 50 - Please Narrow Search</span>
+                        </div>
+                        <div ng-if="(contacts.length) < 50 && contacts.length !== 0"
+                                class="partial-search mdgreyfont">
+                            <span>{{(contacts.length)}} Results Found (Click to Select)</span>
+                        </div>
+                        <div ng-repeat="contact in contacts | limitTo:50"
+                            ng-click="selectContact(contact)"
+                            class="list-group-item">
+                            <div class="thread-list-item" ng-if="!isKotterTechUser(contact)">
+                                <div class="thread-list-circle">
+                                    <span ng-bind-html="showContactPhoto(contact, 'small')"></span>
+                                </div>
+                                <div class="thread-list-body">
+                                    <span style="padding-top: 16px;">
+                                        {{contact.contact_name_full}} <span ng-if="contact.contact_organization">({{contact.contact_organization}})</span><br />
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-if="!filter.searching && contacts.length===0 && !minLengthMessage" 
+                            class="no-results mdgreyfont"
+                            style="font-size: 15px;">
+                            <i class="fa fa-search"></i> No Results Found - Broaden Search
+                        </div>
+                        <div ng-if="minLengthMessage" 
+                            class="no-results mdgreyfont" 
+                            style="font-size: 15px;">
+                            <i class="fa fa-search fa"></i> {{minLengthMessage}}
+                        </div>
+                        <div ng-if="filter.searching" 
+                            class="no-results mdgreyfont" 
+                            style="font-size: 15px;">
+                                <i class="fa fa-cog fa-spin"></i> Searching Ams360 - Please Wait
+                        </div>
+                    </div>
+                </div>
+                <div class="cleared"></div>
+            </div>
+        </div>
+        <div ng-if="data.customerList.length > 1">
+            <h4>We have found {{data.customerList.length}} customers associated with {{data.data.number | tel2}}. Please select one from the following before you export your Data.</h4>
+            <md-radio-group ng-model="data.customer_id"
+                ng-repeat="customer in data.customerList"
+                layout="row">
+                <md-radio-button ng-value="customer.settings.customer_id" >
+                        {{customer.contact_name_full}} <span ng-if="customer.contact_organization">({{customer.contact_organization}})</span>
+                </md-radio-button>
+            </md-radio-group>
+        </div>
+        <div ng-if="data.customerList.length === 1">
+            <h4>
+                Exporting to {{data.customerList[0].contact_name_full}}
+                <span ng-if="data.customerList[0].contact_organization"> ({{data.customerList[0].contact_organization}})</span>
+                <span ng-if="!data.data.number" 
+                    tooltip-placement="top"
+                    uib-tooltip="{{tips.integration.resetselection}}"
+                    ng-click="searchAgain()"> 
+                    <i class="fa fa-undo"></i>
+                </span>
+            </h4>
+        </div>
+        <div>
+            <h4 ng-class="{'slight-opacity': noContacts()}">Please select an Activity Action from the following DropDown before you export your Data.</h4>
+                <div ng-if= "activityList.length > 0">
+                    <md-input-container>
+                        <label>Activity Action </label>
+                        <md-select ng-model="data.selectedActivity"
+                            ng-disabled="noContacts()">
+                            <md-option ng-repeat="activity in activityList"
+                                        ng-value="activity.Description" >
+                                {{activity.Description}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+
+            <div>
+                <textarea class="form-control"
+                    rows="4" 
+                    ng-disabled="noContacts()"
+                    ng-model="data.activityDescription" 
+                    placeholder="Enter Activity Description."></textarea>
+            </div>
+        </div>
+        
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md" 
+                ng-click="closeThisModal()">
+                <i class="fa fa-remove" 
+                    style="margin-right: 10px;">
+                </i>Cancel
+        </button>
+        <button class="btn btn-primary btn-md" 
+                ng-click="exportDataToAms360(data)" 
+                ng-disabled="noContacts()"
+                ng-if="activityList">
+                <i class="fa fa-save" 
+                    style="margin-right: 10px;">
+                </i>Export
+        </button>
+    </div>
+</script>

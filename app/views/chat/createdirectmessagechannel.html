@@ -1,0 +1,43 @@
+<div>
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-comments fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Open a Direct Message</span>
+        <button type="button" class="close" ng-click="vm.content.data.closeModal()">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-question-circle"></i></span>
+            <input class="form-control" type="text" ng-model="search.username" placeholder="Search by name">
+        </div>
+        <table class="table table-bordered table-hover table-striped">
+            <tbody ng-style="{height: modalTableHeight + 'px'}">
+                <tr ng-if="!vm.content.data.isKotterTechByMember(member) && member.id !== vm.content.data.chatUserProfile.id && member.roles"
+                    ng-repeat="member in vm.content.data.teamMembers | filter:search | filter:vm.content.data.dmExists | orderBy : predicate :reverse | filter:{first_name : '!Kotter'} && {last_name : '!Tech'}">
+                    <td class="col-sm-9">
+                        {{member.first_name}} {{member.last_name}}<br />
+                        {{member.email}}
+                    </td>
+                    <td class="col-sm-3">
+                        <button class="btn btn-success btn-sm"
+                                ng-click="vm.content.data.createDirectMessage(member)">
+                            <i class="fa fa-plus"></i>
+                            Start Chat
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md" ng-click="vm.content.data.closeModal()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i>
+            Cancel
+        </button>
+    </div>
+</div>

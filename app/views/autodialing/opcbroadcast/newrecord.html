@@ -1,0 +1,113 @@
+<div class="jumbotron">
+
+
+<div ng-audio-recorder id="mainAudio" audio-model="recorded"  convert-mp3="false" show-player="false" class="container">
+    <div ng-if="recorder.isAvailable">
+
+
+        <div class="panel panel-primary">
+
+            <div class="panel-body">
+                <div ng-controller="AutoDialingCtrl">
+                    <div>
+                        <h3 style="float: right; /*font-family: sans-serif*/; text-align: center; width: 50px; border-radius: 30px; border: solid 2px #333; padding: 10px; margin: 0; background: #337ab7; color: #fff;"
+                            ng-if="recorder.status.isRecording">
+                            {{recorder.elapsedTime >= 10 ? recorder.elapsedTime : ('0'+recorder.elapsedTime)}}
+                        </h3>
+
+                        <div class="alert alert-danger" ng-if="recorder.status.isDenied === true">
+                            Permission to use your microphone was declined, please refresh this page to grant
+                            permission.
+                        </div>
+
+                        <div class="controls text-center" style="padding-top: 10px;"
+                             ng-hide="recorder.status.isDenied === true">
+                            <button ng-click="recorder.status.isRecording ? recorder.stopRecord() : recorder.startRecord()"
+                                    type="button" class="btn"
+                                    ng-class="{'btn-primary': !recorder.status.isRecording, 'btn-danger': recorder.status.isRecording}">
+                                <i class="glyphicon glyphicon-record"></i> {{recorder.status.isRecording ? 'Stop' :
+                                'Start'}} Recording
+                            </button>
+
+                            <button class="btn"
+                                    ng-class="{'btn-primary': (recorder.status.isPaused || recorder.status.isStopped), 'btn-warning': recorder.status.isPlaying}"
+                                    ng-click="recorder.status.isPlaying ? recorder.playbackPause() : recorder.playbackResume()"
+                                    type="button"
+                                    ng-disabled="recorder.status.isRecording || !recorder.audioModel">
+                                <span ng-if="recorder.status.isPaused || recorder.status.isStopped">
+                                    <i class="glyphicon glyphicon-play"></i> Play
+                                </span>
+
+                                <span ng-if="recorder.status.isPlaying">
+                                    <i class="glyphicon glyphicon-pause"></i> Pause
+                                </span>
+                            </button>
+
+                            <a class="btn btn-success" 
+                               href="" download="recording.mp3" 
+                               ng-disabled="recorder.status.isRecording || !recorder.audioModel" 
+                               id="btnDownload"
+                               >
+                                <i class="glyphicon glyphicon-download"></i> Download
+                            </a>
+
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+
+                </div>
+                <br/>
+                
+                <div ng-if="recorder.status.isConverting">
+                    <p class="text-center">
+                        Please wait while we process your recording
+                    </p>
+                </div>
+                <div class="panels" canvas-sizer>
+                    <div ng-show="recorder.status.isRecording">
+                        <ng-audio-recorder-analyzer></ng-audio-recorder-analyzer>
+                    </div>
+
+                    <div ng-show="!recorder.status.isRecording && recorder.audioModel">
+                        <ng-audio-recorder-wave-view wave-color="silver"
+                                                     bar-color="red"></ng-audio-recorder-wave-view>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div ng-if="!recorder.isAvailable" class="alert alert-warning">
+        Your browser does not support this feature natively, please use latest version of <a
+            href="https://www.google.com/chrome/browser" target="_blank">Google Chrome</a> or <a
+            href="https://www.mozilla.org/en-US/firefox/new/" target="_blank">Mozilla Firefox</a>. If you're on
+        Safari or Internet Explorer, you can install <a href="https://get.adobe.com/flashplayer/">Adobe Flash</a> to
+        use this feature.
+    </div>
+</div>
+
+
+
+
+</div>
+
+
+ <style>
+    canvas {
+        display: inline-block;
+        background: #202020;
+        width: 100%;
+        /*height: 45%;*/
+        box-shadow: 0px 0px 10px blue;
+    }
+
+    .float-rt {
+        float: right;
+    }
+
+</style>
+
+
+

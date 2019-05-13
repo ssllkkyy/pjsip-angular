@@ -1,0 +1,130 @@
+<div class="package-content">
+    <div ng-if="!showInvoice && !showPayment">
+        <div class="billing-settings">
+            <div class="settings-col">
+                <strong>Balance due:</strong> {{activeAgency().billingSettings.account_balance | currency}}
+            </div>
+            <div class="settings-col">
+                <strong>Monthly invoice date:</strong> {{activeAgency().billingSettings.renewal_day}}th of each month
+            </div>
+            <div class="settings-col">
+                <strong>Credit balance:</strong> {{activeAgency().billingSettings.credit_balance | currency}}
+            </div>
+        </div>
+        <div class="row">
+            <div class='col-lg-12' ng-if="unpaidInvoices().length > 0">
+                <div class="table-container">
+                    <table class="table table-hover main-content-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fa fa-dollar" style="padding-right: 10px;"></i>Outstanding Invoice<span ng-if="unpaidInvoices().length>1">s</span></th>
+                                <th></th>
+                                <th class="data-col">Inv. Total</th>
+                                <th class="data-col">Inv. Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="invoice in unpaidInvoices() | filter : hideCancelled">
+                                <td ng-click="displayInvoice(invoice)">
+                                    <i class="fa fa-calendar cls-color-blue-tkg" style="padding-right: 10px;"></i> 
+                                    Invoice #: {{invoice.invoice_num}}
+                                    <span ng-if="invoice.invoice_type !== 'custom'">Service period: {{invoice.service_from | amDateFormat:'MMM D, YYYY'}} - {{invoice.service_to | amDateFormat:'MMM D, YYYY'}}</span>
+                                    <span ng-if="invoice.invoice_type === 'custom'">Custom</span>
+                                </td>
+                                <td class="data-col"><button class="btn btn-xs btn-success" ng-click="submitPayment(invoice)">Pay Now</button></td>
+                                <td ng-click="displayInvoice(invoice)" class="data-col">{{invoice.total | currency}}</td>
+                                <td ng-click="displayInvoice(invoice)" class="data-col">{{invoice.balance | currency}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="table-container">
+                    <table class="table table-hover main-content-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fa fa-reorder" style="padding-right: 10px;"></i>Account Summary</th>
+                                <th class="data-col-summary"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Active Users</td>
+                                <td class="data-col-summary">{{summary.activeCount}}</td>
+                            </tr>
+                            <tr>
+                                <td>Disabled Users</td>
+                                <td class="data-col-summary">{{summary.disabledCount}}</td>
+                            </tr>
+                            <tr>
+                                <td>Location Groups</td>
+                                <td class="data-col-summary">{{summary.locationCount}}</td>
+                            </tr>
+                            <tr>
+                                <td>Fax Accounts</td>
+                                <td class="data-col-summary">{{summary.faxCount}}</td>
+                            </tr>
+                            <tr>
+                                <td>Conference Rooms</td>
+                                <td class="data-col-summary">{{summary.locationCount}}</td>
+                            </tr>
+                            <tr>
+                                <td>Cloud Storage Usage</td>
+                                <td class="data-col-summary">{{showAsReadable(summary.cloudUsage)}} of {{showAsReadable(summary.cloudLimit)}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="table-container">
+                    <table class="table table-hover main-content-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fa fa-book" style="padding-right: 10px;"></i>Recent invoices</th>
+                                <th class="data-col">Inv. Total</th>
+                                <th class="data-col">Inv. Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-click="displayInvoice(invoice)"
+                                ng-repeat="invoice in invoices() | filter : hideCancelled | limitTo : 12">
+                                <td>
+                                    <i class="fa fa-calendar cls-color-blue-tkg" style="padding-right: 10px;"></i> 
+                                    <span ng-if="invoice.invoice_type !== 'custom'">Service period: {{invoice.service_from | amDateFormat:'MMM D, YYYY'}} - {{invoice.service_to | amDateFormat:'MMM D, YYYY'}}</span>
+                                    <span ng-if="invoice.invoice_type === 'custom'">Individual invoice #: {{invoice.invoice_num}}</span>
+                                </td>
+                                <td class="data-col">{{invoice.total | currency}}</td>
+                                <td class="data-col">{{invoice.balance | currency}}</td>
+                            </tr>
+                            <tr ng-if="invoices().length > 12"
+                                ng-click="showInvoices()">
+                                <td colspan="3" class="center-text">Show all invoices ...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div ng-if="showInvoice">
+        <view-invoice invoice="activeInvoice"></view-invoice>
+    </div>
+    <div ng-if="showPayment">
+        <div class="center-text">
+            <button class="btn btn-default" 
+                ng-click="cancelPayment()">
+                <i class="fa fa-window-close-o"></i> Close Payment 
+            </button>
+        </div>
+        <billing-payment-tab 
+            domain="domain"
+            invoice="activeInvoice"
+            class="content-box company-setup-user-tab company-setup-tab">
+        </billing-payment-tab>
+    </div>
+</div>

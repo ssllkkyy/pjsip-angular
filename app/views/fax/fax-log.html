@@ -1,0 +1,401 @@
+<!-- <div ng-controller="FaxCtrl"> -->
+    <div class="fax-actions">
+        <br>
+        <div class="fax-calls-per-page">
+            <p>Faxes per page: </p>
+            <select class="selectpicker form-control per-page" ng-options="page as page for page in ppOptions" ng-model="pagination.perPage"></select>
+        </div>
+        <div class="date-picker fax-date-picker">
+            <div class="input-group">
+                <span class="input-group-addon"
+                    ng-click="OpenfromDate()">
+                    <i class="fa fa-calendar"></i>
+                </span>
+                <input type="text"
+                    class="form-control"
+                    uib-datepicker-popup="{{dateFormat}}"
+                    ng-model="fromDate"
+                    name="fromDate"
+                    is-open="fromDatePopup.opened"
+                    datepicker-options="fromDateOptions"
+                    ng-required="true"
+                    close-text="Close"
+                    ng-click="OpenfromDate()"
+                    ng-change="ChangeToMinDate(fromDate)"
+                    placeholder="From" />
+            </div>
+            <!-- <div class="delete-thread-button" ng-if="messagesSelectedCount()>0">
+                <button class="btn"
+                    ng-class="{'btn-default': messagesSelectedCount() === 0, 'btn-danger': messagesSelectedCount() > 0}"
+                    ng-disabled="messagesSelectedCount() === 0" 
+                    ng-click="deleteSelectedMessages()">
+                    Delete {{messagesSelectedCount()}} Selected
+                </button> 
+            </div> -->
+        </div>
+        <div class="date-picker call-stats-date">
+            <div class="input-group">
+                <span class="input-group-addon"
+                    ng-click="OpentoDate()">
+                    <i class="fa fa-calendar"></i>
+                </span>
+                <input type="text"
+                    class="form-control"
+                    uib-datepicker-popup="{{dateFormat}}"
+                    ng-model="toDate"
+                    name="toDate"
+                    is-open="toDatePopup.opened"
+                    datepicker-options="toDateOptions"
+                    ng-required="true"
+                    close-text="Close"
+                    ng-click="OpentoDate()"
+                    placeholder="To" />
+            </div>
+        </div>
+        <div class="fax-search-filter">
+            <div class="input-group">
+                <span class="input-group-addon"
+                    title="Filter calls">
+                    <i class="fa fa-filter"></i>
+                </span>
+                <input class="form-control"
+                    type="text"
+                    placeholder="Filter Results By Fax Number"
+                    ng-model="searchFilter">
+            </div>
+        </div>
+        <div class="assign-thread-button" ng-if="(messageControls) && messagesSelectedCount() > 0 && userTab == false">
+            <button class="btn"
+                ng-class="{'btn-primary': messagesSelectedCount() === 0, 'btn-primary': messagesSelectedCount() > 0}"
+                ng-disabled="messagesSelectedCount() === 0" 
+                ng-click="assignFax()">
+                Assign {{messagesSelectedCount()}} Selected
+            </button> 
+        </div>
+        <div class="delete-thread-button" ng-if="(messageControls) && messagesSelectedCount() > 0">
+            <button class="btn"
+                ng-class="{'btn-default': messagesSelectedCount() === 0, 'btn-danger': messagesSelectedCount() > 0}"
+                ng-disabled="messagesSelectedCount() === 0" 
+                ng-click="deleteSelectedMessages()">
+                Delete {{messagesSelectedCount()}} Selected
+            </button> 
+        </div>
+    </div>
+    <table class="fax-history-table table table-bordered table-hover table-striped" >
+        <thead>
+            <tr>
+                <th ng-click="sort_by('source_number')">
+                    <span class="colsort" 
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.vfax.sortbysourcenumber}}">
+                        From
+                        <i ng-class="showChevron('source_number')"></i>
+                    </span>
+                </th>
+                <th ng-click="sort_by('destination_number')">
+                    <span class="colsort" 
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.vfax.sortbydestnumber}}">
+                        To
+                        <i ng-class="showChevron('destination_number')"></i>
+                    </span>
+                </th>
+                <th ng-click="sort_by('sent_at')"
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.vfax.sortbysentat}}">
+                        Date/Time
+                        <i ng-class="showChevron('sent_at')"></i>
+                    </span>
+                </th>
+                <th ng-click="sort_by('original_filename')">
+                    <span class="colsort" 
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.vfax.sortbyfile}}">
+                        Filename
+                        <i ng-class="showChevron('original_filename')"></i>
+                    </span>
+                </th>
+                <th ng-click="sort_by('status')">
+                    <span class="colsort" 
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.vfax.sortbydirection}}">
+                        Status
+                        <i ng-class="showChevron('status')"></i>
+                    </span>
+                </th>
+                <th ng-click="">
+                <!-- <th ng-click="sort_by('status')"> -->
+                    <span class="colsort" 
+                        tooltip-placement="top-left"
+                        uib-tooltip="{{tips.vfax.sortbystatus}}">
+                        Message Control
+                        <!-- <i ng-class="showChevron('status')"></i> -->
+                    </span>
+                </th>
+                <th ng-if="messageControls" >
+                    <md-checkbox
+                        class="md-warn"
+                        style="margin-bottom: 0;"
+                        ng-model="messages.selectAll"
+                        ng-change="selectAllMessages(filterData)"
+                        aria-label="Select All Messages">
+                    </md-checkbox>
+                </th>
+            </tr>
+        </thead>
+        <tbody class="cls-body-table-pos">
+            <tr ng-if="loadingFaxes">
+                <td colspan="7" class="loading-users mdgreyfont">
+                    <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+                    <span>Loading Faxes<br />
+                    Please Wait</span>
+
+                </td>
+            </tr>
+            <tr ng-if="!loadingFaxes" 
+                ng-repeat="message in filterData = (faxMessages | orderBy : predicate :reverse | filter : dateFilter | filter : {destination_number: searchFilter}) | limitTo:pagination.perPage:pagination.perPage*(pagination.currentPage-1)">
+                <td ng-if="message.direction === 'outbound'">
+                    <ul class="profile-display">
+                        <li ng-if="getUserContact(message) && getUserContact(message).im"
+                            class="profile_display_30">
+                            <img src="{{pathImgProfile + getUserContact(message).im}}"
+                                    class="profile_image" />
+                        </li>
+                        <li ng-if="getUserContact(message) && !getUserContact(message).im"
+                            class="profile_display_30">
+                            <label class="profile_icon"
+                                    style="background-color: {{getUserContact(message).color}} !important;">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li ng-if="!getUserContact(message)"
+                            class="profile_display_30">
+                            <label class="profile_icon"
+                                    style="background-color: {{fax.color}} !important;">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li style="display: inline-block;">
+                            <strong ng-if="getUserContact(message)">
+                                {{getUserContact(message).name}}<br />
+                            </strong>
+                            <strong ng-if="!getUserContact(message)">
+                                Email to Fax<br />
+                            </strong>
+                            {{message.source_number | tel}}
+                        </li>
+                    </ul>
+                </td>
+                <td ng-if="message.direction === 'outbound'">
+                    <ul class="profile-display">
+                        <li ng-if="getContact(message) && getContact(message).im"
+                            class="profile_display_30">
+                            <img src="{{pathImgProfile+getContact(message).im}}"
+                                    class="profile_image" />
+                        </li>
+                        <li ng-if="getContact(message) && !getContact(message).im"
+                            class="profile_display_30">
+                            <label class="profile_icon"
+                                    style="background-color: {{getContact(message).color}} !important;">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li ng-if="!getContact(message)"
+                            class="profile_display_30">
+                            <label class="profile_icon"
+                                    style="background-color: {{message.noncontact.profile_color}} !important;">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li style="display: inline-block;">
+                            <strong ng-if="getContact(message)">
+                                {{getContact(message).name}}<br />
+                            </strong>
+                            {{message.destination_number | tel}}
+                        </li>
+                    </ul>
+                </td>
+                <td ng-if="message.direction === 'inbound'">
+                    <ul class="profile-display">
+                        <li ng-if="getContact(message) && getContact(message).im"
+                            class="profile_display_30">
+                            <img src="{{pathImgProfile+getContact(message).im}}"
+                                    class="profile_image" />
+                        </li>
+                        <li ng-if="getContact(message) && !getContact(message).im"
+                            class="profile_display_30">
+                            <label class="profile_icon"
+                                    style="background-color: {{getContact(message).color}} !important;">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li ng-if="!getContact(message)"
+                            class="profile_display_30">
+                            <label class="profile_icon"
+                                    style="background-color: {{message.noncontact.profile_color}} !important;">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li style="display: inline-block;">
+                            <strong ng-if="getContact(message)">
+                                {{getContact(message).name}}<br />
+                            </strong>
+                            {{message.source_number | tel}}
+                        </li>
+                    </ul>
+                </td>
+                <td ng-if="message.direction === 'inbound'">
+                    <ul class="profile-display">
+                        <li class="profile_display_30">
+                            <label class="profile_icon"
+                                    style="background-color: {fax.color} !important;">
+                                <i class="fa fa-user"></i>
+                            </label>
+                        </li>
+                        <li style="display: inline-block;">
+                            {{message.destination_number | tel}}
+                        </li>
+                    </ul>
+                </td>
+                <td>{{message.sent_at | toLocalTime | amDateFormat: 'MMM D, YYYY'}}<br>
+                {{message.sent_at | toLocalTime | amDateFormat: 'h:mm a'}}</td>
+                <td>{{showFileName(message)}}<br>
+
+                </td>
+                <td style="text-align: center;">
+                        <span ng-if="message.direction==='inbound'">
+                            <i class="fa fa-arrow-down fa-2x greenfont"
+                                tooltip-placement="top-right"
+                                uib-tooltip="{{::tips.vfax.inbound}}"></i>
+                                <br>
+                        </span>
+                        <span ng-if="message.direction==='outbound'">
+                            <i class="fa fa-arrow-up fa-2x redfont"
+                                tooltip-placement="top-right"
+                                uib-tooltip="{{::tips.vfax.outbound}}"></i>
+                                <br>
+                        </span>
+                        {{showMessageStatus(message)}}
+                </td>
+                <td>
+                    <div ng-if="message.assigned_to_uuid || message.handled_by_uuid">
+                        <span ng-if="message.assigned_to_uuid">Assigned to: <strong>{{showUserName(message.assigned_to_uuid)}}</strong></span>
+                        <span ng-if="message.handled_by_uuid">
+                            <span ng-if="message.assigned_to_uuid"><br /></span>
+                            Handled by: <strong>{{showUserName(message.handled_by_uuid)}}</strong>
+                        </span>
+                    </div>
+                    
+                    <div class="tableclass2 sharetable">
+                        <span class="tablecell"
+                        ng-if="message.direction === 'outbound'">
+                            <span ng-if="resending === message.vfax_message_uuid">
+                                <i style="font-size: 20px;" class="fa fa-cog fa-spin fa-fw fax-sending"></i>
+                            </span>
+                            <i class="fa fa-refresh greenfont"
+                            ng-if="(resending !== message.vfax_message_uuid) && (showMessageStatus(message) !== 'Sending')"
+                            style="font-size: 20px;"
+                            ng-click="resendMessage(message.vfax_message_uuid)"
+                            tooltip-placement="top-right"
+                            uib-tooltip="{{::tips.vfax.resend}}">
+                            </i>
+                        </span>
+                        <span class="tablecell"
+                            ng-if="message.direction === 'inbound' || showMessageStatus(message) === 'Sending' " >
+                            <i class="fa fa-refresh greenfont"
+                            
+                            style="font-size: 20px;
+                                opacity: 0.0;"
+                            tooltip-placement="top-right"
+                            uib-tooltip="{{::tips.vfax.resend}}">
+                            </i>
+                        </span>
+                        <span class="tablecell" >
+                            <a href="{{getPdfUrl(message)}}" target="_blank">
+                                <i class="fa fa-eye ltbluefont" 
+                                style="font-size: 20px;" 
+                                tooltip-placement="top-right" 
+                                uib-tooltip="{{::tips.vfax.viewfax}}"></i>
+                            </a>
+                        </span>
+                        <span class="tablecell" >
+                            <a href="{{getPdfUrl(message)}}" target="_blank" download>
+                                <i class="fa fa-download orangefont" 
+                                style="font-size: 20px;" 
+                                tooltip-placement="top-right" 
+                                uib-tooltip="{{::tips.vfax.downloadfax}}"></i>
+                            </a>
+                        </span>
+                        <!-- <div class="tablecell" ng-if="locationUuid"><span class="icon">
+                            <i class="fa" ng-class="handledIcon(call)"
+                            ng-click="handleVoicemail(call)" style="font-size: 1.5em;"
+                            tooltip-placement="bottom"
+                            uib-tooltip="{{(call.handled_by && call.handled_by === user.id) ? tips.voicemail.unhandle : tips.voicemail.handled}}"></i></span>
+                        </div> -->
+                        <span class="tablecell" ng-if="!userTab">
+                            <i class="fa" ng-class="handledIcon(message)" ng-click="handleFax(message)" style="font-size: 1.5em;"
+                            tooltip-placement="bottom"
+                            uib-tooltip="Mark / Un-mark as handled by you."></i>
+                        </span>
+                        <span class="tablecell">
+                            <img ng-click="copyFaxToManagementSystem(message)"
+                                src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                                style="width: 24px; height: 24px;"
+                                tooltip-placement="top-right"
+                                uib-tooltip="Copy fax entry to {{showCopyTooltip()}}">
+                        </span>
+
+                        <!-- <span class="tablecell"
+                        ng-if="message.direction === 'inbound'">
+                            <i class="fa fa-refresh greenfont"
+                            ng-if="(resending === message.vfax_message_uuid) && (showMessageStatus(message) === 'Sending')"
+                            style="font-size: 20px;
+                                opacity: 0.0;"
+                            tooltip-placement="top-right"
+                            uib-tooltip="{{::tips.vfax.resend}}">0</i>
+                        </span> -->
+                    </i>
+                        <span class="tablecell" style="width: 24px; height: 24px;">
+                            <i class="fa fa-times-circle redfont" 
+                                style="font-size: 20px;"
+                                ng-if="messageControls"
+                                tooltip-placement="top-right"
+                                uib-tooltip="Delete fax entry"
+                                ng-click="deleteFaxMessage(message)"> </i>
+                        </span>
+                    </div>
+                    
+                    
+                </td>
+                <td ng-if="messageControls">
+                    <md-checkbox
+                        class="md-warn"
+                        style="margin-bottom: 0;"
+                        ng-model="messages.selectedMessages[message.vfax_message_uuid]"
+                        ng-change="selectMessage(message.vfax_message_uuid)"
+                        aria-label="Delete This Message">
+                    </md-checkbox>
+                </td>
+            </tr>
+            <tr ng-if="faxMessages.length === 0 && !loadingFaxes" ng-cloak>
+                <td colspan="7">
+                    There are no messages to display.
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="6">
+                    <div ng-show="filterData.length > pagination.perPage" style="text-align: center">
+                        <ul uib-pagination class="pagination-sm pagination" total-items="filterData.length" ng-model="pagination.currentPage" previous-text="&lsaquo;" next-text="&rsaquo;" items-per-page="pagination.perPage"></ul>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    <!-- <div class="row" ng-show="isManager">
+        <div class="col-md-12">
+        <a id="download_link" style="display:none;" download="foo.pdf"></a>
+        </div>
+    </div> -->
+<!-- </div> -->

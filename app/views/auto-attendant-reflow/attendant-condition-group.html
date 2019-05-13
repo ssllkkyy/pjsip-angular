@@ -1,0 +1,46 @@
+<div class="row">
+    <div class="col-sm-3"
+         style="margin-top: 15px;">
+       Group Priority
+    </div>
+    <div class="col-sm-8 priority-value">
+        <md-input-container>
+            <input
+                md-input
+                ng-minlength="3"
+                md-minlength="3"
+                input-validator="[0-9*]"
+                ng-model="$ctrl.group.priority"
+                ng-model-options="{ updateOn: 'blur' }">
+        </md-input-container>
+    </div>
+    <div class="col-sm-1">
+        <div ng-if="!$ctrl.isLastGroup"
+            class="remove-btn"
+            ng-click="$ctrl.removeGroup($ctrl.group)">
+            <i class="fa fa-times redfont mainopt"></i>
+        </div>
+    </div>
+</div>
+<div class="group-content-wrapper">
+    <div class="condition-list-container">
+        <attendant-condition
+            ng-repeat="condition in $ctrl.group.conditions"
+            condition="condition"
+            remove-condition="$ctrl.removeCondition(condition)"
+            condition-types="$ctrl.conditionTypes">
+        </attendant-condition>
+        <attendant-condition
+            ng-if="true"
+            add-condition="$ctrl.addCondition(condition)"
+            condition-types="$ctrl.conditionTypes">
+        </attendant-condition>
+    </div>
+</div>
+<div style="padding: 8px;"
+     ng-if="$ctrl.group.conditions.length">
+    <button class="btn btn-sm btn-primary"
+        ng-click="$ctrl.addNewGroup()">
+        <i class="fa fa-plus-circle "></i> Add New Priority Group
+    </button>
+</div>

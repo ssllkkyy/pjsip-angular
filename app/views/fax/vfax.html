@@ -1,0 +1,523 @@
+<div class="no-access-container" ng-if="!packageHasAccess('fax')">
+    <div class="alert alert-warning centered no-access">
+        Your current Bridge <strong>{{user.package.package_title}}</strong> does not have access to <strong>{{showFeatureTitle('fax')}}</strong>.
+    </div>
+</div>
+
+<div ng-if="packageHasAccess('fax')" class="fullwidth">
+    <div class="fax-container fullwidth" ng-controller="FaxCtrl">
+        <div class="row">
+            <div class="col-md-4">
+                <h3 class="fax-header">Fax
+                    <!-- <span ng-if="isEmulatedUser()">
+                        - Emulating: {{getNameByUUID(emulatedUser())}}
+                        This will be needed when emulating, & until will remain invisible.
+                    </span>  -->
+                </h3>
+
+            </div>        
+        </div>
+        <md-tabs md-dynamic-height
+            md-border-bottom
+            md-selected="faxTab.activeTab">
+            
+            <md-tab label="Agency Fax">
+            
+                <div class="col-sm-12">
+
+                    <div class="row content-header">
+                        <div class="col-md-4 how-to-fax-link">
+                            <a href ng-click="showEmailToFaxHelp()">
+                                <h4>How to Send Fax via E-Mail</h4>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            
+                            <md-input-container class="location-selector"
+                                ng-show="packageHasAccess('locations') && showMyGroups().length>0">
+                                <label>Location: </label>
+                                <md-select class="location-selector"
+                                    ng-model="selected.location"
+                                    ng-change="onLocChange()">
+                                    <md-option ng-repeat="loc in showMyGroups()"
+                                        ng-value="loc.locations_group_uuid">
+                                        {{loc.group_name}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                            <div class="col-md-6">
+                                <div class="well share-drop-zone my-drop-zone" nv-file-drop="" nv-file-over="" uploader="uploader">
+                                    <div class="send-fax-title">
+                                        <h4 style="display: inline-block;">Send A Fax</h4>
+                                    </div>
+                                    <div class="send-fax-selector">
+                                        <input type="text"
+                                            placeholder="Recipient Fax Number"
+                                            class="form-control fax-send-input"
+                                            ng-disabled="!activeFax()"
+                                            ng-model="destinationNumber"
+                                            phone-input>
+                                            <label class="btn btn-default btn-file">
+                                                    <i class="fa fa-upload"></i> Select File(s) To Fax
+                                                    <input type="file" nv-file-select="" uploader="uploader" multiple style="display: none;" />
+                                                </label>
+                                        <button class="btn btn-primary btn-s fax-btn sendbtn"
+                                                ng-disabled="!activeFax() || !(validDestinationNumber()) || (!fileInQueue() && !useCoverPage)"
+                                                ng-click="sendFax()">
+                                            Send
+                                        </button>
+                                    </div>
+                                    <div class="send-fax-queue">
+                                        <table ng-if="uploader.queue.length>0" class="table public-cloud-table">
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="3">
+                                                        {{uploader.queue.length}} item<span ng-if="uploader.queue.length>1">s</span> (<a href ng-click="uploader.clearQueue()">Clear All</a>)
+                                                    </td>
+                                                    <td colspan="2">
+                                                        <label class="pull-right btn btn-default btn-file btn-xs">
+                                                            <i class="fa fa-plus"></i> Add More
+                                                            <input type="file" nv-file-select="" uploader="uploader" multiple style="display: none;" />
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                                <tr ng-repeat="item in uploader.queue">
+                                                    <td style="width: 25px;"><a href ng-click="item.remove()"><i class="fa fa-times"></i></a></td>
+                                                    <td><img class="cloud-flat-img-sm cloud-{{getFileType(item.file)}}-sm" src="/images/Files/file-24.png"> {{showUploadFilename(item.file.name)}}</td>
+                                                    <td style="width: 80px;" ng-show="uploader.isHTML5">
+                                                        <div class="progress" style="margin-bottom: 0;">
+                                                            <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                                                        </div>
+                                                    </td>
+                                                    <td style="width: 40px;" class="text-center">
+                                                        <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+                                                        <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
+                                                        <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+                                                    </td>
+                                                    <td style="width: 75px; text-align: right;" ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="send-fax-sending" ng-if="sending || uploading">
+                                        <span >
+                                            <i class="fa fa-cog fa-spin fa-3x fa-fw fax-sending"></i> {{sending ? "Processing Fax" : "Uploading Files"}}
+                                        </span>
+                                    </div>
+                                    <div class="send-fax-cover">
+                                        <md-checkbox
+                                            ng-model="useCoverPage"
+                                            aria-label="Use a Cover Page"
+                                            ng-true-value="true"
+                                            ng-false-value="false"
+                                            class="md-warn md-align-top-left" flex>
+                                            Use a Cover Page
+                                        </md-checkbox>
+                                        (<a href="{{getCoverPreviewUrl(fax.fax_number)}}" target="_blank">View Sample</a>)
+                                        <div ng-show="useCoverPage" id="cover-page">
+                                            <strong>Cover Page Info.<br /></strong>
+                                            <md-input-container>
+                                                <label>Recipient Name</label>
+                                                <input name="faxRecipient"
+                                                        style="width: 100%;"
+                                                        required
+                                                        ng-model="faxRecipient">
+                                            </md-input-container>
+                                            <md-input-container>
+                                                <label>Subject</label>
+                                                <input name="faxSubject"
+                                                        style="width: 100%;"
+                                                        required
+                                                        ng-model="faxSubject">
+                                            </md-input-container>
+                                            <md-input-container>
+                                                <label>Fax Message</label>
+                                                <textarea name="faxMessage"
+                                                style="width: 100%;"
+                                                        ng-model="faxMessage"></textarea>
+                                            </md-input-container>
+                                            <div class="smfont">* Required</div>
+                                        </div>
+                                    </div>
+                                    <div ng-if="showSuccessMsg"
+                                        class="fax-success-alert alert-success"
+                                        uib-alert
+                                        dismiss-on-timeout="8000"
+                                        close="closeSuccess()">
+                                        <p>Your document has been uploaded and queued to be sent. The delivery status will be displayed below.</p>
+                                    </div>
+        
+                                </div>
+                            </div>
+                            <!-- ***************************** Agency Fax Data below here *************************** -->
+                            <div class="col-md-6" ng-if="!activeFax()">
+                                <span ng-if="currentLocation().ismanager('faxing') || isAdminGroupOrGreater()">
+                                    A fax account has not yet been established for this location. Please order one now.<br />
+                                    <a href class="btn btn-default" ng-click="showOrderFaxNumber()">
+                                        Setup Fax Account
+                                    </a>
+                                </span>
+                                <span ng-if="!currentLocation().ismanager('faxing') && currentLocation().isuser('faxing') && faxTab.activeTab === 0"
+                                    class="fax-account-info">
+                                        A fax account has not been established for this location. Please contact your agency administrator to have faxing added to this location.
+                                </span>
+                            </div>
+                            <div class="col-md-6" ng-show="activeFax()" ng-cloak>
+                                <div class="fax-account-info-container">
+                                    <div class="fax-account-info">
+                                        My Fax Number: <strong>{{fax.fax_number | tel2}}</strong>
+                                    </div>
+                                    <div class="fax-account-info" ng-click="openMail(fax)">
+                                        Email to Fax Address: <strong><a href="#">{{fax.fax_number}}@agencyfax.com</a></strong> 
+                                        <i class="fa fa-question-circle" tooltip-placement="top-right"
+                                        uib-tooltip="{{tips.vfax.emailtofax}}"></i>
+                                    </div>
+                                    <div class="fax-account-info">
+                                        Your Authorized Email Address:
+                                        <strong>{{user.email_address}}</strong> <i class="fa fa-question-circle" 
+                                            tooltip-placement="top-right"
+                                            uib-tooltip="{{tips.vfax.userauthemail}}"></i><br />
+                                        Domain Authorized Email Address:
+                                        <strong ng-if="!editingAuthorizedEmail">{{fax.authorized_email}}</strong>
+                                        <i class="fa fa-question-circle" tooltip-placement="top-right"
+                                                uib-tooltip="{{tips.vfax.domainauthemail}}"></i>
+                                        <span ng-if="editingAuthorizedEmail"><br />
+                                            NOTE: Enter one or more emails separated by commas
+                                            <input type="text"
+                                                class="small-input"
+                                                ng-show="editingAuthorizedEmail"
+                                                ng-model="fax.authorized_email"
+                                                ng-enter="updateFax('auth_email', fax.authorized_email)">
+                                            <i class="fa fa-floppy-o dktealfont mainopt" 
+                                                ng-click="updateFax('auth_email', fax.authorized_email)"
+                                                tooltip-placement="top-right"
+                                                uib-tooltip="{{tips.vfax.savechanges}}">
+                                            </i>
+                                        </span>
+                                        
+                                        <i class="fa fa-pencil-square-o"
+                                            ng-click="toggleEditingAuthorizedEmail()"
+                                            ng-if="!editingAuthorizedEmail && currentLocation().ismanager('faxing')"
+                                            tooltip-placement="top-right"
+                                            uib-tooltip="{{tips.vfax.editdomainauthemail}}">
+                                        </i>
+                                    </div>
+                                    <div  class="fax-account-info">
+                                        Fax Caller Id Name:
+                                        <strong ng-if="!editingCallerIdName">{{fax.caller_id_name}}</strong>
+                                        <span ng-if="editingCallerIdName"><br />
+                                            <input type="text"
+                                                class="small-input"
+                                                ng-model="fax.caller_id_name"
+                                                ng-enter="updateFax('caller_id_name', fax.caller_id_name)">
+                                            <i class="fa fa-floppy-o dktealfont mainopt" 
+                                                ng-click="updateFax('caller_id_name', fax.caller_id_name)"
+                                                tooltip-placement="top-right"
+                                                uib-tooltip="{{tips.vfax.savechanges}}">
+                                            </i>
+                                        </span>
+                                        <i class="fa fa-pencil-square-o"
+                                            ng-click="toggleEditingCallerIdName()"
+                                            ng-if="!editingCallerIdName && currentLocation().ismanager('faxing')"
+                                            tooltip-placement="top-right"
+                                            uib-tooltip="{{tips.vfax.editcalleridname}}">
+                                        </i>
+                                    </div>
+                                    <div class="fax-account-info">
+                                        Incoming faxes forward to these emails:
+                                        <strong ng-show="!editingForwardEmail">{{fax.email_forward_to}}</strong>
+                                        <span ng-if="editingForwardEmail"><br />
+                                            NOTE: Enter one or more emails separated by commas
+                                            <input type="text"
+                                                class="small-input"
+                                                ng-model="fax.email_forward_to"
+                                                ng-enter="updateFax('forward_email', fax.email_forward_to)"
+                                                
+                                            >
+                                            <i class="fa fa-floppy-o dktealfont mainopt" 
+                                                ng-click="updateFax('forward_email', fax.email_forward_to)"
+                                                tooltip-placement="top-right"
+                                                uib-tooltip="{{tips.vfax.savechanges}}">
+                                            </i>
+                                        </span>
+                                        <i class="fa fa-pencil-square-o"
+                                        ng-click="toggleEditingForwardEmail()"
+                                        ng-if="!editingForwardEmail && currentLocation().ismanager('faxing')"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{tips.vfax.editforwardemail}}">
+                                        </i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+
+
+                </div>
+
+            </md-tab>
+
+            <!-- ***********************User Fax Below Here******************* -->
+            <md-tab label="User Fax [Beta]" >
+                <div class="col-sm-12">
+                                        
+                    <div class="row content-header">
+                        <div class="col-md-4 how-to-fax-link">
+                            <a href ng-click="showEmailToFaxHelp()">
+                                <h4>How to Send Fax via E-Mail</h4>
+                            </a>
+                        </div>
+                    </div>
+
+                    
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="well share-drop-zone my-drop-zone" nv-file-drop="" nv-file-over="" uploader="uploader">
+                                <div class="send-fax-title">
+                                    <h4 style="display: inline-block;">Send A Fax</h4>
+                                </div>
+                                
+                                <div class="send-fax-selector">
+                                    <input type="text"
+                                        placeholder="Recipient Fax Number"
+                                        class="form-control fax-send-input"
+                                        ng-disabled="!activeUserFax"
+                                        ng-model="destinationNumber"
+                                        phone-input>
+                                        <label class="btn btn-default btn-file">
+                                                <i class="fa fa-upload"></i> Select File(s) To Fax
+                                                <input type="file" nv-file-select="" uploader="uploader" multiple style="display: none;" />
+                                            </label>
+                                    <button class="btn btn-primary btn-s fax-btn sendbtn"
+                                            ng-disabled="!activeUserFax || !(validDestinationNumber()) || (!fileInQueue() && !useCoverPage)"
+                                            ng-click="sendFax()">
+                                        Send
+                                    </button>
+                                </div>
+                                <div class="send-fax-queue">
+                                    <table ng-if="uploader.queue.length>0" class="table public-cloud-table">
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3">
+                                                    {{uploader.queue.length}} item<span ng-if="uploader.queue.length>1">s</span> (<a href ng-click="uploader.clearQueue()">Clear All</a>)
+                                                </td>
+                                                <td colspan="2">
+                                                    <label class="pull-right btn btn-default btn-file btn-xs">
+                                                        <i class="fa fa-plus"></i> Add More
+                                                        <input type="file" nv-file-select="" uploader="uploader" multiple style="display: none;" />
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                            <tr ng-repeat="item in uploader.queue">
+                                                <td style="width: 25px;"><a href ng-click="item.remove()"><i class="fa fa-times"></i></a></td>
+                                                <td><img class="cloud-flat-img-sm cloud-{{getFileType(item.file)}}-sm" src="/images/Files/file-24.png"> {{showUploadFilename(item.file.name)}}</td>
+                                                <td style="width: 80px;" ng-show="uploader.isHTML5">
+                                                    <div class="progress" style="margin-bottom: 0;">
+                                                        <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                                                    </div>
+                                                </td>
+                                                <td style="width: 40px;" class="text-center">
+                                                    <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+                                                    <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
+                                                    <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+                                                </td>
+                                                <td style="width: 75px; text-align: right;" ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="send-fax-sending" ng-if="sending || uploading">
+                                    <span >
+                                        <i class="fa fa-cog fa-spin fa-3x fa-fw fax-sending"></i> {{sending ? "Processing Fax" : "Uploading Files"}}
+                                    </span>
+                                </div>
+                                <div class="send-fax-cover">
+                                    <md-checkbox
+                                        ng-model="useCoverPage"
+                                        aria-label="Use a Cover Page"
+                                        ng-true-value="true"
+                                        ng-false-value="false"
+                                        class="md-warn md-align-top-left" flex>
+                                        Use a Cover Page
+                                    </md-checkbox>
+                                    (<a href="{{getCoverPreviewUrl(ufax.fax_number)}}" target="_blank">View Sample</a>)
+                                    <div ng-show="useCoverPage" id="cover-page">
+                                        <strong>Cover Page Info.<br /></strong>
+                                        <md-input-container>
+                                            <label>Recipient Name</label>
+                                            <input name="faxRecipient"
+                                                    style="width: 100%;"
+                                                    required
+                                                    ng-model="faxRecipient">
+                                        </md-input-container>
+                                        <md-input-container>
+                                            <label>Subject</label>
+                                            <input name="faxSubject"
+                                                    style="width: 100%;"
+                                                    required
+                                                    ng-model="faxSubject">
+                                        </md-input-container>
+                                        <md-input-container>
+                                            <label>Fax Message</label>
+                                            <textarea name="faxMessage"
+                                            style="width: 100%;"
+                                                    ng-model="faxMessage"></textarea>
+                                        </md-input-container>
+                                        <div class="smfont">* Required</div>
+                                    </div>
+                                </div>
+                                <div ng-if="showSuccessMsg"
+                                    class="fax-success-alert alert-success"
+                                    uib-alert
+                                    dismiss-on-timeout="8000"
+                                    close="closeSuccess()">
+                                    <p>Your document has been uploaded and queued to be sent. The delivery status will be displayed below.</p>
+                                </div>
+    
+                            </div>
+                        </div>
+                        <div class="col-md-6" ng-if="!activeUserFax" ng-cloak>
+                            <span ng-if="isAdminGroupOrGreater()">
+                                Faxing has not yet been set up for this User Account.  Click below to do so now. <br/>
+                                <a href class="btn btn-default" ng-click="setUserFax()">
+                                    Setup User Fax Account
+                                </a>
+                            </span>
+                            <span ng-if="!isAdminGroupOrGreater()"
+                                class="fax-account-info">
+                                    A fax account has not been established for this user. Please contact your agency administrator to have faxing added to this user.
+                            </span>
+                        </div>
+                        <div class="col-md-6" ng-if="activeUserFax" ng-cloak>
+                            <div class="fax-account-info-container">
+                                <div class="fax-account-info">
+                                    My Fax Number: <strong>{{ufax.fax_number | tel2}}</strong>
+                                </div>
+                                <div class="fax-account-info">
+                                    Email to Fax Address: <strong><a href="mailto:{{ufax.fax_number}}@agencyfax.com?subject=[Fax]">{{ufax.fax_number}}@agencyfax.com</a></strong> 
+                                    <i class="fa fa-question-circle" tooltip-placement="top-right"
+                                    uib-tooltip="{{tips.vfax.emailtofax}}"></i>
+                                </div>
+                                <div class="fax-account-info">
+                                    Your Authorized Email Address:
+                                    <strong>{{user.email_address}}</strong> <i class="fa fa-question-circle" 
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{tips.vfax.userauthemail}}"></i><br />
+
+                                    Domain Authorized Email Address:
+                                    <strong ng-if="!editingAuthorizedEmail">{{ufax.authorized_email}}</strong>
+                                    <i class="fa fa-question-circle" tooltip-placement="top-right"
+                                            uib-tooltip="{{tips.vfax.domainauthemail}}"></i>
+                                    <span ng-if="editingAuthorizedEmail"><br />
+                                        NOTE: Enter one or more emails separated by commas
+                                        <input type="text"
+                                            class="small-input"
+                                            ng-show="editingAuthorizedEmail"
+                                            ng-model="ufax.authorized_email"
+                                            ng-enter="updateFax('auth_email', ufax.authorized_email, true)">
+                                        <i class="fa fa-floppy-o dktealfont mainopt" 
+                                            ng-click="updateFax('auth_email', ufax.authorized_email, true)"
+                                            tooltip-placement="top-right"
+                                            uib-tooltip="{{tips.vfax.savechanges}}">
+                                        </i>
+                                    </span>
+                                    
+                                    <i class="fa fa-pencil-square-o"
+                                        ng-click="toggleEditingAuthorizedEmail()"
+                                        ng-if="!editingAuthorizedEmail && isAdminGroupOrGreater()"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{tips.vfax.editdomainauthemail}}">
+                                    </i>
+                                </div>
+                                <div  class="fax-account-info">
+                                    Fax Caller Id Name:
+                                    <strong ng-if="!editingCallerIdName">{{ufax.caller_id_name}}</strong>
+                                    <span ng-if="editingCallerIdName"><br />
+                                        <input type="text"
+                                            class="small-input"
+                                            ng-model="ufax.caller_id_name"
+                                            ng-enter="updateFax('caller_id_name', ufax.caller_id_name, true)">
+                                        <i class="fa fa-floppy-o dktealfont mainopt" 
+                                            ng-click="updateFax('caller_id_name', ufax.caller_id_name, true)"
+                                            tooltip-placement="top-right"
+                                            uib-tooltip="{{tips.vfax.savechanges}}">
+                                        </i>
+                                    </span>
+                                    <i class="fa fa-pencil-square-o"
+                                        ng-click="toggleEditingCallerIdName()"
+                                        ng-if="!editingCallerIdName && isAdminGroupOrGreater()"
+                                        tooltip-placement="top-right"
+                                        uib-tooltip="{{tips.vfax.editcalleridname}}">
+                                    </i>
+                                </div>
+
+                                <div class="fax-account-info">
+                                    Incoming faxes forward to these emails:
+                                    <strong ng-show="!editingForwardEmail">{{ufax.email_forward_to}}</strong>
+                                    <span ng-if="editingForwardEmail"><br />
+                                        NOTE: Enter one or more emails separated by commas
+                                        <input type="text"
+                                            class="small-input"
+                                            ng-model="ufax.email_forward_to"
+                                            ng-enter="updateFax('forward_email', ufax.email_forward_to, true)"
+                                            
+                                        >
+                                        <i class="fa fa-floppy-o dktealfont mainopt" 
+                                            ng-click="updateFax('forward_email', ufax.email_forward_to, true)"
+                                            tooltip-placement="top-right"
+                                            uib-tooltip="{{tips.vfax.savechanges}}">
+                                        </i>
+                                    </span>
+                                    <i class="fa fa-pencil-square-o"
+                                    ng-click="toggleEditingForwardEmail()"
+                                    ng-if="!editingForwardEmail && isAdminGroupOrGreater()"
+                                    tooltip-placement="top-right"
+                                    uib-tooltip="{{tips.vfax.editforwardemail}}">
+                                    </i>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+
+                </div>
+
+            </md-tab>
+        
+
+        </md-tabs>
+<!-- Fax log directives -->
+        <div id="fax-history-container" >
+            <div ng-show="(userTab && !ufax) || (!userTab && !isManagerOrUser())" 
+            class="fax-actions-container" 
+            class="row"
+            ng-cloak>
+                <div class=col-md-12>
+                    <div class="row content-header">
+                        <h3 ng-if="(faxTab.activeTab === 1 && isAdminGroupOrGreater() )">Your personal fax account has not yet been activated.  You may do so with the "Setup Fax Account" button above.</h3>
+                        <h3 ng-if="(faxTab.activeTab === 1 && !isManagerOrUser() )">Your personal fax account has not yet been activated.  Any agency admin can enable User Fax by editing your settings in Settings / Agency Setup / User.</h3>
+                        <h3 ng-if="(faxTab.activeTab === 0)">You are not currently a member of a location that supports faxing. Any agency admin can enable Agency Fax for you in Settings / Agency Setup / Locations.</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <fax-log ng-if="!userTab" 
+                user-tab="userTab"
+                location="selected.location"
+                fax="fax"
+                message="message">
+            </fax-log>
+        
+            <fax-log ng-if="userTab" 
+                user-tab="userTab"
+                location="null"
+                fax="ufax"
+                message="message">
+            </fax-log>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,108 @@
+<div class="modal-header"
+     id="modal-screen-share">
+    <span class="cls-header-modal">
+        <button type="button" ng-click="close()" class="close"><i class="fa fa-times"></i></button>
+        <center>Order Fax Number</center>
+    </span>
+</div>
+<div ng-if="!ordering" class="modal-body" id="fax-did-ordering">
+    <div ng-if="orderType == 'new'">
+        <div class="row">
+            <div class="col-sm-5">
+                <md-input-container>
+                    <label>Sample Number</label>
+                    <input ng-model="data.useDid" phone-input />
+                </md-input-container>
+            </div>
+            <div class="col-sm-5">
+                <md-input-container>
+                    <label>Zip Code</label>
+                    <input ng-model="data.useZip" />
+                </md-input-container>
+            </div>
+        </div>
+        <div ng-if="loadingDids" class="loading-dids">
+            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+            <span>Loading Available Numbers<br />
+            Please Wait</span>
+        </div>
+        <div ng-if="!loadingDids">
+            <div class="col-md-3 did-box" ng-repeat="did in availableDids">
+                <button ng-click="selectDid(did)" class="btn btn-block" ng-class="selectedDid === did ? 'btn-success' : 'btn-default'">
+                    {{did.number | tel}}
+                </span>
+            </div>
+            <div class="cleared"></div>
+        </div>
+        <button ng-click="getAvailableDids()" class="btn btn-default">Load New Dids</button>
+        <button ng-click="changeOrderType('existing')" class="btn btn-default" style="float: right;">Use Existing Number</button>
+    </div>
+    <div ng-if="orderType == 'existing'">
+        <div class="row">
+            <div class="col-sm-7">
+                <md-input-container>
+                    <label>Number</label>
+                    <md-select ng-model="existingDid"
+                        ng-change="selectExistingDid(existingDid)"
+                        placeholder="- Choose Number -">
+                        <md-option
+                            ng-if="isAvailDid(item)"
+                            ng-repeat="item in dids"
+                            ng-value="item.destination_number">
+                        {{item.destination_number | tel}} ({{item.destination_description}})
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div class="col-sm-5">
+                <button ng-click="changeOrderType('new')" class="btn btn-default" style="float: right;">Use New Number</button>
+            </div>
+        </div>
+        <br >
+    </div>
+    <div class="modal-footer" style="text-align: right;">
+        <button ng-click="startOrder()" ng-disabled="!selectedDid" class="btn btn-primary order-button fax-order-btn" >Order Number</button>
+    </div>
+
+</div>
+
+<div ng-if="ordering" class="modal-body" id="fax-did-ordering">
+    <p>You are ordering the following fax number: <strong>{{selectedDid.number | tel}}</strong></p>
+    <form ng-if="!processing" name="OrderFax" ng-submit="OrderFax.$valid && postOrderDid()" novalidate>
+        <div class="col-md-6">
+            <md-input-container>
+                <input type="text"
+                    ng-model="senderName"
+                    required
+                    placeholder="Fax Callerid Name">
+                <div ng-messages="OrderFax.senderName.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div>
+            </md-input-container>
+            <i tooltip-placement="top-right" uib-tooltip="{{::tips.vfax.faxcalleridname}}" class="fa fa-question-circle"></i>
+        </div>
+        <div class="col-md-6">
+            <md-input-container>
+                <input type="email"
+                    ng-model="emailAddress"
+                    required
+                    placeholder="Your Email">
+                <div ng-messages="OrderFax.emailAddress.$error" >
+                    <div ng-message="required">This is required!</div>
+                    <div ng-message="email">Must be a valid email!</div>
+                </div>
+            </md-input-container>
+            <i tooltip-placement="top-right" uib-tooltip="{{::tips.vfax.faxemailaddress}}" class="fa fa-question-circle"></i>
+        </div>
+        <div class="cleared"></div>
+        <div class="modal-footer" style="text-align: right;">
+            <button class="btn btn-default" ng-click="goBack()">Back</button>
+            <button class="btn btn-primary order-button fax-order-btn" ng-disabled="OrderFax.$invalid" type="submit">Order</button>
+        </div>
+    </form>
+    <div ng-if="processing" class="loading-dids">
+        <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+        <span>Processing order<br />
+        Please Wait</span>
+    </div>
+</div>

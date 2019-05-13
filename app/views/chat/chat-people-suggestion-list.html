@@ -1,0 +1,31 @@
+<div class="suggestion-list"
+     ng-style="styleObj">
+    <div class="suggestion-list-content">
+        <div class="suggestion-list-header">People
+            <span class="pull-right light-font right-text">
+                <span class="pad-right-15">
+                    <i class="fa fa-long-arrow-up"></i>
+                    <i class="fa fa-long-arrow-down"></i>
+                    to navigate
+                </span>
+                <span class="pad-right-15">tab to select</span>
+                <span class="pad-right-15">esc to dismiss</span>
+            </span>
+        </div>
+        <div class="suggestion-list-items">
+            <div class="suggestion-list-mention member-mention"
+                ng-if="!isKotterTechMember(person)"
+                ng-class="{selectedperson: parentData.people[parentData.selectedIndex].id === person.id}"
+                ng-repeat="person in parentData.people | filter:{first_name : '!Kotter'} && {last_name : '!Tech'}"
+                ng-click="parentData.select($index)">
+                <span class="suggest-icon"
+                      ng-bind-html="showMemberPhoto(person, '-sm')">
+                </span>
+                <span style="margin: 0 15px;">
+                    <strong>@{{person.username}}</strong>
+                    <span >{{person.first_name}} {{person.last_name}}</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

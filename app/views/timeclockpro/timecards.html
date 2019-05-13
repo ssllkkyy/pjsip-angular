@@ -1,0 +1,222 @@
+<div class="panel panel-default timecard">
+		<div class="panel-heading">
+			<h4>Time Cards</h4>
+
+			<div class="date-picker">
+		        <div class="input-group">
+		            <span class="input-group-addon" ng-click="OpentoDate()"><i class="fa fa-calendar"></i></span>
+		            <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="toDate" name="toDate" is-open="toDatePopup.opened" datepicker-options="toDateOptions" ng-required="true" close-text="Close" ng-click="OpentoDate()" ng-change="processToDate(toDate)" placeholder="To"
+		            />
+		        </div>
+		    </div>
+			<div class="date-picker">
+		        <div class="input-group">
+		            <span class="input-group-addon" ng-click="OpenfromDate()">
+		                <i class="fa fa-calendar"></i>
+		            </span>
+		            <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="fromDate" name="fromDate" is-open="fromDatePopup.opened" datepicker-options="fromDateOptions" ng-required="true" close-text="Close" ng-click="OpenfromDate()" ng-change="processFromDate(fromDate)"
+		                placeholder="From" />
+		        </div>
+		    </div>
+		</div>
+</div>
+<div class="timecard-summary" ng-show="showSummary">
+	<h3 class="timecard-title">Summaries</h3>
+
+	<div class="team">
+		<h4 class="timecard-sub1">Select Team</h4>
+		<md-select class="team-selector"
+			ng-model="selectedTeam">
+	        <md-option 
+	            ng-repeat="team in tkGroups" 
+	            ng-value="team">
+	            {{team.group_name}}
+	        </md-option>
+	    </md-select >
+	    <md-button
+		    ng-click="overtimeHelp()" style="margin: 0px; float: right;">
+		    <i class="fa fa-info-circle fa-lg"></i> How is overtime calculated?
+		</md-button>
+	</div>
+
+	<div class="team">
+		<div class="paydiv">
+			<h4 class="timecard-sub selectedTab" ng-click="setActiveTab('totalhours')" data-toggle="tab" ng-style="selectedTaba">Total Hours</h4> | 
+			<h4 class="timecard-sub selectedTab" ng-click="setActiveTab('grosspay')" data-toggle="tab" ng-style="selectedTabb"> Gross Pay</h4>
+		</div>
+		<div class="printdiv">
+			<h4 class="print" ng-click="printPdf(selectedTeam)" ng-show="!showPdfSpinner"><i class="fa fa-print"></i> Print PDF</h4>
+			<h4 class="print" ng-show="!showPdfSpinner"> <span ng-bind-html="exportExcelTeamDetails(selectedTeam)">Export to Excel</span></h4>
+			<span ng-show="showPdfSpinner"><center><i class="fa fa-spinner fa-spin fa-4x" ></i>
+			<h4>Loading PDF. Please Wait.</h4></center></span>
+
+		</div>
+		<!-- <h3>Export to Excel Sheet</h3> -->
+	</div>
+	<div ng-show="showSpinner">
+		<center><i class="fa fa-spinner fa-spin fa-4x" ></i>
+			<h4>Loading Time Card Summaries. Please Wait.</h4></center>
+	</div>
+	<div ng-show="!showSpinner">
+	    <div class="table-head-container">
+			<table class="table tk-teamusers">
+				<thead>
+					<tr>
+						<th class="serial-no"></th>
+						<th class="employee-name"><a href ng-click="sort_by('contact_name_full')" tooltip-placement="top-left" uib-tooltip="Sort by Name">Employee Name <i class="fa fa-{{!reverse && predicate==='contact_name_full'?'chevron-up':'chevron-down'}}"></i></a></th>
+						<th class="reg">REG</th>
+						<th class="ot1">OT1</th>
+						<th class="total">Total</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="table-body-container">
+			<table class="table tk-teamusers" ng-show="showTotalHours">
+				<tbody>
+					<tr ng-repeat="user in selectedTeam.teamusers | filter:search | orderBy : predicate :reverse" ng-click="showUserDetails(user)">
+						<td class="serial-no"><span>{{$index+1}}</span></td>
+						<td class="employee-name">
+							<span class="username" ng-click="showTimeLine(user)">{{user.contact_name_full}}</span>
+						</td>
+						<td class="reg">{{user.regtime}}</td>
+						<td class="ot1">{{user.totalottime}}</td>
+						<td class="total">{{user.totaltime}}</td>
+						
+					</tr>
+				</tbody>
+			</table>
+
+			<table class="table tk-teamusers" ng-show="!showTotalHours">
+				<tbody>
+					<tr ng-repeat="user in selectedTeam.teamusers | filter:search | orderBy : predicate :reverse" ng-click="showUserDetails(user)">
+						<td class="serial-no"><span>{{$index+1}}</span></td>
+						<td class="employee-name">
+							<span class="username">{{user.contact_name_full}}</span>
+						</td>
+						<td class="reg">$ {{user.regSalary}}</td>
+						<td class="ot1">$ {{user.ot1Salary}}</td>
+						<td class="total">$ {{user.totalSalary}}</td>
+						
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="table-footer-container">
+			<table class="table tk-teamusers">
+				<thead>
+					<tr>
+						<th class="serial-no"></th>
+						<th class="employee-name"></th>
+						<th class="reg">REG</th>
+						<th class="ot1">OT1</th>
+						<th class="total">Total</th>
+					</tr>
+				</thead>
+				<tbody ng-show="showTotalHours">
+					<tr>
+						<td class="serial-no"></td>
+						<td class="employee-name">
+						</td>
+						<td class="reg">{{selectedTeam.totalData.allRegTime}}</td>
+						<td class="ot1">{{selectedTeam.totalData.allot1Time}}</td>
+						<td class="total">{{selectedTeam.totalData.alltotalTime}}</td>
+						
+					</tr>
+				</tbody>
+				<tbody ng-show="!showTotalHours">
+					<tr>
+						<td class="serial-no"></td>
+						<td class="employee-name">
+						</td>
+						<td class="reg">$ {{selectedTeam.totalData.allRegSalary}}</td>
+						<td class="ot1">$ {{selectedTeam.totalData.allOT1Salary}}</td>
+						<td class="total">$ {{selectedTeam.totalData.allTotalSalary}}</td>
+						
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<div class="timecard-details" ng-show="!showSummary">
+	<span class="backbutton" ng-click="goBack()"><i class="fa fa-arrow-circle-left"></i> Back</span>
+	<h3 class="timecard-title">TimeCard Details</h3>
+
+	<div class="team">
+		<div class="paydiv">
+			<h3>{{selectedUser.contact_name_full}}</h3>
+		</div>
+		<div class="printdiv">
+			<h4 class="print" ng-click="printUserPdf(selectedUser)" ng-show="!showPdfSpinner"><i class="fa fa-print"></i> Print PDF</h4>
+			<h4 class="print" ng-show="!showPdfSpinner"><span ng-bind-html="exportExcelUserDetails(selectedUser)">Export to Excel</span></h4>
+			<span ng-show="showPdfSpinner"><center><i class="fa fa-spinner fa-spin fa-4x" ></i>
+			<h4>Loading PDF. Please Wait.</h4></center></span>
+		</div>
+	</div>
+
+	<div ng-show="showSpinner">
+		<center><i class="fa fa-spinner fa-spin fa-4x" ></i>
+			<h4>Loading Time Card Details. Please Wait.</h4></center>
+	</div>
+	<div ng-show="!showSpinner">
+		<div class="table-head-container">
+			<table class="table tk-userdetails">
+				<thead>
+					<tr>
+						<th class="date">Date</th>
+						<th class="intime">IN</th>
+						<th class="outtime">OUT</th>
+						<th class="hours">Hours Worked</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="table-body-container">
+			<table class="table tk-userdetails">
+				<tbody>
+					<tr ng-repeat="record in selectedUser.records">
+						<td class="date"><span>{{record.date}}</span></td>
+						<td class="intime"><div ng-repeat="int in record.daydetails">{{int.intime | toLocalTime | amDateFormat: 'hh:mm a'}}</div></td>
+						<td class="outtime"><div ng-repeat="outt in record.daydetails">{{outt.outtime | toLocalTime | amDateFormat: 'hh:mm a'}}</div></td>
+						<td class="hours">{{record.time}}</td>		
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="table-footer-container">
+			<table class="table tk-userdetails">
+				<thead>
+					<tr>
+						<th class="date"></th>
+						<th class="intime">REG</th>
+						<th class="outtime">OT1</th>
+						<th class="hours">Total</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="date">Total Hours</td>
+						<td class="intime">{{selectedUser.totalRecords.regtime}}</td>
+						<td class="outtime">{{selectedUser.totalRecords.totalottime}}</td>
+						<td class="hours">{{selectedUser.totalRecords.totaltime}}</td>
+						
+					</tr>
+					<tr>
+						<td class="date">Gross Pay</td>
+						<td class="intime">$ {{selectedUser.totalRecords.regSalary}}</td>
+						<td class="outtime">$ {{selectedUser.totalRecords.ot1Salary}}</td>
+						<td class="hours">$ {{selectedUser.totalRecords.totalSalary}}</td>
+						
+					</tr>
+
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<div ng-show="false" id="overtime-help2">
+    <div class="overtime-help">
+        <p>Overtime pay of 150% of the normal hourly wage begins once an employee has worked more than 40 hours <br>in a given week (from Monday morning through Sunday night). For daily details, click on the employee’s name <br>in the My Team Dashboard tab.</p>
+    </div>
+</div>

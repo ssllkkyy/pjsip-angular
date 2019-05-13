@@ -1,0 +1,60 @@
+<div ng-controller="ModalCtrl">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-music fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            {{vm.content.data.title}}
+        </span>
+        <button type="button"
+                ng-click="closeModal()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body" id="audio-body">
+        <h4>{{vm.content.data.description}}</h4>
+        <p>
+            <span ng-if="vm.content.data.date">
+                {{::vm.content.data.date | amDateFormat:'MMM D, YYYY h:mm a' : ''}}
+            </span>
+        </p>
+        <span ng-repeat="url in vm.content.data.urls">
+            <video controls=""
+                   name="media">
+                <source src="{{url}}"
+                        type="audio/x-wav">
+            </video>
+        </span>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md"
+                ng-click="closeModal()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;">
+            </i>
+            Close
+        </button>
+        <a ng-if="vm.content.data.urls.length > 1"
+           class="btn btn-primary btn-md"
+           href="{{vm.content.data.downloadUrl}}"
+           target="_blank"
+           download>
+            <i class="fa fa-download"
+               style="margin-right: 10px;">
+            </i>
+            Download Recordings
+        </a>
+        <a ng-if="vm.content.data.urls.length == 1"
+           class="btn btn-primary btn-md"
+           download-file="baseUrl + vm.content.data.urls[0]"
+           filename="vm.content.data.type">
+            <i class="fa fa-download"
+               style="margin-right: 10px;">
+            </i>
+            Download
+        </a>
+    </div>
+ </div>
+

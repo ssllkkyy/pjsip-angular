@@ -1,0 +1,108 @@
+<div class="table-head-container">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead style="width: 100px">
+            <tr>
+                <th class="name-col">
+                    <a href ng-click="sortBy('contact_name_given')"
+                       tooltip-placement="top-left"
+                       uib-tooltip="{{tips.sortby.sortbyfirstname}}">
+                        User Name
+                        <i class="fa fa-{{!reverse && predicate==='contact_name_given'?'chevron-up':'chevron-down'}}">
+                        </i>
+                    </a>
+                </th>
+                <th class="extension-col">
+                    <a href ng-click="sortBy('user_ext')"
+                       tooltip-placement="top-left"
+                       uib-tooltip="{{tips.sortby.sortbyextension}}">
+                       Extension
+                        <i class="fa fa-{{!reverse && predicate==='user_ext'?'chevron-up':'chevron-down'}}">
+                        </i>
+                    </a>
+                </th>
+                <th class="mac-add-col">
+                    Mac Address
+                </th>
+                <th class="brand-col">
+                    Brand
+                </th>
+                <th class="model-col">
+                    Model
+                </th>
+                <th class="config-col">
+                    Configure 
+                </th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div ng-if="loadingUsers" class="loading-users mdgreyfont">
+        <i class="fa fa-spinner fa-spin fa-5x"></i><br />
+        <span>Loading Users<br />
+        Please Wait</span>
+</div>
+<div ng-if="!loadingUsers" class="table-body-container">
+    <table class="table table-bordered table-hover table-striped">
+        <tbody>
+            <tr ng-repeat="user in filtered = (usersList | filter:search | orderBy : predicate :reverse) | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit"
+                ng-class="user.user_enabled !== 'true' ? 'userdisabled' : null"
+                ng-if="!isKotterTechUserByUuid(user.id) && !user.deleted && user.user_enabled == 'true'">
+                <td class="name-col">
+                    {{user.contact_name_given}} {{user.contact_name_family}}
+                </td>
+                <td class="extension-col">
+                    {{user.user_ext}}
+                </td>
+                <td class="mac-add-col">
+                    <md-input-container>
+                      <input ng-model="user.provSettings.macAddress"
+                            aria-label="EnterMac">
+                   </md-input-container>
+
+                </td>
+                <td class="brand-col">
+                    <md-input-container>
+                         <md-select ng-model="user.provSettings.brand" 
+                                    ng-change="showModels(user.provSettings.brand)"
+                                    aria-label="SelectBrand">
+                             <md-option ng-value="b" ng-repeat="b in brand">
+                                    {{b.name}}
+                                </md-option>
+                           </md-select>
+                    </md-input-container>
+                </td>
+                <td class="model-col">
+                    <md-input-container>
+                         <md-select ng-model="user.provSettings.model" 
+                                    ng-disabled="!user.provSettings.brand" 
+                                    ng-change="saveSettings(user)"
+                                    aria-label="SelectModel">
+                             <md-option ng-value="m.name" ng-repeat="m in user.provSettings.brand.models">
+                                    {{m.name}}
+                                </md-option>
+                           </md-select>
+                    </md-input-container>
+                </td>
+                <td class="config-col">
+                    <button class="btn btn-primary btn-sm" 
+                            ng-if="user.provSettings.prov_uuid && user.showAdvSettings"
+                            ng-click="advSettingsfunc(user)">
+                        Settings
+                    </button>
+
+                    <i class="fa fa-refresh fa-2x pull-right reboot" 
+                        arian-hidden="true" 
+                        tooltip-placement="top" 
+                        uib-tooltip="Reboot"
+                        ng-click="reboot(user)"></i>
+                    <i class="fa fa-floppy-o fa-2x pull-right save" 
+                        arian-hidden="true"
+                        tooltip-placement="top"
+                        uib-tooltip="Save and Export"
+                        ng-click="saveSettings(user)">
+                    </i>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

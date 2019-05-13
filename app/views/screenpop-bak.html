@@ -1,0 +1,147 @@
+<body>
+	<div class="screenpop-outer">
+		<div class="screenpop-container">
+            <div id="customer-list">
+
+            </div>
+            <div id="customer-details">
+                <div class="modal-header">
+                    <h5>Customer Information</h5>
+                </div>
+                <div class="modal-body customer">
+                </div>
+
+                <div class="modal-header">
+                    <h5>Policy Information</h5>
+                </div>
+                <div class="modal-body policy screenpop-background">
+                </div>
+            </div>
+		</div>
+		<div class="npbuttons">
+			<center><button class="btn btn-primary btn-sm" id="prev" onclick="prev()">Prev</button>
+			<button class="btn btn-primary btn-sm" id="next" onclick="next()">Next</button></center>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+
+		var  i = 0;
+	
+		if(window.mySharedCustomerList){
+			$(window.mySharedCustomerList).appendTo('#customer-list');	
+			var x = document.getElementById("customer-list");
+				x.style.display = "block";
+			var y = document.getElementById("customer-details");
+				y.style.display = "none";
+
+			$('#next').hide();
+			$('#prev').hide();
+
+		} else {
+			showDetails(0);
+        }
+        
+        $('.contact-select').on('click', function(e) {
+	        e.preventDefault();
+            var id = $(this).attr("contact-index");
+            showDetails(id);
+        });
+
+		function next(){
+			i++;
+			if(window.mySharedPolicyData.length >= i+1)
+			{
+				$('.policy').html('');
+				putData(i);
+			}
+		}
+
+		function prev(){
+			i--;
+
+			if(i >= 0)
+			{
+				$('.policy').html('');
+				putData(i);
+			}
+		}
+
+		function putData(i){
+			
+			var policyArray = window.mySharedPolicyData;
+			
+			if(policyArray.length >= i+1)
+			{
+					data = policyArray[i].policy_csr_info ? "<p><b>CSR: </b>"+ policyArray[i].policy_csr_info +"</p>" : '';
+					data += policyArray[i].policy_number ? "<p><b>Policy number:</b> "+policyArray[i].policy_number +"</p>" : '';
+					data += policyArray[i].policy_type ? "<p><b>Type of Policy:</b> "+policyArray[i].policy_type +"</p>" : '';
+					data += policyArray[i].policy_effective_date ? "<p><b>Effective Date:</b> "+policyArray[i].policy_effective_date +"</p>" : '';
+					data += policyArray[i].policy_expiry_date ? "<p><b>Expiration Date:</b> "+policyArray[i].policy_expiry_date +"</p>" : '';
+					
+					$(data).appendTo('.policy');					
+		
+				if(policyArray.length == i+1 && i != 0)
+				{
+					$('#next').hide();
+					$('#prev').show();
+				}
+				else if(i == 0 && policyArray.length != 1){
+					$('#prev').hide();
+					$('#next').show();
+				} else {
+					$('#prev').hide();
+					$('#next').hide();
+				}
+			}
+			else {
+				$('#prev').hide();
+				$('#next').hide();
+			}
+		}
+		
+
+		function showDetails(index){
+			var x = document.getElementById("customer-list");
+			x.style.display = "none";
+			var y = document.getElementById("customer-details");
+				y.style.display = "block";
+
+			if(window.mySharedCustomerData){
+				$(window.mySharedCustomerData).appendTo('.customer');	
+			} else if(window.myCustomerListData){
+				var customerList = window.myCustomerListData;
+
+				var customerDetails = customerList[index];
+				var customer = customerDetails.contact_name_full ? "<p tooltip-placement='top-left' uib-tooltip='Click to Open Client'><a href='"+window.myIntegrationUrl+"' target='_blank'><b>"+customerDetails.contact_name_full+"</b></a></p>" : '';
+					customer += customerDetails.contact_email_address ? "<p>"+customerDetails.contact_email_address+"</p>" : '';
+					customer += customerDetails.settings.contact_address ? "<p>"+customerDetails.settings.contact_address+"</p>":'';
+					customer += customerDetails.settings.contact_city ? "<p>"+customerDetails.settings.contact_city : '';
+					customer += customerDetails.settings.contact_state ? ", "+customerDetails.settings.contact_state: '';
+					customer += customerDetails.settings.contact_zip_code ? " "+customerDetails.settings.contact_zip_code+"</p>":'';
+				
+				$(customer).appendTo('.customer');
+				window.mySharedPolicyData = customerList[index].policies ? customerList[index].policies : null;
+
+			} else {
+				var data = "<p>No Customer Details Available!</p>";
+				$(data).appendTo('.customer');
+			}
+			
+			var policyArray = window.mySharedPolicyData;
+			
+			if(policyArray)
+			{
+				putData(i);
+			}
+			else
+			{
+				var data = "<p>No Policy Details Available!</p>";
+				$(data).appendTo('.policy');
+
+				$('#prev').hide();
+				$('#next').hide();
+			}
+		}
+	</script>
+</body>

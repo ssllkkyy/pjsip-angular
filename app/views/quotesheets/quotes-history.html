@@ -1,0 +1,170 @@
+<div class="search-controls">
+    <div class="per-page">
+        <label>Quotes per page:</label>
+        <select class="selectpicker form-control per-page"
+                ng-options="option as option.val for option in searchControls.pageOptions"
+                ng-model="searchControls.perPage">
+        </select>
+    </div>
+    <div class="from-date">
+        <datepicker model="searchControls.fromPickerModel"
+                    with-memory="'history-from'"
+                    date-disabled="searchControls.fromDateDisabled">
+        </datepicker>
+    </div>
+    <div class="to-date">
+        <datepicker model="searchControls.toPickerModel"
+                    with-memory="'history-to'"
+                    date-disabled="searchControls.toDateDisabled">
+        </datepicker>
+    </div>
+    <div class="search-filter">
+        <div class="input-group">
+            <span class="input-group-addon"
+                  title="Filter calls">
+                <i class="fa fa-filter"></i>
+            </span>
+            <input class="form-control"
+                   type="text"
+                   ng-model="searchControls.searchFilterText"
+                   placeholder="Filter Displayed Results">
+        </div>
+    </div>
+</div>
+<div class="quotes-history">
+    <scrollable-table column-names="tableControls.columnNames"
+                      resource-length="filteredQuotesLength()"
+                      per-page="searchControls.perPage.val"
+                      current-page="tableControls.currentPage"
+                      sorting-opts="tableControls.sortingOpts">
+        <table-body>
+            <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+                <tbody>
+                    <tr ng-if="loading">
+                    </tr>
+                    <tr ng-show="!loading"
+                        ng-repeat="quote in tableControls.filteredQuotes |
+                                 limitTo : $parent.perPage :
+                                 $parent.perPage * ($parent.currentPage.page - 1)">
+                        <td class="entered-by-col"
+                            ng-click="editQuote(quote)">
+                            {{quote.created_by}}
+                        </td>
+                        <td class="quote-for-col"
+                            ng-click="editQuote(quote)">
+                            {{quote.customer_name}}
+                        </td>
+                        <td class="updated-col"
+                            ng-click="editQuote(quote)">
+                            {{quote.updated_at | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                        </td>
+                        <td class="type-col"
+                            ng-click="editQuote(quote)">
+                            {{capitalize(quote.template.type)}}
+                        </td>
+                        <td class="status-col"
+                            ng-click="editQuote(quote)">
+                            {{quote.statuses.quote_sheet_status_name}}
+                        </td>
+                        <td class="assigned-to-col"
+                            ng-click="editQuote(quote)">
+                            <p ng-if="showAssignedTo(quote)">
+                                {{ quote.assigned_to.user_name_given }}
+                                {{ quote.assigned_to.user_name_family }}
+                            </p>
+                            <p ng-if="!showAssignedTo(quote)">
+                                Unassigned
+                            </p>
+                        </td>
+                        <td class="export-col">
+                            <ul class="export-list">
+                                <li class="repeated-item export-grid"
+                                    aria-label="assignQuote"
+                                    ng-show="isQSManager()">
+                                    <span style="color:#f8a632"
+                                            uib-tooltip="Assign Quote"
+                                            tooltip-placement="bottom">
+                                        <i class="fa fa-comments"
+                                            ng-click="openAssignModal(quote)">
+                                        </i>
+                                    </span>
+                                </li>
+                                <li class="repeated-item export-grid"
+                                    aria-label="emailQuote">
+                                    <span style="color: #64d76c;"
+                                            uib-tooltip="Email Quote"
+                                            tooltip-placement="bottom">
+                                        <i class="fa fa-envelope"
+                                            ng-click="emailQuoteSheet(quote)"></i>
+                                    </span>
+                                </li>
+                                <li class="repeated-item export-grid"
+                                    aria-label="printQuotePdf">
+                                    <span style="color: #437C7F;"
+                                            uib-tooltip="Print Quote PDF"
+                                            ng-if="!printLoading[quote.quote_sheet_uuid]"
+                                            tooltip-placement="bottom">
+                                        <i class="fa fa-print"
+                                            ng-click="openQuotePdf(quote)"></i>
+                                    </span>
+                                    <span style="color: #437C7F;"
+                                            ng-if="printLoading[quote.quote_sheet_uuid]">
+                                        <i class="fa fa-cog fa-spin fa-lg"></i>
+                                    </span>
+                                </li>
+                                <li ng-repeat="rater in displayRaters | orderBy: rater"
+                                            class="repeated-item export-grid" aria-label="rater.rater_id">
+                                    <span ng-if="showHSBtn"
+                                            style="color: grey;"
+                                            uib-tooltip="Export to Hawksoft"
+                                            tooltip-placement="bottom">
+                                        <img src="{{hawkSoftImgSrc}}"
+                                                ng-click="exportToHS(quote,rater)"
+                                                style="width: 2.5vh; height: 2.5vh;" >
+                                    </span>
+                                    <span ng-if="!showHSBtn"
+                                        ng-click="genericExportQuote(quote,rater)" tooltip-placement="top-right" uib-tooltip="{{::tips.history.copytomanagement}}">
+                                        <img src="{{onescreenBaseUrl}}/imported/freeswitch/storage/avatars/export.png" style="width: 2.5vh; height: 2.5vh;">
+                                    </span>
+                                </li>
+                                <li class="repeated-item export-grid"
+                                    aria-label="editQuote">
+                                    <span uib-tooltip="Edit Quote"
+                                            tooltip-placement="bottom">
+                                        <i class="fa fa-edit"
+                                            ng-click="editQuote(quote)">
+                                        </i>
+                                    </span>
+                                </li>
+                                <li ng-show="isQSManager()"
+                                        class="repeated-item export-grid"
+                                        aria-label="deleteQuote">
+                                    <span style="color:hsl(0, 86%, 46%)"
+                                            uib-tooltip="Delete Quote"
+                                            tooltip-placement="bottom">
+                                        <i class="fa fa-minus-circle"
+                                            ng-click="deleteQuoteSheet(quote)">
+                                        </i>
+                                    </span>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr ng-if="tableControls.filteredQuotes.length === 0">
+                        <td ng-if="!loading">
+                            <p style="text-align: center;">
+                                We couldn't find any quotes. Try changing the settings above or
+                                creating a quote to see some here.
+                            </p>
+                        </td>
+                        <td ng-if="loading">
+                            <span class="spinner">
+                                <i class="fa fa-cog fa-spin fa-lg"></i>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </table-body>
+    </scrollable-table>
+</div>

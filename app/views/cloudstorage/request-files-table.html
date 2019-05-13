@@ -1,0 +1,169 @@
+<div class="modal-body" id="modal-body">
+    <div ng-show="!showAddForm && !showSendEmail">
+        <p>Requesting large files from your clients is easy.  Using the tool below, you can create a link to send to your clients.  They simply click 
+        on the link and then drag and drop the files they wish to send.</p>
+        <p>You can use the same link for everyone or create custom links. It all depends on where you want the files they send you to go. Every Bridge user
+        automatically has a folder called Public Cloud. Any files you receive will default to this folder unless you create and then select sub-folders. 
+        Each sub-folder will have its own link. Just send out the link that corresponds to where you want the file to end up. It’s that easy! </p>
+        <p>To create a new link, simply right click on any folder in the Public Cloud directory and click “Make A Link.”</p>
+        <button class="btn btn-success pull-right newpubliclink" ng-click="addNewLink()">Create New Link</button>
+        <h4>Existing Links</h4>
+        <table ng-show="showTable" class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+            <thead>
+                <tr>
+                    <th>Folder</th>
+                    <th>Expiry</th>
+                    <th style="width: 180px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="requestLinks.length===0">
+                    <td colspan="5">
+                        There are no links to display.
+                    </td>
+                </tr>
+                <tr ng-repeat="link in requestLinks">
+                    <td>{{link.folder_name}}</td>
+                    <td><span ng-if="link.expire_at">{{link.expire_at | toLocalTime | amDateFormat: 'MMM D, YYYY'}}</span>
+                    <span ng-if="!link.expire_at">Never</span></td>
+                    <td class="cloud-button-icons">
+                            <i class="fa fa-edit dktealfont" ng-click="editLink(link)"
+                            tooltip-placement="top-right"
+                            uib-tooltip="{{::tips.requestfiles.editlink}}"></i>
+                            
+                            <i class="fa fa-files-o bridgebluefont" ng-disabled="urlNotAvailable"
+                            ng-click="copyLink(link)" 
+                            tooltip-placement="top-right"
+                            uib-tooltip="{{::tips.requestfiles.copylink}}"></i>
+                            
+                            <i class="fa fa-envelope-o bridgebluefont" ng-disabled="urlNotAvailable"
+                            ng-click="showSendLink(link)"
+                            tooltip-placement="top-right"
+                            uib-tooltip="{{::tips.requestfiles.emaillink}}"></i>
+
+                            <i class="fa fa-trash-o bridgeorangefont" ng-click="removeLink($index)"
+                            tooltip-placement="top-right"
+                            uib-tooltip="{{::tips.requestfiles.removelink}}"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div ng-if="showAddForm">
+        <h4>{{newLink.public_cloud_link_uuid ? 'Edit' : 'Add'}} Request Files Link</h4>
+        
+        <div class="row link-options">
+            <div class="col-sm-12 folder-selection">
+                <p>Choose the folder to which you want to store uploaded files to.</p>
+                <div class="row">
+                    
+                    <div class="col-md-6 dir-tree">
+                        
+                        <div><i class="icon-folder-close fa fa-folder-open"></i> Imports</div>
+                        <div tree-view="structure" preselected-node="preselectedNode" tree-view-options="treeViewOptions"></div>
+                        <div class="addsharefolder"><a href ng-click="addFolder()"><i class="icon-folder-close fa fa-plus"></i> Create Folder</a> 
+                            <input type="text"
+                            ng-model="new.folder_name"
+                            ng-show="showNewFolder">
+                            <i class="icon-folder-close fa fa-save" ng-show="showNewFolder && !showFolderSpinner" ng-click="saveNewFolder(new.folder_name)"></i>
+                            <span ng-show="showFolderSpinner"><i class="icon-folder-close fa fa-spinner fa-spin" ></i></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <h4>Notifications</h4>
+                        <md-checkbox style="margin-bottom: 0;"
+                            ng-model="newLink.options.sendEmail"
+                            aria-label="Email me when files are uploaded">
+                            Email me when files are uploaded
+                        </md-checkbox>
+                        <h4>Security</h4>
+                        <md-checkbox style="margin-bottom: 0;"
+                            ng-model="newLink.options.requireEmail"
+                            aria-label="Require recipients to enter name and email">
+                            Require recipients to enter name and email
+                        </md-checkbox>
+                        <h4>Link Access Expiry</h4>
+                        <md-select ng-model="newLink.options.expireAt"
+                        style="width: 250px;"
+                            tooltip-placement="top"
+                            uib-tooltip="{{::tips.requestfiles.accessexpiry}}">
+                            <md-option ng-repeat="option in expireOptions" ng-value="option.value">
+                                {{option.display}}
+                            </md-option>
+                        </md-select>
+                    </div>
+                    
+                </div>
+            </div>
+            <div ng-if="1==3">
+                <div class="col-sm-6">
+                    <h4>Notifications</h4>
+                    <md-checkbox style="margin-bottom: 0;"
+                        ng-model="newLink.options.sendEmail"
+                        aria-label="Email me when files are uploaded">
+                        Email me when files are uploaded
+                    </md-checkbox>
+                </div>
+                <div class="col-sm-6">
+                    <h4>Security</h4>
+                    <md-checkbox style="margin-bottom: 0;"
+                        ng-model="newLink.options.requireEmail"
+                        aria-label="Require recipients to enter name and email">
+                        Require recipients to enter name and email
+                    </md-checkbox>
+                </div>
+                <div class="col-sm-12">
+                    <h4>Link Access Expiry</h4>
+                    <md-select ng-model="newLink.options.expireAt"
+                        tooltip-placement="top"
+                        uib-tooltip="{{::tips.automated.insertshortcodesms}}">
+                        <md-option ng-repeat="option in expireOptions" ng-value="option.value">
+                            {{option.display}}
+                        </md-option>
+                    </md-select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 right-text">
+                <button class="btn btn-default button-pad-right" ng-show="showAddForm" ng-click="cancelEditLink()">Cancel</button>
+                <button class="btn btn-success button-pad-right" ng-show="showAddForm" ng-click="saveLink(newLink)">Save Link</button>
+            </div>
+        </div>
+        
+    </div>
+    <div ng-if="showSendEmail">
+        <h4>Send Request Files Link</h4>
+        
+        <div class="alert alert-error"
+                ng-show="invalidContactSelected"
+                role="alert"
+                style="margin-top: 10px; display: block">
+            {{invalidContactSelected}}
+        </div>
+
+        <div class="alert alert-success" ng-show="msgEmailSent" role="alert" style="margin-top: 10px; display: block">
+            You have successfully emailed a link to the file!
+        </div>
+
+        <contact-selector type="'cloudlink'"></contact-selector>
+        <textarea class="form-control" id="enterText" ng-model="contentEmail" style="height: 100px; margin-top: 12px; resize: none;" placeholder="Write your message here (Optional)"></textarea>
+
+        <div ng-if="alertError && alertError !== ''" uib-alert ng-class="'alert-danger'" dismiss-on-timeout="5000" close="closeFilterAlert()">{{alertError}}</div>
+        <div class="alert alert-info" role="alert" style="margin-top: 10px; text-align: center; display: block">
+            You are sharing <strong>{{vm.content.data.original_filename}}</strong>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 right-text">
+                <button class="btn btn-default button-pad-right" ng-show="showAddForm" ng-click="cancelEditLink()">Cancel</button>
+                <button class="btn btn-success button-pad-right" ng-show="showAddForm" ng-click="doSendLink(contentEmail)">Save Link</button>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<div class="modal-footer cls-incomingcall-buttons">
+    <button class="btn btn-default btn-md"  ng-click="onCloseModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close Window</button>
+</div>

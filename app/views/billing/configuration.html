@@ -1,0 +1,46 @@
+<md-content class="package-content">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h4>Billing Contacts</h4>
+                    <p>All billing related emails (ie invoices, upgrades, payments, etc.) will be sent to the emails below. Please enter one email per line.</p>
+                    <div class="input-group"> 
+                        <textarea id="am-sms-message" 
+                            class="form-control" 
+                            ng-change="contactsChanged=true"
+                            rows="5"
+                            ng-model="billingContacts">
+                        </textarea>
+                    </div>
+                    <div class="right-text">
+                        <button class="btn btn-default" 
+                            ng-click="cancelContactChanges()"
+                            ng-show="contactsChanged">
+                            <i class="fa fa-undo"></i> Reset
+                        </button>
+                        <button class="btn btn-primary" 
+                            ng-click="updateContacts()"
+                            ng-disabled="!contactsChanged">
+                            <i class="fa fa-floppy-o"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-sm-6">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h4>Payment Methods Available</h4>
+                    <payment-methods 
+                        radios="false"
+                        domain="domain">
+                    </payment-methods>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <billing-addresses></billing-addresses>
+</md-content>

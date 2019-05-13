@@ -1,0 +1,222 @@
+@import "variables";
+
+#basic-container3 {
+    display: flex;
+    min-height: 90vh;
+    flex-direction: column;
+    overflow-y: hidden; 
+    width: 100%;
+    margin: 0;
+    #basic-header {
+        flex: 22 1 0;
+        height: 110px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+
+        width: 100%;
+        padding: 5px;
+        background-color: #fbfbfb;
+        border-bottom: solid 1px #e1e1e1;
+        .basic-logo {
+            flex-grow: 1;
+        }
+        .basic-menu {
+            flex-grow: 4;
+            padding-top: 15px;
+            .topnav1 {
+                font-size: calc(6px + .65vmax);
+                list-style: none;
+                margin-bottom: 0;
+                li {
+                    display: inline-block;
+                    margin: 0 30px;
+                    border-bottom: 3px solid rgba(0, 0, 0, 0);
+                    
+                    
+        
+                    a, a:active {
+                        padding-bottom: 20px;
+                        color: $header-caption;
+                    }
+        
+                    a:hover {
+                        color: $header-caption-hover;
+                        border-bottom: 3px solid $header-caption-hover;
+                    }
+                }
+            }
+        }
+    }
+    #basic-content {
+        display: flex;
+        flex: 93 1 0;
+        
+    }
+  }
+  
+    
+  
+
+#basic-container2 {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    margin: 0;
+    width: 100%;
+    #basic-header {
+        height: 110px;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+
+        width: 100%;
+        padding: 5px;
+        background-color: #fbfbfb;
+        border-bottom: solid 1px #e1e1e1;
+        .basic-logo {
+            flex-grow: 1;
+        }
+        .basic-menu {
+            flex-grow: 4;
+            padding-top: 15px;
+            .topnav1 {
+                font-size: calc(6px + .65vmax);
+                list-style: none;
+                margin-bottom: 0;
+                li {
+                    display: inline-block;
+                    margin: 0 30px;
+                    border-bottom: 3px solid rgba(0, 0, 0, 0);
+                    
+                    
+        
+                    a, a:active {
+                        padding-bottom: 20px;
+                        color: $header-caption;
+                    }
+        
+                    a:hover {
+                        color: $header-caption-hover;
+                        border-bottom: 3px solid $header-caption-hover;
+                    }
+                }
+            }
+        }
+    }
+    #basic-content{
+        flex-grow: 1;
+        background-color: $ltgreybackground;
+        .conf-call-box {
+            padding: 20px;
+        }
+        .padd15 {
+            padding: 15px;
+        }
+    }
+
+}
+
+#basic-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    #basic-header {
+        flex: 0 0 auto;
+        // height: 100px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+
+        width: 100%;
+        padding: 5px;
+        background-color: #fbfbfb;
+        border-bottom: solid 1px #e1e1e1;
+        .basic-logo {
+            flex-grow: 1;
+        }
+        .basic-menu {
+            flex-grow: 4;
+            padding-top: 15px;
+            .topnav1 {
+                font-size: calc(6px + .65vmax);
+                list-style: none;
+                margin-bottom: 0;
+                li {
+                    display: inline-block;
+                    margin: 0 30px;
+                    border-bottom: 3px solid rgba(0, 0, 0, 0);
+                    
+                    
+        
+                    a, a:active {
+                        padding-bottom: 20px;
+                        color: $header-caption;
+                    }
+        
+                    a:hover {
+                        color: $header-caption-hover;
+                        border-bottom: 3px solid $header-caption-hover;
+                    }
+                }
+            }
+        }
+        h3 { 
+            margin-bottom: 4px;
+        }
+        .selector, .dial-in, .title-box {
+            // display: inline-block;
+            // vertical-align: middle;
+            float: right;
+            height: 80px;
+        }
+        .title-box {
+            float: left;
+            padding-top: 10px;
+            h3 {
+                margin-top: 0;
+            }
+        }
+        .selector {
+            padding: 10px;
+            width: 200px;
+            padding-top: 20px;
+            &.callerid {
+                width: 190px;
+            }
+            md-input-container {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+        .dial-in {
+            text-align: right;
+            padding-top: 20px;
+            padding-right: 30px;
+            width: 170px;
+            .dial-in-title {
+                font-size: 15px;
+            }
+            .dial-in-number {
+                font-size: 18px;
+                font-weight: 600;
+            }
+        }
+    }
+    #basic-content{
+        flex: 1 1 auto;
+        position: relative;/* need this to position inner content */
+        overflow-y: auto;
+        width: 100%;
+        height: 100%;
+        background-color: $ltgreybackground;
+        .conf-call-box {
+            padding: 20px;
+        }
+        .padd15 {
+            padding: 15px;
+        }
+    }
+
+}

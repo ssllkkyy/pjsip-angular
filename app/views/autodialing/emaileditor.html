@@ -1,0 +1,30 @@
+<div ng-controller="EmailEditorCtrl">
+    <div >
+        <div class="modal-body" id="modal-body" style="height: {{editorContainerHeight}}px;">
+            <div id="bee-plugin-container"></div>
+        </div>
+        
+        <div class="modal-footer cls-incomingcall-buttons">
+            <div id="integrator-bottom-bar">
+                <div class="col-sm-3">
+                    
+                        <!-- You can change the download function to get the JSON and use this input to load it -->
+                        <input id="choose-template" placeholder="Type in New Template" type="file" />
+                        <button class="btn btn-primary" ng-disabled="1==1" ng-click="showModalWithData('/autodialing/choosetemplate.html', data)">Select Different Template</button>
+
+                        <!-- You need to provide a send function to use this input field -->
+                        <!--Send test e-mail to: <input id="integrator-test-emails" type="text"/>-->
+                    
+                </div>
+                <div class="col-sm-9">
+                    <button class="btn btn-danger btn-md" ng-click="closeEditorModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+                    <!--<button class="btn btn-default btn-md" ng-click=""><i class="fa fa-envelope" style="margin-right: 10px;"></i>Send Test Email</button>
+                    <button class="btn btn-default btn-md" ng-click=""><i class="fa fa-copy" style="margin-right: 10px;"></i>Save as Template</button>
+                    <button class="btn btn-success btn-md" ng-click="saveAndCloseEditor()"><i class="fa fa-floppy-o" style="margin-right: 10px;"></i>Save & Close</button>-->
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+</div>

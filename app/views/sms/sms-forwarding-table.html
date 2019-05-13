@@ -1,0 +1,177 @@
+<div class="modal-body" id="modal-body">
+	<div class="row">
+        <div class="col-md-6">
+            <md-switch class="md-warn"
+                ng-model="forward_sms_to_enabled"
+                ng-change="updateForwarding()"
+                aria-label="Forwarding Enable/Disable" 
+                ng-true-value="true" 
+                ng-false-value="false">
+                {{ forward_sms_to_enabled === true ? 'SMS Forwarding is ON' : 'SMS Forwarding is OFF'}}
+            </md-switch>
+        </div>
+    </div>
+    <div class="row" ng-show="forward_sms_to_enabled">
+    	<table id="forwarding-table" class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+	        <thead>
+	            <tr>
+	                <th> Destination </th>
+	                <th style="width: 90px;" class="add-user-col center-text">
+	                    <button class="btn btn-xs btn-primary add-dest"
+	                        ng-click="toggleAdd()"
+	                        tooltip-placement="top"
+	                        uib-tooltip="Add New Destination">
+	                        <span class="mdi mdi-phone-plus "></span>
+	                    </button>
+	                </th>
+	            </tr>
+	        </thead>
+	        <tbody>
+	            <tr ng-if="user.symphony_user_settings.forward_sms_to.length === 0 && !addDest">
+	                <td colspan="4">There are currently no destinations set.</td>
+	            </tr>
+	            <tr ng-if="addDest">
+	                <td style="padding: 0;">
+                        <span>
+                        	<div class="callbox-search-container">
+                            <md-input-container class="call-input-container">
+						        <label>
+						                {{inputPlaceholder}}
+						        </label>
+						        <input type="text"
+						            number-select
+						            ng-model="contact.callnumber"
+						            autocomplete="off"
+						            class="call-input">
+						    </md-input-container>
+						    <div class="contact-options"
+						         ng-show="showContactSelection || contact.recipients.length>0">
+						        <div class="list-group">
+						            <div ng-if="contact.callnumber" 
+						                ng-repeat="item in availContacts() | filter :searchRecipients"
+						                class="list-group-item">
+						                <div class="thread-list-item" >
+						                    <div class="thread-list-circle">
+						                        <span ng-if="item.cuuid" ng-bind-html="showContactPhoto(item, 'small')"></span>
+						                    </div>
+						                    <div class="thread-list-body">
+						                        <span ng-if="item.cuuid" style="padding-top: 16px;">
+						                            {{item.name}}<br />
+						                        </span>
+						                        <span class="recent-message">
+						                            <span ng-if="!item.cuuid && item.phone_number"
+						                                ng-click="chooseNumber(item.phone_number, item)"
+						                                class="numbers">
+						                                {{item.phone_number | tel2}}
+						                            </span>
+						                            <span ng-if="item.cuuid && phone.phone_number"
+						                                  ng-repeat="phone in item.nums" 
+						                                  ng-click="chooseNumber(phone.num, item)">
+						                                <span class="numbers" 
+						                                    ng-show="phone.num" 
+						                                    style="margin-right: 10px; ">
+						                                    {{phone.lab}}: {{phone.num | tel2}}<br />
+						                                </span>
+						                            </span>
+						                        </span>
+						                    </div>
+						                </div>
+						            </div>
+						        </div>
+						    </div>
+						   </div>
+                        </span>
+	                </td>
+	                <td>
+	                    <i class="fa fa-floppy-o dktealfont mainopt" 
+	                        tooltip-placement="top" 
+	                        uib-tooltip="{{::tips.forwarding.savedest}}"
+	                        ng-click="saveDest()"></i>
+	                    <i class="fa fa-undo orangefont mainopt" 
+	                        tooltip-placement="top-right" 
+	                        uib-tooltip="{{::tips.forwarding.canceldest}}"
+	                        ng-click="cancelDestAdd()"></i>
+	                </td>
+	            </tr>
+	            <tr ng-repeat="dest in user.symphony_user_settings.forward_sms_to">
+	                <td ng-if="!isEditing(dest)">
+	                    <span ng-if="!isEditing(dest)">
+	                        <span>
+	                            {{dest}}
+	                        </span>
+	                    </span>
+	                </td>
+	                <td ng-if="isEditing(dest)" style="padding: 0;">
+	                	<div class="callbox-search-container">
+	                        <md-input-container class="call-input-container">
+						        <label>
+						                {{inputPlaceholder}}
+						        </label>
+						        <input type="text"
+						            number-select
+						            ng-model="contact.callnumber"
+						            autocomplete="off"
+						            class="call-input">
+						    </md-input-container>
+						    <div class="contact-options"
+						         ng-show="showContactSelection || contact.recipients.length>0">
+						        <div class="list-group">
+						            <div ng-if="contact.callnumber" 
+						                ng-repeat="item in availContacts() | filter :searchRecipients"
+						                class="list-group-item">
+						                <div class="thread-list-item" >
+						                    <div class="thread-list-circle">
+						                        <span ng-if="item.cuuid" ng-bind-html="showContactPhoto(item, 'small')"></span>
+						                    </div>
+						                    <div class="thread-list-body">
+						                        <span ng-if="item.cuuid" style="padding-top: 16px;">
+						                            {{item.name}}<br />
+						                        </span>
+						                        <span class="recent-message">
+						                            <span ng-if="!item.cuuid && item.phone_number"
+						                                ng-click="chooseNumber(item.phone_number, item)"
+						                                class="numbers">
+						                                {{item.phone_number | tel2}}
+						                            </span>
+						                            <span ng-if="item.cuuid && phone.phone_number"
+						                                  ng-repeat="phone in item.nums" 
+						                                  ng-click="chooseNumber(phone.num, item)">
+						                                <span class="numbers" 
+						                                    ng-show="phone.num" 
+						                                    style="margin-right: 10px; ">
+						                                    {{phone.lab}}: {{phone.num | tel2}}<br />
+						                                </span>
+						                            </span>
+						                        </span>
+						                    </div>
+						                </div>
+						            </div>
+						        </div>
+						    </div>
+						</div>
+	                </td>
+	                <td ng-if="!isEditing(dest)">
+	                    <i class="fa fa-pencil-square-o dktealfont mainopt" 
+	                        tooltip-placement="top" 
+	                        uib-tooltip="{{::tips.forwarding.editdest}}"
+	                        ng-click="editDest(dest)"></i>
+	                    <i class="fa fa-times-circle orangefont mainopt" 
+	                        tooltip-placement="top-right" 
+	                        uib-tooltip="{{::tips.forwarding.deletedest}}"
+	                        ng-click="deleteDest(dest)"></i>
+	                </td>
+	                <td ng-if="isEditing(dest)">
+	                    <i class="fa fa-floppy-o dktealfont mainopt" 
+	                        tooltip-placement="top" 
+	                        uib-tooltip="{{::tips.forwarding.savedest}}"
+	                        ng-click="saveDest()"></i>
+	                    <i class="fa fa-undo orangefont mainopt" 
+	                        tooltip-placement="top-right" 
+	                        uib-tooltip="{{::tips.forwarding.canceleditdest}}"
+	                        ng-click="cancelDestAdd()"></i>
+	                </td>
+	            </tr>
+	        </tbody>
+	    </table>
+    </div>
+</div>

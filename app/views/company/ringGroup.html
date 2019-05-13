@@ -1,0 +1,202 @@
+<div ng-controller="ctrlRingGroup">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Ring Group</span>
+        <button type="button" ng-click="cancelCreateGroup()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <!--Ring Group-->
+        <div class="row">
+            <!--<div ng-include="" src="'views/company/attendant/ring-group.html'"></div>-->
+            <!--Ring Group-->
+
+            <div class="action-pad">
+                <div class="row col-md-12">
+                    <div class="trashbox">
+                        <!-- If you use [] as referenced list, the dropped elements will be lost -->
+                        <ul class="trash" dnd-list="[]">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                            <div class="attendant-drop col-md-12 no-select">
+                                <div class="attend-row">
+                                    <div class="col-sm-12">
+                                        <div class="panel panel-info container-element ">
+                                            <div class="panel-heading">
+                                                <h2 class="panel-title">Ring Group Name</h2>
+                                            </div>
+                                            <div class="panel-body">
+                                                <md-input-container style="width: 100%; margin-bottom: 0;">
+                                                    <label>Enter a Name</label>
+                                                    <input ng-model="ringGroupOption.name" required />
+                                                </md-input-container>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="attend-row">
+
+                                    <!--Auto Attendant-->
+                                    <div class="col-md-6">
+                                        <div class="panel panel-info container-element box box-blue">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">Build Area</h3>
+                                            </div>
+                                            <div class="panel-body">
+                                                <p>Build your Ring Group here by first dragging a Ring Pattern and then adding contacts to this box.</p>
+                                                <!--Container-->
+                                                <ul class="holder" 
+                                                    dnd-list="ringGroupOption.containers" 
+                                                    dnd-allowed-types="['container']" 
+                                                    dnd-external-sources="true" 
+                                                    dnd-drop="dropContainCallback(index, item, external, type);" >
+                                                    <li style="border: none;" 
+                                                        ng-repeat="container in ringGroupOption.containers" 
+                                                        dnd-draggable="container" 
+                                                        dnd-type="'container'" 
+                                                        dnd-effect-allowed="copyMove" 
+                                                        dnd-moved="removeContainer(event, $index, container)"
+                                                        dnd-callback="container.items.length">
+                                                        <!--<li ng-repeat="container in myOptions[currentIndex].containers" dnd-draggable="container" dnd-type="'container'" dnd-effect-allowed="copyMove" dnd-callback="container.items.length">-->
+                                                        <div class="panel panel-info">
+                                                            <div class="panel-heading">
+                                                                <h3 class="panel-title">{{container.label | capitalize}}</h3>
+                                                            </div>
+                                                            <!--Elements-->
+                                                            <div class="panel-body">
+                                                                <ul class="itemlist ring"
+                                                                    dnd-list="container.items" 
+                                                                    dnd-allowed-types="['items']" 
+                                                                    dnd-dragover="dragoverCallback(index, external, type)" 
+                                                                    dnd-drop="dropRingCallback(index, item, external, type)" >
+                                                                    <li ng-repeat="attendant in container.items" 
+                                                                        dnd-type="'items'" 
+                                                                        dnd-draggable="attendant" 
+                                                                        dnd-effect-allowed="copyMove" 
+                                                                        dnd-moved="removeFromContainer(event, $index)" 
+                                                                        tooltip-placement="top" uib-tooltip="Drag to rearrange">
+                                                                        {{attendant.name}} <strong> {{attendant.ext}} </strong>
+                                                                    </li>
+                                                                    <li class="dndPlaceholder1">
+                                                        
+                                                                    </li>
+                                                                    <li class="dndPlaceholder">
+                                                                        Drop any <strong>Contact</strong> here
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li class="dndPlaceholder">
+                                                        <!--Drop any <strong>{{list.allowedTypes.join(' or ')}}</strong> here-->
+                                                        Drop <strong>Ring Pattern</strong> here
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="panel panel-info container-element">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">What if no one answers?</h3>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="col-md-12 default-top">
+                                                    <div class="panel-heading">
+                                                        <h3 class="panel-title"><b>Max hold time for caller</b></h3>
+                                                    </div>
+                                                    <md-input-container>
+                                                        <label>Set Timeout in Seconds</label>
+                                                        <input type="number" ng-model="ringGroupOption.timeout" />
+                                                    </md-input-container>
+                                                </div>
+                                                <div class="col-md-12 default-top" 
+                                                    ng-if="ringGroupOption.containers && 
+                                                    ringGroupOption.containers[0] && 
+                                                    (ringGroupOption.containers[0].label === 'sequence' || ringGroupOption.containers[0].label === 'random')">
+                                                    <div class="panel-heading">
+                                                        <h3 class="panel-title"><b>Max ring time per agent</b></h3>
+                                                    </div>
+                                                    <md-input-container>
+                                                        <label>Set Ring Time in Seconds</label>
+                                                        <input type="number" ng-model="ringGroupOption.agent_call_timeout" />
+                                                    </md-input-container>
+                                                </div>
+                                                <div class="col-md-12 default-bottom">
+                                                    <div class="panel-heading">
+                                                        <h3 class="panel-title"><b>Redirect call to</b></h3>
+                                                    </div>
+                                                    
+                                                    <md-input-container ng-init="!ringGroupOption.noAnswer ? ringGroupOption.noAnswer = 'Hangup' : ringGroupOption.noAnswer">
+                                                        <label>Select option</label>
+                                                        <md-select ng-model="ringGroupOption.noAnswer">
+                                                            <md-option ng-repeat="selection in options.noAnswer" ng-value="selection.value">
+                                                                {{selection.display}}
+                                                            </md-option>
+                                                        </md-select>
+                                                    </md-input-container>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--Options-->
+                                    <div class="col-md-6">
+                                        <div class="col-sm-12">
+                                            <div class="panel panel-info container-element ">
+                                                <div class="panel-heading">
+                                                    <h2 class="panel-title">Ring Pattern Options</h2>
+                                                </div>
+                                                <div class="panel-body">
+                                                <p>Drag a pattern to the Build Area on the left to get started.</p>
+                                                    <!--<ul dnd-list="options">-->
+                                                    <ul dnd-list="containers" dnd-horizontal-list="true" dnd-disable-if="true" class="itemlist dnd-services">
+                                                        <li class="dnd-box" ng-repeat="option in options.services.items" style="text-transform:capitalize" dnd-draggable="option" dnd-type="'container'" dnd-effect-allowed="copy" tooltip-placement="top" uib-tooltip="{{option.tip}}">
+                                                            {{option.label}}
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!--User List-->
+
+                                        <div class="col-sm-12">
+                                            <div class="panel panel-info">
+                                                <div class="panel-heading">
+                                                    <h2 class="panel-title">Contacts</h2>
+                                                </div>
+                                                <div class="action-contact">
+                                                <p style="padding: 10px;">Drag contacts into the ring pattern box in Build Area on the left.</p>
+                                                    <ul dnd-list="options.users.items" dnd-disable-if="true" class="itemlist">
+                                                        <li ng-repeat="user in options.users.items | orderBy:'ext':false" 
+                                                            ng-if="!isKotterTechUserByUuid(user.user_uuid)"
+                                                            dnd-draggable="user" 
+                                                            dnd-type="'items'" 
+                                                            dnd-moved="removeFromUsers($index)">
+                                                            <div>
+                                                                {{user.name}} {{user.ext}}
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div view-source="simple"></div>
+
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!--End-->
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="cancelCreateGroup()"><i class="fa fa-undo" style="margin-right: 10px;"></i>Cancel</button>
+        <button class="btn btn-success btn-md" ng-click="saveRinggroup()"><i class="fa fa-save" style="margin-right: 10px;"></i>Save</button>
+    </div>
+</div>

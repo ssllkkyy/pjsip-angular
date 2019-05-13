@@ -1,0 +1,59 @@
+<div ng-controller="FileSharingCtrl">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-files-o fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Share File</span>
+            <button type="button" class="close" ng-click="closeFileShareModal()"><i class="fa fa-times"></i></button>
+        </div>
+
+        <form name="frmFileShare">
+        <div class="modal-body" id="modal-body"  >
+            <!-- <div class="alert alert-error"
+                 ng-show="invalidContactSelected"
+                 role="alert"
+                 style="margin-top: 10px; display: block">
+                {{invalidContactSelected}}
+            </div> -->
+
+            <div class="alert alert-success" ng-show="msgEmailSent" role="alert" style="margin-top: 10px; display: block">
+                You have successfully emailed a link to the file!
+            </div>
+
+            <div ng-hide="msgEmailSent">
+                <contact-selector type="'file'"></contact-selector>
+                <textarea class="form-control" id="enterText" ng-model="contentEmail" style="height: 100px; margin-top: 12px; resize: none;" placeholder="Write your message here (Optional)"></textarea>
+
+                <div ng-if="alertError && alertError !== ''" uib-alert ng-class="'alert-danger'" dismiss-on-timeout="5000" close="closeFilterAlert()">{{alertError}}</div>
+                <div class="alert alert-info" role="alert" style="margin-top: 10px; text-align: center; display: block">
+                    You are sharing <strong>{{vm.content.data.original_filename}}</strong>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer cls-incomingcall-buttons">
+            <div ng-show="!msgEmailSent">
+                <button  class="btn btn-default btn-sm" ng-click="closeFileShareModal()"><i class="fa fa-times" style="margin-right: 10px;"></i>Cancel</button>
+                <button class="btn btn-primary btn-sm"
+                        ng-disabled="contactsSelected.length < 1"
+                        ng-click="sendCloudShareFile(vm.content.data)">
+                    <i class="fa fa-envelope-o"
+                       style="margin-right: 10px;">
+                    </i>
+                    Send File
+                </button>
+            </div>
+
+            <div ng-show="msgEmailSent">
+                <button  class="btn btn-success btn-sm" ng-click="closeFileShareModal()"><i class="fa fa-check" style="margin-right: 10px;"></i>Done</button>
+            </div>
+
+        </div>
+    </form>
+
+
+    </div>
+</div>

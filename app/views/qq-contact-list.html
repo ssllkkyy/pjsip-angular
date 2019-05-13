@@ -1,0 +1,174 @@
+<div uib-accordion class="contact-list">
+        <div class="loading-users mdgreyfont"
+             ng-if="contactType === 'nonUser' && loadingContacts()">
+            <i class="fa fa-spinner fa-spin fa-2x"></i>
+            <br />
+            <span>
+                Loading Contacts
+                <br />
+                Please Wait
+            </span>
+        </div>
+        <div class="loading-users mdgreyfont"
+             ng-if="!loadingContacts() && contacts().length === 0">
+            <i class="fa fa-search fa-2x"></i>
+            <br />
+            <span>NoQQ Catalyst Contacts Found</span>
+        </div>
+        <div uib-accordion-group
+             close-others="closeOthers"
+             ng-click="contactHeadingClicked($index, contacts().length)"
+             ng-repeat="contact in filterData = (contacts() | orderBy:'contact_name') | limitTo:perPage:perPage*(currentPage-1) track by $index">
+            <div uib-accordion-heading
+                 style="text-decoration: none; border: none;" >
+                <div class="contact-item tableclass clearfix">
+                    <div class="tablecell contact-image">
+                        <label class="cls-img-lst-contact-null"
+                               style="{{ setProfileColor('#F56130') }}">
+                            {{contact.contact_name.substring(0,1).toUpperCase()}}
+                        </label>
+                    </div>
+                    <div class="tablecell contact-name">
+                        <label class="name-lst-contact">
+                            {{contact.contact_name}}
+                        </label>
+                    </div>
+                    <div class="tablecell contact-icons"></div>
+                </div>
+            </div>
+            <div class=" cls-contact-btn-options">
+                <ul>
+                    <span ng-if="contact.mobile_phone">
+                        <li tooltip-placement="top"
+                            uib-tooltip="Text"
+                            ng-click="sendSms(contact)">
+                            <h4>
+                                <span style="color: #f8a632;" >
+                                    <i class="fa fa-paper-plane fa-lg" >
+                                    </i>
+                                </span>
+                            </h4>
+                        </li>
+                    </span>
+                    <span class="btn-group" ng-if="hasPhone(contact)">
+                        <li ng-init="getPhonesContact(contact.contact_uuid) "
+                            tooltip-placement="top"
+                            uib-tooltip="Call">
+                            <button class="dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                    style="border: none !important; background: transparent !important">
+                                <span style="color: #8adbf6; font-size: 20px">
+                                    <i class="fa fa-phone"></i>
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-if="contact.mobile_phone"
+                                    tooltip-placement="top"
+                                    uib-tooltip="Call {{contact.mobile_phone | tel}}">
+                                    <a href="" ng-click="makeCall(contact.mobile_phone)">
+                                        Mobile   {{contact.mobile_phone | tel}}
+                                    </a>
+                                </li>
+                                <li ng-if="contact.business_phone"
+                                    tooltip-placement="top"
+                                    uib-tooltip="Call {{contact.business_phone | tel}}">
+                                    <a href="" ng-click="makeCall(contact.business_phone)">
+                                        Business   {{contact.business_phone | tel}}
+                                    </a>
+                                </li>
+                                <li ng-if="contact.home_phone"
+                                    tooltip-placement="top"
+                                    uib-tooltip="Call {{contact.home_phone | tel}}">
+                                    <a href="" ng-click="makeCall(contact.home_phone)">
+                                        Home   {{contact.home_phone | tel}}
+                                    </a>
+                                </li>
+                                <li ng-if="contact.work_phone"
+                                    tooltip-placement="top"
+                                    uib-tooltip="Call {{contact.work_phone | tel}}">
+                                    <a href="" ng-click="makeCall(contact.work_phone)">
+                                        Work   {{contact.work_phone | tel}}
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </span>
+                    <li ng-if="contact.email"
+                        tooltip-placement="top"
+                        uib-tooltip="{{contact.email}}">
+                        <a ng-click="startEmailClient(contact.email)">
+                            <h4>
+                                <span style="color: #64d76c;">
+                                    <i class="fa fa-envelope-o fa-lg"></i>
+                                </span>
+                            </h4>
+                        </a>
+                    </li>
+                    <!-- <li ng-if="!contact.email" -->
+                    <!-- tooltip-placement="top" -->
+                    <!-- uib-tooltip="no email available... "> -->
+                    <!-- <h4> -->
+                    <!-- <span style="color: grey;"> -->
+                    <!-- <i class="fa fa-envelope-o fa-lg"> -->
+                    <!-- </i> -->
+                    <!-- </span> -->
+                    <!-- </h4> -->
+                    <!-- </li> -->
+                    <span ng-if="contact.contact_type=='user'">
+                        <li tooltip-placement="top"
+                            uib-tooltip="Video Conference"
+                            ng-click="sendVideoInvite(contact)">
+                            <h4>
+                                <span style="color: #f8a632;">
+                                    <i class="fa fa-video-camera fa-lg">
+                                    </i>
+                                </span>
+                            </h4>
+                        </li>
+                    </span>
+                    <li tooltip-placement="top-right"
+                        uib-tooltip="Add as Bridge contact"
+                        style="float: right;">
+                        <h4>
+                            <span style="color: #64d76c;">
+                                <i class="fa fa-user-plus"
+                                   ng-click="showAddContactForm(contact)">
+                                </i>
+                            </span>
+                        </h4>
+                    </li>
+                    <!-- <li tooltip-placement="top" uib-tooltip="{{contact.favorite==true ? 'Remove From Favorites' : 'Add to Favorites'}}" style="float: right;"> -->
+                    <!-- <h4> -->
+                    <!-- <span> -->
+                    <!-- <i class="fa orangefont {{contact.favorite==true ? 'fa-star' : 'fa-star-o'}} fa-lg" ng-click="toggleFavorite(contact.contact_uuid)"> -->
+                    <!-- </i> -->
+                    <!-- </span> -->
+                    <!-- </h4> -->
+                    <!-- </li> -->
+                </ul>
+            </div>
+        </div>
+        <div class="nonuser-pagination">
+            <div ng-show="filterData.length > perPage"
+                 style="text-align: center">
+                <ul uib-pagination
+                    class="pagination-sm pagination call-history"
+                    total-items="filterData.length"
+                    ng-model="currentPage"
+                    previous-text="&lsaquo;"
+                    next-text="&rsaquo;"
+                    items-per-page="perPage"
+                    rotate="false"
+                    boundary-link-numbers="true"
+                    max-size="5">
+                </ul>
+            </div>
+            <hr class="thin-hr" />
+            <div class="smfont" style="text-align: center">
+                {{showTotalContactCount()}} total contacts available
+            </div>
+        </div>
+    </div>
+    

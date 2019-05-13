@@ -1,0 +1,49 @@
+<choose-group-google-import></choose-group-google-import>
+
+<script type="text/ng-template"
+        id="group-dialog-template.html">
+    <div>
+        
+        <div class="modal-header"
+             id="modal-screen-share">
+            <span class="cls-header-modal">
+                Where should the contacts be imported to?
+            </span>
+            <button type="button" ng-click="cancel()" class="close">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body" id="modal-body">
+            <p><span style="font-weight: bold;">**</span>First name, last name, and a phone number are required for each contact.</p>
+            <p>{{validMessage}}</p>
+            <!-- <p style="font-style: italic;" -->
+            <!-- ng-if="!vm.content.data.userContactTotalMaxedOut()"> -->
+            <!-- NOTE: Bridge allows a maximum of 300 contacts per user. -->
+            <!-- </p> -->
+            <!-- <p style="font-style: italic; color: red;" -->
+            <!-- ng-if="vm.content.data.userContactTotalMaxedOut()"> -->
+            <!-- NOTE: You have met the maximum number of 300 contacts per user. Please delete some contacts if you would like to add more. -->
+            <!-- </p> -->
+            <p ng-if="invalidMessage.length>0">{{invalidMessage}}</p>
+            <md-select ng-model="contactTarget" ng-change="processImportDestinationChange()">
+                <md-option ng-value="undefined">Import To Contacts List</md-option>
+                <md-option ng-value="true">Create New Group</md-option>
+                <md-option ng-value="group.group_uuid" ng-repeat="group in groups">
+                    Import to {{group.group_name}} Group
+                </md-option>
+            </md-select>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <md-button class="md-raised md-default" ng-click="cancel()" style="">
+                Cancel Import
+            </md-button>
+            <md-button ng-if="contactTarget !== true" class="md-raised md-primary" type="button" ng-click="submit(contactTarget)">
+                Complete Import
+            </md-button>
+            <md-button ng-if="contactTarget === true" class="md-raised md-warn" type="button" ng-click="showEditGroupGoogle(null)">
+                Create New Group
+            </md-button> 
+        </div>
+    </div>
+</script>

@@ -1,0 +1,253 @@
+<div  ng-if="!showPaymentTab" class="invoice-options">
+    <button class="btn btn-default" ng-click="closeInvoice()">
+        <i class="fa fa-window-close-o"></i> Close Invoice View
+    </button>
+    <a class="btn btn-default" 
+        href="{{onescreenBaseUrl}}/billing/printinvoice/{{invoice.invoice_uuid}}?token={{userToken}}"
+        target="_blank">
+        <i class="fa fa-print"></i> Download / Print Invoice
+    </a>
+    <button class="btn btn-primary" 
+        ng-if="invoice.balance > 0.0" 
+        ng-click="addAgencyPayment(invoice)">
+        <i class="fa fa-window-close-o"></i> Make a Payment
+    </button>
+    <button class="btn btn-danger" 
+        ng-if="invoice.status !== 'cancelled'"
+        style="margin-left: 40px;"
+        ng-click="confirmCancelInvoice(invoice)">
+        <i class="fa fa-window-close-o"></i> Cancel Invoice
+    </button>
+</div>
+
+<div  ng-if="!showPaymentTab" id="invoice-view">
+    <div class="tableclass fulltable">
+        <div class="tablecell onethird">
+            <h3>INVOICE: {{invoice.invoice_num}}<br /><span>Invoice Date: {{invoice.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}</span></h3>
+        </div>
+        <div class="tablecell onethird center-text" 
+            ng-class="{'bridgeorangefont': invoice.status==='unpaid',
+                'dktealfont': invoice.status==='paid',
+                'mdgreyfont': invoice.status==='cancelled'}">
+            <h2>{{invoice.status | capitalize}}</h2>
+        </div>
+        <div class="tablecell onethird right-text">
+            <strong>Bill To:</strong><br />
+            <span ng-if="domain">
+                {{domain.domain_description}}<br />
+                <span ng-if="domain.address">{{domain.address.address}}<br />
+                {{domain.address.city}}, {{domain.address.state}}<br />
+                {{domain.address.zipcode}}</span>
+            </span>
+        </div>
+    </div>
+    <table class="table table-bordered table-striped cls-tab-call-history">
+        <thead>
+            <tr>
+                <th></th>
+                <th class="data-column">Quantity</th>
+                <th class="data-column">Unit Price</th>
+                <th class="data-column">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-if="invoice.currentItems.length > 0">
+                <td class="info-column" colspan="4">
+                    <h3>Charges for {{invoice.currentMonth}}:</h3>
+                </td>
+            </tr>
+            <tr ng-if="invoice.currentItems.length > 0" ng-repeat="item in invoice.currentItems">
+                <td class="info-column">{{item.item_info}}</td>
+                <td>{{item.item_quantity}}</td>
+                <td>{{item.unit_cost | currency}}</td>
+                <td>{{item.item_total | currency}}</td>
+            </tr>
+            <tr ng-if="invoice.tollfreeItems.length > 0">
+                <td class="info-column" colspan="4">
+                    <strong>Toll free numbers:</strong>
+                </td>
+            </tr>
+            <tr ng-if="invoice.tollfreeItems.length > 0" ng-repeat-start="item in invoice.tollfreeItems">
+                <td class="info-column">{{item.item_info}}</td>
+                <td>{{item.item_quantity}}</td>
+                <td>{{item.unit_cost | currency}}</td>
+                <td>{{item.item_total | currency}}</td>
+            </tr>
+            <tr ng-if="invoice.tollfreeItems.length > 0" ng-repeat-end>
+                <td class="info-column child">{{item.child.item_info}}</td>
+                <td>{{showMinuteCount(item.child) | number : 0}}</td>
+                <td>{{item.child.unit_cost | currency}}</td>
+                <td>{{item.child.item_total | currency}}</td>
+            </tr>
+            <tr ng-if="invoice.addonItems.length > 0">
+                <td class="info-column" colspan="4">
+                    <strong>Add-ons for:</strong>
+                </td>
+            </tr>
+            <tr ng-if="invoice.addonItems.length > 0" ng-repeat="item in invoice.addonItems">
+                <td class="info-column">{{item.item_info}}</td>
+                <td>{{item.item_quantity}}</td>
+                <td>{{item.unit_cost | currency}}</td>
+                <td>{{item.item_total | currency}}</td>
+            </tr>
+            <tr ng-if="invoice.previousItems.length > 0">
+                <td class="info-column" colspan="6">
+                    <h3>Services Added / Removed during {{invoice.previousMonth}}: (pro-rated charges)</h3>
+                </td>
+            </tr>
+            <tr ng-if="invoice.previousItems.length > 0" ng-repeat="item in invoice.previousItems">
+                <td class="info-column">
+                    <div class="tableclass fulltable">
+                        <div class="tablecell" style="width: 90px;">
+                            {{item.item_activity_date | toLocalTime | amDateFormat:'MMM D, YYYY'}}
+                        </div>
+                        <div class="tablecell">
+                            {{item.item_info}}
+                        </div>
+                    </div>
+                </td>
+                <td>{{item.item_quantity}}</td>
+                <td>{{item.unit_cost | currency}}</td>
+                <td>{{item.item_total | currency}}</td>
+            </tr>
+            <tr ng-if="invoice.customItems.length > 0">
+                <td class="info-column" colspan="4">
+                    <h4>One-time charges:</h4>
+                </td>
+            </tr>
+            <tr ng-if="invoice.customItems.length > 0" ng-repeat="item in invoice.customItems">
+                <td class="info-column">{{item.item_info}}</td>
+                <td>{{item.item_quantity}}</td>
+                <td>{{item.unit_cost | currency}}</td>
+                <td>{{item.item_total | currency}}</td>
+            </tr>
+            <tr>
+                <td class="bot-border info-column" colspan="4"><br/></td>
+            </tr>
+            <tr>
+                <td class="bot-border info-column" colspan="4">
+                    <h3>Summary:</h3>
+                </td>
+            </tr>
+            <tr ng-if="invoice.currentCount > 0">
+                <td class="info-column" colspan="4">
+                    <strong>{{invoice.currentMonth}} Charges:</strong>
+                </td>
+            </tr>
+            <tr ng-if="invoice.currentCount > 0">
+                <td class="info-column">User accounts, add-ons, fax lines, E911 addresses and CRF fees*</td>
+                <td></td>
+                <td></td>
+                <td>{{(invoice.currentSubtotal + (invoice.addonCount > 0 ? invoice.addonSubtotal : 0.0)) | currency}}</td>
+            </tr>
+            <tr ng-if="invoice.previousCount > 0">
+                <td class="info-column" colspan="4">
+                    <strong>Changes made during {{invoice.previousMonth}} (pro-rated):</strong>
+                </td>
+            </tr>
+            <tr ng-if="invoice.previousCount > 0">
+                <td class="info-column">Added / removed users, add-ons, e911 addresses, toll free numbers and associated user CRF fees*</td>
+                <td></td>
+                <td></td>
+                <td>{{invoice.previousSubtotal | currency}}</td>
+            </tr>
+            <tr ng-if="invoice.customCount > 0">
+                <td class="info-column">
+                    <strong>One-time charges:</strong>
+                </td>
+                <td>{{invoice.customCount}}</td>
+                <td></td>
+                <td>{{invoice.customSubtotal | currency}}</td>
+            </tr>
+            <!-- <tr>
+                <td class="bot-border info-column" colspan="1">Total New Charges:</td>
+                <td class="bot-border">{{invoice.subtotal | currency}}</td>
+            </tr> -->
+            <tr>
+                <td class="info-column" colspan="3"><strong>Total Invoice:</strong></td>
+                <td><strong>{{invoice.totalDue | currency}}</strong></td>
+            </tr>
+            <tr>
+                <td class="info-column bot-border" colspan="3">Payments (see below):</td>
+                <td class="bot-border">{{invoice.paymentsTotal | currency}}</td>
+            </tr>
+            <tr>
+                <td class="info-column" colspan="3"><h4>Balance Due:</h4></td>
+                <td><h4>{{invoice.balance | currency}}</h4></td>
+            </tr>
+        </tbody>
+    </table>
+    <div ng-if="invoice.notes" class="invoice-notes">
+        NOTES: {{invoice.notes}}
+    </div>
+    <div ng-if="invoice.payments.length>0">
+        <h3>Payments Applied:</h3>
+        <table class="table table-bordered table-striped cls-tab-call-history">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Payment Number</th>
+                    <th>Details</th>
+                    <th>Confirmation</th>
+                    <th>Status</th>
+                    <th>Net Payment</th>
+                    <!-- <th>Method</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="payment in invoice.payments | orderBy : 'created_at' : true">
+                    <td>
+                        {{payment.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                        {{payment.created_at | toLocalTime | amDateFormat:'h:mm a'}}
+                    </td>
+                    <td>PA{{payment.payment.payment_num}}</td>
+                    <td>{{payment.payment.description}}</td>
+                    <td>{{payment.payment.stripe_charge_id}}</td>
+                    <td>{{payment.payment.payment_status}}</td>
+                    <td>
+                        <span ng-if="payment.refunds.length>0">
+                            <button class="btn btn-xs btn-default" 
+                                style="margin-right: 10px;" 
+                                tooltip-placement="top-right"
+                                uib-tooltip="{{::tips.billing.refund_details}}"
+                                ng-click="showRefundDetails(invoice)">
+                                {{sumOfRefunds(payment) | currency}} Refunded <i class="fa fa-info-circle"></i>
+                            </button>
+                        </span>
+                        {{(payment.amount - sumOfRefunds(payment)) | currency}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="kotter-address">
+        <strong>The Kotter Group</strong><br />
+                    3100 Five Forks Trickum Rd SW Suite #403<br />
+                    Lilburn, Georgia  30047<br />
+                    (770) 717-1777<br />
+                    sales@kotter.net
+    </div>
+    <div class="fees-description">
+        <p>*<strong>Compliance and Administrative Cost Recovery Fee (CRF Fee):</strong> Kotter Group CRF Fee is a fee that The Kotter Group charges in order to recover the various costs and expenses that it incurs in connection with:</p>
+        <p><ol type="i"><li>complying with legal, regulatory, and other requirements, including without limitation federal, state, and local reporting and filing requirements;</li>
+        <li>responding to subpoenas, civil investigation demands, and other official requests, and otherwise assisting with official investigations;</li>
+        <li>reporting and managing payments to third-party telecommunications services providers; and</li>
+        <li>acquiring and protecting intellectual property, including without limitation through the filing and maintenance of patents, trademarks, and other proprietary rights.</li></ol></p>
+        <p>CRF is not a tax, nor is it mandated by any level of government or government agency.</p>
+    </div>
+</div>
+
+<div ng-if="showPaymentTab && isBillingAdminOrGreater()">
+    <div class="center-text">
+        <button class="btn btn-default" 
+            ng-click="cancelAgencyPayment()">
+            <i class="fa fa-window-close-o"></i> Cancel Payment
+        </button>
+    </div>
+    <billing-payment-tab 
+        domain="domain"
+        invoice="invoice"
+        class="content-box company-setup-user-tab company-setup-tab">
+    </billing-payment-tab>
+</div>
+

@@ -1,0 +1,121 @@
+<html dir="ltr"><head></head><body contenteditable="true"><div class="cls-cont-wizard-RB">
+
+    <div class="modal-body" id="modal-body">
+        <!-- finishedWizardConfCall()  -->
+        <wizard on-finish="none()">
+<!--  **************************************************************************************************************************************************************************  -->
+            <wz-step wz-title="Invite People">
+                <h3> Conference Calls: Invite people</h3>
+                <p></p>
+
+                <div class="cls-title-cont-modal">Enter names, emails or phone number to invite others to your conference call.</div>
+
+                <div class="input-group cls-input-group-modal">
+                    <span class="input-group-addon" style="height: 35px;" title="Type names of existing contacts to invite via email and text message."><i class="fa fa-user-plus"></i></span>
+                    <tags-input ng-model="contactsUsr" display-property="contact_name_full" key-property="contact_uuid" placeholder="Type names" replace-spaces-with-dashes="false" style=" margin-top: 0px !important">
+                        <auto-complete source="loadTags($query)" min-length="0" load-on-focus="false" load-on-empty="false" max-results-to-show="10"></auto-complete>
+                    </tags-input>
+                </div>
+
+                <div class="input-group cls-input-group-modal">
+                    <span class="input-group-addon" style="height: 35px;" title="Input phone numbers to send invitations via text message."><i class="fa fa-phone"></i></span>
+                    <tags-input ng-model="contactsUsr.contact_mobile_number" display-property="contact_mobile_number" key-property="contact_uuid" placeholder="Input phone numbers" replace-spaces-with-dashes="false" style=" margin-top: 0px !important">
+                        <auto-complete source="loadTags($query)" min-length="0" load-on-focus="false" load-on-empty="false" max-results-to-show="10"></auto-complete>
+                    </tags-input>
+                </div>
+
+                <div class="input-group cls-input-group-modal">
+                    <span class="input-group-addon" style="height: 35px;" title="Enter email addresses to send invitations via email."><i class="fa fa-envelope"></i></span>
+                    <tags-input ng-model="contactsUsr.contact_email_address" display-property="contact_email_address" key-property="contact_uuid" placeholder="Enter email addresses" replace-spaces-with-dashes="false" style=" margin-top: 0px !important">
+                        <auto-complete source="loadTags($query)" min-length="0" load-on-focus="false" load-on-empty="false" max-results-to-show="10"></auto-complete>
+                    </tags-input>
+                </div>
+
+                <center>
+                    <button class="btn btn-primary cls-btn-wzrd" ng-click="regInvities(contactsUsr, contactsUsr.contact_mobile_number, contactsUsr.contact_email_address)" wz-next="">
+                        Next
+                    </button>
+                </center>
+            </wz-step>
+
+<!--  **************************************************************************************************************************************************************************  -->
+            <wz-step wz-title="Review List">
+                <h3>Your conference call is now live</h3>
+                <p> Invitations have been sent to the following people:</p>
+                <div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr style="font-weight: bold;">
+                                    <td>Name/Phone/email</td>
+                                    <td>Invite sent via</td>
+                                    <td>Auto call now?</td>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr ng-repeat="invite in peopleInvite">
+                                    <td>{{invite.invName}}</td>
+                                    <td>
+                                        <span ng-show="invite.invUsReg==='Y' || invite.invOpc==='3'">email </span>
+                                        <span ng-show="invite.invUsReg==='Y' || invite.invOpc==='2'"> Text</span>
+                                    </td>
+                                   <td>
+                                       <span ng-if="invite.invUsReg==='Y' || invite.invOpc==='2'">
+                                           <label style="margin-right: 20px;"><input type="radio" ng-model="invite" value="Y"> Yes</label>
+                                           <label><input type="radio" ng-model="invite" value="N"> No</label>
+                                       </span>
+                                       <span ng-if="invite.invUsReg!=='Y' &amp;&amp; invite.invOpc!=='2'">No phone available</span>
+                                   </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <center>
+                    <button class="btn btn-primary cls-btn-wzrd" type="submit" ng-show="withOutInvit" wz-previous="">Back</button>
+                    <button class="btn btn-primary cls-btn-wzrd" type="submit" ng-show="!withOutInvit" wz-next="">Next</button>
+                </center>
+            </wz-step>
+<!--  **************************************************************************************************************************************************************************  -->
+            <wz-step wz-title="Schedule">
+                <h3> Schedule this Conferences:</h3>
+                <p></p>
+
+                <div style="display:inline-block; min-height:290px;">
+                    <div uib-datepicker="" ng-model="schedule.date" class="well well-sm" showweeks="false"></div>
+                </div>
+
+                <div class="cls-inputs-conf-call">
+                    <md-input-container>
+                        <label>Name this conference</label>
+                        <md-icon> <i class="fa fa-edit fa-2x cls-color-green-tkg"></i></md-icon>
+                        <input ng-model="schedule.name" style="width: 200px;">
+                    </md-input-container>
+                    <br>
+                    <md-input-container>
+                        <label>Set hour</label>
+                        <md-icon> <i class="fa fa-clock-o fa-2x cls-color-green-tkg"></i></md-icon>
+                        <input ng-model="schedule.hour" style="width: 200px;" type="time">
+                    </md-input-container>
+                    <br>
+                    <md-input-container>
+                        <label>Set time</label>
+                        <md-icon> <i class="fa fa-hourglass-half fa-2x cls-color-green-tkg"></i></md-icon>
+                        <md-select ng-model="schedule.time">
+                          <md-option><em>10</em></md-option>
+                          <md-option>30</md-option><md-option>60</md-option><md-option>90</md-option><md-option>120</md-option>
+                        </md-select>
+                    </md-input-container>
+
+                </div>
+
+                <center>
+                    <button class="btn btn-success cls-btn-wzrd" type="submit" wz-next="makeConference(schedule, peopleInvite, 53)">
+                        Call Now
+                    </button>
+                </center>
+            </wz-step>
+        </wizard>
+    </div>
+</div></body></html>

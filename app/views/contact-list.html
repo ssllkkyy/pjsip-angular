@@ -1,0 +1,331 @@
+<div uib-accordion class="contact-list"
+     ng-if="contactType === 'user'">
+    <div uib-accordion-group
+        close-others="closeOthers"
+        ng-click="headerClicked(contact.cuuid)"
+        ng-repeat="contact in filterData = (filteredContacts() | filter:contactsFilter | orderBy:'name') | limitTo:perPage:perPage*(currentPage-1)" >
+        <div uib-accordion-heading style="text-decoration: none; border: none;" >
+            <contact-item-heading contact="contact"></contact-item-heading>
+        </div>
+        <contact-item-content ng-if="activeContact === contact.cuuid" contact="contact"></contact-item-content>
+    </div>
+    <div class="nonuser-pagination">
+        <div ng-show="filterData.length > perPage"
+             style="text-align: center">
+            <ul uib-pagination
+                class="pagination-sm pagination call-history"
+                total-items="filterData.length"
+                ng-model="currentPage"
+                previous-text="&lsaquo;"
+                next-text="&rsaquo;"
+                items-per-page="perPage"
+                rotate="false"
+                boundary-link-numbers="true"
+                max-size="5">
+            </ul>
+        </div>
+    </div>
+</div>
+<div ng-if="contactGroups().length > 0 && contactType === 'group'"
+     class="accordion contact-list"
+     uib-accordion>
+    <div id="groups"
+         uib-accordion-group
+         is-open="isOpen[group.group_uuid]"
+         close-others="closeOthers"
+         ng-click="groupHeaderClicked(group.group_uuid)"
+         ng-repeat="group in filteredGroups = (contactGroups() | filter: groupFilter | orderBy: 'group_name' | groupIsHidden)">
+        <div uib-accordion-heading style="text-decoration: none; border: none;">
+            <div class="contact-item tableclass clearfix">
+                <div class="tablecell contact-image">
+                    <img ng-src="{{pathImgProfile + group.group_image}}"
+                         ng-if="group.group_image"
+                         class="group-image-side"
+                         alt="" />
+                    <label class="group-image-side-null"
+                           ng-style="{'background-color': group.group_color && group.group_color}"
+                           ng-show="!group.group_image">
+                        <i ng-if="!group.group_image"
+                        class="fa fa-object-group fx-5x">
+                        </i>
+                    </label>
+                </div>
+                <div class="tablecell contact-name">
+                    <label class="name-lst-contact">
+                        {{group.group_name}}
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="cls-contact-btn-options group-contacts-container"
+             id="gc-{{group.group_uuid}}"
+             ng-if="activeGroup === group.group_uuid"
+             style="max-height: 250px; overflow-y: scroll;">
+            <div uib-accordion class="contact-list group-contacts">
+                <div uib-accordion-group
+                    close-others="closeOthers"
+                    ng-click="headerClicked(contactUuid)"
+                    ng-repeat="contactUuid in filteredData = (group.members | filter:contactsFilter | orderBy:orderByContactType) | limitTo:100" >
+                    <div uib-accordion-heading style="text-decoration: none; border: none;">
+                        <contact-item-heading contact="theContact(contactUuid)"></contact-item-heading>
+                    </div>
+                    <contact-item-content ng-if="activeContact === contactUuid" contact="theContact(contactUuid)"></contact-item-content>
+                </div>
+            </div>
+            <div id="group-{{group.group_uuid}}">
+                <!-- <div ng-show="filteredGroupContacts(group).length > perGroupPage"
+                     style="text-align: center">
+                    <ul uib-pagination
+                        class="pagination pagination-sm call-history"
+                        total-items="filteredGroupContacts(group).length"
+                        ng-model="currentPage"
+                        previous-text="&lsaquo;"
+                        next-text="&rsaquo;"
+                        items-per-page="perGroupPage"
+                        rotate="false"
+                        boundary-link-numbers="true"
+                        max-size="5">
+                    </ul>
+                </div> -->
+                <div class="smfont" style="text-align: center">
+                    {{showGroupSize(group)}} total contacts in group
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-if="contactType === 'favorite' && favorites().length > 0"
+    class="accordion contact-list"
+    uib-accordion>
+   <div id="groups"
+        uib-accordion-group
+        is-open="isOpen['favorite']"
+        close-others="closeOthers"
+        ng-click="groupHeaderClicked('favorite')">
+       <div uib-accordion-heading style="text-decoration: none; border: none;">
+           <div class="contact-item tableclass clearfix">
+               <div class="tablecell contact-image">
+                   <label class="group-image-side-null bridgeorangeback">
+                       <i class="fa fa-object-group fx-5x"></i>
+                   </label>
+               </div>
+               <div class="tablecell contact-name">
+                   <label class="name-lst-contact">
+                       Favorites
+                   </label>
+               </div>
+           </div>
+       </div>
+       <div class="cls-contact-btn-options group-contacts-container"
+            id="gc-favorite"
+            ng-if="activeGroup === 'favorite'"
+            style="max-height: 250px; overflow-y: scroll;">
+           <div uib-accordion class="contact-list group-contacts">
+               <div uib-accordion-group
+                   close-others="closeOthers"
+                   ng-click="headerClicked(contactUuid)"
+                   ng-repeat="contactUuid in filteredData = (favorites() | filter:contactsFilter | orderBy:orderByContactType) | limitTo:perGroupPage:perGroupPage*(currentPage-1)" >
+                   <div uib-accordion-heading style="text-decoration: none; border: none;">
+                       <contact-item-heading contact="theContact(contactUuid)"></contact-item-heading>
+                   </div>
+                   <contact-item-content ng-if="activeContact === contactUuid" contact="theContact(contactUuid)"></contact-item-content>
+               </div>
+           </div>
+           <div id="group-favorite">
+               <div style="text-align: center">
+                   <ul uib-pagination
+                       class="pagination pagination-sm call-history"
+                       total-items="favorites().length"
+                       ng-model="currentPage"
+                       previous-text="&lsaquo;"
+                       next-text="&rsaquo;"
+                       items-per-page="perGroupPage"
+                       rotate="false"
+                       boundary-link-numbers="true"
+                       max-size="5">
+                   </ul>
+               </div>
+               <div class="smfont" style="text-align: center">
+                   {{favorites().length}} total contacts in group
+               </div>
+           </div>
+       </div>
+   </div>
+</div>
+
+<script type="text/ng-template" id="contact-item-heading.html">
+    <div class="contact-item tableclass clearfix"
+        ng-if="contact.user_enabled != 'false'">
+        <div class="tablecell contact-image">
+            <img ng-if="contact.im"
+                ng-src="{{pathImgProfile + contact.im}}"
+                class="cls-img-lst-contact"
+                alt=""/>
+            <label class="cls-img-lst-contact-null"
+                ng-show="!contact.im"
+                style="{{ setProfileColor(contact.color) }}">
+                <i class="fa fa-user"></i>
+            </label>
+        </div>
+        <div class="tablecell contact-name">
+            <label class="name-lst-contact">
+                <span ng-if="!showIcon(contact)">{{contact.name}}</span>
+                <span ng-if="contact.type !== 'user' && contact.org">
+                    <br />
+                    {{contact.org}}
+                </span>
+            </label>
+        </div>
+        <div class="tablecell contact-icons">
+            <i class="{{ showicon(contact.status, '') }}"
+               ng-if="contact.type === 'user'"
+               tooltip-placement="bottom"
+               uib-tooltip="{{contact.status}}">
+            </i>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="contact-item-content.html">
+    <div class="cls-contact-btn-options">
+        <ul>
+            <li tooltip-placement="top"
+                ng-if="contact.type=='user'"
+                uib-tooltip="Chat"
+                ng-click="startDirectMessageFromContact(contact)">
+                <h4>
+                    <span style="color: #f8a632;">
+                        <i class="fa fa-comments fa-lg">
+                        </i>
+                    </span>
+                </h4>
+            </li>
+            <li tooltip-placement="top"
+                ng-if="contact.type!='user'"
+                uib-tooltip="Chat">
+                <h4>
+                    <span style="color: grey;">
+                        <i class="fa fa-comments fa-lg">
+                        </i>
+                    </span>
+                </h4>
+            </li>
+            <li tooltip-placement="top"
+                ng-if="getSmsNumber(contact)"
+                uib-tooltip="Text"
+                ng-click="showModalWithData('/sms/sendsmstop.html',{smsnumber: getSmsNumber(contact), message: ''})">
+                <h4>
+                    <span style="color: #f8a632;" >
+                        <i class="fa fa-paper-plane fa-lg" >
+                        </i>
+                    </span>
+                </h4>
+            </li>
+            <li tooltip-placement="top"
+                ng-if="!getSmsNumber(contact)"
+                uib-tooltip="No Mobile Number Available" >
+                <h4>
+                    <span style="color: grey;" >
+                        <i class="fa fa-paper-plane fa-lg" >
+                        </i>
+                    </span>
+                </h4>
+            </li>
+            <li>
+                <span class="btn-group">
+                    <button class="dropdown-toggle"
+                            data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            style="border: none !important; background: transparent !important">
+                        <span style="color: #8adbf6; font-size: 20px">
+                            <i class="fa fa-phone"></i>
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li ng-if="contact.ext">
+                            <a href=""
+                               ng-click="makeCall(contact.ext)">
+                                <strong>
+                                    Extension: ( {{contact.ext}} )
+                                </strong>
+                            </a>
+                        </li>
+                        <li ng-repeat="phone in contact.nums">
+                            <a href=""
+                               ng-click="makeCall(phone.num)">
+                                {{phone.lab}}
+                                {{phone.num | tel}}
+                            </a>
+                        </li>
+                    </ul>
+                </span>
+            </li>
+            <li ng-if="contact.em && contact.em != ''"
+                tooltip-placement="top"
+                uib-tooltip="{{contact.em}}">
+                <a ng-click="startEmailClient(contact.em)">
+                    <h4>
+                        <span style="color: #64d76c;">
+                            <i class="fa fa-envelope-o fa-lg">
+                            </i>
+                        </span>
+                    </h4>
+                </a>
+            </li>
+            <li ng-if="!contact.em || contact.em==''"
+                tooltip-placement="top"
+                uib-tooltip="no email available... ">
+                <h4>
+                    <span style="color: grey;">
+                        <i class="fa fa-envelope-o fa-lg">
+                        </i>
+                    </span>
+                </h4>
+            </li>
+            <li tooltip-placement="top"
+                ng-if="contact.type=='user'"
+                uib-tooltip="Video Conference"
+                ng-click="sendVideoInvite(contact)">
+                <h4>
+                    <span style="color: #f8a632;">
+                        <i class="fa fa-video-camera fa-lg">
+                        </i>
+                    </span>
+                </h4>
+            </li>
+            <li tooltip-placement="top"
+                ng-if="contact.type!='user' && contact.settings && contact.settings.customer_id"
+                uib-tooltip="Open Client profile"
+                ng-click="openContactInManagementSystem(null, contact)">
+                <h4>
+                    <span style="color: #f8a632;">
+                        <i class="fa fa-external-link-square fa-lg">
+                        </i>
+                    </span>
+                </h4>
+            </li>
+            <li tooltip-placement="top-right"
+                uib-tooltip="Edit/View contact"
+                style="float: right;">
+                <h4>
+                    <span style="color: orangered;">
+                        <i class="fa fa-pencil-square-o fa-lg "
+                           ng-click="showEditContactForm(contact)">
+                        </i>
+                    </span>
+                </h4>
+            </li>
+            <li tooltip-placement="top"
+                uib-tooltip="{{isFavorite(contact.cuuid) ? 'Remove From Favorites' : 'Add to Favorites'}}"
+                style="float: right;">
+                <h4>
+                    <span style="color: orangered;">
+                        <i class="fa {{isFavorite(contact.cuuid) ? 'fa-star' : 'fa-star-o'}} fa-lg"
+                           ng-click="toggleFavorite(contact.cuuid)">
+                        </i>
+                    </span>
+                </h4>
+            </li>
+        </ul>
+    </div>
+</script>

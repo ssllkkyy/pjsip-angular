@@ -1,0 +1,12 @@
+<div>
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-times fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Manage Callers Blacklist<span ng-if="vm.content.data.domain"> for {{vm.content.data.domain.domain_description}}</span></span>
+        <button type="button" ng-click="vm.content.data.closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    
+    <callers-blacklist input="vm.content.data"></callers-blacklist>
+</div>

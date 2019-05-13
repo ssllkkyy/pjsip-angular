@@ -1,0 +1,54 @@
+<button class="btn btn-default btn-sm"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false">
+    <!-- <i class="{{user.user_status.icon}} fa userstatusicon"></i> -->
+    <i class="{{ showicon(contact().status, '') }} userstatusicon"></i>
+    <span class="top-profile-text">
+        {{contact().status}} 
+        <!-- {{user.user_status.statusName}} -->
+    </span>
+    <i class="fa fa-caret-down fa-lg"
+       style="margin-left: 10px;">
+    </i>
+</button>
+<ul class="dropdown-menu profilestatus"
+    role="menu">
+    <li ng-click="setStatus('Available')">
+        <i class="fa fa-check-circle fa-lg"
+           style="color: #0c6c2c">
+        </i>
+        Available
+    </li>
+    <li ng-click="setStatus('Away')">
+        <i class="fa fa-clock-o fa-lg"
+           style="color: #e38500">
+        </i>
+        Away
+    </li>
+    <li ng-click="setStatus('Do Not Disturb')">
+        <i class="fa fa-minus-circle fa-lg"
+           style="color: #e30400">
+        </i>
+        Do Not Disturb
+    </li>
+    <li>
+        <i class="fa fa-volume-control-phone fa-lg"
+           style="color: #e30400">
+        </i>
+        Busy on Call
+    </li>
+    <li ng-repeat="(key, RSTstatus) in domainsStatus"
+        ng-if="RSTstatus.active && !RSTstatus.isDefault"
+        ng-click="setStatus(RSTstatus.statusName)">
+        <i class="fa fa-lg {{RSTstatus.icon}}"></i>
+        {{RSTstatus.statusName}}
+    </li>
+    <li class="divider"></li>
+    <li>
+        <a href="/login?action=logout">
+            <i class="fa fa-sign-out fa-lg cls-color-blue-tkg"></i>
+            Log Out
+        </a>
+    </li>
+</ul>

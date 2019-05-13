@@ -1,0 +1,37 @@
+<md-dialog class="attendant-modal schedule-modal">
+    <div class="modal-header">
+        <div class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x" ></i>
+            <i class="fa fa-sitemap fa-stack-1x fa-inverse"></i>
+        </div>
+        <div class="attendant-modal-title">
+            Schedule your action
+        </div>
+    </div>
+    <div class="modal-body">
+        <attendant-condition-group
+            ng-repeat="group in scheduleCtrl.groups | orderBy : scheduleCtrl.getGroupPriorityInt"
+            is-last-group="scheduleCtrl.groups.length === 1"
+            group="group"
+            remove-group="scheduleCtrl.removeGroup(scheduleCtrl, group)"
+            add-new-group="scheduleCtrl.addGroup(scheduleCtrl)"
+            condition-types="scheduleCtrl.conditionTypes">
+        </attendant-condition-group>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-md"
+                uib-tooltip="Cancel New Action"
+                ng-click="scheduleCtrl.closeActionScheduler()" >
+            <i class="fa fa-undo"
+               style="margin-right: 10px;">
+            </i>
+            Cancel
+        </button>
+        <button class="btn btn-success"
+                uib-tooltip="Save"
+                ng-click="scheduleCtrl.saveActionConditions(scheduleCtrl)">
+            <i class="fa fa-save"></i>
+            Save
+        </button>
+    </div>
+</md-dialog>

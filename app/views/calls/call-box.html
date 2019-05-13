@@ -1,0 +1,62 @@
+<incoming-call-three-way ng-if="showIncomingCallThreeWay()"
+                         call="currentCall">
+</incoming-call-three-way>
+<call-input-box ng-show="showCallInputBox()"
+                toggle-dial-pad="toggleDialPad"
+                input-number="inputNumber">
+</call-input-box>
+<dial-pad-box ng-show="showDialPad()"
+              toggle-dial-pad="toggleDialPad"
+              input-number="inputNumber"
+              dial-pad-active="dialPadShowing">
+</dial-pad-box>
+<on-call-dial-pad-box ng-show="showOnCallDialPad()"
+                      toggle-on-call-dial-pad="toggleOnCallDialPad">
+</on-call-dial-pad-box>
+<outgoing-call-box ng-show="showOutgoingCallBox()"
+                   call="outgoingCall()">
+</outgoing-call-box>
+<incoming-call-box ng-if="showIncomingCallBox()">
+</incoming-call-box>
+<div id="onCallContainer" ng-if="showOnCallBox()">
+    <normal-on-call-display call="currentCall"
+                            start-time="startTime"
+                            ng-show="showNormalOnCallDisplay() && !showOnCallDialPad()">
+    </normal-on-call-display>
+    <transfer-call-display ng-show="showTransferCallDisplay()"
+                           toggle-call-transfer="toggleCallTransfer"
+                           call="currentCall">
+    </transfer-call-display>
+    <add-call-display ng-show="showAddCallDisplay()"
+                      toggle-add-call-display="toggleAddCallDisplay"
+                      call="currentCall">
+    </add-call-display>
+    <three-way-call-display ng-if="showThreeWayCallDisplay()"
+                            call="currentCall"
+                            start-time="startTime">
+    </three-way-call-display>
+    <queue-incoming-calls-display ng-if="showIncomingCallsQueue()"
+                                  call="currentCall">
+    </queue-incoming-calls-display>
+</div>
+<div ng-show="loadingData()">
+  <center><i class="fa fa-spinner fa-spin fa-4x" ></i>
+  <h4>Connecting...</h4></center>
+</div>
+<on-call-buttons ng-show="showOnCallBox()"
+                 toggle-on-call-dial-pad="toggleOnCallDialPad"
+                 toggle-call-transfer="toggleCallTransfer"
+                 show-transfer-call-display="showTransferCallDisplay"
+                 show-three-way-call-display="showThreeWayCallDisplay"
+                 toggle-add-call-display="toggleAddCallDisplay"
+                 show-add-call-display="showAddCallDisplay">
+</on-call-buttons>
+<call-parking-buttons ng-show="showOnCallBox() && currentCall.params.destination_number.length != 5"
+                      class="call-parking-buttons">
+</call-parking-buttons>
+<video-invite ng-if="showVideoInvite()"
+              end-invite="endVideoInvite()"
+              sender-data="videoInviteSender">
+</video-invite>
+<call-parking-display ng-if="showCallParkingDisplay()">
+</call-parking-display>

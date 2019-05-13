@@ -1,0 +1,150 @@
+<div class="sms-anchor">
+    <div class="date-separator datedisplay"
+            ng-if="message.newDay">
+        <hr class="separator__hr">
+        <div class="separator__text">
+            <span>
+                {{message.created_at | toLocalTime | amDateFormat:'ddd, MMM Do YYYY'}}
+            </span>
+        </div>
+    </div>
+</div>
+<div class="message-container clearfix"
+        ng-class="{'outbound' : message.message_direction==='out', 
+            'inbound' : message.message_direction==='in' }"
+        ng-click="enableCopyMode && copyText(message.message_uuid)">
+    
+    <div class="contact-photo">
+        <span ng-if="message.message_direction == 'in'">
+            <span ng-if="threadContact(currentThread) && threadContact(currentThread).contact_profile_image" >
+                <img src="{{imageBaseUrl}}{{threadContact(currentThread).contact_profile_image}}"
+                        class="sms_profile_image" />
+            </span>
+            <span ng-if="threadContact(currentThread) && threadContact(currentThread).contact_name_given && !threadContact(currentThread).contact_profile_image" >
+                <label class="sms_profile_icon"
+                        ng-style="{'background-color': threadContact(currentThread).contact_profile_color }" >
+                    <i class="fa fa-user"></i>
+                </label>
+            </span>
+            <span ng-if="!threadContact(currentThread).contact_name_given && currentThread.noncontact" >
+                <label class="sms_profile_icon"
+                        ng-style="{'background-color': currentThread.noncontact.color }" >
+                    <i class="fa fa-user"></i>
+                </label>
+            </span>
+            <span ng-if="!threadContact(currentThread).contact_name_given && !currentThread.noncontact" >
+                <label class="sms_profile_icon" >
+                    <i class="fa fa-user"></i>
+                </label>
+            </span>
+        </span>
+        <span ng-if="message.message_direction == 'out'">
+            <span ng-if="sentBy(message).contact_profile_image" >
+                <img src="{{imageBaseUrl}}{{sentBy(message).contact_profile_image}}"
+                        class="sms_profile_image"/>
+            </span>
+            <span ng-if="!sentBy(message).contact_profile_image" >
+                <label class="sms_profile_icon"
+                        ng-style="{'background-color': sentBy(message).contact_profile_color}">
+                    <i class="fa fa-user"></i>
+                </label>
+            </span>
+        </span>
+    </div>
+    <div class="sms-message-box clearfix">
+        <div class="textmessage  round border  {{message.message_direction==='in' ? 'bubble-left incoming' : 'bubble-right outgoing'}}">
+            <div class="talktext">
+                <div ng-class="unreadClass(message)" ng-if="message.message" marked="message.message | linky:'_blank'"></div>
+                <div ng-if="message.message_type === 'mms' "
+                        class="sms-message-file-container">
+                    <div ng-repeat="media in message.media"
+                            ng-if="media.mime_type !=='application/smil' && media.mime_type !=='text/plain'"
+                            class="sms-message-file">
+                        <div ng-if="media.mime_type.substring(0,5).toLowerCase()==='image'"
+                             class="sms-message-image-thumb" >
+                            <a href=""
+                                ng-click="showModalWithData('/chat/previewfile.html',{obj:mediaUrl+media.url})">
+                                <img src="{{mediaUrl}}{{media.url}}"
+                                        style="{{thumbDimensions(mediaUrl+media.url, 'thumb')}}"></a>
+                        </div>
+                        <div ng-if="media.mime_type.substring(0,5).toLowerCase()!=='image'"
+                                class="sms-message-file-thumb">
+                            <a href="{{mediaUrl + media.url}}"
+                                download target="_blank">
+                                <div class="file-icon file-icon-lg"
+                                        data-type="{{showMediaType(media).toLowerCase()}}">
+                                </div>
+                            </a>
+                        </div>
+                        <div ng-class="{'sms-message-file-details': media.mime_type.substring(0,5).toLowerCase()!=='image', 
+                                'sms-message-image-details': media.mime_type.substring(0,5).toLowerCase()==='image'}"
+                                tooltip-placement="top"
+                                uib-tooltip="{{::tips.chatplus.download_file}}" >
+                            <a href="{{mediaUrl + media.url}}"
+                                download target="_blank">
+                                {{getFileName(media)}}
+                                <br />
+                                <i class="fa fa-download"></i>
+                                {{showMediaType(media)}} 
+                                {{media.size/1000 | number:0}}KB
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="export-sms-inline" ng-if="message.message_direction==='out' && !isEmulatedUser() && message.exported_data" 
+                tooltip-placement="bottom" uib-tooltip="Exported: {{message.exported_data.exported_at | toLocalTime | amDateFormat: 'MM/D/YYYY, h:mm a'}}">
+                <img ng-show="user.exportType.partner_code == 'hawksoft'" src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                    style="width: 18px; height: 18px;">
+                <img ng-show="user.exportType.partner_code != 'hawksoft'" src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                    style="width: 18px; height: 18px;">
+            </div>
+            <div class="export-sms-inline2" ng-if="message.message_direction==='in' && !isEmulatedUser() && message.exported_data" 
+                tooltip-placement="bottom-right" uib-tooltip="Exported: {{message.exported_data.exported_at | toLocalTime | amDateFormat: 'MM/D/YYYY, h:mm a'}}">
+                <img ng-show="user.exportType.partner_code == 'hawksoft'" src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                    style="width: 18px; height: 18px;">
+                <img ng-show="user.exportType.partner_code != 'hawksoft'" src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}"
+                    style="width: 18px; height: 18px;">
+            </div>
+        </div>
+        <div class="messagetime {{message.message_direction==='in' ? 'pad-left' : 'pad-right'}}">
+            <div class="cleared">
+            <span ng-class="iconTimeClass(message)" class="time">
+                {{message.created_at | toLocalTime | amDateFormat: 'h:mm a'}}
+            </span>
+            <span class="icon">
+                <i class="fa" ng-class="handledIcon(message)"
+                ng-if="currentThread.location_group_uuid"
+                ng-click="handleMessage(message)"
+                tooltip-placement="bottom"
+                uib-tooltip="{{(message.handled_by && message.handled_by === user.id) ? tips.sms.unhandle : tips.sms.handled}}"></i></span>
+            <span class="icon">
+                <i class="fa fa-copy"
+                ng-click="copyMessage(message)"
+                tooltip-placement="bottom"
+                uib-tooltip="{{::tips.sms.copy_message}}"></i></span>
+            <span class="icon">
+                <i class="fa fa-share"
+                ng-click="forwardMessage(message)"
+                tooltip-placement="bottom"
+                uib-tooltip="{{::tips.sms.forward_message}}"></i></span>
+            <span class="icon">
+                <i class="fa fa-trash-o"
+                ng-if="(!isEmulatedUser() && !currentThread.location_group_uuid) || (currentThread.location_group_uuid && isDomainOrLocationManager())"
+                ng-click="removeMessage(message)"
+                tooltip-placement="bottom"
+                uib-tooltip="{{::tips.sms.delete_message}}"></i></span>
+            </div>
+            <div class="cleared handled" ng-if="message.handled_by">
+                <span ng-class="handledClass(message)">
+                    Handled by {{showUserName(message.handled_by)}} ({{message.handled_at | toLocalTime | amDateFormat: 'MM/D/YYYY, h:mm a'}})
+                </span>
+            </div>
+            <div class="cleared handled" ng-if="message.assigned_to">
+                <span ng-class="handledClass(message)">
+                    Assigned to {{showUserName(message.assigned_to)}} ({{message.assigned_at | toLocalTime | amDateFormat: 'MM/D/YYYY, h:mm a'}})
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

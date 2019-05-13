@@ -1,0 +1,330 @@
+<div class="controls">
+    <div class="template-select-label">
+            <label>
+                    Select new or existing template
+            </label>
+        </div>
+    <div class="left-controls" >
+        <div class="template-select">
+                <md-input-container>
+                    <md-select ng-model="selectedTemplate"
+                               placeholder="Select a template">
+                        <md-option ng-value="opt"
+                                   ng-repeat="opt in templates">
+                            {{ opt.description }}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+        </div>
+        <div class="type-select">
+            <md-input-container>
+                <md-select ng-model="type"
+                           placeholder="Select a type">
+                    <md-option ng-value="opt"
+                               ng-repeat="opt in types">
+                        {{ opt.name }}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+        <div class="rater-type" >
+            <md-input-container>
+                <md-select ng-model="raterType"
+                            placeholder="Select a rater type"
+                            ng-disabled="editing()">
+                    <md-option ng-value="rater"
+                                ng-repeat="rater in rater_types">
+                        {{ rater.label }}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+        </div>
+        <div class="template-name">
+            <md-input-container
+                uib-tooltip="Note that the only way to clone a template is via the template manager tab"
+                tooltip-placement="bottom">
+                <label>
+                    Template Name
+                </label>
+                <input type="text"
+                       ng-model="description">
+            </md-input-container>
+        </div>
+        <div class="global-select">
+            <label ng-if="isKotterTech">
+                Global
+                <md-checkbox ng-model="template.global">
+                </md-checkbox>
+            </label>
+        </div>
+    </div>
+    <div class="right-controls" >
+        <div class="preview">
+            <md-button class="md-primary md-raised preview-btn"
+                       ng-click="togglePreview()"
+                       ng-show="!previewing">
+                Preview
+            </md-button>
+            <md-button class="md-primary md-raised back-btn"
+                       ng-click="togglePreview()"
+                       ng-show="previewing">
+                Back to Builder
+            </md-button>
+        </div>
+        <div class="save-btn">
+            <md-button class="md-primary md-raised modal-btn"
+                       ng-click="saveTemplate()">
+                Save
+            </md-button>
+        </div>
+    </div>
+</div>
+<div class="template-container">
+    <div class="element-selector">
+        <uib-accordion close-others="true">
+            <div uib-accordion-group 
+                 class="panel panel-default"
+                 ng-repeat="element in elements">
+                <uib-accordion-heading>
+                    <div class="tableclass">
+                        <div class="tablecell">{{element.name}}</div>
+                    </div>
+                </uib-accordion-heading>
+                
+                <div class="elements">
+                    <button class="btn btn-primary btn-xs btn-block" ng-click="openInputSelector(element)">
+                        Add {{element.name}} input fields
+                    </button>
+                </div>
+                <div class="elements">
+                    <button class="btn btn-primary btn-xs btn-block" ng-click="addExtraElement(element)" ng-if="element.repeat != '-1'">
+                        Add {{element.name}}
+                    </button>
+                </div>
+            </div>
+        </uib-accordion>
+    </div>
+    <div class="input-selector">
+        <div class="input-items">
+            <div class="header-element" ng-if="headerInput.Logo || headerInput.Title || headerInput.Subtitle">
+                <h4>Header Information</h4>
+                <div class="header-logo-buttons" ng-show="headerInput.Logo">
+                    <span ng-show="headerInput.Logo">{{selectedPosition ? 'You have selected ' + selectedPosition + ' position for your Logo' : 'Select the position for Header logo'}}</span>
+                    <button class="btn btn-primary" ng-click="selectLogoPosition('Left')" ng-class="{'clicked' : selectedPosition == 'Left'}">
+                        Left
+                    </button>
+                    <button class="btn btn-primary"  ng-click="selectLogoPosition('Center')" ng-class="{'clicked' : selectedPosition == 'Center'}">
+                        Center
+                    </button>
+                    <button class="btn btn-primary" ng-click="selectLogoPosition('Right')" ng-class="{'clicked' : selectedPosition == 'Right'}">
+                        Right
+                    </button>
+                </div>
+                <div class="header-logo" ng-show="headerInput.Logo">
+                    <div class="image-box-left">
+                        <button class="btn btn-primary btn-sm" ng-click="triggerUpload()" ng-if="!logoPath">
+                            Upload Logo
+                        </button>
+
+                    <img ng-src="{{logoPath}}"
+                            ng-show="logoPath"
+                            class="logo-img"
+                            style="height: 8vmax; width: 8vmax; object-fit: fill;"
+                            alt="" />
+                        <input type="file"
+                            nv-file-select
+                            uploader="uploader"
+                            id="cloud-upload"
+                            style="display: none;">
+                    </div>
+                </div>
+                <div class="header-info">
+                    <div class="row" ng-if="headerInput.Title">
+                        <div class="col-md-4">
+                            <span>Title</span>
+                        </div>
+                        <div class="col-md-8">
+                            <md-input-container>
+                                <label>
+                                    Enter a Title
+                                </label>
+                                <input type="text" ng-model="headerInput.Title.model"
+                                    uib-tooltip="Tip: You can enter your Agency name as the Title."
+                                    tooltip-placement="top">
+                            </md-input-container>
+                        </div>
+                    </div>   
+                    <div class="row" ng-if="headerInput.Subtitle">
+                            <div class="col-md-4">
+                                <span>Sub Title</span>
+                            </div>
+                            <div class="col-md-8">
+                                <md-input-container>
+                                    <label>
+                                        Enter Sub Title
+                                    </label>
+                                    <textarea ng-model="headerInput.Subtitle.model" 
+                                        uib-tooltip="Tip: You can enter your Agency address and phone number as the Subtitle."
+                                        tooltip-placement="top"></textarea>
+                                </md-input-container>
+                            </div>
+                        </div>   
+                </div>
+            </div>
+            <div class="base-template">
+                <h4>Basic Client Information</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <span>First Name:</span>
+                        <md-input-container>
+                            <label>
+                                Enter First Name
+                            </label>
+                            <input type="text"
+                                ng-model="basic_questions.first_name"
+                                ng-disabled="true">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-4">
+                        <span>Middle Name</span>
+                        <md-input-container>
+                            <label>
+                                Enter Middle Name
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.middle_name"
+                                    ng-disabled="true">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-4">
+                        <span>Last Name</span>
+                        <md-input-container>
+                            <label>
+                                Enter Last Name
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.last_name"
+                                    ng-disabled="true">
+                        </md-input-container>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <span>Address:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Address
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.address"
+                                    ng-disabled="true">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+                        <span>City:</span>
+                        <md-input-container>
+                            <label>
+                                Enter City
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.city"
+                                    ng-disabled="true">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-3">
+                        <span>State:</span>
+                        <md-input-container style="margin-bottom: 20px !important;">
+                            <label>State</label>
+                            <md-select name="type" ng-model="basic_questions.state" ng-disabled="true">
+                                <md-option><em>None</em></md-option>
+                                <md-option ng-repeat="state in usStates" value="{{state.state_abbr}}">
+                                    {{state.state_name}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-2">
+                        <span>Zip:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Zipcode
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.zip"
+                                    ng-disabled="true">
+                        </md-input-container>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <span>Email Address:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Email Address
+                            </label>
+                            <input type="text"
+                                    ng-model="basic_questions.email"
+                                    ng-disabled="true">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-4">
+                        <span>Cell Phone:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Cell Phone
+                            </label>
+                            <input type="text"
+                                    md-input
+                                    phone-input
+                                    ng-model="basic_questions.cell_phone"
+                                    ng-disabled="true">
+                        </md-input-container>
+                    </div>
+                    <div class="col-md-4">
+                        <span>Work Phone:</span>
+                        <md-input-container>
+                            <label>
+                                Enter Work Phone
+                            </label>
+                            <input type="text"
+                                    md-input
+                                    phone-input
+                                    ng-model="basic_questions.work_phone"
+                                    ng-disabled="true">
+                        </md-input-container>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div ng-repeat="(key,value) in addedInputs" class="element-info">
+                <h4 ng-if="key != 'Client'">{{key}} Information <span class="btn btn-xxs btn-default remove-element glyphicon glyphicon-remove" ng-click="removeElement(key, value)"></span></h4>
+                <h4 ng-if="key == 'Client'">Additional {{key}} Information <span class="btn btn-xxs btn-default remove-element glyphicon glyphicon-remove" ng-click="removeElement(key, value)"></span></h4>
+
+                <div class = "element-contents">
+                <div ng-repeat="(input_key, input_value) in value" ng-if="!input_value.hide && input_key != 'repeat'" class="row new-inputs">
+                    <div class="col-md-3" style="padding:20px;">
+                        <span>{{input_value.label}}</span>
+                    </div>
+                    <div class="col-md-9">
+                            <div class="btn btn-xxs btn-default edit-input glyphicon glyphicon-remove" ng-click="removeInput(key, value, input_value)">
+                            </div>
+                            <div class="btn btn-xxs btn-default edit-input glyphicon glyphicon-cog" ng-click="editInput(key, value, input_value)">
+                            </div>
+                            <md-input-container uib-tooltip="{{input_value.tooltip ? input_value.tooltip  : ''}}"
+                                tooltip-placement="top">
+                                <label>
+                                    {{input_value.placeholder ? input_value.placeholder : 'Enter ' + input_value.label}}
+                                </label>
+                                <input type="text"
+                                        ng-model="input_value.model" ng-if="input_value.typeData.type != 'textarea'" ng-disabled="true">
+                                <textarea ng-model="input_value.model" ng-if="input_value.typeData.type == 'textarea'" ng-disabled="true"></textarea>
+                            </md-input-container>
+                    </div>
+                </div> 
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <form-builder form="template.questions">
+    </form-builder> -->
+</div>

@@ -1,0 +1,78 @@
+<div class="modal-header quotesheet-assign-header">
+    <span class="fa-stack fa-2x modal-icon">
+        <i class="fa fa-circle fa-stack-2x">
+        </i>
+        <i class="fa fa-paper-plane fa-stack-1x fa-inverse">
+        </i>
+    </span>
+    <span class="cls-header-modal">
+        Edit Details of Input Field {{vm.content.data.editingInput.label}}
+    </span>
+    <button type="button"
+            ng-click="closeModal()"
+            class="close">
+        <i class="fa fa-times">
+        </i>
+    </button>
+</div>
+<div class="modal-body"
+     id="modal-body">
+     <div class= "row" ng-if= "vm.content.data.element == 'Custom'">
+        <div class="col-md-3" style="padding:20px;">
+            <span>Label</span>
+        </div>
+        <div class="col-md-9">
+                <md-input-container>
+                    <label>
+                        Enter your Custom Label
+                    </label>
+                    <input type="text"
+                            ng-model="vm.content.data.editingInput.label">
+                </md-input-container>
+        </div>
+    </div>
+    <div class= "row">
+        <div class="col-md-3" style="padding:20px;">
+            <span>Place Holder</span>
+        </div>
+        <div class="col-md-9">
+                <md-input-container>
+                    <label>
+                        Enter the Place Holder
+                    </label>
+                    <input type="text"
+                            ng-model="vm.content.data.editingInput.placeholder">
+                </md-input-container>
+        </div>
+    </div>
+    <div class= "row">
+        <div class="col-md-3" style="padding:20px;">
+            <span>Tool Tip</span>
+        </div>
+        <div class="col-md-9">
+                <md-input-container>
+                    <label>
+                        Enter Tool Tip for describing the Field
+                    </label>
+                    <input type="text"
+                            ng-model="vm.content.data.editingInput.tooltip">
+                </md-input-container>
+        </div>
+    </div>
+</div>
+<div class="modal-footer cls-incomingcall-buttons">
+    <button class="btn btn-danger btn-md"
+            ng-click="closeModal()">
+        <i class="fa fa-remove"
+           style="margin-right: 10px;">
+        </i>
+        Cancel
+    </button>
+    <button class="btn btn-danger btn-md"
+            ng-click="vm.content.data.saveEdit(vm.content.data.editingInput)">
+        <i class="fa fa-check"
+           style="margin-right: 10px;">
+        </i>
+        Save
+    </button>
+</div>

@@ -1,0 +1,30 @@
+<div class="suggestion-list"
+     ng-style="styleObj">
+    <div class="suggestion-list-content">
+        <div class="suggestion-list-header">
+            <span class="pull-right light-font right-text">
+                <span class="pad-right-15">
+                    <i class="fa fa-long-arrow-up"></i>
+                    <i class="fa fa-long-arrow-down"></i>
+                    to navigate
+                </span>
+                <span class="pad-right-15">
+                    tab to select
+                </span>
+                <span class="pad-right-15">
+                    esc to dismiss
+                </span>
+            </span>
+        </div>
+        <div class="suggestion-list-items">
+            <div class="suggestion-list-mention member-mention"
+                 ng-class="{selectedperson: parentData.suggestions[parentData.selectedIndex] === suggestion}"
+                 ng-repeat="suggestion in parentData.suggestions track by $index"
+                 ng-click="parentData.select($index, suggestion)">
+                <strong>
+                    {{suggestion.text_choice_text}}
+                </strong>
+            </div>
+        </div>
+    </div>
+</div>

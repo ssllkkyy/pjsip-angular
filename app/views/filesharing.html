@@ -1,0 +1,150 @@
+<div id="file-share-container"
+     ng-controller="FileSharingCtrl">
+    <div class="row top-row">
+        <div class="col-sm-4">
+            <h3>
+                File Sharing
+                <span ng-if="showTable && selectEmulateUser!==null && selectEmulateUser !== user.id">
+                    - Emulating: {{getNameByUUID(selectEmulateUser)}}
+                </span>
+            </h3>
+        </div>
+        <div class="col-sm-4 share-file-btn"
+             ng-show="showTable"
+             style="text-align: center; margin-top: 15px;">
+            <button class="btn btn-primary sharefilebtn"
+                    ng-disabled="selectEmulateUser!==null && selectEmulateUser !== user.id"
+                    ng-click="showFileShareModal()">
+                <i class="fa fa-files-o"
+                   style="margin-right: 10px;"></i>
+                Share a File
+            </button>
+        </div>
+        <div class="col-sm-4 right-text"
+             ng-if="showTable && emulationStatus['fileshare'].manager==='true'">
+            <div class="input-group pull-right">
+                <md-select ng-model="selectEmulateUser"
+                           class="emulate"
+                           placeholder="- Emulate User -"
+                           tooltip-placement="bottom"
+                           uib-tooltip="{{tips.fileshare.select_months}}"
+                           ng-change="setEmulationUser(selectEmulateUser, 'fileshare')">
+                    <md-option ng-value="user.id">
+                        <strong>
+
+                            {{user.contact_name_given}} {{user.contact_name_family}}
+                        </strong>
+                    </md-option>
+                    <md-option ng-repeat="emUser in emulationStatus['fileshare'].watched"
+                               ng-value="emUser.user_uuid">
+                    {{getNameByUUID(emUser.user_uuid)}}
+                    </md-option>
+                </md-select>
+            </div>
+        </div>
+    </div>
+    <div ng-if="!showTable" style="width: 250px; text-align: center; opacity: 0.6; margin: 40px;">
+        <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i><br />
+        Loading...
+    </div>
+    <div class="cls-notify" ng-show="showTable && totalItemsFS === 0">
+        <i  class="fa fa-bullhorn fa-3x cls-color-yellow-tkg" id="iconNotify"></i>
+        <!-- <span id="productName"> Symphony</span>  -->
+        <spam>You do not have any shared files. Get started by clicking "Share a File".</spam>
+    </div>
+    <table class="table page-actions" ng-show="showTable">
+        <tr>
+            <td>
+                <div class="col-lg-3">
+                    <label class="bluecolor" for="search">Files per page:</label>
+                    <select class="selectpicker form-control per-page" ng-options="page as page for page in ppOptions" ng-model="perPage"></select>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon" ng-click="OpenfromDate()">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                        <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="fromDate" name="fromDate" is-open="fromDatePopup.opened" datepicker-options="fromDateOptions" ng-required="true" close-text="Close" ng-click="OpenfromDate()" ng-change="ChangeToMinDate(fromDate)"
+                            placeholder="From" />
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon" ng-click="OpentoDate()"><i class="fa fa-calendar"></i></span>
+                        <input type="text" class="form-control" uib-datepicker-popup="{{dateFormat}}" ng-model="toDate" name="toDate" is-open="toDatePopup.opened" datepicker-options="toDateOptions" ng-required="true" close-text="Close" ng-click="OpentoDate()" ng-change="processToDate(toDate)" placeholder="To"
+                        />
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <span class="input-group-addon" title="Filter Shares"><i class="fa fa-filter"></i></span>
+                        <input class="form-control" type="text" ng-model="shareSearch" placeholder="Filter by Recipient Email">
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div class="file-table-container">
+    <div class="scroll-container-head" ng-show="showTable && totalItemsFS > 0">
+        <table id="data-table-top" class="table table-bordered table-hover table-striped cls-tab-call-history">
+            <thead>
+                <tr>
+                    <th style="width: 13%;"><a href ng-click="sortBy('created_at')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbydate}}"> Date / Time <i class="fa fa-{{!reverse && predicate==='created_at'?'chevron-up':'chevron-down'}}"></i></a></th>
+                    <th style="width: 28%;"><a href ng-click="sortBy('recipient_email')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbyrecipientemail}}">Recipient <i class="fa fa-{{!reverse && predicate==='recipient_email'?'chevron-up':'chevron-down'}}"></i></a></th>
+                    <th style="width: 30%;"><a href ng-click="sortBy('original_filename')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbyfilename}}">File <i class="fa fa-{{!reverse && predicate==='original_filename'?'chevron-up':'chevron-down'}}"></i></a></th>
+                    <th style=""><a href ng-click="sortBy('downloaded_at')" tooltip-placement="top-left" uib-tooltip="{{tips.fileshare.sortbydownloaded}}">Downloaded<i class="fa fa-{{!reverse && predicate==='downloaded_at'?'chevron-up':'chevron-down'}}"></i></a></th>
+                    <!--<th>Download IP <i class="fa fa-chevron-down"></i></th>-->
+                    <th class="button-column">Resend</th>
+                    <th class="button-column">Copy</th>
+                    <!-- <th style="width: 6px;"></th> -->
+                    <th ng-if="1==2" style="width: 14%;">From</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div ng-show="showTable" class="scroll-container" ng-style="{'height': fsTableHeight && fsTableHeight}">
+        <table id = "data-table-under" class="table table-bordered table-hover table-striped cls-tab-call-history">
+            <tbody class="cls-body-table-pos">
+                <tr ng-repeat="fileShare in filterData = (fileSharingList | orderBy : predicate :reverse | filter:searchRecipients | filter:filterByMonth) | limitTo:perPage:perPage*(currentPage-1)">
+                    <td style="width: 13%;">{{fileShare.created_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                    {{fileShare.created_at | toLocalTime | amDateFormat:'h:mm a'}}</td>
+                    <td style="width: 28%;" ng-if="fileShare.contact">
+                        <ul class="profile-display" >
+                            <li ng-if="fileShare.contact.contact_profile_image" class="profile_display_30"><img src="{{pathImgProfile}}{{fileShare.contact.contact_profile_image}}" class="profile_image" /></li>
+                            <li ng-if="!fileShare.contact.contact_profile_image" class="profile_display_30"><label class="profile_icon" style="background-color: {{fileShare.contact.contact_profile_color}} !important;"><i class="fa fa-user"></i></label></li>
+                            <li style="display: inline-block;"><strong>{{fileShare.contact.contact_name_given}} {{fileShare.contact.contact_name_family}}</strong><br />
+                                <a ng-click="startEmailClient(fileShare.recipient_email)" tooltip-placement="bottom" uib-tooltip="{{tips.fileshare.sendanemail + fileShare.recipient_email}}">{{fileShare.recipient_email.length>30 ? fileShare.recipient_email.substring(0,13)+'...'+fileShare.recipient_email.substring(fileShare.recipient_email.length-13,fileShare.recipient_email.length) : fileShare.recipient_email}}</a>
+                            </li>
+                        </ul>
+                    </td>
+                    <td style="width: 29%;" ng-if="fileShare.noncontact">
+                        <ul class="profile-display">
+                            <li  class="profile_display_30"><label class="profile_icon" style="background-color: {{fileShare.noncontact.color}} !important;"><i class="fa fa-user"></i></label></li>
+                            <li  ng-if="fileShare.noncontact.name" style="display: inline-block;"><span class="capitalize"><strong>{{fileShare.noncontact.name}}</strong></span><br />
+                                <a ng-click="startEmailClient(fileShare.recipient_email)" tooltip-placement="bottom" uib-tooltip="{{tips.fileshare.sendanemail + fileShare.recipient_email}}">{{fileShare.recipient_email}}</a>
+                            </li>
+                            <li ng-if="!fileShare.noncontact.name" style="display: inline-block;"><a ng-click="startEmailClient(fileShare.recipient_email)" tooltip-placement="bottom" uib-tooltip="{{tips.fileshare.sendanemail}}">{{fileShare.recipient_email.length>30 ? fileShare.recipient_email.substring(0,13)+'...'+fileShare.recipient_email.substring(fileShare.recipient_email.length-13,fileShare.recipient_email.length) : fileShare.recipient_email}}</a></li>
+
+                            <li style="text-align: right;"><span style="color: #64d76c;"><i tooltip-placement="top" style="float: right; padding-left: 10px;font-size: 18px;" uib-tooltip="{{tips.contacts.addcontact}}" ng-hide="selectEmulateUser!==null && selectEmulateUser !== user.id" ng-click="showAddContactForm('fileshare', fileShare)" class="fa fa-user-plus"></i></span></li>
+                        </ul>
+                    </td>
+                    <td style="width: 30%;" ><span tooltip-placement="bottom" uib-tooltip="tips.fileshare.downloadfile"><span ng-bind-html="showFileName(fileShare)"></span></span></td>
+                    <td style=""><span ng-if="fileShare.downloaded_at!=''">{{fileShare.downloaded_at | toLocalTime | amDateFormat:'MMM D, YYYY'}}<br />
+                    {{fileShare.downloaded_at | toLocalTime | amDateFormat:'h:mm a'}}</span></td>
+                    <!--<td><span ng-if="fileShare.downloaded_at!=''">{{fileShare.downloaded_ip}}</span></td>-->
+                    <td class="button-column" ng-if="!shareExpired(fileShare)"><i ng-click="resendFileShareNotice(fileShare.shared_file_uuid, fileShare.file_uuid)" class="fa fa-share" style="cursor: pointer; font-size: 18px; color: orange;" tooltip-placement="top" uib-tooltip="{{tips.fileshare.resendfileshare}}"></i></td>
+                    <td class="button-column" ng-if="shareExpired(fileShare)"><i  class="fa fa-share" tooltip-placement="top" style="font-size: 18px; color:grey;" uib-tooltip="{{tips.fileshare.share_expired}}"></i></td>
+                    <td class="button-column">
+                        <span ng-show="user.exportType.partner_code == 'hawksoft'" ng-click="copyShareToHawksoft(fileShare)" ><img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 24px; height: 24px;" tooltip-placement="top" uib-tooltip="{{::tips.fileshare.copytohawksoft}}"></span>
+                        <span ng-show = "user.exportType.partner_code != 'hawksoft'" ng-click="copyShareToHawksoft(fileShare)" ><img src="{{onescreenBaseUrl}}{{user.exportType.partner_icon}}" style="width: 24px; height: 24px;" tooltip-placement="top" uib-tooltip="{{::tips.fileshare.copytomanagement}}"></span>
+                    </td>
+                    <td ng-if="1==2" style="width: 14%;">{{user.contact_name_given}} {{user.contact_name_family}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+    <div ng-show="showTable" style="text-align: center">
+        <ul uib-pagination class="pagination-sm pagination" total-items="filterData.length" ng-model="currentPage" previous-text="&lsaquo;" next-text="&rsaquo;" items-per-page="perPage"></ul>
+    </div>
+</div>

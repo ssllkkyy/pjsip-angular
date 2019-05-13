@@ -1,0 +1,319 @@
+<div class="row">
+    <div class="col-sm-6">
+        <div ng-if="isKotterTechOrGreater()">
+            <button class="btn btn-primary btm-sm"
+                ng-click="showImportUsers()">
+                Import Users
+            </button>
+            <a href="{{onescreenUrl}}/sample-user-import.xlsx" target="_blank">(Download template)</a>
+            &nbsp;<a ng-click="showPhoneOptions()" class="action">(Show Phone Options)</a>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="input-group pull-right">
+            <span class="input-group-addon" title="Filter users"><i class="fa fa-filter"></i></span>
+            <input class="form-control" type="text" ng-model="userSearch" placeholder="Filter Displayed Results">
+        </div>
+    </div>
+</div>
+<div class="table-head-container">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead style="width: 100px">
+            <tr>
+                <th class="first-name-col">
+                    <a href ng-click="sortBy('contact_name_given')"
+                       tooltip-placement="top-left"
+                       uib-tooltip="{{tips.sortby.sortbyfirstname}}">
+                        First Name
+                        <i class="fa fa-{{!reverse && predicate==='contact_name_given'?'chevron-up':'chevron-down'}}">
+                        </i>
+                    </a>
+                </th>
+                <th class="last-name-col">
+                    <a href ng-click="sortBy('contact_name_family')"
+                       tooltip-placement="top-left"
+                       uib-tooltip="{{tips.sortby.sortbylastname}}">
+                        Last Name
+                        <i class="fa fa-{{!reverse && predicate==='contact_name_family'?'chevron-up':'chevron-down'}}">
+                        </i>
+                    </a>
+                </th>
+                <th class="email-col">
+                    <a href ng-click="sortBy('contact_email_address')"
+                       tooltip-placement="top-left"
+                       uib-tooltip="{{tips.sortby.sortbyemail}}">
+                        Email
+                        <i class="fa fa-{{!reverse && predicate==='contact_email_address'?'chevron-up':'chevron-down'}}">
+                        </i>
+                    </a>
+                </th>
+                <th class="extension-col">
+                    <a href ng-click="sortBy('user_ext')"
+                       tooltip-placement="top-left"
+                       uib-tooltip="{{tips.sortby.sortbyextension}}">
+                        Extension
+                        <i class="fa fa-{{!reverse && predicate==='user_ext'?'chevron-up':'chevron-down'}}">
+                        </i>
+                    </a>
+                </th>
+                <th class="mobile-number-col">
+                    <a href ng-click="sortBy('did')"
+                       tooltip-placement="top-left"
+                       uib-tooltip="{{tips.sortby.sortbydid}}">
+                        DID
+                        <i class="fa fa-{{!reverse && predicate==='did'?'chevron-up':'chevron-down'}}">
+                        </i>
+                    </a>
+                </th>
+                <th class="add-user-col">
+                    <md-button class="md-fab md-mini md-success toggle-add-user-btn"
+                               ng-click="addUser()"
+                               ng-show="domain.zipcode"
+                               tooltip-placement="top"
+                               uib-tooltip="Add New User">
+                        <md-icon> person_add </md-icon>
+                    </md-button>
+                </th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div ng-if="loadingUsers" class="loading-users mdgreyfont">
+        <i class="fa fa-spinner fa-spin fa-5x"></i><br />
+        <span>Loading Users<br />
+        Please Wait</span>
+</div>
+<div ng-if="!loadingUsers" uib-collapse="!showAddUserRow"
+     class="add-user-table">
+    <table class="table table-bordered table-hover table-striped">
+        <tbody>
+            <tr class="add-user-row">
+                <td class="first-name-col">
+                    <md-input-container>
+                        <input type="text"
+                               ng-model="newUser.txtNameGiven"
+                               placeholder="first name">
+                    </md-input-container>
+                </td>
+                <td class="last-name-col">
+                    <md-input-container>
+                        <input type="text"
+                               ng-model="newUser.txtNameFamily"
+                               placeholder="last name">
+                    </md-input-container>
+                </td>
+                <td class="email-col">
+                    <md-input-container>
+                        <input type="text"
+                               ng-model="newUser.txtEmail"
+                               placeholder="email">
+                    </md-input-container>
+                </td>
+                <td class="extension-col">
+                    <md-input-container>
+                        <input type="text"
+                               ng-model="newUser.txtExtension"
+                               placeholder="extension">
+                    </md-input-container>
+                </td>
+                <td class="mobile-number-col"
+                    style="padding:20px;">
+                        <i class="fa fa-floppy-o mainopt primaryfont"
+                            ng-if="!showSpinner"
+                            ng-click="addUser()"></i>
+                    <span ng-if="showSpinner">
+                        <i class="fa fa-spinner fa-spin fa-2x"></i>
+                    </span>
+                </td>
+                <td class="add-user-col"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div ng-if="!loadingUsers" class="table-body-container">
+    <table class="table table-bordered table-hover table-striped">
+        <tbody>
+            <tr ng-repeat="user in filtered = (users | filter : searchUser | orderBy : predicate :reverse) | limitTo:pagination.perPage:pagination.perPage*(pagination.currentPage-1)"
+                ng-class="user.user_enabled !== 'true' ? 'userdisabled' : null">
+                <td class="first-name-col"
+                    ng-click="editUser(user)">
+                    {{user.contact_name_given}} {{user.user_enabled !== 'true' ? '(Disabled)' : ''}} <span ng-if="isAdmin(user)">(Admin)</span>
+                </td>
+                <td class="last-name-col"
+                    ng-click="editUser(user)">
+                    {{user.contact_name_family}}
+                </td>
+                <td class="email-col"
+                    ng-click="editUser(user)">
+                    {{user.contact_email_address}}
+                </td>
+                <td class="extension-col"
+                    ng-click="editUser(user)">
+                    {{user.user_ext}}
+                </td>
+                <td class="mobile-number-col"
+                    ng-click="editUser(user)">
+                    {{user.did | tel}}
+                </td>
+                <td class="add-user-col">
+                    <i class="fa fa-times-circle mainopt orangefont"
+                        tooltip-placement="top-right"
+                        uib-tooltip="{{tips.companysetup.deletedemouser}}"
+                        ng-if="isDemoAgencyEmulated()" 
+                        ng-click="deleteDemoUser(user)">
+                    </i>
+                    <md-button class="md-raised">
+                        <md-icon ng-click="showUserProfileInfo(user)">
+                            person_outline
+                        </md-icon>
+                    </md-button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div style="text-align: center">
+        <ul uib-pagination 
+            class="pagination-sm pagination" 
+            total-items="filtered.length" 
+            ng-model="pagination.currentPage" 
+            previous-text="&lsaquo;" 
+            next-text="&rsaquo;" 
+            items-per-page="pagination.perPage" 
+            boundary-link-numbers="true" 
+            max-size="10"></ul>
+    </div>
+</div>
+<script type="text/ng-template" id="import-users-modal.html">
+    <import-users domain="vm.content.data"></import-users>
+</script>
+<script type="text/ng-template" id="import-users.html">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x cls-color-blue-tkg">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Import Users</span>
+        <button type="button" ng-click="closeImport()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="fax-did-ordering">
+        <div class="row">
+            <div class="col-sm-12">
+                <p>Enter the Area Code and ZIP to use for DID ordering and then choose the xlsx file containing the users to be uploaded. <a href="{{onescreenUrl}}/sample-user-import.xlsx" target="_blank">Click Here to download a template.</a></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <md-input-container style="width: 100%; margin-bottom: 0;">
+                    <label>Default Number</label>
+                    <input ng-model="data.defaultnumber" required />
+                </md-input-container>
+            </div>
+            <div class="col-sm-4">
+                <md-input-container style="width: 100%; margin-bottom: 0;">
+                    <label>Zip Code</label>
+                    <input ng-model="data.zipcode" required />
+                </md-input-container>
+            </div>
+            <div class="col-sm-4">
+                Send Welcome Email to Users
+                <md-radio-group layout="row" ng-model="data.notify" class="md-primary">
+                    <md-radio-button ng-value="true">Yes</md-radio-button>
+                    <md-radio-button ng-value="false">No</md-radio-button>
+                </md-radio-group>
+            </div>
+        </div>
+        <div class="row" ng-if="!gridOptions.data">
+            <div class="col-sm-12">
+                <div class="jumbotron import">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <label
+                                class="btn btn-default btn-file btn-block"
+                                style="border-top-left-radius: 5; border-bottom-left-radius: 5;">
+                                <span class="cls-color-blue-tkg">
+                                    <i class=" fa fa-file-excel-o cls-color-blue-tkg"
+                                        style="margin-right: 10px;"></i>
+                                    Import Users Spreadsheet
+                                </span>
+                                <input
+                                    type="file"
+                                    accept=".xls,.xlsx,.ods"
+                                    fileread=""
+                                    opts="gridOptions"
+                                    multiple="false"
+                                    style="display: none;" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="jumbotron" ng-if="gridOptions.data && gridOptions.data.length>0">
+            <div class="csv-container">
+                <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Extension</th>
+                            <th>Location</th>
+                            <th>Location Admin</th>
+                            <th>Domain Admin</th>
+                            <th>MAC Address</th>
+                            <th>Phone Brand</th>
+                            <th>Phone Model</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="row in gridOptions.data">
+                            <td ng-repeat="col in gridOptions.columnDefs">
+                            {{row[col.field]}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" 
+            ng-click="closeImport()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i>
+            Cancel Import
+        </button>
+        <button class="btn btn-primary btn-md" 
+            ng-disabled="!data.zipcode || !data.defaultnumber || !gridOptions.data || gridOptions.data.length === 0"
+            ng-click="completeImportUsers()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i>
+            Import Users
+        </button>
+    </div>
+</script>
+<script type="text/ng-template" id="phone-options.html">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x cls-color-blue-tkg">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-phone fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Phone Options</span>
+        <button type="button" ng-click="vm.content.data.closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="fax-did-ordering">
+        <div class="row" ng-repeat="phone in vm.content.data.brands">
+            <div class="col-sm-12">
+                <strong>{{phone.name}}</strong>
+            </div>
+            <div class="col-sm-3" ng-repeat="model in phone.models">
+                {{model.name}}
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" 
+            ng-click="vm.content.data.closeModal()">
+            <i class="fa fa-remove" style="margin-right: 10px;"></i>
+            Cancel Import
+        </button>
+    </div>
+</script>

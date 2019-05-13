@@ -1,0 +1,262 @@
+<md-content class="user-settings-content call-forwarding">
+    <div class="row">
+        <div class="col-md-6" ng-if="!user.forwarding">
+            <button class="btn btn-sm btn-primary" 
+                ng-click="initializeForwarding()">Initialize Forwarding</button>
+        </div>
+        <div class="col-md-6" ng-if="user.forwarding">
+            <md-switch class="md-warn"
+                ng-model="user.forwarding.ring_group_enabled"
+                ng-change="updateForwarding('forwarding', '')"
+                aria-label="Forwarding Enable/Disable" 
+                ng-true-value="'true'" 
+                ng-false-value="'false'">
+                {{ user.forwarding.ring_group_enabled === 'true' ? 'Call Forwarding is ON' : 'Call Forwarding is OFF'}}
+            </md-switch>
+        </div>
+        <div class="col-md-6 right-text">
+            <md-button
+            ng-click="forwardingHelp()">
+                <i class="fa fa-info-circle fa-lg"></i> Help
+            </md-button>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 15px;" ng-if="1===2 && user.forwarding">
+        <div class="col-md-3">
+            Ring Strategy: <i class="fa fa-question-circle" tooltip-placement="top-right" uib-tooltip="{{tips.forwarding.strategy}}"></i>
+        </div>
+        <div class="col-md-9">
+            <md-input-container>
+                <md-radio-group layout="row" 
+                    ng-model="user.forwarding.ring_group_strategy" 
+                    ng-change="updateForwarding('strategy', '')">
+                    <md-radio-button value="simultaneous" class="md-primary">Simultaneous</md-radio-button>
+                    <md-radio-button value="sequence" class="md-primary">Sequential</md-radio-button>
+                </md-radio-group>
+            </md-input-container>
+        </div>
+    </div>
+         
+    <table ng-if="user.forwarding" id="forwarding-table" class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead>
+            <tr>
+                <th> Destination </th>
+                <th style="width: 90px;"> Delay <small>(Seconds)</small>  </th>
+                <th style="width: 90px;"> Timeout <small>(Seconds)</small>  </th>
+                <!-- <th class="col-md-2"> Prompt </th> -->
+                <th style="width: 90px;" class="add-user-col center-text">
+                    <!-- <md-button class="md-fab md-mini md-success "
+                        >
+                        <span class="mdi mdi-phone-plus "></span>
+                    </md-button> -->
+                    <button class="btn btn-xs btn-primary add-dest"
+                        ng-click="toggleAdd()"
+                        tooltip-placement="top"
+                        uib-tooltip="Add New Destination">
+                        <span class="mdi mdi-phone-plus "></span>
+                    </button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-if="user.forwarding.destinations.length===0 && !addDest">
+                <td colspan="4">There are currently no destinations set.</td>
+            </tr>
+            <tr ng-if="addDest">
+                <td style="padding: 0;">
+                    <table class="table table-bordered masterdata">
+                        <tr>
+                            <td>
+                                <md-input-container>
+                                    <label>Number Type</label>
+                                    <md-select ng-model="newDest.destination_type">
+                                        <md-option ng-repeat="sendTo in destOptions" ng-value="sendTo.type" ng-click="selectDestType()" >
+                                            {{sendTo.type}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </td>
+                            <td ng-show="newDest.destination_type">
+                                <span ng-show="newDest.destination_type === 'User Extension'">
+                                    <md-input-container>
+                                        <label>Pick a Number</label>
+                                        <md-select ng-model="newDest.destination_number">
+                                            <md-option ng-repeat="user in userContacts()" ng-if="!isKotterTechUser(user)" ng-value="user.user_ext">
+                                                {{user.name}} - Ext: {{user.ext}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </span>
+                                <!--Transfer-->
+                                <span ng-if="newDest.destination_type == 'Phone Number'">
+                                    <div><md-input-container>
+                                        <label>Enter a Number</label>
+                                        <input md-input phone-input ng-model="newDest.destination_number" />
+                                    </md-input-container></div>
+                                </span>
+
+                                <div ng-show="newDest.destination_type === 'Ring Group'">
+                                    <md-input-container>
+                                        <label>Select a Ring Group</label>
+                                        <md-select ng-model="newDest.destination_number">
+                                            <md-option ng-repeat="ringgroup in availRingGroups" ng-value="ringgroup.queue_extension">
+                                                {{ringgroup.queue_name}} - Ext: {{ringgroup.queue_extension}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    <md-input-container>
+                        <input type="number"
+                            ng-model="newDest.destination_delay"
+                            placeholder="Delay"
+                            min="0" max="200" step="5">
+                    </md-input-container>
+                </td>
+                <td>
+                    <md-input-container>
+                        <input type="number"
+                            ng-model="newDest.destination_timeout"
+                            placeholder="Timeout"
+                            min="5" max="100" step="5">
+                    </md-input-container>
+                </td>
+                <!-- <td class="col-md-2">
+                    <md-input-container>
+                        <md-switch class="md-warn"
+                            ng-model="f.follow_me_prompt">
+                            {{ f.follow_me_prompt ? ' ON' : 'OFF'}}
+                        </md-switch>
+                    </md-input-container>
+                </td> -->
+                <td>
+                    <i class="fa fa-floppy-o dktealfont mainopt" 
+                        tooltip-placement="top" 
+                        uib-tooltip="{{::tips.forwarding.savedest}}"
+                        ng-click="saveDest()"></i>
+                    <i class="fa fa-undo orangefont mainopt" 
+                        tooltip-placement="top-right" 
+                        uib-tooltip="{{::tips.forwarding.canceldest}}"
+                        ng-click="cancelDestAdd()"></i>
+                </td>
+            </tr>
+            <tr ng-repeat="dest in user.forwarding.destinations">
+                <td ng-if="!isEditing(dest)">
+                    <span ng-if="!isEditing(dest)">
+                        <span ng-if="dest.destination_type==='User Extension'">
+                            {{dest.destination_type}}: Ext: {{dest.destination_number}}
+                        </span>
+                        <span ng-if="dest.destination_type==='Phone Number'">
+                            {{dest.destination_type}}: {{dest.destination_number | tel}}
+                        </span>
+                        <span ng-if="dest.destination_type==='Ring Group'">
+                            {{dest.destination_type}}: Ext: {{dest.destination_number}}
+                        </span>
+                    </span>
+                </td>
+                <td ng-if="isEditing(dest)" style="padding: 0;">
+                    <table class="table table-bordered masterdata">
+                        <tr>
+                            <td>
+                                <md-input-container>
+                                    <label>Number Type</label>
+                                    <md-select ng-model="newDest.destination_type">
+                                        <md-option ng-repeat="sendTo in destOptions" ng-value="sendTo.type" ng-click="selectDestType()" >
+                                            {{sendTo.type}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </td>
+                            <td ng-show="newDest.destination_type">
+                                <span ng-show="newDest.destination_type === 'User Extension'">
+                                    <md-input-container>
+                                        <label>Pick a Number</label>
+                                        <md-select ng-model="newDest.destination_number">
+                                            <md-option ng-repeat="user in userContacts()" ng-if="!isKotterTechUser(user)" ng-value="user.user_ext">
+                                                {{user.name}} - Ext: {{user.ext}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </span>
+                                <!--Transfer-->
+                                <span ng-if="newDest.destination_type == 'Phone Number'">
+                                    <div><md-input-container>
+                                        <label>Enter a Number</label>
+                                        <input md-input phone-input ng-model="newDest.destination_number" />
+                                    </md-input-container></div>
+                                </span>
+
+                                <div ng-show="newDest.destination_type === 'Ring Group'">
+                                    <md-input-container>
+                                        <label>Select a Ring Group</label>
+                                        <md-select ng-model="newDest.destination_number">
+                                            <md-option ng-repeat="ringgroup in availRingGroups" ng-value="ringgroup.queue_extension">
+                                                {{ringgroup.queue_name}} - Ext: {{ringgroup.queue_extension}}
+                                            </md-option>
+                                        </md-select>
+                                    </md-input-container>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td ng-if="!isEditing(dest)">{{dest.destination_delay}}</td>
+                <td ng-if="isEditing(dest)">
+                    <md-input-container>
+                        <input type="number"
+                            ng-model="newDest.destination_delay"
+                            placeholder="Delay"
+                            min="0" max="200" step="5">
+                    </md-input-container>
+                </td>
+                <td ng-if="!isEditing(dest)">{{dest.destination_timeout}}</td>
+                <td ng-if="isEditing(dest)">
+                    <md-input-container>
+                        <input type="number"
+                            ng-model="newDest.destination_timeout"
+                            placeholder="Timeout"
+                            min="5" max="100" step="5">
+                    </md-input-container>
+                </td>
+                <!-- <td class="col-md-2">
+                    <md-switch class="md-warn"
+                            ng-model="dest.follow_me_prompt">
+                            {{ dest.follow_me_prompt ? ' ON' : 'OFF'}}
+                    </md-switch>
+                </td> -->
+                <td ng-if="!isEditing(dest)">
+                    <i class="fa fa-pencil-square-o dktealfont mainopt" 
+                        tooltip-placement="top" 
+                        uib-tooltip="{{::tips.forwarding.editdest}}"
+                        ng-click="editDest(dest)"></i>
+                    <i class="fa fa-times-circle orangefont mainopt" 
+                        tooltip-placement="top-right" 
+                        uib-tooltip="{{::tips.forwarding.deletedest}}"
+                        ng-click="deleteDest(dest)"></i>
+                </td>
+                <td ng-if="isEditing(dest)">
+                    <i class="fa fa-floppy-o dktealfont mainopt" 
+                        tooltip-placement="top" 
+                        uib-tooltip="{{::tips.forwarding.savedest}}"
+                        ng-click="saveDest()"></i>
+                    <i class="fa fa-undo orangefont mainopt" 
+                        tooltip-placement="top-right" 
+                        uib-tooltip="{{::tips.forwarding.canceleditdest}}"
+                        ng-click="cancelDestAdd()"></i>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</md-content>
+
+<div ng-show="false" id="forwarding-help">
+    <div class="forwarding-help">
+        <h4>Example #1: </h4>
+        <p>The example below will immediately ring Ext 200 and Ext 300 for 20 seconds. After 15 seconds the provided phone number will also be rung.</p>
+        <p><img src="images/forwarding-example.png" alt="Call forwarding example # 1"></p>
+    </div>
+</div>

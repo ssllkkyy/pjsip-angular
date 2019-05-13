@@ -1,0 +1,20 @@
+<div ng-controller="VideoConferenceCtrl">
+    <div>  
+        <div class="modal-header">
+            <span class="fa-stack fa-2x modal-icon">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-video-camera fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Incoming Video Call</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+
+        <div class="modal-body" id="modal-body">
+            <div class="cls-title-cont-modal">{{vm.content.data.message}}</div>
+            <span style="width: 100%; text-align: center;"><a href="{{symphonyUrl}}/video/{{vm.content.data.data.invite_hash}}" class="btn btn-success btn-lg" target="_blank">Click Here to Join The Conference</a></span>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-default btn-md" ng-click="closeVideoCallModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+        </div>
+    </div>
+</div>

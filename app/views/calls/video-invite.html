@@ -1,0 +1,34 @@
+<div class="video-invite">
+    <p>
+        You have been invited to a video conference
+    </p>
+    <i class="fa fa-user-circle-o"
+       ng-show="!contact.im"
+       style="color: #2E9AFE; font-size: 60px;">
+    </i>
+    <div class="cls-circle-arround-1"
+         ng-if="contact.im">
+        <img ng-src="{{avatarPath}}"
+             class="cls-img-incomingcall"
+             alt="" />
+    </div>
+    <center>
+      <strong>
+          <p ng-if="contact.name">
+              {{contact.name}}
+          </p>
+      </strong>
+    </center>
+    <div class="options incoming-call-buttons">
+        <button class="btn-link mdi mdi-phone-incoming cls-color-green-tkg"
+                ng-click="acceptInvite()"
+                tooltip-placement="top"
+                uib-tooltip="Go to video conference">
+        </button>
+        <button class="btn-link mdi mdi-phone-missed cls-color-red-tkg"
+                ng-click="declineInvite()"
+                tooltip-placement="top"
+                uib-tooltip="Decline video conference">
+        </button>
+    </div>
+</div>

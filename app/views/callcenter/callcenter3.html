@@ -1,0 +1,265 @@
+<div ng-controller="CallCenterCtrl"
+    style="width: 100%"    >
+    <div class="no-access-container" ng-if="!packageHasAccess('callcenter')">
+        <div class="alert alert-warning centered no-access">
+            Your current Bridge <strong>{{user.package.package_title}}</strong> does not have access to <strong>{{showFeatureTitle('callcenter')}}</strong>.
+        </div>
+    </div>
+
+    <div id="callcenter3" ng-if="packageHasAccess('callcenter')" class="inner-content-container">
+        <div class="row content-header padd">
+            <div class="col-sm-8">
+                <h3>Call Centre</h3>
+                <!-- ***III -->
+                <!-- <button ng-click="test()">TEST</button> -->
+            </div>
+            <div class="col-sm-4 vm-selector" >
+                <location-selector 
+                    is-manager="false"
+                    on-location-change="onLocationChange"
+                    viewable="'callcenter'"
+                    boot-loc-change="true"
+                    style="float: right;
+                        margin-right: 30%">
+                </location-selector>
+            </div>
+        </div>
+        <div class="callcenter3-body">
+
+            <!-- *****************Custom Sorting Controls******************* -->
+            <div class="table-head-container" style="margin-bottom: 10px;">
+                <table class="table table-bordered tabel-striped table-hover cls-tab-comp-setup-users">
+                    <thead style="margin-bottom: 5px">
+                        <tr>
+                            <th ng-repeat="columnName in tableControls.columnNames"
+                                ng-click="setSort(columnName.name)"
+                                class="header-cell">
+                                {{columnName.text}}
+                                <i ng-if="showSelectedChevron(columnName.name, 'up')"
+                                    class="fa fa-chevron-circle-up activesort padd5left">
+                                </i>
+                                <i ng-if="showSelectedChevron(columnName.name, 'down')"
+                                    class="fa fa-chevron-circle-down activesort padd5left">
+                                </i>
+                                <i ng-if="showDefaultChevron(columnName.name)"
+                                    class="fa fa-chevron-down">
+                                </i>
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+        <!-- *****************EndCustom Sorting Controls******************* -->
+        <!-- *****************start User-Card ***************************** -->
+            <repeat-container>
+                <div class="user-contact-tile"
+                    ng-repeat="user in tableControls.filteredUsers"
+                    ng-if="user.en != 'false'">
+                    
+                    <contact-avatar contact="user"></contact-avatar>
+                    
+                    <div class="nameStatCard">
+                    
+                            <span class="user-name">
+                                {{ (user.name.length >= 18 ) ? (user.name.slice(0,16) + "...") : (user.name) }}
+                            </span>
+                            <br>
+                            <div class="statusBlock">
+                                <div class="{{getStatusIcon(user.status)}}"></div>
+                                <span>{{user.status}}</span>
+                            </div>
+                    
+                    </div>
+                    <p class="right">Ext. 
+                        <span class="user-ext">{{user.ext}}</span>
+                    </p>
+            <!-- *************NOT-On-Call-Tile************* -->
+                    <div ng-show="showCorrectCallTile(user) == 'none'">
+
+                        <div class="call-tile">
+                            <p style="margin-bottom: 0px">On call with: 
+                                <span style="font-weight: bold">- n/a -</span>
+                            </p>
+
+                            <p style="margin-bottom: 0px">In/Out: 
+                                <span style="font-weight: bold">- n/a -</span>
+                            </p>
+                        </div>
+
+                    </div>
+            <!-- *************************************** -->
+            <!-- *************HELD-Call-Tile************* -->
+                    <div ng-show="showCorrectCallTile(user) == 'held'">
+
+                        <div class="call-tile held">
+                            <p style="margin-bottom: 0px">On call with: 
+                                <span style="font-weight: bold">- On Hold -</span>
+                            </p>
+
+                            <p style="margin-bottom: 0px">In/Out: 
+                                <span style="font-weight: bold">{{getHeldCall(user.ext).inOut}}</span>
+                            </p>
+                        </div>
+
+                    </div>
+            <!-- *************************************** -->
+            <!-- *************ON CALL TILE ************* -->
+                        <div ng-show="showCorrectCallTile(user) == 'active'"
+                            class="call-tile active">
+                            <p style="margin-bottom: 0px">On call with: 
+                                <span style="font-weight: bold">{{getActiveCall(user.ext).calleeNum | tel}}</span>
+                                <span class="right time-size">
+                                    <timer interval="1000"
+                                        start-time="getActiveCall(user.ext).callCreated"
+                                        ng-if="getActiveCall(user.ext).callCreated">
+                                        {{hhours}}:{{mminutes}}:{{sseconds}}
+                                    </timer>
+                                </span>
+                            </p>
+                            <p style="margin-bottom: 0px">In/Out: 
+                                <span style="font-weight: bold">{{getActiveCall(user.ext).inOut}}</span>
+                            </p>
+                        </div>
+            <!--************************User Contact Controls -->
+                    <!-- <div style="width: 250px; overflow: wrap;">{{getActiveCall(user.ext)}}</div> -->
+                    <div class="cls-contact-btn-options">
+                        <ul class="controls-list">
+                        
+                            <li ng-repeat="(actionName, action) in user.lwbInfo.actions"
+                                ng-click="transitionState(getActiveCall(user.ext), actionName)"
+                                ng-if="hasLwbAccess()"
+                                ng-disabled="!getActiveCall(user.ext)"
+                                class="{{actionName}} contact-control-icon">
+                                <i ng-style="getActionStyle(getActiveCall(user.ext).lwbState, action)"
+                                    tooltip-placement="top"
+                                    class="{{action.icon}}"
+                                    uib-tooltip="{{getActionTooltip(action)}}">
+                                </i>
+                            </li>
+                        </ul>
+                        <ul class="controls-list">
+                            <li uib-tooltip="Call"
+                                tooltip-placement="top"
+                                class="contact-control-icon">
+                                <span class="btn-group">
+                                    <button class="dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            aria-haspopup="true"
+                                            aria-expanded="false"
+                                            style="border: none !important; background: transparent !important">
+                                        <span style="color: #8adbf6;">
+                                            <i class="fa fa-phone" style=" font-size: 25px !important;"></i>
+                                        </span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li ng-if="user.ext">
+                                            <a href=""
+                                                ng-click="makeCall(user.ext)">
+                                                <strong>
+                                                    Extension: ( {{user.ext}} )
+                                                </strong>
+                                            </a>
+                                        </li>
+                                        <li ng-repeat="phone in user.nums" ng-if="phone.num">
+                                            <a href=""
+                                                ng-click="makeCall(phone.num)">
+                                                {{phone.lab}}
+                                                {{phone.num | tel}}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </span>
+                            </li>
+                            <li ng-click="!ownCallIsPresent() || operatorTransfer(user)"
+                                ng-if="user.type=='user'"
+                                uib-tooltip="Transfer your call to this user"
+                                tooltip-placement="top">
+                                <span class="btn-group phone-forward"
+                                    
+                                    style="font-size: 20px">
+                                    <i class="mdi cls-color-teal-tkg mdi-phone-forward"
+                                        ng-if="ownCallIsPresent()">
+                                    </i>
+                                    <i class="mdi cls-color-teal-tkg mdi-phone-forward"
+                                        style="color: grey"
+                                        ng-if="!ownCallIsPresent()">
+                                    </i>
+                                </span>
+                            </li>
+                            
+                            <li tooltip-placement="top"
+                                ng-if="user.type=='user'"
+                                uib-tooltip="Chat"
+                                class="contact-control-icon"
+                                ng-click="startDirectMessageFromContact(user)">
+                                <h4>
+                                    <span style="color: #f8a632; font-size: 20px">
+                                        <i class="fa fa-comments fa-lg">
+                                        </i>
+                                    </span>
+                                </h4>
+                            </li>
+
+                            <li tooltip-placement="top"
+                                ng-if="getDid(user)"
+                                uib-tooltip="Text"
+                                class="contact-control-icon"
+                                ng-click="showModalWithData('/sms/sendsmstop.html',{smsnumber: getDid(user), message: ''})">
+                                <h4>
+                                    <span style="color: #f8a632; font-size: 20px" >
+                                        <i class="fa fa-paper-plane fa-lg" >
+                                        </i>
+                                    </span>
+                                </h4>
+                            </li>
+
+                            <li ng-if="user.em && contact.em != ''"
+                                tooltip-placement="top"
+                                class="contact-control-icon"
+                                uib-tooltip="{{user.em}}">
+                                <a ng-click="startEmailClient(user.em)">
+                                    <h4>
+                                        <span style="color: #64d76c;">
+                                            <i class="fa fa-envelope-o fa-lg">
+                                            </i>
+                                        </span>
+                                    </h4>
+                                </a>
+                            </li>
+
+                            <li tooltip-placement="top"
+                                ng-if="user.type=='user'"
+                                uib-tooltip="Video Conference"
+                                class="contact-control-icon"
+                                ng-click="sendVideoInvite(user)">
+                                <h4>
+                                    <span style="color: #f8a632; font-size: 20px">
+                                        <i class="fa fa-video-camera fa-lg">
+                                        </i>
+                                    </span>
+                                </h4>
+                            </li>
+
+                            <li tooltip-placement="top-right"
+                                class="contact-control-icon"
+                                uib-tooltip="Edit/View contact">
+                                <h4>
+                                    <span style="color: orangered;">
+                                        <i class="fa fa-pencil-square-o fa-lg"
+                                        ng-click="showEditContactForm(user.cuuid)">
+                                        </i>
+                                    </span>
+                                </h4>
+                            </li>
+                        </ul>
+
+            <!-- End Contact Controls -->
+                    </div>
+                </div>
+                
+            </repeat-container>
+
+        </div><!-- close call center body -->
+    </div>
+</div>

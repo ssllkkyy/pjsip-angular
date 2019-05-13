@@ -1,0 +1,22 @@
+<div>  
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Confirm Unsubscribe?</span>
+        <button type="button" ng-click="vm.content.data.closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <h4>{{vm.content.data.display_name}}</h4>
+        <div ng-if="vm.content.data.channel.type!='D'" class="cls-title-cont-modal">Are you sure you want to unsubscribe from this Channel? </div>
+        <div ng-if="vm.content.data.channel.type=='D'" class="cls-title-cont-modal">Are you sure you want to close the direct message with {{vm.content.data.channel.display_name}}? </div>
+    </div>
+    
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="vm.content.data.closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+        <button ng-if="vm.content.data.channel.type!='D'" class="btn btn-danger btn-md" ng-click="vm.content.data.unsubscribeChannel(vm.content.data.channel)"><i class="fa fa-external-link" style="margin-right: 10px;"></i>Confirm </button>
+        <button ng-if="vm.content.data.channel.type=='D'" class="btn btn-danger btn-md" ng-click="vm.content.data.hideDirectMessage(vm.content.data.channel)"><i class="fa fa-external-link" style="margin-right: 10px;"></i>Confirm </button>
+    </div>
+</div>

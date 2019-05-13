@@ -1,0 +1,49 @@
+<md-content>
+    <div class="mobile-settings">
+        <h4>Push Notifications</h4>
+        <div class="push-toggle">
+            <div class="col-md-6">
+                <md-switch class="md-warn"
+                    ng-model="user.push.chat"
+                    ng-change="updatePush('chat')"
+                    aria-label="Chat Push Notification - Enable/Disable" >
+                    Chat - {{user.push.chat ? 'Enabled' : 'Disabled'}}
+                </md-switch>
+            </div>
+            <div class="col-md-6">
+                <md-switch class="md-warn"
+                    ng-model="user.push.vm"
+                    ng-change="updatePush('vm')"
+                    aria-label="Voicemail Notification - Enable/Disable">
+                    Voicemail - {{user.push.vm ? 'Enabled' : 'Disabled'}}
+                </md-switch>
+            </div>
+            <div class="col-md-6">
+                <md-switch class="md-warn"
+                    ng-model="user.push.sms"
+                    ng-change="updatePush('sms')"
+                    aria-label="Text Notification - Enable/Disable">
+                    Text - {{user.push.sms ? 'Enabled' : 'Disabled'}}
+                </md-switch>
+            </div>
+            <div class="col-md-6">
+                <md-switch class="md-warn"
+                    ng-model="user.push.missed"
+                    ng-change="updatePush('missed')"
+                    aria-label="Missed Call Notification - Enable/Disable">
+                    Missed Call - {{user.push.missed ? 'Enabled' : 'Disabled'}}
+                </md-switch>
+            </div>
+        </div>
+        <h4>When to Send Push Notifications</h4>
+        <div class="push-toggle">
+            <div class="col-md-6">
+                <md-radio-group ng-model="user.push.frequency" ng-change="updatePushFrequency()">
+                    <md-radio-button value="online" class="md-primary">Online, Away or Offline</md-radio-button>
+                    <md-radio-button value="away"> Away or Offline </md-radio-button>
+                    <md-radio-button value="offline">Offline</md-radio-button>
+                </md-radio-group>
+            </div>
+        </div>
+    </div>
+</md-content>

@@ -1,0 +1,69 @@
+<div id="public-container" ng-if="loaded">
+    <div id="public-header"
+         ng-if="!fullscreenResource || logoUrl">
+        <div class="logo-container">
+            <a href="http://www.kotter.net"
+               title="Visit Kotter.net">
+                <img src="{{logoUrl}}">
+            </a>
+        </div>
+    </div>
+    <div id="public-body">
+        <div ng-if="displayError">
+            <div class="share-title">
+                File Request from {{urlCode}}
+            </div>
+
+        </div>
+        <div ng-if="!displayError">
+            <div ng-if="retrievedRecord.url_type==='playvoicemail'">
+                <div class="share-title">
+                    Voicemail left by <span ng-if="retrievedRecord.contact_name">{{retrievedRecord.contact_name}} - </span>{{retrievedRecord.caller_id_number | tel}}<br />
+                    {{retrievedRecord.left_at | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                </div>
+                <div class="panel panel-default player-panel">
+                    <div class="panel-body">
+                        <div><audio controls="" name="media"><source src="{{retrievedRecord.play_url}}" type="audio/x-wav"></audio></div>
+                        <div><a class="btn btn-success" href="{{enableUrl(retrievedRecord)}}" target="_blank">Download</a></div>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="retrievedRecord.url_type==='playvideo'">
+                <div class="share-title"
+                     ng-if="!fullscreenResource">
+                    Archive Recording from {{retrievedRecord.created_at | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                </div>
+                <div class="panel panel-default player-panel {{fullscreenResource && 'fullscreen-resource'}}">
+                    <div class="panel-body">
+                        <div class="video-container">
+                            <video controls="" name="media" autoplay="true">
+                                <source src="{{retrievedRecord.play_url}}" type="video/mp4">
+                            </video>
+                        </div>
+                        <div ng-if="!fullscreenResource">
+                            <a class="btn btn-success"
+                               href="{{enableUrl(retrievedRecord)}}"
+                               target="_blank">
+                                Download
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="retrievedRecord.url_type==='playrecording'">
+                <div class="share-title">
+                    Audio Recording left with <span ng-if="retrievedRecord.contact_name">{{retrievedRecord.contact_name}} - </span>{{retrievedRecord.caller_id_number | tel}}<br />
+                    {{retrievedRecord.start_stamp | toLocalTime | amDateFormat: 'MMM D, YYYY, h:mm a'}}
+                </div>
+                <div class="panel panel-default player-panel">
+                    <div class="panel-body">
+                        <div><video controls="" name="media"><source src="{{retrievedRecord.play_url}}" type="video/mp4"></video></div>
+                        <div><a class="btn btn-success" href="{{enableUrl(retrievedRecord)}}" target="_blank">Download</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+            
+    </div>
+</div>

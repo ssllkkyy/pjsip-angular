@@ -1,0 +1,86 @@
+<div class="modal-header">
+    <span class="cls-header-modal">Register E911 Address</span>
+    <button type="button" ng-click="closeModal()" class="close">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+<form name="registerE911" id="register-e911-modal" ng-submit="orderingAddress=true; vm.content.data.modalRegister(vm.content.data.user)">
+    <div class="modal-body"
+        id="modal-body">
+        <div ng-if="orderingAddress" class="loading-users mdgreyfont">
+                <i class="fa fa-spinner fa-spin fa-4x"></i><br />
+                <span>Setting up address<br />
+                Please Wait</span>
+        </div>
+        <div ng-if="!orderingAddress">
+            <md-input-container>
+                <md-checkbox ng-model="vm.content.data.newE911Number.default">
+                    Set as Default Company E911 Address
+                </md-checkbox>
+            </md-input-container>
+            <br>
+            <md-input-container>
+                <input type="text"
+                name="address1"
+                required
+                    ng-model="vm.content.data.newE911Number.address1"
+                    placeholder="address">
+                <div ng-messages="registerE911.address1.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div>
+            </md-input-container>
+            <md-input-container>
+                <input type="text"
+                name="city"
+                required
+                    ng-model="vm.content.data.newE911Number.community"
+                    placeholder="city">
+                <div ng-messages="registerE911.city.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div>
+            </md-input-container>
+            <br>
+            <md-input-container>
+                <md-select ng-model="vm.content.data.newE911Number.state"
+                class="bottom-border-only"
+                    name="e911State"
+                    required
+                    placeholder="state">
+                    <md-option ng-repeat="state in vm.content.data.billingStates"
+                            ng-value="state.state_abbr">
+                        {{state.state_name}}
+                    </md-option>
+                </md-select>
+                <div ng-messages="registerE911.state.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div>
+            </md-input-container>
+            <md-input-container>
+                <input type="text"
+                name="zipcode"
+                required
+                    ng-model="vm.content.data.newE911Number.postalcode"
+                    placeholder="zipcode">
+                <div ng-messages="registerE911.zipcode.$error" >
+                    <div ng-message="required">This is required!</div>
+                </div>
+            </md-input-container>
+        </div>
+    </div>
+    <div  ng-if="!orderingAddress" class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md"
+                ng-click="closeModal()">
+            <i class="fa fa-remove"
+            style="margin-right: 10px;">
+            </i>
+            Cancel
+        </button>
+        <button class="btn btn-primary btn-md"
+        ng-disabled="registerE911.$invalid"
+        type="submit">
+            <i class="fa fa-save"
+            style="margin-right: 10px;"></i>
+            Register
+        </button>
+    </div>
+</form>

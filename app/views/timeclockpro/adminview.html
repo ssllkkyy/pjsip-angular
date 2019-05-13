@@ -1,0 +1,60 @@
+<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4>Individual Settings</h4>
+		</div>
+</div>
+<div class="user-list">
+	<h5>Active Activity Monitor Users</h5>
+
+	<div class="input-group">
+        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+        <input class="form-control normal"
+               type="text"
+               ng-model="search.contact_name_full"
+               placeholder="Filter by Name">
+    </div>
+    <button class="btn btn-default btn-xs"
+                        ng-click="clearFilter()">
+                    Clear Filter
+     </button>
+	<div class="team_list-item" ng-repeat="user in tkusers | filter:search | orderBy : predicate :reverse " ng-class="getTabClass($index)" ng-click="setActiveTab(user)">
+		<span class="container_team-value"  data-toggle="tab">{{user.contact_name_full}}</span>
+	</div>
+
+</div>
+<div class="user-details" >
+	<div ng-class="getTabPaneClass()" id= "tabing">
+		<h2>{{selectedContact.contact_name_full}}</h2>
+		<div ng-if="!selectedContact">
+			<h3>Please select a contact to edit</h3>
+		</div>
+		<div ng-if="selectedContact">
+			<div class="payratediv">
+				<h4>Payrate </h4>
+				<span id="payrate" class="payrate" ng-show="setpay" ng-click="setPayRateInput()">Set pay rate</span>
+
+				<span ng-if="!setpay" ng-show="setpayinput" style="font-size: 18px;"><input type="number" name="payrate" class="form-control" style="width: 80px; float: left;" ng-model="selectedContact.user_rate" min="0" step="any" ng-blur="selectedContact.user_rate != null ? changePayRate(selectedContact): setPayRate()" autofocus="true"/>  $/hr</span>
+
+				<span class= "inputvalue" ng-if="!setpay && !setpayinput">{{selectedContact.user_rate}} $/hr 
+					<span class="payrate" ng-click = "changePayInput()"> Edit</span>
+				</span>
+			</div>
+			<hr>
+			<div ng-if="enabled">
+				<h4>Screenshot Frequency </h4>
+					<span id="frequency" class="payrate" ng-show="setfrequency" ng-click="setFrequencyInput()">Set Screenshot Frequency</span>
+
+                    <span  style="font-size: 18px;" ng-show="setfrequencyinput"><input type="number" ng-model="selectedContact.screenshot_frequency" class="form-control" style="width: 80px; float: left;" ng-blur= "selectedContact.screenshot_frequency == null ? setFrequency(): changeFrequency(selectedContact)" min = "0" autofocus="true"/> Seconds </span>
+
+                    <span class= "inputvalue" ng-if="!setfrequency && !setfrequencyinput">{{selectedContact.screenshot_frequency}} Seconds
+					<span class="payrate" ng-click = "changeFrequencyInput()"> Edit</span>
+					</span>
+			</div>
+
+			<div class="screenshot">
+				<button class="btn btn-default" ng-class="{enabled : enabled === false}" ng-click="disableScreenshot(selectedContact)">{{enabled? 'Disable Screenshot' : 'Enable Screenshot'}}</button>
+			</div>
+		</div>
+	</div>
+</div>
+

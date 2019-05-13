@@ -1,0 +1,31 @@
+<div ng-controller="ModalCtrl">
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-times fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Confirm Blacklisting</span>
+        <button type="button" ng-click="closeThisModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <div class="cls-title-cont-modal">Are you sure you want to blacklist <strong>{{vm.content.data.contact_phone_number | tel}}</strong> from sending additional messages?</div>
+        <div >
+            <md-radio-group ng-model="blacklist.reach" ng-required="true" ng-init="blacklist.reach === 'domain'">
+                <div class="row" >
+                    <div class="col-sm-3 offset-sm-3">
+                        <md-radio-button value="domain" class="md-primary"> Domain Wide</md-radio-button>
+                    </div>
+                    <div class="col-sm-3">
+                        <md-radio-button value="did"> My DID only</md-radio-button>
+                    </div>
+                </div>
+            </md-radio-group>
+        </div>
+    </div>
+    
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="closeThisModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+        <button class="btn btn-danger btn-md" ng-click="blacklistNumber(vm.content.data, blacklist.reach)"><i class="fa fa-times" style="margin-right: 10px;"></i>Confirm Blacklist</button>
+    </div>
+</div>

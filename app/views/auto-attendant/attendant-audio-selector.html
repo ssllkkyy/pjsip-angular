@@ -1,0 +1,167 @@
+<div uib-collapse="isCollapsedVertical"
+     class="collapsible-content">
+    <div class="audio-selector-container">
+        <!-- <md-button ng-if="selectedAudio" -->
+        <!-- class="md-default md-raised vm-button"> -->
+        <!-- <audio-play-btn -->
+        <!-- audio-file="selectedAudio" -->
+        <!-- contents-only="true" -->
+        <!-- ng-init="btnLink = {}" -->
+        <!-- ng-click="btnLink.toggle()" -->
+        <!-- style="display: block;" -->
+        <!-- link="btnLink"> -->
+        <!-- <btn-text>Play {{resourceName}}</btn-text> -->
+        <!-- </audio-play-btn> -->
+        <!-- </md-button> -->
+        <!-- <md-button class="md-default md-raised vm-button" -->
+        <!-- ng-if="selectedAudio && !showSelector" -->
+        <!-- ng-click="chooseSelected(selectedAudio, voicemailSettings, selectedResource)"> -->
+        <!-- <i class="fa fa-hand-pointer-o"></i> -->
+        <!-- Choose {{requiresAddlOpts ? "and Create " + addlOptsResourceName : resourceName}} -->
+        <!-- </md-button> -->
+        <!-- <md-button class="md-default md-raised vm-button" -->
+        <!-- ng-show="!showSelector" -->
+        <!-- ng-click="showAddAudio()"> -->
+        <!-- <i class="fa fa-edit"></i> -->
+        <!-- Change {{resourceName}} -->
+        <!-- </md-button> -->
+        <md-button class="md-default md-raised vm-button"
+                   ng-if="!selectedRecording"
+                   ng-click="chooseAudio()">
+            <i class="fa fa-ban"></i>
+            Cancel Edit
+        </md-button>
+        <voicemail-options-edit
+            voicemail-edit-info="voicemailSettings"
+            ng-if="showVoicemailOpts()">
+        </voicemail-options-edit>
+        <br>
+        <div class="row"
+             ng-if="showSelector">
+            <div class="col-md-5">
+                <div class="panel cls-panels-header">
+                    <div class="panel-heading">
+                        <i class="fa fa-hand-o-up"
+                           style="padding-right: 10px;">
+                        </i>
+                        <strong class="cls-color-blue-tkg">
+                            Click an Option Below
+                        </strong>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item"
+                            ng-repeat="opc in opcOpts"
+                            ng-click="setSelectedOpc(opc)">
+                            <i class="{{opc.class}}"
+                               style="margin-right: 10px;">
+                            </i>
+                            {{opc.cta}}...
+                            <i class="fa fa-bullseye pull-right"
+                               ng-if="selectedOpc === opc">
+                            </i>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="panel"
+                     ng-if="selectedOpc"
+                     style="border: #cfdef0 solid 1px;">
+                    <div class="panel-heading">
+                        <strong class="cls-color-blue-tkg">
+                            {{selectedOpc.cta}}...
+                        </strong>
+                        <button class="btn btn-default pull-right"
+                                ng-click="cancelAddAudio()">
+                            <i class="fa fa-undo"></i>
+                            Cancel
+                        </button>
+                    </div>
+                    <div class="panel-body">
+                        <div ng-if="selectedOpc.name === 'existing'">
+                            <attendant-resource-table
+                                resource-table-info="resourceTableInfo"
+                                selected-action="!resourceTableInfo && audioAction"
+                                handle-action="handleSelectedResource(resource)"
+                                handle-action-message="handleActionMessage"
+                                table-only="true"
+                                alter-resources="alterResources({resources: resources})"
+                                register-new-resource-trigger="registerNewResourceTrigger(trigger)">
+                            </attendant-resource-table>
+                        </div>
+                        <div ng-if="selectedOpc.name === 'newrecord' || selectedOpc.name === 'uploadfile'" >
+                            <div class="recording">
+                                <div class="panel panel-primary">
+                                    <div class="panel-body">
+                                        <audio-recorder
+                                            ng-if="selectedOpc.name === 'newrecord' "
+                                            save-recording="saveRecording(recording)"
+                                            title="selectedOpc.title">
+                                        </audio-recorder>
+                                    </div>
+                                    <div class="panel-body"
+                                         ng-if="selectedOpc.name === 'uploadfile'">
+                                        <form name="recorderFields">
+                                            <div class="jumbotron">
+                                                <div>
+                                                    <md-input-container
+                                                        style="width: 100%; text-align: center;" >
+                                                        <label>Greeting Description</label>
+                                                        <input
+                                                            ng-model="audioRecordingData.title"
+                                                            required
+                                                            name="recorderFields.description" />
+                                                        <div ng-messages="recorderFields.description.$error">
+                                                            <div ng-message="required">
+                                                                This field is required
+                                                            </div>
+                                                        </div>
+                                                    </md-input-container>
+                                                </div>
+                                                <span>
+                                                    <p>
+                                                        <strong>{{audioRecordingData.recording.title}}</strong>
+                                                    </p>
+                                                </span>
+                                                <div class="controls text-center"
+                                                     style="padding-top: 10px;">
+                                                    <file-browse-btn
+                                                        class="btn btn-primary btn-file"
+                                                        accept="audio/*"
+                                                        file-model-obj="audioRecordingData">
+                                                        <btn-text>Browse for File</btn-text>
+                                                    </file-browse-btn>
+                                                    <button
+                                                        class="btn btn-success"
+                                                        ng-disabled="!audioRecordingData"
+                                                        ng-click="selectAudioFile(audioRecordingData)">
+                                                        Save
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div ng-if="selectedOpc.name === 'synthesize'" >
+                            <md-input-container
+                                style="width: 100%; text-align: center;" >
+                                <label>Greeting Description</label>
+                                <input
+                                    ng-model="title"
+                                    required>
+                            </md-input-container>
+                            <text-synthesizer save-synth="saveSynth(text, file, title)">
+                            </text-synthesizer>
+                        </div>
+                    </div>
+                </div>
+                <div ng-if="uploading" style="width: 250px; text-align: center; opacity: 0.6; margin: 40px;">
+                    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i><br />
+                    Upoading audio. Please wait...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

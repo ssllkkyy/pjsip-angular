@@ -1,0 +1,117 @@
+<header>
+    <div class="cls-menu-dev">
+        <a href="#" class="bt-menu">
+            <span class="fa fa-bars" style="border: none !important;">
+            </span>
+            <img src="images/Kotter-logoSN.png" width="40" height="40" alt="Logo" style="border: none !important;">
+            <i class="fa fa-ellipsis-v" ng-click="showHideMenuConfig()" style="border: none !important;">
+            </i>
+        </a>
+    </div>
+
+    <div class="wrapper">
+        <div class="topnavlist">
+            <ul class="topnav1">
+                <li ng-class="{lnkActivo : activePath==='/main'}">
+                    <a href="main" class="caption">
+                        <i class="fa fa-tachometer fa-lg"></i> Dashboard
+                    </a>
+                </li>
+                <li ng-class="{lnkActivo : activePath==='/chatplus'}">
+                    <a href="chatplus">
+                        <i class="fa fa-wechat fa-lg"></i> Chat Plus
+                        <span>{{totalMentionCount()}}</span>
+                    </a>
+                </li>
+                <li ng-class="{lnkActivo : activePath==='/sms'}">
+                    <a href="sms">
+                        <i class="fa fa-paper-plane fa-lg"></i> Text Messages
+                        <span ng-if="unreadSms() > 0">
+                            ({{unreadSms()}})
+                        </span>
+                    </a>
+                </li>
+                <li ng-class="{lnkActivo : activePath==='/callhistory'}">
+                    <a href="callhistory">
+                        <i class="fa fa-history fa-lg"></i> Call History
+                    </a>
+                </li>
+                <li ng-class="{lnkActivo : activePath==='/settings'}">
+                    <a href="settings">
+                        <i class="fa fa-cog fa-lg"></i> Settings
+                    </a>
+                </li>
+                <li ng-class="{lnkActivo : activePath==='/settings'}">
+                    <a href="https://kotter.net/training" target="_blank">
+                        <i class="fa fa-info-circle fa-lg"></i> Training
+                    </a>
+                </li>
+            </ul>
+            <div class="topnavhamb" ng-controller="ctrlNavBar" ng-click="openNav()">
+                <i class="fa fa-bars" aria-hidden="true"></i>
+                <div class="menu-text">MENU</div>
+                <div class="menu" ng-if="menuOpen">
+                    <ul class="menu-nav">
+                        <li ng-class="{lnkActivo : activePath==='/chatplus'}">
+                            <a href="chatplus">
+                                <i class="fa fa-wechat fa-lg"></i> Chat Plus
+                                <span ng-bind-html="showChatTotalMentions()"></span>
+                            </a>
+                        </li>
+                        <li ng-class="{lnkActivo : activePath==='/sms'}">
+                            <a href="sms">
+                                <i class="fa fa-paper-plane fa-lg"></i> Text Messages
+                                <span ng-if="unreadSms() > 0">
+                                    ({{unreadSms()}})
+                                </span>
+                            </a>
+                        </li>
+                        <li ng-class="{lnkActivo : activePath==='/messenger'}">
+                            <a href ng-click="showMessengerModal()">
+                                <img src="/images/icons/fbmsgicon.png" class="messengericon"> Facebook Messenger
+                            </a>
+                        </li>
+                        <li ng-class="{lnkActivo : activePath==='/callhistory'}">
+                            <a href="callhistory">
+                                <i class="fa fa-history fa-lg"></i> Call History
+                            </a>
+                        </li>
+                        <li ng-class="{lnkActivo : activePath==='/settings'}">
+                            <a href="settings">
+                                <i class="fa fa-cog fa-lg"></i> Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="element2">
+            <div class="support-actions-container">
+                <div class="support-actions-body">
+                    <md-button class="support-btn feedback-btn"
+                               ng-click="triggerFeedbackEmail()"
+
+                               uib-tooltip="Email us feedback about Bridge."
+                               tooltip-placement="left">
+                        <md-icon>email</md-icon>
+                        <p>Bridge <br /> Feedback</p>
+                    </md-button>
+                    <md-button class="support-btn talk-support-btn"
+                                ng-click="callSupport()"
+                                uib-tooltip="Talk to our support team"
+                                tooltip-placement="bottom">
+                        <md-icon>phone_in_talk</md-icon>
+                        <p>Talk To <br /> Support</p>
+                    </md-button>
+                    <md-button class="support-btn chat-support-btn"
+                                ng-click="toggleChat()"
+                                uib-tooltip="Chat with our support team"
+                                tooltip-placement="bottom">
+                        <md-icon>chat</md-icon>
+                        <p>Chat With <br /> Support</p>
+                    </md-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,42 @@
+<div class="editor-action-selector">
+    <md-input-container>
+        <label>Select Action Type</label>
+        <md-select ng-show="!$ctrl.chosenAction && !$ctrl.choosingSubAction"
+                   ng-change="$ctrl.onChosenAction()"
+                   ng-model="$ctrl.chosenAction">
+            <md-option ng-repeat="action in $ctrl.actions"
+                       ng-value="action.name">
+                {{action.title}}
+            </md-option>
+        </md-select>
+    </md-input-container>
+</div>
+<div ng-show="$ctrl.chosenAction && !$ctrl.choosingSubAction">
+    <ivr-edit
+        ng-if="$ctrl.chosenAction === 'ivr'"
+        ivr="$ctrl.editingResource"
+        register-resource-retrieve="$ctrl.regResourceRetrieve({fn: retrievalFn})">
+    </ivr-edit>
+    <ring-group-edit
+        ng-if="$ctrl.chosenAction === 'ring-group'"
+        ring-group="$ctrl.editingResource"
+        register-resource-retrieve="$ctrl.regResourceRetrieve({fn: retrievalFn})">
+    </ring-group-edit>
+    <voicemail-edit
+        ng-if="$ctrl.chosenAction === 'voicemail'"
+        voicemail="$ctrl.editingResource"
+        register-resource-retrieve="$ctrl.regResourceRetrieve({fn: retrievalFn})">
+    </voicemail-edit>
+    <announcement-edit
+        ng-if="$ctrl.chosenAction === 'announcement'"
+        announcement="$ctrl.editingResource"
+        register-resource-retrieve="$ctrl.regResourceRetrieve({fn: retrievalFn})">
+    </announcement-edit>
+</div>
+<action-editor
+    reg-choose-sub-action="$ctrl.subRegChooseSubAction(fn)"
+    reg-go-back="$ctrl.subRegGoBack(fn)"
+    reg-resource-retrieve="$ctrl.regResourceRetrieve({fn: fn})"
+    on-chosen-action="$ctrl.onChosenAction()"
+    ng-if="$ctrl.choosingSubAction">
+</action-editor>

@@ -1,0 +1,62 @@
+<div class="chat-container"
+     uploader="uploader">
+    <chat-macro-suggestion-list
+        ng-if="showMacrosList && mainChatInput"
+        input-element="mainChatInput"
+        parent-data="macrosListData"
+        is-modal="true">
+    </chat-macro-suggestion-list>
+    <chat-channels-suggestion-list
+        ng-if="showChannelList && mainChatInput"
+        input-element="mainChatInput"
+        parent-data="channelListData"
+        is-modal="true">
+    </chat-channels-suggestion-list>
+    <chat-people-suggestion-list
+        ng-if="showPeopleList && mainChatInput"
+        input-element="mainChatInput"
+        parent-data="peopleListData"
+        is-modal="true">
+    </chat-people-suggestion-list>
+    <div class="input-container">
+        <span class="chat-input">
+            <textarea
+                class="include-emojis"
+                name="chatMessage"
+                key-press-chat
+                key-press-event-fns="keyPressChatFns"
+                send-post="sendPost"
+                rows="2"
+                placeholder="Write a message"
+                people-data="peopleListData"
+                channel-data="channelListData"
+                macro-data="macrosListData"
+                chat-view="chatView"
+                chat-data="chat"
+                id="chatInput">
+            </textarea>
+        </span>
+        <span class="chat-upload">
+            <label tooltip-placement="left"
+                   uib-tooltip="{{::tips.chatplus.upload_files_to_channel}}">
+                <i class="fa fa-paperclip"></i>
+                <input ng-if="uploader"
+                       type="file"
+                       nv-file-select=""
+                       multiple
+                       uploader="uploader"
+                       required
+                       style="display: none;" />
+            </label>
+        </span>
+        <p class="users-currently-typing">{{currentTypingMessage()}}</p>
+        <div class="post-uploading"
+             ng-if="showUploadingFiles">
+            <chat-post-upload-preview
+                show="showUploadingFiles"
+                sendMessage="sendMessage"
+                uploader="uploader">
+            </chat-post-upload-preview>
+        </div>
+    </div>
+</div>

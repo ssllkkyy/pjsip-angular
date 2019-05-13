@@ -1,0 +1,66 @@
+<div>  
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">Manage Channel Members</span>
+        <button type="button" ng-click="vm.content.data.closeModal()" class="close"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="modal-body" id="modal-body">
+        <h4>{{vm.content.data.display_name}}</h4>
+        <div class="input-group"> 
+            <span class="input-group-addon"><i class="fa fa-question-circle"></i></span> 
+            <input class="form-control" type="text" ng-model="search.username" placeholder="Search by name">
+        </div>
+        <div ng-repeat="message in vm.content.data.messages" uib-alert ng-class="'alert-'+ message.type" dismiss-on-timeout="5000" close="vm.content.data.closeMessages($index)">
+            <span >{{message.note}}</span>
+        </div>
+        <div class="modal-scroll-container" ng-style="{height: modalTableHeight + 'px'}" >
+        <table class="table table-bordered table-hover table-striped table-buttons" >
+            <tbody >
+                <tr ng-repeat="member in vm.content.data.teamMembers | filter:search | filter:{first_name : '!Kotter'} && {last_name : '!Tech'}">
+                    <td class="col-sm-6">
+                        {{member.first_name}} {{member.last_name}} ({{member.username}})<br />
+                        {{member.email}}
+                    </td>
+                    <td class="col-sm-3">
+                        <div ng-if="vm.content.data.isMemberOf(member.id)">
+                            <button ng-if="!vm.content.data.isAdminOf(member.id)" 
+                                class="btn btn-success btn-sm btn-block" 
+                                ng-click="vm.content.data.doChangeRole(member.id, vm.content.data.channel.id, 'channel_user channel_admin')">
+                                <i class="fa fa-plus-square-o"></i> Make Admin
+                            </button>
+                            <button ng-if="vm.content.data.isAdminOf(member.id)" 
+                                class="btn btn-danger btn-sm btn-block" 
+                                ng-click="vm.content.data.doChangeRole(member.id, vm.content.data.channel.id, 'channel_user')"
+                                ng-disabled="member.id == vm.content.data.user.id">
+                                <i class="fa fa-minus-square-o"></i> Revoke Admin
+                            </button>
+                        </div>
+                    </td>
+                    <td class="col-sm-3">
+                        <div>
+                            <button ng-if="!vm.content.data.isMemberOf(member.id)" 
+                                class="btn btn-success btn-sm btn-block" 
+                                ng-click="vm.content.data.doAddMember(vm.content.data.channel.id, member)">
+                                <i class="fa fa-plus-square-o"></i> Add Member
+                            </button>
+                            <button ng-if="vm.content.data.isMemberOf(member.id)" 
+                                class="btn btn-danger btn-sm btn-block" 
+                                ng-click="vm.content.data.doRemoveMember(vm.content.data.channel.id, member)"
+                                ng-disabled="member.id == vm.content.data.user.id">
+                                <i class="fa fa-minus-square-o"></i> Remove Member
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-default btn-md" ng-click="vm.content.data.closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Close</button>
+    </div>
+</div>

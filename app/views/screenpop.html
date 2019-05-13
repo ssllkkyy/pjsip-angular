@@ -1,0 +1,110 @@
+<div class="screenpop-outer screenpop-background">
+    <div class="screenpop-container ">
+        <div ng-if="!window.customerList && !contactShown()" class="center-text">
+            <h4>Contact Not Found</h4>
+            <p>Unable to locate a contact matching {{window.phone | tel2}}.</p>
+            <a class="btn btn-success btn-sm"
+                ng-if="window.integrationUrl"
+                href="{{window.integrationUrl}}"
+                onclick="window.close()"
+                target="_blank">Open {{window.user.exportType.partner_name}} Search</a>
+        </div>
+        <div ng-if="window.customerList.length > 1 && !contactShown()">
+            <p>There are {{window.customerList.length}} Customers associated with {{window.phone | tel2}}.</p>
+            <p>Please select one.</p>
+            <hr class="screenpop-hr" />
+            <div tooltip-placement="top-left" 
+                class="screenpop-contact"
+                uib-tooltip="Click to View Contact"
+                ng-repeat="contact in window.customerList track by $index" 
+                ng-click="changeContact($index)">
+                <p>
+                    <strong ng-if="showField(contact.contact_name_full, 'contact_name_full')">{{contact.contact_name_full}}</strong>
+                    <span class="smfont" ng-if="showField(contact.contact_organization, 'contact_organization')" ><br />{{contact.contact_organization}}</span>
+                    <span class="smfont" ng-if="showAddress(contact)" >
+                        <br /><span ng-if="showField(contact.settings.contact_address, 'contact_address')">{{contact.settings.contact_address}} </span>
+                        <span ng-if="showField(contact.settings.contact_city, 'contact_city')">{{contact.settings.contact_city}} </span>
+                        <span ng-if="showField(contact.settings.contact_state, 'contact_state')">{{contact.settings.contact_state}}</span>
+                    </span>
+                </p>
+                <hr class="screenpop-hr" />
+            </div>
+        </div>
+        <div ng-if="contactShown()">
+            <div class="modal-header">
+                <h5>Customer Information</h5>
+            </div>
+            <div class="modal-body customer">
+                <div class="tableclass">
+                    <div class="tablecell align-top" ng-if="showAvatar(contactShown())">
+                        <img src="{{pathImgProfile}}{{contactShown().contact_profile_image}}"
+                            ng-if="contactShown().contact_profile_image"
+                            class="screenpop-image"
+                            alt="" />
+                        <div class="screenpop-no-image"
+                            style="background-color: {{ contactShown().contact_profile_color ? contactShown().contact_profile_color : '' }}"
+                            ng-if="!contactShown().contact_profile_image">
+                            <i class="fa fa-user"
+                            style="font-size: 75px; opacity: 0.4;"
+                            aria-hidden="true">
+                            </i>
+                        </div>
+                    </div>
+                    <div class="tableclass align-top">
+                        <p ng-if="showField(contactShown().contact_name_full, 'contact_name_full') && contactShown().integrationUrl"
+                            tooltip-placement="top-left" 
+                            uib-tooltip="Click to Open Client"><a href="{{contactShown().integrationUrl}}" target="_blank">
+                            <b>{{contactShown().contact_name_full}}</b>
+                        </a></p>
+                        <p ng-if="showField(contactShown().contact_name_full, 'contact_name_full') && !contactShown().integrationUrl">
+                            <b>{{contactShown().contact_name_full}}</b>
+                        </p>
+                        <p ng-if="showField(contactShown().contact_email_address, 'contact_email_address')">{{contactShown().contact_email_address}}</p>
+                        <p ng-if="showField(contactShown().settings.customer_id, 'customer_id')">{{getCustomerIdName() + contactShown().settings.customer_id}}</p>
+                        <div ng-if="showAddress(contactShown())"
+                            ng-bind-html="getAddress(contactShown())">
+                        </div>
+                        <span class="smfont" ng-if="displayNumber(contactShown(), 'contact_mobile_phone')" ><br />Mobile: {{displayNumber(contactShown(), 'contact_mobile_phone')}}</span>
+                        <span class="smfont" ng-if="displayNumber(contactShown(), 'contact_work_phone')" ><br />Work: {{displayNumber(contactShown(), 'contact_work_phone')}}</span>
+                        <span class="smfont" ng-if="displayNumber(contactShown(), 'contact_home_phone')" ><br />Home: {{displayNumber(contactShown(), 'contact_home_phone')}}</span>
+                        <span class="smfont" ng-if="displayNumber(contactShown(), 'contact_fax_phone')" ><br />Fax: {{displayNumber(contactShown(), 'contact_fax_phone')}}</span>
+                        <p ng-if="showField(contactShown().contact_note, 'contact_note')">{{contactShown().contact_note}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-header" ng-if="showPolicies()">
+                <h5>Policy Information</h5>
+            </div>
+            <div ng-if="contactShown() && showPolicies() && contactShown().settings && contactShown().settings.customer_id && window.loadingPolicies === contactShown().settings.customer_id" 
+                class="modal-body no-results mdgreyfont">
+                <div class="tableclass" style="width: 150px; margin: 0 auto;">
+                    <div class="tablecell" style="width: 40px;">
+                        <i class="fa fa-cog fa-spin fa-2x"></i>
+                    </div>
+                    <div class="tablecell" style="font-size: 15px;">
+                        Loading Policies
+                    </div>
+                </div>
+            </div>
+            <div ng-if="(!contactShown().policies || contactShown().policies.length == 0) && !window.loadingPolicies" class="modal-body">
+                There are no policies to display
+            </div>
+            <div ng-if="showPolicies() && contactShown().policies.length > 0" class="modal-body">
+                <hr class="screenpop-hr" />
+                <div ng-repeat="policy in contactShown().policies">
+                    <p ng-if="showField(policy.policy_csr_info, 'policy_csr_info')"><b>CSR: </b><span ng-repeat="csr in policy.policy_csr_info">{{csr}}, </span> </p>
+                    <p ng-if="showField(policy.policy_number, 'policy_number')"><b>Policy number: </b>{{policy.policy_number}}</p>
+                    <p ng-if="showField(policy.policy_type, 'policy_type')"><b>Type of Policy: </b>{{policy.policy_type}}</p>
+                    <p ng-if="showField(policy.policy_effective_date, 'policy_effective_date')"><b>Effective Date: </b>{{policy.policy_effective_date | date:'MM-dd-yyyy h:mma'}}</p>
+                    <p ng-if="showField(policy.policy_expiry_date, 'policy_expiry_date')"><b>Expiration Date: </b>{{policy.policy_expiry_date | date:'MM-dd-yyyy h:mma'}}</p>
+                    <hr class="screenpop-hr" />
+                </div>
+            </div>
+            <div class="npbuttons" ng-if="window.customerList.length > 1">
+                <button class="btn btn-primary btn-sm" ng-click="prev()">Prev</button>
+                <button class="btn btn-primary btn-sm" ng-click="next()">Next</button>
+            </div>
+        </div>
+    </div>
+</div>

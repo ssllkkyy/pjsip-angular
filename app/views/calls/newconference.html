@@ -1,0 +1,435 @@
+<div class="no-access-container" ng-if="!packageHasAccess('conferencecall')">
+    <div class="alert alert-warning centered no-access">
+        Your current Bridge
+        <strong>{{user.package.package_title}}</strong>
+        does not have access to
+        <strong>{{showFeatureTitle('conferencecall')}}</strong>.
+    </div>
+</div>
+<div ng-if="packageHasAccess('conferencecall')"
+     class="access-container">
+    <div class="conference-call-container"
+         ng-controller="ConferenceCallCtrl">
+        <div class="top-row">
+            <div class="title-box">
+                <h3>Conference Calls</h3>
+                <span ng-if="currentConference()"
+                      class="conference-subheading">
+                    {{currentConference().conference_title}}<br />
+                    Ext: {{currentConference().mod_extension}}
+                </span>
+            </div>
+            <div class="dial-in"
+                 ng-if="currentConference()">
+                <span class="dial-in-title">
+                    Your dial-in number:
+                    <br />
+                </span>
+                <span class="dial-in-number">
+                    {{currentConference().conference_did | tel}}
+                </span>
+            </div>
+            <div class="selector callerid"
+                 ng-if="!onConferenceCall && currentConference() && locations().length>0">
+                <md-input-container >
+                    <label>Conference Caller-ID: </label>
+                    <md-select ng-model="vars.callerIdNum">
+                        <md-option ng-repeat="did in availDids()"
+                                   ng-value="did">
+                            {{did | tel}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div class="selector"
+                 ng-if="!onConferenceCall && filterConferences().length>1">
+                <md-input-container>
+                    <label>
+                        Conference Room:
+                    </label>
+                    <md-select ng-model="vars.conferenceUuid"
+                               ng-change="changeConference(vars.conferenceUuid)">
+                        <md-option ng-repeat="conference in filterConferences()"
+                                   ng-value="conference.conference_room_uuid" >
+                            {{conference.conference_title}} - Ext: {{conference.mod_extension}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div class="selector"
+                 ng-if="!onConferenceCall && locations().length>1">
+                <location-selector boot-loc-change="true"
+                                   type-filter="'conferences'"
+                                   on-location-change="changeLocation">
+                </location-selector>
+            </div>
+            <div class="cleared"></div>
+        </div>
+        <div class="call-container">
+            <div class="tableclass fulltable topoptions">
+                <div class="tablecell onethird">
+                </div>
+                <div class="tablecell onethird">
+                    <center ng-show="showCounter">
+                        <strong class="conf-counter">
+                            <timer interval="1000"
+                                   start-time="eventTimer.startConf">
+                                {{hhours}}:{{mminutes}}:{{sseconds}}
+                            </timer>
+                        </strong>
+                    </center>
+                </div>
+                <div class="tablecell onethird">
+                    <div ng-if="!onConferenceCall && isAdminGroupOrGreater()"
+                         class="fullwidth new-conf-button">
+                        <button ng-if="currentConference() &&
+                                       currentConference().mod_extension !== '10000' &&
+                                       filterConferences().length>1"
+                                class="btn btn-danger btn-small"
+                                ng-click="removeConference()">
+                            <i class="fa fa-times"></i>
+                            Remove Room
+                        </button>
+                        <button class="btn btn-success btn-small"
+                                ng-click="setupNewConference()">
+                            <i class="fa fa-plus"></i>
+                            Create New Room
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div ng-if="!currentConference() && !infoLoading"
+                 class="padd15">
+                <div class="notification">
+                    <h4>
+                        There is not an active conference room available to you in this Location.
+                        <span ng-if="!isAdminGroupOrGreater()">
+                            Please speak to your Agency's administrator to have you added.
+                        </span>
+                    </h4>
+                </div>
+            </div>
+            <div ng-if="currentConference()">
+                <md-content ng-show="!conferenceAvailable() && !onConferenceCall
+                                     && !isUserConferenceMod()">
+                    <md-subheader class="md-primary">
+                        <div class="notification">
+                            <h4>
+                                This conference room is currently in use by another user.
+                            </h4>
+                        </div>
+                    </md-subheader>
+                </md-content>
+                <md-content ng-show="onConferenceCall &&
+                                     (!currentConference().members ||
+                                     !currentConference().members.length === 0)">
+                    <md-subheader class="md-primary">
+                        <div class="loading-users loading-side mdgreyfont" >
+                            <i class="fa fa-spinner fa-spin fa-2x"></i>
+                            <br />
+                            <span>
+                                Processing Conference Action
+                                <br />
+                                Please Wait
+                            </span>
+                        </div>
+                    </md-subheader>
+                </md-content>
+                
+                <div class="conf-call-box"
+                     ng-show="conferenceAvailable() || (!conferenceAvailable()
+                            && isUserConferenceMod())">
+                    <div class="row">
+                        <div class="col-md-2"
+                             style="margin-top: 5px;">
+                            <button class="btn btn-primary btn-md startbtn"
+                                    ng-click="toggleConference()"
+                                    ng-disabled="shouldDisableConfButton()"
+                                    tooltip-placement="bottom-left"
+                                    uib-tooltip="{{startButtonTooltip()}}">
+                                <i class="fa fa-gear {{iconStartConf()}}"></i>
+                                <strong>
+                                    {{conferenceCallActive() ? "Stop Conference" : "Start Conference"}}
+                                </strong>
+                            </button>
+                        </div>
+                        <div class="col-md-5">
+                            <contact-selector type="'conference'"></contact-selector>
+                        </div>
+                        <div class="col-md-5 cls-round-buttons">
+                            <button class="btn btn-link mdi mdi-phone-plus"
+                                    ng-class="{'faa-shake animated' : callingParticipants}"
+                                    ng-click="addParticipants()"
+                                    ng-disabled="!conferenceCallActive() || !hasContacts()"
+                                    tooltip-placement="bottom"
+                                    uib-tooltip="Dial participants">
+                            </button>
+                            <button class="btn btn-link"
+                                    ng-click="toggleScreenShare()"
+                                    ng-disabled="disableActionButtons()"
+                                    tooltip-placement="bottom"
+                                    uib-tooltip="{{showScreenShare ? 'Hide' :
+                                           'Show'}} screen share options">
+                                <i class="mdi mdi-vector-arrange-above mdi-24px"></i>
+                            </button>
+                            <button class="btn btn-link"
+                                    ng-class="{btnREC : recordingConference()}"
+                                    ng-click="toggleRecording()"
+                                    ng-disabled="disableActionButtons()"
+                                    tooltip-placement="bottom"
+                                    uib-tooltip="{{recordingConference() ?
+                                           'Stop' : 'Start'}} Recording"
+                                    style="text-decoration: none; font-weight: bold;">
+                                REC
+                            </button>
+                            <button class="btn btn-link"
+                                    ng-click="toggleMuteAll()"
+                                    ng-disabled="disableActionButtons()"
+                                    tooltip-placement="bottom"
+                                    uib-tooltip="{{muteAll() ?
+                                           tips.conferencecalls.unmuteall :
+                                           tips.conferencecalls.muteall}}">
+                                <i class="mdi mdi-24px"
+                                   ng-class="{'mdi-headset-off' : muteAll(),
+                                          'mdi-headset' : !muteAll()}">
+                                </i>
+                            </button>
+                            <button class="btn btn-link"
+                                    ng-click="toggleLockStatus()"
+                                    ng-disabled="disableActionButtons(1)"
+                                    tooltip-placement="bottom"
+                                    uib-tooltip="{{conferenceLocked() ? 'Unlock'
+                                           : 'Lock'}} Conference">
+                                <i class="mdi mdi-24px"
+                                   ng-class="{'mdi-lock' : conferenceLocked(),
+                                          'mdi-lock-open' : !conferenceLocked()}">
+                                </i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="showScreenShare">
+                        <md-list-item class="md-3-line"
+                                      ng-controller="ScreenShareCtrl" >
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"
+                                              id="basic-addon3">
+                                            {{ssUrl}}
+                                        </span>
+                                        <input class="form-control"
+                                               type="text"
+                                               ng-keyup="isRoomAvailable(conference.room)"
+                                               id="conferenceroom"
+                                               ng-model="conference.room"
+                                               ng-init="conference.room=videoConference.name"
+                                               placeholder="Choose a custom conference room name"
+                                               aria-describedby="basic-addon3">
+                                        <span class="input-group-addon"
+                                              ng-if="urlNotAvailable">
+                                            {{availMessage}}
+                                        </span>
+                                        <span class="input-group-addon"
+                                              ng-if="!urlNotAvailable">
+                                            <i class="fa fa-check"
+                                               style="color: green"
+                                               tooltip-placement="top"
+                                               uib-tooltip="{{tips.video.roomsuccess}}"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 cls-round-buttons">
+                                    <button class="btn btn-link"
+                                            ng-disabled="urlNotAvailable"
+                                            ng-click="clickHandler()"
+                                            tooltip-placement="bottom"
+                                            uib-tooltip="Copy link to Clipboard"
+                                            style="margin-top: -10px;">
+                                        <i class="mdi mdi-clipboard mdi-24px"></i>
+                                    </button>
+                                    <button class="btn btn-link"
+                                            ng-disabled="urlNotAvailable"
+                                            ng-click="joinConference()"
+                                            tooltip-placement="bottom"
+                                            uib-tooltip="Start screen share"
+                                            style="margin-top: -10px;">
+                                        <i class="mdi mdi-vector-difference-ba mdi-24px"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </md-list-item>
+                    </div>
+                    <div ng-if="currentConference() &&
+                                currentConference().members && conferenceCallActive()">
+                        <table class="table" >
+                            <thead >
+                                <tr style=" font-weight: bold; font-size: 17px">
+                                    <th>Name</th>
+                                    <th>Caller Id #</th>
+                                    <th>Mute</th>
+                                    <th>Hangup</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="member in currentConference().members"
+                                    style=" font-size: 15px;">
+                                    <td>
+                                        <span ng-if="theContact(member)">
+                                            {{theContact(member).name}}
+                                        </span>
+                                        <span ng-if="!theContact(member)">
+                                            'Contact unregistered'
+                                        </span>
+                                    </td>
+                                    <td>{{cleanFormat(member) | tel}}</td>
+                                    <td style="font-size: 22px !important">
+                                        <span class="fa-stack"
+                                              ng-click="toggleParticipantMute(member)"
+                                              style=" margin-bottom: 15px;">
+                                            <i class="fa fa-volume-off fa-stack-1x"></i>
+                                            <i class="fa fa-ban fa-stack-2x text-danger"
+                                               ng-show="participantIsMuted(member)">
+                                            </i>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="fa fa-2x fa-phone end-conf-call-ico"
+                                           ng-if="member.cidNumber !== user.user_ext"
+                                           ng-click="hangupParticipant(member.userNumber)">
+                                        </i>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel panel-success scheduled-events">
+                    <div class="panel-heading container-fluid">
+                        <h4 style="display: inline-block;">
+                            Scheduled Events
+                            <button class="btn btn-primary btn-sm startbtn"
+                                    style="margin-left: 20px;"
+                                    ng-click="showCalendarModal()"
+                                    tooltip-placement="bottom-left"
+                                    uib-tooltip="add conference event">
+                                <strong>
+                                    Add/Edit Event
+                                </strong>
+                            </button>
+                        </h4>
+                        <span style="float: right;">
+                            <h4>
+                                <button class="btn btn-sm"
+                                        ng-class="{'btn-default':
+                                               eventTargetRange!=='day', 'btn-primary':
+                                               eventTargetRange==='day'}"
+                                        ng-click="changeEventFilter('day')">
+                                    Today
+                                </button>
+                                <button class="btn btn-sm"
+                                        ng-class="{'btn-default':
+                                               eventTargetRange!=='week',
+                                               'btn-primary':
+                                               eventTargetRange==='week'}"
+                                        ng-click="changeEventFilter('week')">
+                                    This Week
+                                </button>
+                                <button class="btn btn-sm"
+                                        ng-class="{'btn-default':
+                                               eventTargetRange!=='month',
+                                               'btn-primary':
+                                               eventTargetRange==='month'}"
+                                        ng-click="changeEventFilter('month')">
+                                    This Month
+                                </button>
+                                <button class="btn btn-sm"
+                                        ng-class="{'btn-default':
+                                               eventTargetRange!=='all', 'btn-primary':
+                                               eventTargetRange==='all'}"
+                                        ng-click="changeEventFilter('all')">
+                                    Show All
+                                </button>
+                            </h4>
+                        </span>
+                    </div>
+                    <div class="container-fluid"
+                         ng-show="filteredData.length > 0">
+                        <div class="row"
+                             style=" font-weight: bold; font-size: 17px;
+                                    border-bottom: 1px solid #d6e9c6; padding: 8px;">
+                            <div class="col-md-2">
+                                Title
+                            </div>
+                            <div class="col-md-2">
+                                Time
+                            </div>
+                            <div class="col-md-3">
+                                Participants
+                            </div>
+                            <div class="col-md-3">
+                                Notes
+                            </div>
+                            <div class="col-md-2">
+                                Start Event
+                            </div>
+                        </div>
+                        <div class="row"
+                             ng-repeat="event in filteredData =
+                                    (currentConference().events | orderBy : 'start_at'
+                                    | filter : eventFilter) "
+                             style=" border-bottom: 1px solid #d6e9c6;  padding: 5px;">
+                            <div class="col-md-2">
+                                {{event.event_title}}
+                                <span class="event-creator">
+                                    <br />
+                                    {{showUserName(event)}}
+                                </span>
+                            </div>
+                            <div class="col-md-2">
+                                <span ng-if="eventTargetRange!=='day'">
+                                    {{event.start_at | toLocalTime | amDateFormat: 'MMM D, YYYY'}}
+                                    <br />
+                                </span>
+                                {{event.start_at | toLocalTime | amDateFormat: 'h:mm a'}} -
+                                {{event.end_at | toLocalTime | amDateFormat: 'h:mm a'}}
+                            </div>
+                            <div class="col-md-3">
+                                {{showParticipants(event)}}
+                            </div>
+                            <div class="col-md-3">
+                                {{event.event_memo}}
+                            </div>
+                            <div class="col-md-2">
+                                <span class="fa-stack"
+                                      ng-if="event.user_uuid === user.id && !conferenceCallActive()"
+                                      ng-click="startEvent(event)"
+                                      style=" margin-bottom: 15px;">
+                                    <i class="fa fa-2x fa-phone"
+                                       aria-hidden="true"
+                                       tooltip-placement="bottom-right"
+                                       uib-tooltip="Start Event" ></i>
+                                </span>
+                                <span style="float: right;"
+                                      ng-if="event.user_uuid === user.id && !conferenceCallActive()"
+                                      ng-click="deleteEvent(event)">
+                                    <i class="fa fa-2x fa-times-circle redfont"
+                                       aria-hidden="true"
+                                       tooltip-placement="bottom-right"
+                                       uib-tooltip="Delete Event"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-show="filteredData.length === 0">
+                        <div style="text-align: center;">
+                            <h3>
+                                There are no Events Scheduled in this conference
+                                room{{showEventFilterQualifier()}}.
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+<div class="cloud-permissions-modal">
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="data-table-top"
+                   class="table table-bordered table-hover table-striped"
+                   style="width: 100%-13px">
+                <thead>
+                    <tr>
+                        <th style="width: 33%" ><div class="input-group"> 
+                            <span class="input-group-addon">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                            <input class="form-control normal" type="text"
+                                   ng-model="search.contact_name_full"
+                                   placeholder="Filter by Name">
+                        </div>
+                        <button class="btn btn-default btn-xs"
+                                ng-click="clearFilter()">Clear Filter</button>
+                        </th>
+                        <th  style="width: 33%"><strong>Managers</strong><br />
+                            <span class="smfont normal">
+                                Select the users that can view the communications in this group
+                            </span>
+                        </th>
+                        <th style="width: 33%" ><strong>Group Members</strong><br />
+                            <span class="smfont normal">
+                                Select users whose communications can be viewed by the managers.
+                            </span>
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="scroll-container"
+                 ng-style="{height: modalTableHeight + 'px'}"
+                 style="max-height: 300px;">
+                <table  class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <tbody>
+                        <tr ng-repeat="contact in userContacts | filter:search | filter: {contact_type : 'user'}"
+                            ng-if="!isKotterTechUser(contact)">
+                            <td style="width: 33%" >
+                                {{contact.contact_name_given}} {{contact.contact_name_family}}
+                            </td>
+                            <td style="width: 33%" >
+                                <md-checkbox
+                                    ng-model="updateGroup.manager[contact.user_uuid]"
+                                    ng-init="updateGroup.manager[contact.user_uuid]=isPermGroupMember(editPermissionIndex, contact.user_uuid, 'manager')"
+                                    aria-label="Manager"
+                                    class="md-warn md-align-top-left permissions" flex>
+                                </md-checkbox>
+                            </td>
+
+                            <td style="width: 33%" >
+                                <md-checkbox
+                                    ng-model="updateGroup.member[contact.user_uuid]"
+                                    ng-init="updateGroup.member[contact.user_uuid]=isPermGroupMember(editPermissionIndex, contact.user_uuid, 'member')"
+                                    aria-label="Member"
+                                    class="md-warn md-align-top-left permissions" flex>
+                                </md-checkbox>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

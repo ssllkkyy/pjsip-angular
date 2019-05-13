@@ -1,0 +1,35 @@
+<div class="jumbotron">
+
+    <div>
+            <form name="frmFileShare">
+
+                    <label class="btn btn-default btn-file btn-block" ng-show="!msgEmailSent" style="border-top-left-radius: 5; border-bottom-left-radius: 5;">
+                        <span ng-hide="uploader.queue.length >= 1" class="cls-color-blue-tkg">Click to select a file</span>
+                        <input type="file" class="form-control" ng-if="uploader.queue.length < 1" ng-click="chargerVal(contactsUsr, contentEmail)" accept="audio/*" nv-file-select=""  uploader="uploader" style="display: none;"  ng-disabled="frmFileShare.$invalid">
+                        <span ng-repeat="item in uploader.queue" ng-show="uploader.queue.length >= 1">
+                            <strong>{{ item.file.name.length > 75 ? item.file.name.substring(0, 35) + ' ... ' + item.file.name.substring(item.file.name.length-35) : item.file.name }}</strong>
+
+                            <span class="progress" style="margin-bottom: 0;">
+                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+                            </span>
+
+                        </span>
+                    </label>
+
+                    <div ng-repeat="item in uploader.queue" ng-show="uploader.queue.length >= 1" style="margin-top: 10px">
+                        <button  class="btn btn-danger btn-sm" ng-click="item.remove()" ng-show="uploader.queue.length >= 1" ng-disabled="item.isReady || item.isUploading || item.isSuccess"><i class="fa fa-trash" style="margin-right: 10px;"></i>Remove file selected</button>
+                        <button  class="btn btn-primary btn-sm" ng-click="item.upload(); " ng-hide="msgFileUpload" ng-disabled="item.isReady || item.isUploading || item.isSuccess"><i class="fa fa-upload" style="margin-right: 10px;"></i>Upload file</button>
+                        
+                        
+                        <div class="alert alert-success" role="alert" ng-show="msgFileUpload">
+                            <i class="fa fa-check-circle-o fa-2x" style="margin-right: 15px;"></i>
+                            <strong>Your file has been uploaded succefull </strong>
+                        </div>
+
+                    </div>
+
+            </form>
+
+    </div>
+
+</div>

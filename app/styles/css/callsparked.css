@@ -1,0 +1,81 @@
+#div-parked-calls-outer #div-parked-calls-list {
+  border-radius: 10px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  position: absolute;
+  max-width: 0;
+  transition: max-width 1.0s ease-out;
+  /* overflow-y: auto; */
+  overflow: auto;
+  background: #eeeeee;
+  margin-left: 105px;
+  z-index: 9999;
+  min-height: 200px;
+  height: auto; }
+
+#div-parked-calls-outer:hover #div-parked-calls-list {
+  border-radius: 10px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  position: absolute;
+  max-width: 400px;
+  transition: max-width 0.45s ease-in;
+  margin-left: 105px;
+  z-index: 9999;
+  min-height: 200px;
+  height: auto;
+  overflow: auto; }
+
+.signal {
+  border: 5px solid #333;
+  border-radius: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  opacity: 0;
+  margin-left: 16px;
+  margin-top: -46px;
+  width: 30px;
+  animation: pulsate 2s ease-out;
+  animation-iteration-count: infinite; }
+
+@keyframes pulsate {
+  0% {
+    transform: scale(0.1);
+    opacity: 0.0; }
+  20% {
+    opacity: 1; }
+  30% {
+    transform: scale(1.2);
+    opacity: 0; } }
+
+.loader-line {
+  height: 4px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: #ddd; }
+
+.loader-line:before {
+  display: block;
+  position: absolute;
+  content: "";
+  left: -200px;
+  width: 200px;
+  height: 4px;
+  background-color: #2980b9;
+  animation: loading 2s linear infinite; }
+
+@keyframes loading {
+  from {
+    left: -200px;
+    width: 30%; }
+  50% {
+    width: 30%; }
+  70% {
+    width: 70%; }
+  80% {
+    left: 50%; }
+  95% {
+    left: 120%; }
+  to {
+    left: 100%; } }

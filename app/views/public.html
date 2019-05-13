@@ -1,0 +1,19 @@
+<div ng-controller="PublicCtrl">
+    <header class="public">
+        <div class="row">
+            <div class="col-md-6"><h3>Symphony - {{pageTitle}}</h3></div>
+            <div class="col-md-6"><div class="cls-logo-tkg"></div></div>
+        </div>
+    </header>
+    <div class="public-container">
+        <div ng-show="showWaitingForVideo" class="text-center alert-info" style="padding:10px;">
+            <h2>Waiting for Moderator to Open Room</h2>
+            <p>You will join the room automatically when it is ready.</p>
+            <p><i class="fa fa-spinner fa-spin fa-5x"></i></p>
+        </div>
+        <div ng-show="showInvalidRoom" class="text-center alert-warning" style="padding:10px;" >
+            <h2>Invalid Room ID</h2>
+            <p>An invalid room id was sent. Please confirm the video conference room link and try again.</p>
+        </div>
+    </div> 
+</div>

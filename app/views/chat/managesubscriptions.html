@@ -1,0 +1,62 @@
+<div>  
+    <div class="modal-header">
+        <span class="fa-stack fa-2x modal-icon">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+        <span class="cls-header-modal">
+            Manage Channel Subscriptions
+        </span>
+        <button type="button"
+                ng-click="vm.content.data.closeModal()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <div class="input-group">
+            <span class="input-group-addon">
+                <i class="fa fa-question-circle"></i>
+            </span>
+            <input class="form-control"
+                   type="text"
+                   ng-model="search.display_name"
+                   placeholder="Search by channel name">
+        </div>
+        <div class="modal-scroll-container" ng-style="{height: modalTableHeight + 'px'}" >
+            <table class="table table-bordered table-hover table-striped table-buttons">
+                <tbody>
+                    <tr ng-repeat="channel in vm.content.data.channels | filter:search | orderBy: 'display_name'">
+                        <td class="col-sm-9">
+                            {{channel.display_name}} <span ng-if="vm.content.data.isChannelAdmin(channel)">(You are admin) <i class="fa fa-question-circle" tooltip-placement="top" uib-tooltip="{{tips.chatplus.adminsubscription}}"></i></span>
+                            <span ng-if="channel.purpose">
+                                <br />{{channel.purpose}}
+                            </span>
+                        </td>
+                        <td class="col-sm-3" >
+                            <div ng-if="channel.name !== 'town-square' && !vm.content.data.isChannelAdmin(channel)">
+                                <button ng-if="vm.content.data.isSubscribed(channel)" class="btn btn-warning btn-sm btn-block" ng-click="vm.content.data.leaveChannel(channel)"><i class="fa fa-minus-square-o"></i> Leave Channel</button>
+                                <button ng-if="!vm.content.data.isSubscribed(channel)" class="btn btn-success btn-sm btn-block" ng-click="vm.content.data.joinChannel(channel)"><i class="fa fa-plus-square-o"></i> Join Channel</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success btn-md"
+                ng-click="vm.content.data.addChannel()">
+            <i class="fa fa-plus"
+               style="margin-right: 10px;">
+            </i>
+            Create New Channel
+        </button>
+        <button class="btn btn-default btn-md"
+                ng-click="vm.content.data.closeModal()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;"></i>
+            Close Window
+        </button>
+    </div>
+</div>

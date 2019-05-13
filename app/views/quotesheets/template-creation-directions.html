@@ -1,0 +1,30 @@
+<div class="template-creation-directions-popup">
+    <h3 class="popup-header">
+        When creating a template
+    </h3>
+    <ul>
+        <li>
+            Must have an input field with a classname of: "quote-customer-name" and must have validation checkbox "Required" checked
+        </li>
+        <li>
+            Must have an input field with a classname of: "quote-phone-number" and must have validation checkbox "Required" checked
+        </li>
+        <li>
+            Must have a text area with a classname of: "quote-insured-description" and must have validation checkbox "Required" checked
+        </li>
+        <li>
+            Must have a submit btn with the classnames: "quote-submit-btn" && "no-show"
+        </li>
+
+        <li>
+            Be sure to mark all components that contain both the question and the answer in the same component as "question/answer" by checking the checkbox at the bottom of the popup window.
+        </li>
+        <li>
+            If splitting a question and answer apart into different components (e.g. in a table), mark the questions by checking the "question" checkbox at the bottom of the popup window. Mark the answers by checking the "answer" checkbox and choosing the question that matches the answer.
+        </li>
+    </ul>
+
+    <button ng-click="resolvePrompt()">
+        Okay
+    </button>
+</div>

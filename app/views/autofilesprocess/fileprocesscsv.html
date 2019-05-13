@@ -1,0 +1,66 @@
+<div ng-if="csv && csv.result">
+    <p>Match the columns to your data and then click Import Recipients to add them to your Recipient List.</p>
+    <div class="jumbotron">
+        <md-checkbox
+            ng-model="firstrow"
+            aria-label="Include First Row">
+            Include First Row?
+        </md-checkbox>
+        <div
+            class="csv-container"
+            ng-if="csv.result">
+            <div
+                ng-if="displayImportErrors.length>0"
+                uib-alert
+                ng-class="'alert-warning'"
+                close="closeMessage()"
+                ng-bind-html="displayImportErrors">
+            </div>
+            <table
+                ng-init="prepareContacts(csv.result)"
+                class="csv-table table table-bordered table-hover table-striped cls-tab-call-history">
+                <thead>
+                    <tr>
+                        <th
+                            ng-repeat="n in [] | range:colHeaders.length"
+                            ng-init="showNewField[n]=false">
+                            <select
+                                ng-change="selectedItemChanged(n)"
+                                ng-model="colSelect[n]">
+                                <option value="">Ignore</option>
+                                <!--<option ng-repeat="option in colOptions | arrayDiff:colSelect:colSelect[n]" ng-value="option">{{option.value}}</option>-->
+                                <option ng-repeat="option in customFields | arrayDiff:colSelect:colSelect[n]" ng-value="option">{{option.value}}</option>
+                                <option value="add_new">Add New Field</option>
+                            </select>
+                            <input ng-model="newField[n]" ng-show="showNewField[n]"><button ng-show="showNewField[n]" ng-click="saveNewField(n, newField[n])" class="btn btn-default btn-xs"><i class="fa fa-check"></i></button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in contactRows">
+                        <td ng-repeat="col in row">
+                            {{col}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="button-box right-text" ng-show="!importing">
+            <button
+                class="btn btn-default"
+                ng-click="cancelCsvUpload()">
+                <i class="fa fa-times"></i>
+                Cancel Import
+            </button>
+            <button
+                class="btn btn-success"
+                ng-click="importCsvContacts(colSelect, contactRows, firstrow)">
+                <i class="fa fa-upload"></i>
+                Import Recipients
+            </button>
+        </div>
+        <div class="button-box right-text" ng-show="importing">
+            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+        </div>
+    </div>
+</div>

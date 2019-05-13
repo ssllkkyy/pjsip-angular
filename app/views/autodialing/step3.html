@@ -1,0 +1,606 @@
+<div class="row">   
+    <div class="col-lg-12">   
+        <div class="panel" style="border: #cfdef0 solid 1px;">
+            <div class="panel-body">
+                    <div ng-show="broadcast.schedule_type==='One'">
+                        <h4>Schedule: </h4>
+                        <table ng-if="showOneSchedule" id="broadcast-schedules" class="table table-bordered table-striped ">
+                            <tr>
+                                <td class="start-immediately-box">
+                                    <label>Start Immediately?</label>
+                                    <md-switch ng-model="broadcast.schedule_status" aria-label="Switch 2" ng-true-value="'Yes'" ng-false-value="'No'" class="md-warn">
+                                        {{ broadcast.schedule_status }}
+                                    </md-switch>
+                                </td>
+                                <td ng-if="broadcast.schedule_status==='Yes'" colspan="2"><h4>Your campaign will start delivery once you click Start Campaign on Step 4</h4></td>
+                                <td ng-if="broadcast.schedule_status==='No'" style="padding-top: 30px;">
+                                    <div class="input-group" tooltip-placement="bottom" uib-tooltip="{{tips.automated.schedule_start_date}}">
+                                        <span class="input-group-addon" ng-click="open3()"><i class="fa fa-calendar"></i></span>
+                                        <input type="text" class="form-control" ng-disabled="broadcast.schedule_status==='Yes'" ng-click="open3()" uib-datepicker-popup ng-model="broadcast.schedules[0].start_at" placeholder="Date" is-open="popup3.opened" datepicker-options="broadcastDateOptions" ng-required="true" close-text="Close" />
+                                    </div>
+                                </td>
+                                <td ng-if="broadcast.schedule_status==='No'">
+                                    <div uib-timepicker ng-model="broadcast.schedules[0].start_at" ng-change="checkForChars(broadcast.schedules[0].start_at)" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian" ng-disabled="broadcast.schedule_status==='Yes'" tooltip-placement="bottom" uib-tooltip="{{tips.automated.schedule_start_time}}"></div> 
+                                </td>
+                            </tr>
+                            
+                        </table>
+                        <h4>Message: </h4>
+                        <div  ng-if="showOneSchedule">  
+                            <!--- EMAIL MESSAGE -->
+                            <div class="row broadcast-message-container" ng-show="broadcast.message_type==='Email'"> 
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="input-group"> 
+                                            <span class="input-group-addon">
+                                                From Name
+                                            </span>
+                                            <input class="form-control" type="text" placeholder="From Name" ng-model="broadcast.schedules[0].email_from_name">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="input-group"> 
+                                            <span class="input-group-addon">
+                                                From Email
+                                            </span>
+                                            <select class="selectpicker form-control" ng-model="broadcast.schedules[0].email_from_email">
+                                                <option value="{{user.email_address}}">{{user.email_address}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="input-group"> 
+                                            <span class="input-group-addon">
+                                                Subject
+                                            </span>
+                                            <input class="form-control" type="text" placeholder="Subject Line" ng-model="broadcast.schedules[0].email_subject">
+                                        </div>
+                                    </div>
+                                    <div ng-if="1===2" class="col-sm-12">
+                                        <div class="input-group"> 
+                                            <span class="input-group-addon">
+                                                HTML Email Body
+                                            </span>
+                                            <button class="btn btn-success" ng-click="openEmailEditor(broadcast.schedules[0].robocall_schedule_uuid)">Show Editor</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        Email Body:
+                                            <text-angular ng-model="broadcast.schedules[0].email_message_html"></text-angular>
+                                            <!--<textarea class="form-control broadcast" ng-model="broadcast.schedules[0].email_message_text" ng-attr-placeholder="Type your message here" msd-elastic></textarea>-->
+                                    </div>
+                                </div>
+                                <button class="btn btn-success pull-right" ng-disabled="!broadcast.schedules[0].start_at || !broadcast.schedules[0].email_subject || !broadcast.schedules[0].email_from_email || !broadcast.schedules[0].email_message_html" ng-click="saveEmailMessage(0, broadcast.schedules[0], true)"><i class="fa fa-floppy-o"></i> Save Message</button>
+                            </div>
+                            <!--- SMS MESSAGE -->
+                            <div class="row broadcast-message-container" ng-show="broadcast.message_type==='Text'"> 
+
+                                <div class="row">
+                                    <div class="col-sm-7">
+                                        Please indicate where replies to your SMS Campaign should be delivered
+                                        <div class="input-group" ng-init="broadcast.schedules[0].sms_reply_number = broadcast.schedules[0].sms_reply_number ? broadcast.schedules[0].sms_reply_number : useSms.smsnumber"> 
+                                            <span class="input-group-addon">
+                                                SMS Number
+                                            </span>
+                                            <md-select class="selectpicker form-control sms-am" 
+                                                ng-model="broadcast.schedules[0].sms_reply_number">
+                                                <md-option 
+                                                    ng-repeat="num in availableDids track by $index" 
+                                                    ng-if="num.type==='user'"
+                                                    ng-value="num.number">
+                                                    {{num.number | tel}} - {{num.title}}
+                                                </md-option>
+                                            </md-select >
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-7">
+                                        Use dropdown below to insert auto text into sms message.
+                                        <md-select ng-model="insert.shortcode"
+                                            placeholder="- Insert Shortcode -"
+                                            tooltip-placement="top"
+                                            uib-tooltip="{{::tips.automated.insertshortcodesms}}"
+                                            ng-change="insertShortcode(insert.shortcode, broadcast.schedules[0])">
+                                            <md-option ng-repeat="field in customFields"
+                                                    ng-value="field.key">
+                                                {{field.value}}
+                                            </md-option>
+                                        </md-select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="suggestion-list" ng-show="showShortcodeList">
+                                            <div class="suggestion-list-content">
+                                                <div class="suggestion-list-header">People <span class="pull-right light-font right-text"><span class="pad-right-15"><i class="fa fa-long-arrow-up"></i> <i class="fa fa-long-arrow-down"></i> to navigate</span><span class="pad-right-15">tab to select</span><span class="pad-right-15">esc to dismiss</span></span>
+                                                </div>
+                                                <div class="suggestion-list-items" ng-init="predicate='name'; reverse=false;">
+                                                    <div class="suggestion-list-mention member-mention" ng-class="{selectedperson: filterPersonData[selectedIndex].id === member.id}" ng-repeat="field in filterFields = (customFields | orderBy : predicate :reverse  | filter:filterCallouts)" ng-click="insertShortcode(field.key, broadcast.schedules[0])"><span style="margin: 0 15px;"><strong>{{field.value}}</strong> <span ></span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="input-group"> 
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-paper-plane"></i>
+                                            </span>
+                                            <textarea id="am-sms-message" ng-keydown="checkforcode($event, broadcast.schedules[0])" class="form-control include-emojis broadcast" ng-model="broadcast.schedules[0].sms_message" ng-attr-placeholder="Type your message here" msd-elastic></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-success pull-right" ng-disabled="!broadcast.schedules[0].start_at || !broadcast.schedules[0].sms_message || !broadcast.schedules[0].sms_reply_number" ng-click="saveSmsMessage(0, broadcast.schedules[0], true)"><i class="fa fa-floppy-o"></i> Save Message</button>
+                            </div>
+                            <!--- VOICE CALL -->
+                            <div class="broadcast-message-container clearfix" ng-show="broadcast.message_type==='Voice'"> 
+                                <div class="tableclass">
+                                    <div class="tablecell itemlabel">
+                                        Caller Id Number: 
+                                    </div>
+                                    <div class="tablecell mdauto" ng-init="test.selectedNumber = broadcast.schedules[0].call_from_did ? getSelectedNumber(broadcast.schedules[0].call_from_did) : getSelectedNumber(user.did)">
+                                        <md-autocomplete
+                                            class="am-callerid"
+                                            ng-disabled="isDisabled"
+                                            md-no-cache="noCache"
+                                            md-selected-item="test.selectedNumber"
+                                            md-search-text-change="searchTextChange(test.searchNumber)"
+                                            md-search-text="test.searchNumber"
+                                            md-selected-item-change="itemChange(broadcast.schedules[0], number)"
+                                            md-items="number in getNumberBySearchText(test.searchNumber)"
+                                            md-item-text="showItemText(number)"
+                                            md-min-length="0"
+                                            placeholder="- Select Caller Id Number -">
+                                        <md-item-template>
+                                            <span md-highlight-text="searchText" md-highlight-flags="^i">{{showItemText(number)}}</span>
+                                        </md-item-template>
+                                        <md-not-found>
+                                            No states matching "{{searchText}}" were found.
+                                        </md-not-found>
+                                        </md-autocomplete>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="panel cls-panels-header">
+                                            <div class="panel-heading"><i class="fa fa-hand-o-up" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Click an Option Below</strong></div>
+                                            <ul class="list-group">
+                                                <li class="list-group-item" ng-click="setOpcMessageBroadcast(1)"><i class="fa fa-microphone" style="margin-right: 10px;"></i>Record a New Message <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'newrecord'"></i></li>
+                                                <li class="list-group-item" ng-click="setOpcMessageBroadcast(2)"><i class="fa fa-upload" style="margin-right: 10px;"></i>Upload an Audio File <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'uploadfile'"></i></li>
+                                                <li class="list-group-item" ng-click="setOpcMessageBroadcast(3)"><i class="fa fa-book" style="margin-right: 10px;"></i> Select from Audio Library <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'audiolibrary'"></i></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div ng-if="broadcast.schedules[0].recording_file && !opcBroadcast" class="center-text show-player">
+                                            {{broadcast.schedules[0].library.file_title}}<br />
+                                            <button class="btn btn-default" ng-click="playRecording(broadcast.schedules[0].recording_file)"><i class="fa fa-play"></i> Play Current Recording</button>
+                                        </div>
+                                        <div class="panel" ng-if="opcBroadcast" style="border: #cfdef0 solid 1px;">
+                                            <div class="panel-heading"><strong class="cls-color-blue-tkg">{{opcBroadcastTitle}}</strong>
+                                            <button class="btn btn-default pull-right" ng-click="cancelAddAudio()"><i class="fa fa-undo"></i> Cancel</button></div>
+                                            <div class="panel-body">
+                                                <div ng-if="opcBroadcast==='newrecord'" >
+                                                    <div class="jumbotron recording">
+                                                        <audio-recorder save-recording="saveRecording(recording, 0)">
+                                                        </audio-recorder>
+                                                    </div>
+                                                </div>
+                                                <div ng-if="opcBroadcast==='audiolibrary'">
+                                                    <div class="scroll-container-head">
+                                                        <table class="table table-bordered table-hover table-striped data-table-top" style="width: 100%;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style="width: 45px;">Play</th>
+                                                                    <th>File</th>
+                                                                    <th style="width: 100px;">Choose</th>
+                                                                    <th style="width: 90px;"></th>
+                                                                    <th ng-if="audioLibrary.length>5" style="width: 10px; padding: 0px; border-left: 0;"></th>
+                                                                </tr>
+                                                            </thead>
+                                                        </table>
+                                                    </div>
+                                                    <div class="scroll-container" style="height: 225px">
+                                                        <table class="table table-bordered table-hover table-striped"  style="width: 100%;">
+                                                            <tbody>
+                                                                <tr ng-repeat="row in audioLibrary">
+                                                                    <td style="width: 45px;">
+                                                                        <span ng-if="audioFilePlaying!==row.audio_library_uuid" 
+                                                                            ng-click="playAudioFile(row.filepath, row.audio_library_uuid)" tooltip-placement="top" 
+                                                                            uib-tooltip="Listen to Audio File">
+                                                                            <i class="fa fa-play-circle fa-2x"></i>
+                                                                        </span>
+                                                                        <span ng-if="audioFilePlaying===row.audio_library_uuid" 
+                                                                            ng-click="stopPlaying()" 
+                                                                            tooltip-placement="top" 
+                                                                            uib-tooltip="Stop Playing Audio File">
+                                                                            <i class="fa fa-stop-circle fa-2x"></i>
+                                                                        </span>
+                                                                    </td>
+                                                                    <td><span ng-if="!recordingBeingEdited(row)">{{row.file_title}} <span ng-if="row.used=='true'"><i class="fa fa-check" aria-hidden="true" tooltip-placement="top" uib-tooltip="File is being used in a draft or queued campaign"></i></span></span>
+                                                                        <md-input-container ng-if="recordingBeingEdited(row)" style="width: 100%; text-align: center;" >
+                                                                            <label>Recording Title</label>
+                                                                            <input ng-model="row.file_title" />
+                                                                        </md-input-container>
+                                                                    </td>
+                                                                    <td style="width: 100px;">
+                                                                        <button class="btn btn-success btn-xs" 
+                                                                                ng-click="selectAudioLibraryFile(row, broadcast.schedules[0].robocall_schedule_uuid)">
+                                                                            <i class="fa fa-plus"></i> 
+                                                                            Select
+                                                                        </button>
+                                                                    </td>
+                                                                    <td style="width: 90px;">
+                                                                        <i ng-show="!recordingBeingEdited(row)" ng-if="isAdminGroupOrGreater()" class="fa fa-times-circle pull-right {{row.used=='true' ? 'ltredfont' : 'redfont'}} deleteopt" aria-hidden="true" ng-click="row.used=='true' || deleteRecording(row)" tooltip-placement="top-right" uib-tooltip="{{row.used=='true' ? 'File is in use and can not be deleted' : 'Delete Audio File'}}"></i>
+                                                                        <i ng-show="recordingBeingEdited(row)" class="fa fa-undo pull-right cancelopt" aria-hidden="true" ng-click="cancelEditRecording()" tooltip-placement="top-right" uib-tooltip="Cancel Edit"></i>
+                                                                        <i ng-show="recordingBeingEdited(row)" class="fa fa-save pull-right deleteopt" aria-hidden="true" ng-click="saveEditRecording(row)" tooltip-placement="top-right" uib-tooltip="Save Changes"></i>
+                                                                        <i ng-show="!recordingBeingEdited(row)" class="fa fa-pencil-square-o pull-right deleteopt" aria-hidden="true" ng-click="setEditRecording(row)" tooltip-placement="top-right" uib-tooltip="Edit Audio File"></i>
+                                                                    </td>
+                                                                    <!--<td style="width: 40px;"><span ng-if="audioFilePlaying!==row.audio_library_uuid" ng-click="playAudioFile(row.filepath, row.audio_library_uuid)" tooltip-placement="top" uib-tooltip="Listen to Audio File"><i class="fa fa-play-circle fa-2x"></i></span>
+                                                                        <span ng-if="audioFilePlaying===row.audio_library_uuid" ng-click="stopPlaying()" tooltip-placement="top" uib-tooltip="Stop Playing Audio File"><i class="fa fa-stop-circle fa-2x"></i></span></td>
+                                                                    <td> {{row.file_title}}</td>
+                                                                    <td style="width: 100px;"><button class="btn btn-success btn-xs" ng-click="selectAudioLibraryFile(row.filepath, broadcast.schedules[0].robocall_schedule_uuid)"><i class="fa fa-plus"></i> Select</button></td>-->
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div ng-if="opcBroadcast==='uploadfile'">
+                                                    <div class="jumbotron center-text">
+                                                            <div>
+                                                                <md-input-container style="width: 100%; text-align: center;" >
+                                                                    <label>Audio File Title</label>
+                                                                    <input ng-model="recording.title" />
+                                                                </md-input-container>
+                                                            </div>
+                                                        <span ng-if="audioRecording.name"><p><strong>{{audioRecording.name}}</strong></p></span>
+                                                        <label class="btn btn-primary btn-file" >
+                                                            Browse for File <input class="form-control" accept="audio/*" type="file" 
+                                                            name="useravatar" style="display: none;" file-model="audioRecording">
+                                                        </label>
+                                                        <button class="btn btn-success" ng-disabled="uploadingLibrary || !audioRecording" ng-click="uploadAudioFile(audioRecording, broadcast.schedules[0].robocall_schedule_uuid, recording.title)">Upload File</button>
+                                                        <span ng-if="uploadingLibrary">
+                                                            <i class="fa fa-cog fa-spin fa-lg"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div ng-if="successMessage && successMessage !== ''" uib-alert ng-class="'alert-success'" close="closeLogout()">{{successMessage}}</div>
+                                                <div ng-if="errorMessage && errorMessage !== ''" uib-alert ng-class="'alert-failure'" close="closeLogout()">{{errorMessage}}</div>
+
+                                                <!-- <div ng-show="showPlayer && broadcast.schedules[0].recording_file" class="center-text show-player">
+                                                    <button class="btn btn-success" ng-if="!recordingPlaying" ng-click="playRecording(broadcast.schedules[0].recording_file)"><i class="fa fa-play fa-lg"></i> Play Recording</button>
+                                                    <button class="btn btn-danger" ng-if="recordingPlaying" ng-click="stopPlaying()"><i class="fa fa-stop fa-lg"></i> Stop Playing</button>
+                                                </div> -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-success pull-right" ng-disabled="!broadcast.schedules[0].start_at || !broadcast.schedules[0].call_from_did" ng-click="saveVoiceMessage(0, broadcast.schedules[0], true)"><i class="fa fa-floppy-o"></i> Save Message</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div ng-show="broadcast.schedule_type==='Series'">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h4>Sending a Series of Messages</h4>
+                                <p>Prepare your messages below.</p>
+                            </div>
+                            <div class="col-lg-4 right-text">
+                                <button class="btn btn-default" ng-click="createEmptySchedule(broadcast.schedules.length)">{{showAddSchedule ? 'Cancel' : 'Add New Entry'}}</button>
+                            </div>
+                        </div>
+
+                        <table ng-show="showAddSchedule || !broadcast.schedules || broadcast.schedules.length===0" id="broadcast-schedules" class="table table-bordered table-hover table-striped ">
+                            <tr>
+                                <td style="padding-top: 30px;">
+                                    <input type="text" class="form-control" ng-model="newschedule.title" placeholder="Title" tooltip-placement="bottom" uib-tooltip="{{tips.automated.schedule_description}}">
+                                </td>
+                                <td style="padding-top: 30px;">
+                                    <div class="input-group">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-default" ng-click="open2()"><i class="glyphicon glyphicon-calendar"></i></button>
+                                        </span>
+                                        <input type="text" class="form-control" ng-click="open2()" uib-datepicker-popup ng-model="newschedule.start_at" placeholder="Date" is-open="popup2.opened" datepicker-options="broadcastDateOptions" ng-required="true" close-text="Close" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div uib-timepicker ng-model="newschedule.start_at" ng-change="checkForChars(newschedule.start_at)" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian" tooltip-placement="bottom" uib-tooltip="{{tips.automated.schedule_start_time}}"></div> 
+                                </td>
+                                <td style="padding-top: 30px;">
+                                    <button ng-click="addScheduleEntry(newschedule)" class="btn btn-primary btn-xs" tooltip-placement="bottom" uib-tooltip="{{tips.automated.add_schedule}}">Add</button>
+                                </td>
+                            </tr>
+                        </table>
+                        <uib-accordion close-others="oneAtATime">
+                            <div uib-accordion-group ng-repeat="schedule in filterData = (broadcast.schedules | orderBy: sortByDate : false)" class="panel-default" ng-init="uuid=schedule.robocall_schedule_uuid; editSchedule[uuid]=false; editMessage[uuid]=false" is-open="status.open">
+                                <uib-accordion-heading>
+                                    <i class="fa fa-{{broadcast.message_type==='Voice' ? 'phone' : (broadcast.message_type==='Text' ? 'paper-plane' : 'envelope')}} fa-2x" style="padding-right: 12px;"></i> {{schedule.title}}: {{schedule.start_at | date: "EEEE, MMMM d, y h:mm a"}}
+                                    <div class="series-status-box pull-right" ng-if="scheduleReady(schedule)" ><i class="fa fa-check-circle" style="color: green; font-size: 20px;" tooltip-placement="bottom" uib-tooltip="{{tips.automated.message_ready}}"></i></div>
+                                    <div class="series-status-box pull-right" ng-if="!scheduleReady(schedule)" ><i class="fa fa-times-circle" style="color: red; font-size: 20px;" tooltip-placement="bottom" uib-tooltip="{{tips.automated.message_not_ready}}"></i></div>
+                                    <div class="series-status-box edit pull-right"><i class="pull-right glyphicon"  ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i> Edit</div>
+                                </uib-accordion-heading>
+                                <h4>Schedule: </h4>
+                                <div class="row broadcast-message-container">
+                                    <div class="col-sm-5" style="padding-top: 10px;">
+                                        Description:
+                                        <input type="text" class="form-control" ng-model="schedule.title" placeholder="Title" tooltip-placement="bottom" uib-tooltip="{{tips.automated.schedule_description}}">
+                                    </div>
+                                    <div class="col-sm-4"  style="padding-top: 10px;">
+                                        Deliver Date / Time:
+                                        <div class="input-group" tooltip-placement="bottom" uib-tooltip="{{tips.automated.schedule_start_date}}">
+                                            <span class="input-group-addon" ng-click="open1()"><i class="fa fa-calendar"></i></span>
+                                            <input type="text" class="form-control" ng-click="open1()" uib-datepicker-popup ng-model="schedule.start_at" placeholder="Date" is-open="popup1.opened" datepicker-options="broadcastDateOptions" ng-required="true" close-text="Close" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3" style="padding-top: 10px;">
+                                        <div uib-timepicker ng-model="schedule.start_at" ng-change="checkForChars(schedule.start_at)" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian" tooltip-placement="bottom" uib-tooltip="{{tips.automated.schedule_start_time}}"></div> 
+                                    </div>
+                                    <button class="btn btn-success pull-right" ng-if="broadcast.message_type==='Voice'" ng-disabled="!schedule.start_at" ng-click="updateSchedule(schedule, $index, true)" tooltip-placement="bottom" uib-tooltip="{{tips.automated.save_schedule}}"><i class="fa fa-floppy-o"></i> Update Schedule</button>
+                                </div>
+                                <!--- EMAIL MESSAGE -->
+                                <h4>Message to be Delivered: </h4>
+                                <div class="row broadcast-message-container" ng-if="broadcast.message_type==='Email'"> 
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="input-group"> 
+                                                <span class="input-group-addon">
+                                                    From Name
+                                                </span>
+                                                <input class="form-control" type="text" placeholder="From Name" ng-model="schedule.email_from_name">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="input-group"> 
+                                                <span class="input-group-addon">
+                                                    From Email
+                                                </span>
+                                                <select class="selectpicker form-control" ng-model="schedule.email_from_email">
+                                                    <option value="{{user.email_address}}">{{user.email_address}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="input-group"> 
+                                                <span class="input-group-addon">
+                                                    Subject
+                                                </span>
+                                                <input class="form-control" type="text" placeholder="Subject Line" ng-model="schedule.email_subject">
+                                            </div>
+                                        </div>
+                                        <div ng-if="1===2"  class="col-sm-12">
+                                            <div class="input-group"> 
+                                                <span class="input-group-addon">
+                                                    HTML Email Body
+                                                </span>
+                                                <button class="btn btn-success" ng-click="openEmailEditor(schedule.robocall_schedule_uuid)">Show Editor</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                                    Email Body
+                                                <text-angular ng-model="schedule.email_message_html"></text-angular>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--- SMS MESSAGE -->
+                                <div class="row broadcast-message-container" ng-if="broadcast.message_type==='Text'"> 
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="input-group" ng-init="schedule.sms_reply_number = schedule.sms_reply_number ? schedule.sms_reply_number : user.did"> 
+                                                <span class="input-group-addon">
+                                                    SMS Reply To Number
+                                                </span>
+                                                <md-select class="selectpicker form-control sms-am" 
+                                                    ng-model="schedule.sms_reply_number">
+                                                    <md-option 
+                                                        ng-repeat="num in availableDids track by $index" 
+                                                        ng-if="num.type==='user'"
+                                                        ng-value="num.number">
+                                                        {{num.number | tel}} - {{num.title}}
+                                                    </md-option>
+                                                </md-select>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-7">
+                                            Use dropdown below to insert auto text into sms message.
+                                            <md-select ng-model="insert.shortcode"
+                                                placeholder="- Insert Shortcode -"
+                                                tooltip-placement="top"
+                                                uib-tooltip="{{::tips.automated.insertshortcodesms}}"
+                                                ng-change="insertShortcode(insert.shortcode, schedule)">
+                                                <md-option ng-repeat="field in customFields"
+                                                        ng-value="field.key">
+                                                    {{field.value}}
+                                                </md-option>
+                                            </md-select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="suggestion-list" ng-show="showShortcodeList">
+                                                <div class="suggestion-list-content">
+                                                    <div class="suggestion-list-header">People <span class="pull-right light-font right-text"><span class="pad-right-15"><i class="fa fa-long-arrow-up"></i> <i class="fa fa-long-arrow-down"></i> to navigate</span><span class="pad-right-15">tab to select</span><span class="pad-right-15">esc to dismiss</span></span>
+                                                    </div>
+                                                    <div class="suggestion-list-items" ng-init="predicate='name'; reverse=false;">
+                                                        <div class="suggestion-list-mention member-mention" ng-class="{selectedperson: filterFields[selectedIndex] === field}" ng-repeat="field in filterFields = (customFields | orderBy : predicate :reverse  | filter:filterCallouts)" ng-click="insertShortcode(field.key, schedule)"><span style="margin: 0 15px;"><strong>{{field.value}}</strong> <span ></span></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="input-group"> 
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-paper-plane"></i>
+                                                </span>
+                                                <textarea id="am-sms-message" ng-keydown="checkforcode($event, schedule)" class="form-control include-emojis broadcast" ng-model="schedule.sms_message" ng-attr-placeholder="Type your message here" msd-elastic></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--- VOICE CALL -->
+                                <div class="broadcast-message-container" ng-if="broadcast.message_type==='Voice'"> 
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <div class="panel cls-panels-header">
+                                                <div class="panel-heading"><i class="fa fa-hand-o-up" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Click an Option Below</strong></div>
+                                                <ul class="list-group">
+                                                    <li class="list-group-item" ng-click="setOpcMessageBroadcast(1); setIndex($index);"><i class="fa fa-microphone" style="margin-right: 10px;"></i>Record a New Message <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'newrecord'"></i></li>
+                                                    <li class="list-group-item" ng-click="setOpcMessageBroadcast(2)"><i class="fa fa-upload" style="margin-right: 10px;"></i>Upload an Audio File <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'uploadfile'"></i></li>
+                                                    <li class="list-group-item" ng-click="setOpcMessageBroadcast(3)"><i class="fa fa-book" style="margin-right: 10px;"></i> Select from Audio Library <i class="fa fa-bullseye pull-right" ng-show="opcBroadcast === 'audiolibrary'"></i></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <div class="tableclass">
+                                                <div class="tablecell itemlabel">
+                                                    Caller Id Number: 
+                                                </div>
+                                                <div class="tablecell mdauto" ng-init="test.selectedNumber = schedule.call_from_did ? getSelectedNumber(schedule.call_from_did) : getSelectedNumber(user.did); callerIdNumberInit(schedule)">
+                                                    <md-autocomplete
+                                                        class="am-callerid"
+                                                        ng-disabled="isDisabled"
+                                                        md-no-cache="noCache"
+                                                        md-selected-item="test.selectedNumber"
+                                                        md-search-text-change="searchTextChange(test.searchNumber)"
+                                                        md-search-text="test.searchNumber"
+                                                        md-selected-item-change="itemChange(schedule, number)"
+                                                        md-items="number in getNumberBySearchText(test.searchNumber)"
+                                                        md-item-text="showItemText(number)"
+                                                        md-min-length="0"
+                                                        placeholder="- Select Caller Id Number -">
+                                                    <md-item-template>
+                                                        <span md-highlight-text="searchText" md-highlight-flags="^i">{{showItemText(number)}}</span>
+                                                    </md-item-template>
+                                                    <md-not-found>
+                                                        No Number matching "{{searchText}}" were found.
+                                                    </md-not-found>
+                                                    </md-autocomplete>
+            
+                                                </div>
+                                            </div>
+                                            <div ng-if="schedule.recording_file" class="center-text show-player">
+                                                {{schedule.library.file_title}}<br />
+                                                <button class="btn btn-default" ng-click="playRecording(schedule.recording_file)"><i class="fa fa-play"></i> Play Current Recording</button>
+                                            </div>
+                                            <div class="panel" ng-if="opcBroadcast" style="border: #cfdef0 solid 1px;">
+                                                <div class="panel-heading"><strong class="cls-color-blue-tkg">{{opcBroadcastTitle}}</strong>
+                                                <button class="btn btn-default pull-right" ng-click="cancelAddAudio()"><i class="fa fa-undo"></i> Cancel</button></div>
+                                                <div class="panel-body">
+                                                    <div ng-if="opcBroadcast==='newrecord'" >
+                                                        <div class="jumbotron recording">
+                                                            <audio-recorder save-recording="saveRecording(recording, $index)">
+                                                            </audio-recorder>
+                                                        </div>
+                                                    </div>
+                                                    <div ng-if="opcBroadcast==='audiolibrary'">
+                                                        <div class="scroll-container-head">
+                                                            <table class="table table-bordered table-hover table-striped data-table-top" style="width: 100%;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th style="width: 45px;">Play</th>
+                                                                        <th>File</th>
+                                                                        <th style="width: 100px;">Choose</th>
+                                                                        <th style="width: 90px;"></th>
+                                                                        <th ng-if="audioLibrary.length>5" style="width: 10px; padding: 0px; border-left: 0;"></th>
+                                                                    </tr>
+                                                                </thead>
+                                                            </table>
+                                                        </div>
+                                                        <div class="scroll-container" style="max-height: 225px">
+                                                            <table class="table table-bordered table-hover table-striped"  style="width: 100%;">
+                                                                <tbody>
+                                                                    <tr ng-repeat="row in audioLibrary">
+                                                                        <td style="width: 45px;">
+                                                                            <span ng-if="audioFilePlaying!==row.audio_library_uuid" 
+                                                                                ng-click="playAudioFile(row.filepath, row.audio_library_uuid)" tooltip-placement="top" 
+                                                                                uib-tooltip="Listen to Audio File">
+                                                                                <i class="fa fa-play-circle fa-2x"></i>
+                                                                            </span>
+                                                                            <span ng-if="audioFilePlaying===row.audio_library_uuid" 
+                                                                                ng-click="stopPlaying()" 
+                                                                                tooltip-placement="top" 
+                                                                                uib-tooltip="Stop Playing Audio File">
+                                                                                <i class="fa fa-stop-circle fa-2x"></i>
+                                                                            </span>
+                                                                        </td>
+                                                                        <td><span ng-if="!recordingBeingEdited(row)">{{row.file_title}} <span ng-if="row.used=='true'"><i class="fa fa-check" aria-hidden="true" tooltip-placement="top" uib-tooltip="File is being used in a draft or queued campaign"></i></span></span>
+                                                                            <md-input-container ng-if="recordingBeingEdited(row)" style="width: 100%; text-align: center;" >
+                                                                                <label>Recording Title</label>
+                                                                                <input ng-model="row.file_title" />
+                                                                            </md-input-container>
+                                                                        </td>
+                                                                        <td style="width: 100px;">
+                                                                            <button class="btn btn-success btn-xs" 
+                                                                                    ng-click="selectAudioLibraryFile(row, schedule.robocall_schedule_uuid)">
+                                                                                <i class="fa fa-plus"></i> 
+                                                                                Select
+                                                                            </button>
+                                                                        </td>
+                                                                        <td style="width: 90px;">
+                                                                            <i ng-show="!recordingBeingEdited(row)" ng-if="isAdminGroupOrGreater()" class="fa fa-times-circle pull-right {{row.used=='true' ? 'ltredfont' : 'redfont'}} deleteopt" aria-hidden="true" ng-click="row.used=='true' || deleteRecording(row)" tooltip-placement="top-right" uib-tooltip="{{row.used=='true' ? 'File is in use and can not be deleted' : 'Delete Audio File'}}"></i>
+                                                                            <i ng-show="recordingBeingEdited(row)" class="fa fa-undo pull-right cancelopt" aria-hidden="true" ng-click="cancelEditRecording()" tooltip-placement="top" uib-tooltip="Cancel Edit"></i>
+                                                                            <i ng-show="recordingBeingEdited(row)" class="fa fa-save pull-right deleteopt" aria-hidden="true" ng-click="saveEditRecording(row)" tooltip-placement="top" uib-tooltip="Save Changes"></i>
+                                                                            <i ng-show="!recordingBeingEdited(row)" class="fa fa-pencil-square-o pull-right deleteopt" aria-hidden="true" ng-click="setEditRecording(row)" tooltip-placement="top" uib-tooltip="Edit Audio File"></i>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div ng-if="opcBroadcast==='uploadfile'">
+                                                        <div class="jumbotron center-text">
+                                                            <div>
+                                                                <md-input-container style="width: 100%; text-align: center;" >
+                                                                    <label>Audio File Title</label>
+                                                                    <input ng-model="recording.title" />
+                                                                </md-input-container>
+                                                            </div>
+                                                            <span ng-if="audioRecording.name"><p><strong>{{audioRecording.name}}</strong></p></span>
+                                                            <label class="btn btn-primary btn-file" >
+                                                                Browse for File <input class="form-control" accept="audio/*" type="file" 
+                                                                name="useravatar" style="display: none;" file-model="audioRecording">
+                                                            </label>
+                                                            <button class="btn btn-success" ng-disabled="uploadingLibrary" ng-click="uploadAudioFile(audioRecording, schedule.robocall_schedule_uuid, recording.title)">Upload File</button>
+                                                            <span ng-if="uploadingLibrary">
+                                                                <i class="fa fa-cog fa-spin fa-lg"></i>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div ng-if="successMessage && successMessage !== ''" uib-alert ng-class="'alert-success'" close="closeMessage()">{{successMessage}}</div>
+                                            <div ng-if="errorMessage && errorMessage !== ''" uib-alert ng-class="'alert-failure'" close="closeMessage()">{{errorMessage}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="pull-right" style="padding: 15px;">
+                                        <button class="btn btn-danger" ng-click="removeAutomatedScheduleEntry(schedule.robocall_schedule_uuid)" tooltip-placement="bottom" uib-tooltip="{{tips.automated.remove_schedule}}"><i class="fa fa-trash"></i> Remove</button>
+                                        <button class="btn btn-success" ng-if="broadcast.message_type==='Voice'" ng-disabled="!schedule.start_at || !schedule.call_from_did" ng-click="saveSmsMessage($index, schedule, true)"><i class="fa fa-floppy-o"></i> Save Message</button>
+                                        <button class="btn btn-success" ng-if="broadcast.message_type==='Text'" ng-disabled="!schedule.title || !schedule.start_at || !schedule.sms_message || !schedule.sms_reply_number" ng-click="saveSmsMessage($index, schedule, true)"><i class="fa fa-floppy-o"></i> Save Message</button>
+                                        <button class="btn btn-success" ng-if="broadcast.message_type==='Email'" ng-disabled="!schedule.title || !schedule.start_at || !schedule.email_subject || !schedule.email_from_email || !schedule.email_message_html" ng-click="saveEmailMessage($index, schedule, true)"><i class="fa fa-floppy-o"></i> Save Message</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </uib-accordion>
+
+                        
+                    </div>
+                    
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3" ng-if="1==2">
+            <div class="panel panel-warning">
+                <div class="panel-heading"><i class="fa fa-question-circle-o" style="padding-right: 10px;"></i><strong class="cls-color-blue-tkg">Useful tips or Help</strong></div>
+                <div class="panel-body">
+                    Content...
+                </div>
+                </div>
+        </div>
+
+</div>

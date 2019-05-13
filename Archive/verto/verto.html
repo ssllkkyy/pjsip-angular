@@ -1,0 +1,37 @@
+<html>
+<head>
+	<!-- Verto dependencies -->
+	<script src="jquery.min.js"></script>
+	<script src="jquery.json.min.js"></script>
+
+	<!-- Verto library -->
+	<script src="jquery.verto.js"></script>
+	<script src="jquery.FSRTC.js"></script>
+	<script src="jquery.jsonrpcclient.js"></script>
+
+	<!-- Our project's files -->
+	<script src="main.js"></script>
+
+	<script type="text/javascript">
+		standaloneDemo = true;
+	</script>
+</head>
+<body>
+
+	<div class="container">
+	  <h1>Verto - Demo Application</h1>
+	  This is the most basic of demos.  To keep the code as simple and uncluttered as possible, little to no feedback is output to the screen.  To see what's happening, open developer tools in the browser (F12).<br /><br />
+	  <input id="myExtensionBase" type='text' value='1000' />
+	  <button id="logIn">Log in</button><br /><br />
+	  <input id="destinationNumberBase" type='text' />
+	  <button id="make-call">Make call</button><br />
+	  <button id="hang-up-call">Hang up call</button><br />
+	  <button id="answer-call">Answer call</button><br />
+	  <button id="hold-call">Hold call</button><br />
+	  <button id="mute-call">Mute call</button><br />
+	  <button id="transfer-call">Transfer call</button><br />
+  	</div> <!-- /container -->
+
+	<video id="video-container" autoplay="autoplay" class="video-style"></video>
+</body>
+</html>

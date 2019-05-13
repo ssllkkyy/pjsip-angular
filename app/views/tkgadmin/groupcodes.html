@@ -1,0 +1,135 @@
+<md-toolbar id="contact-groups-toolbar">
+    <div class="md-toolbar-tools">
+        <h2 md-truncate flex>{{title()}}</h2>
+        <md-button ng-click="showEditCode()"
+            ng-if="isBillingAdminOrGreater()"
+            class="md-primary md-raised">
+          Create New Code
+        </md-button>
+    </div>
+</md-toolbar>
+<md-content class="contact-groups-content">
+    <div class="alert alert-warning">
+            Warning: DO NOT change anything on this page without CEO approval. These are pricing and marketing decisions. To make changes for a specific agency, go to the Agencies tab.
+    </div>
+    <div class="row">
+        <div class="col-lg-5 pull-right">
+            <div class="input-group">
+                <span class="input-group-addon" title="Filter calls"><i class="fa fa-filter"></i></span>
+                <input class="form-control" type="text" ng-model="codeSearch" placeholder="Filter group codes by keyword">
+            </div>
+        </div>
+    </div>
+    <table class="table table-bordered table-striped cls-tab-call-history" ng-show="stateIsShowing('table')">
+        <thead>
+            <tr>
+                <th><a href ng-click="sortBy('customer_group_code')" tooltip-placement="top" uib-tooltip="{{tips.groupcodes.sortbycode}}">Code <i class="fa fa-{{!reverse && predicate==='customer_group_code'?'chevron-up':'chevron-down'}}"></i></a></th>
+                <th><a href ng-click="sortBy('title')" tooltip-placement="top" uib-tooltip="{{tips.groupcodes.sortbycode}}">Group Title / Description <i class="fa fa-{{!reverse && predicate==='title'?'chevron-up':'chevron-down'}}"></i></a></th>
+                <th>$ Discount</th>
+                <th>% Discount</th>
+                <th>Free Months</th>
+                <th><a href ng-click="sortBy('usecount')" tooltip-placement="top" uib-tooltip="{{tips.groupcodes.sortbycode}}">Uses <i class="fa fa-{{!reverse && predicate==='usecount'?'chevron-up':'chevron-down'}}"></i></a></th>
+                <th><a href ng-click="sortBy('enabled')" tooltip-placement="top" uib-tooltip="{{tips.groupcodes.sortbycode}}">Status <i class="fa fa-{{!reverse && predicate==='enabled'?'chevron-up':'chevron-down'}}"></i></a></th>
+                <th>Manage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-if="customerGroupCodes.length === 0">
+                <td colspan="6">There are no Group Codes created yet.</td>
+            </tr>
+            <tr ng-if="customerGroupCodes.length>0" ng-repeat="code in filterData = (customerGroupCodes | orderBy:customer_group_code:true | filter: filterCodes | orderBy: predicate :reverse)">
+                <td>{{code.customer_group_code}}</td>
+                <td>
+                    <strong>Title: </strong>{{code.title}}
+                    <span ng-if="code.description"><br /><strong>Description: </strong>{{code.description}}</span>
+                </td>
+                <td>{{code.discount}} %</td>
+                <td>{{code.dollar_discount | currency}}</td>
+                <td>{{code.free_months}}</td>
+                <td>{{code.usecount}}</td>
+                <td>
+                    <md-switch ng-disabled="code.customer_group_code==='BridgeDemoAgency' || !isBillingAdminOrGreater()" ng-model="code.enabled" aria-label="isOn" class="capital" ng-change="getToggleGroupCodeStatus(code.customer_group_code_uuid)">
+                        {{ code.enabled ? "Enabled":"Disabled" }}
+                    </md-switch>
+
+                </td>
+                <td>
+                    <button ng-disabled="code.customer_group_code==='BridgeDemoAgency'"
+                        ng-if="isBillingAdminOrGreater()"
+                        class="btn btn-xs btn-success" 
+                        ng-click="showEditCode(code)">Edit
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</md-content>
+
+<script type="text/ng-template" id="managecodes.html">
+    <div>
+        <div class="modal-header">
+            <span class="fa-stack fa-2x cls-color-blue-tkg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-key fa-stack-1x fa-inverse"></i>
+            </span>
+            <span class="cls-header-modal">Manage Group Code</span>
+            <button type="button" ng-click="closeModal()" class="close"><i class="fa fa-times"></i></button>
+        </div>
+        <edit-group-code code="vm.content.data"></edit-group-code>
+    </div>
+</script>
+
+<script type="text/ng-template" id="editgroupcode.html">
+    <form id="addGroupCode" name="addGroupCode">
+        <div class="modal-body" id="modal-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <md-input-container>
+                        <label>Title of Group</label>
+                        <input ng-model="groupcode.title" required >
+                        <div ng-messages="addGroupCode.title.$error">
+                            <div ng-message="missing">The title is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-12">
+                    <md-input-container flex-gt-sm>
+                        <label>Group Code</label>
+                        <input name="groupcode" ng-model="groupcode.customer_group_code" md-maxlength="30" required>
+                        <div ng-messages="addGroupCode.groupcode.$error">
+                            <div ng-message="missing">The group code is required</div>
+                        </div>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-12">
+                    <md-input-container>
+                        <label>Description of Group</label>
+                        <input ng-model="groupcode.description" md-maxlength="250" >
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container >
+                        <label>% Disc./ Seat (ie. 20 for 20%)</label>
+                        <input ng-model="groupcode.discount" required>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container >
+                        <label>$ Disc./ Seat (ie. 20 for 20%)</label>
+                        <input ng-model="groupcode.dollar_discount" required>
+                    </md-input-container>
+                </div>
+                <div class="col-sm-4">
+                    <md-input-container >
+                        <label># Free Months (ie 3)</label>
+                        <input ng-model="groupcode.free_months">
+                    </md-input-container>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer cls-incomingcall-buttons">
+            <button class="btn btn-danger btn-md" ng-click="closeModal()"><i class="fa fa-remove" style="margin-right: 10px;"></i>Cancel</button>
+            <button class="btn btn-primary btn-md" ng-click="saveGroupCode(groupcode)" ng-disabled="addGroupCode.$invalid"><i class="fa fa-save" style="margin-right: 10px;"></i>Save Code</button>
+        </div>
+    </form>
+</script>

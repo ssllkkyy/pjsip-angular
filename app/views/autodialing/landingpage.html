@@ -1,0 +1,528 @@
+<div class="no-access-container" ng-if="!packageHasAccess('automatedmessaging')">
+    <div class="alert alert-warning centered no-access">
+        Your current Bridge <strong>{{user.package.package_title}}</strong> does not have access to <strong>{{showFeatureTitle('automatedmessaging')}}</strong>.
+    </div>
+</div>
+<div ng-if="packageHasAccess('automatedmessaging')"
+    id="auto-marketing-landing-container" 
+    ng-controller="AutoDialingCtrl">
+    <div class="row top-row">
+        <div class="col-sm-6">
+            <h3>Automated Messaging</h3>
+        </div>
+        <div class="col-sm-6 campaign-btn-container" ng-show="showTable" style="margin-top: 15px; text-align: right;">
+            <button ng-show="!showAllCampaigns" ng-click="returnToLanding()" class="btn btn-default"  style="margin-right: 10px;">
+                <i class="fa fa-mail-reply" style="margin-right: 10px;"></i>
+                Return to Landing Page
+            </button>
+            <button ng-click="goToNewCampaign()" class="btn btn-success">
+                <i class="fa fa-magic" style="margin-right: 10px;"></i>
+                Create a new campaign
+            </button>
+        </div>
+    </div>
+    <div ng-if="!showTable" style="width: 250px; text-align: center; opacity: 0.6; margin: 40px;">
+        <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i><br />
+        Loading...
+    </div>
+    <div ng-show="showAllCampaigns || showArchivedCampaigns" id="campaign-display">
+        <h4 ng-if="showArchivedCampaigns">Archived Campaigns</h4>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-2" >
+                        <strong>Campaigns</strong>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-addon" ng-click="OpenfromDate()">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                            <input type="text" class="form-control"
+                                    uib-datepicker-popup="{{dateFormat}}"
+                                    ng-model="fromDate"
+                                    name="fromDate"
+                                    is-open="fromDatePopup.opened"
+                                    datepicker-options="fromDateOptions"
+                                    ng-required="true"
+                                    close-text="Close"
+                                    ng-click="OpenfromDate()"
+                                    ng-change="ChangeToMinDate(fromDate)"
+                                    placeholder="From" />
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="input-group">
+                            <span class="input-group-addon" ng-click="OpentoDate()">
+                                <i class="fa fa-calendar"></i>
+                            </span>
+                            <input type="text"
+                                    class="form-control"
+                                    uib-datepicker-popup="{{dateFormat}}"
+                                    ng-model="toDate"
+                                    name="toDate"
+                                    is-open="toDatePopup.opened"
+                                    datepicker-options="toDateOptions"
+                                    ng-required="true"
+                                    close-text="Close"
+                                    ng-click="OpentoDate()"
+                                    ng-change="processToDate(toDate)"
+                                    placeholder="To" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="input-group">
+                            <span class="input-group-addon"
+                                    title="Filter Campaigns">
+                                <i class="fa fa-filter"></i>
+                            </span>
+                            <input class="form-control"
+                                    type="text"
+                                    ng-model="landing.amCampaignSearch"
+                                    placeholder="Filter Campaigns">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-container-head"
+                ng-show="showTable">
+                <table id="data-table-top"
+                        class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <thead>
+                        <tr>
+                            <th style="width: 28%">
+                                Campaign Name
+                            </th>
+                            <th style="width: 32%">
+                                Date
+                            </th>
+                            <th style="width: 16%">
+                                Details
+                            </th>
+                            <th style="width: 14%">
+                                Recipients
+                            </th>
+                            <th style="width: 10%">
+                                Status
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div ng-show="showTable"
+                class="scroll-container"
+                ng-style="{'height': automarketingTableHeight && automarketingTableHeight}">
+                <table class="table table-bordered table-hover table-striped cls-tab-call-history">
+                    <tbody class="cls-body-table-pos">
+                        <tr ng-if="amCampaigns.length===0">
+                            <td colspan="5">
+                                There are no campaigns to display.
+                            </td></tr>
+                        <tr ng-click="getCampaignDetail(campaign.robocall_uuid)"
+                            ng-repeat="campaign in filterData = (amCampaigns | orderBy : predicate :reverse | filter:searchCampaigns | filter:filterByMonth) | limitTo:perPage:perPage*(currentPage-1)">
+                            <td style="width: 28%">
+                                {{ campaign.robocall_name.length > 35 ? campaign.robocall_name.substring(0, 17) + ' ... ' + campaign.robocall_name.substring(campaign.robocall_name.length-17) : campaign.robocall_name }}
+                            </td>
+                            <td style="width: 32%">
+                                <div ng-if="campaign.schedules.length>0">
+                                    <strong>
+                                        Delivery:
+                                    </strong>
+                                    <br />
+                                    <span ng-if="campaign.schedule_type==='One'">
+                                        {{campaign.schedules[0].start_at | toLocalTime | amDateFormat:'MMM D, YYYY h:mm a'}}
+                                    </span>
+                                    <span ng-if="campaign.schedule_type==='Series'">
+                                        <span ng-repeat="schedule in campaign.schedules">
+                                            {{schedule.title}}
+                                            <br />
+                                            {{schedule.start_at | toLocalTime | amDateFormat:'MMM D, YYYY h:mm a'}}
+                                            <br ng-if="$index !== campaign.schedules.length-1" />
+                                        </span>
+                                    </span>
+                                </div>
+                                <div ng-if="campaign.schedules.length==0">
+                                    <strong>
+                                        Last Updated:
+                                    </strong>
+                                    <br />
+                                    <span>
+                                        {{campaign.updated_at | toLocalTime | amDateFormat:'MMM D, YYYY h:mm a'}}
+                                    </span>
+                                </div>
+                            </td>
+                            <td style="width: 16%">
+                                {{campaign.robocall_type}}
+                                <br />
+                                {{campaign.message_type}}
+                                <br />
+                                {{campaign.schedule_type==='One' ? 'One-Time' : 'Series'}}
+                            </td>
+                            <td style="width: 14%">
+                                {{campaign.contacts.length}} Recipient{{campaign.contacts.length > 1 ? 's' : ''}}
+                            </td>
+                            <td style="width: 10%">
+                                {{showCampaignStatus(campaign.status)}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button class="btn btn-default pull-right"
+                ng-if="!showArchivedCampaigns"
+                ng-click="loadArchivedCampaigns()">
+            View Archived Campaigns
+        </button>
+        <button class="btn btn-default pull-right"
+                ng-if="showArchivedCampaigns"
+                ng-click="getCampaigns()">
+            View Active Campaigns
+        </button>
+        <div ng-show="showTable && filterData.length > perPage"
+            style="text-align: center">
+            <ul uib-pagination class="pagination-sm pagination"
+                total-items="filterData.length"
+                ng-model="currentPage"
+                previous-text="&lsaquo;"
+                next-text="&rsaquo;"
+                items-per-page="perPage">
+            </ul>
+        </div>
+    </div>
+    <div ng-show="!showAllCampaigns && !showArchivedCampaigns && activeCampaign">
+        <div class="container-fluid">
+            <div class="col-lg-12">
+                <div class="jumbotron">
+                    <div class="btn-group" ng-if="1==2">
+                        <button class="btn btn-default btn-sm"
+                                ng-click="callResult()">
+                            <i class="fa fa-caret-right"
+                                ng-show="opcCallResult"
+                                style="margin-right: 10px;">
+                            </i>
+                            Call Result
+                        </button>
+                        <button class="btn btn-default btn-sm"
+                                ng-click="surveyResult()">
+                            <i class="fa fa-caret-right"
+                                ng-show="opcSurveyResult"
+                                style="margin-right: 10px;">
+                            </i>
+                            Survey Result
+                        </button>
+                    </div>
+                    <div class="btn-group" ng-if="currentCampaign.status==='draft'">
+                        <button class="btn btn-default btn-sm"
+                                ng-click="goToEditCampaign(currentCampaign.robocall_uuid)">
+                            <i class="fa fa-edit" style="margin-right: 10px;"></i>
+                            Edit Campaign
+                        </button>
+                    </div>
+                    <div class="btn-group pull-right right-text"
+                        ng-if="currentCampaign.status!=='draft' && currentCampaign.status!=='sent' && currentCampaign.status!=='failed'">
+                        <h3 ng-if="currentCampaign.status==='paused'">
+                            PAUSED
+                        </h3>
+                        <h3 ng-if="currentCampaign.status==='stopped'">
+                            STOPPED
+                        </h3>
+                        <h3 ng-if="currentCampaign.status==='queue'">
+                            QUEUED
+                        </h3>
+                        <button class="btn btn-alert btn-sm"
+                                ng-if="!currentCampaign.archived_at && (currentCampaign.status==='queue' || currentCampaign.status==='sending')"
+                                ng-click="changeCampaignStatus(currentCampaign, 'paused')">
+                            Pause Campaign
+                        </button>
+                        <button class="btn btn-primary btn-sm"
+                                ng-if="!currentCampaign.archived_at && currentCampaign.status.substring(0,6)==='paused'"
+                                ng-click="changeCampaignStatus(currentCampaign, 'resumed')">
+                            Resume Campaign
+                        </button>
+                        <button class="btn btn-danger btn-sm"
+                                ng-if="!currentCampaign.archived_at && currentCampaign.status.substring(0,6)==='paused' || currentCampaign.status==='sending' || currentCampaign.status==='queue'"
+                                ng-click="changeCampaignStatus(currentCampaign, 'stopped')">
+                            Stop Campaign
+                        </button>
+                    </div>
+                    <div class="row"
+                        style="margin-top: 10px;">
+                        <div class="col-lg-6 col-md-12">
+                            <div class="panel cls-panels-header cls-robocall-detail">
+                                <div class="panel-heading">
+                                    <i class="fa fa-bullhorn"
+                                        style="padding-right: 10px;">
+                                    </i>
+                                    <strong class="cls-color-blue-tkg">
+                                        {{currentCampaign.robocall_name}}
+                                    </strong>
+                                </div>
+                                <ul class="list-group">
+                                    <li ng-if="currentCampaign.archived_at"
+                                        class="list-group-item">
+                                        <span>
+                                            Archived At
+                                        </span>
+                                        <label>
+                                            {{currentCampaign.archived_at | toLocalTime | amDateFormat: 'ddd, MMM D, h:mm a' }}
+                                        </label>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span>
+                                            Delivery Method
+                                        </span>
+                                        <label>
+                                            {{currentCampaign.message_type}}
+                                        </label>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span>
+                                            Broadcast Type
+                                        </span>
+                                        <label>
+                                            {{currentCampaign.robocall_type}}
+                                        </label>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span>
+                                            Total Contacts
+                                        </span>
+                                        <label>
+                                            {{currentCampaign.contacts.length}}
+                                        </label>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span>
+                                            Campaign Start
+                                        </span>
+                                        <label ng-if="currentCampaign.schedules[0]">
+                                            {{currentCampaign.schedules[0].start_at | toLocalTime | amDateFormat: 'ddd, MMM D, h:mm a'}}
+                                        </label>
+                                        <label ng-if="!currentCampaign.schedules[0]">
+                                            {{currentCampaign.created_at | toLocalTime | amDateFormat: 'ddd, MMM D, h:mm a'}}
+                                        </label>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span>
+                                            Campaign Status
+                                        </span>
+                                        <label>
+                                            {{showCampaignStatus(currentCampaign.status)}}
+                                        </label>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span>
+                                            Campaign Type
+                                        </span>
+                                        <label>
+                                            {{currentCampaign.schedule_type === 'One' ? 'One Time Message' : 'Series of Messages'}}
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div ng-if="currentCampaign.status==='sent' && myChartObject.data"
+                            class="col-lg-6 col-md-12">
+                            <div class="thumbnail">
+                                <center>
+                                    <div google-chart chart="myChartObject"
+                                        style="border:1px inset black;padding:0;width:400px">
+                                    </div>
+                                </center>
+                            </div>
+                        </div>
+                        <div ng-if="currentCampaign.status==='draft'"
+                            class="col-lg-6 col-md-12">
+                            <div class="thumbnail no-stats-box">
+                                <center>
+                                    <i class="fa fa-pie-chart mdgreyfont opacity50"></i>
+                                </center>
+                            </div>
+                        </div>
+                    </div>
+                    <table ng-if="currentCampaign.archived_at"
+                            class="table table-bordered table-hover table-striped cls-tab-call-history">
+                        <!-- ng-show="currentCampaign.contacts.length > 0"> -->
+                        <thead>
+                            <tr style="background-color: transparent !important;">
+                                <th colspan="6">
+                                    <div class="btn-group btn-group-justified"
+                                        role="group"
+                                        aria-label="...">
+                                        <div class="btn-group"
+                                            role="group">
+                                            <button class="btn btn-default"
+                                                    ng-class="{opcSelComp : btnMnuAct==='1'}"
+                                                    ng-click="buttonSelected('Total Contacts')" >
+                                                Total Contacts <br/>
+                                                <strong>
+                                                    {{currentCampaign.contacts.length}}
+                                                </strong>
+                                            </button>
+                                        </div>
+                                        <div class="btn-group"
+                                            role="group"
+                                            ng-if="item.key !=='Delivered'"
+                                            ng-repeat="item in currentCampaign.schedules[0].results">
+                                            <button class="btn btn-default"
+                                                    ng-class="{opcSelComp : btnMnuAct===item.key}"
+                                                    ng-click="buttonSelected(item.key)">
+                                                {{item.key}}
+                                                <br/>
+                                                <strong>
+                                                    {{item.value}}
+                                                </strong>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <thead>
+                            <tr style="background-color: transparent !important;">
+                                <th colspan="6"
+                                    style="padding: 0px !important;">
+                                    <div class="input-group pull-right"
+                                        style="margin: 0px 6px 0px 0px !important; padding: 0px !important">
+                                        <span class="input-group-addon"
+                                                title="Filter Contacts">
+                                            <i class="fa fa-filter"></i>
+                                        </span>
+                                        <input class="form-control"
+                                                type="text"
+                                                ng-model="txtCampCnts"
+                                                placeholder="Filter Contacts">
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <thead >
+                            <tr>
+                                <th>
+                                    <a href ng-click="sortBy('contact.firstname')"
+                                        tooltip-placement="top-left"
+                                        uib-tooltip="{{tips.automated.sortbyname}}">
+                                        Name
+                                        <i class="fa fa-{{!reverse2 && predicate2==='contact.firstname'?'chevron-up':'chevron-down'}}"></i>
+                                    </a>
+                                </th>
+                                <th ng-if="currentCampaign.message_type!=='Email'">
+                                    <a href ng-click="sortBy('contact.phone_number1')"
+                                        tooltip-placement="top-left"
+                                        uib-tooltip="{{tips.automated.sortbyphonenumber}}">
+                                        Phone Number
+                                        <i class="fa fa-{{!reverse2 && predicate2==='contact.phone_number1'?'chevron-up':'chevron-down'}}"></i>
+                                    </a>
+                                </th>
+                                <th ng-if="currentCampaign.message_type==='Email'">
+                                    <a href
+                                        ng-click="sortBy('contact.email_address')"
+                                        tooltip-placement="top-left"
+                                        uib-tooltip="{{tips.automated.sortbyemailaddress}}">
+                                        Email Address
+                                        <i class="fa fa-{{!reverse2 && predicate2==='contact.email_address'?'chevron-up':'chevron-down'}}"></i>
+                                    </a>
+                                </th>
+                                <th><a href ng-click="sortBy('status')"
+                                        tooltip-placement="top-left"
+                                        uib-tooltip="{{tips.automated.sortbydeliverystatus}}">
+                                    Delivery Status
+                                    <i class="fa fa-{{!reverse2 && predicate2==='status'?'chevron-up':'chevron-down'}}"></i>
+                                </a>
+                                </th>
+                                <th>
+                                    <a href ng-click="sortBy('reply')"
+                                        tooltip-placement="top-left"
+                                        uib-tooltip="{{tips.automated.sortbyinteraction}}">
+                                        Response
+                                        <i class="fa fa-{{!reverse2 && predicate2==='reply'?'chevron-up':'chevron-down'}}"></i>
+                                    </a>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="delivery in filterData2 = (currentCampaign.schedules[0].deliveries | orderBy : predicate2 :reverse2 | filter:filterDeliveries) | limitTo:perPage2:perPage2*(currentPage2-1)">
+                                <td>
+                                    {{delivery.contact.firstname}} {{delivery.contact.lastname}}
+                                </td>
+                                <td ng-if="currentCampaign.message_type!=='Email'">
+                                    {{delivery.contact.contact_phone1 | tel}}
+                                </td>
+                                <td ng-if="currentCampaign.message_type==='Email'">
+                                    {{delivery.contact.email_address}}
+                                </td>
+                                <td>
+                                    {{delivery.status}}
+                                </td>
+                                <td>
+                                    {{delivery.reply}}
+                                </td>
+                            </tr>
+                            <tr ng-if="filterData.length===0">
+                                <td colspan="4">
+                                    There are no {{btnMnuAct}} Contacts to Display
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="text-align: center">
+                        <ul uib-pagination class="pagination-sm pagination"
+                            total-items="filterData2.length"
+                            ng-model="currentPage2"
+                            previous-text="&lsaquo;"
+                            next-text="&rsaquo;"
+                            items-per-page="perPage2">
+                        </ul>
+                    </div>
+                    <div class="cls-notify"
+                        ng-show="currentCampaign.contacts.length === 0">
+                        <i  class="fa fa-bullhorn fa-3x cls-color-yellow-tkg"
+                            id="iconNotify">
+                        </i>
+                        <span id="productName">
+                            Symphony
+                        </span>
+                        <spam>
+                            No contacts have been registered for this campaign
+                        </spam>
+                        <div>
+                            <center style="margin-top: 10px;">
+                                <button ng-click="addContactsToCampaign(currentCampaign.robocall_uuid)"
+                                        class="btn btn-primary">
+                                    <i class="fa fa-user-plus"
+                                        style="margin-right: 10px;">
+                                    </i>
+                                    Add Contacts
+                                </button>
+                            </center>
+                        </div>
+                    </div>
+                    <hr />
+                    <button class="btn btn-default"
+                            style="margin-right: 10px;"
+                            ng-if="!currentCampaign.archived_at"
+                            ng-click="duplicateCampaign(currentCampaign.robocall_uuid)">
+                        <i class="fa fa-copy" style="margin-right: 10px;"></i>
+                        Duplicate Campaign
+                    </button>
+                    <button class="btn btn-danger"
+                            style="margin-right: 10px;"
+                            ng-if="(currentCampaign.status === 'draft' || user.accessgroup==='superadmin') && !currentCampaign.archived_at"
+                            ng-click="deleteRobocallCampaign()">
+                        <i class="fa fa-times" style="margin-right: 10px;"></i>
+                        Remove Campaign
+                    </button>
+                    <button class="btn btn-danger"
+                            style="margin-right: 10px;"
+                            ng-if="(currentCampaign.status === 'sent' || currentCampaign.status === 'stopped' || currentCampaign.status === 'failed') && !currentCampaign.archived_at"
+                            ng-click="archiveCampaign()">
+                        <i class="fa fa-calendar" style="margin-right: 10px;"></i>
+                        Archive Campaign
+                    </button>
+                </div>
+                <div class="cleared"></div>
+            </div>
+        </div>
+    </div>
+</div>

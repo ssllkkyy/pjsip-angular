@@ -1,0 +1,52 @@
+<div class="modal-header quotesheet-assign-header">
+    <span class="fa-stack fa-2x modal-icon">
+        <i class="fa fa-circle fa-stack-2x">
+        </i>
+        <i class="fa fa-paper-plane fa-stack-1x fa-inverse">
+        </i>
+    </span>
+    <span class="cls-header-modal">
+        Assign to:
+    </span>
+    <md-input-container>
+        <md-select class="assign-to-modal-ddl"
+                   ng-model="vm.content.data.assignedTo">
+            <md-option ng-value="member"
+                       ng-repeat="member in vm.content.data.peopleListData"
+                       ng-click="vm.content.data.setAsignee(member)">
+                {{ member.name }}
+            </md-option>
+        </md-select>
+    </md-input-container>
+    <button type="button"
+            ng-click="closeModal()"
+            class="close">
+        <i class="fa fa-times">
+        </i>
+    </button>
+</div>
+<div class="modal-body"
+     ng-show="!vm.content.data.assignedTo.isThisUser"
+     id="modal-body">
+    <p>Clicking assign will send a link to this quote. Include any additional information or attachments below.</p>
+    <quotesheet-modal-chat assigned-to ="vm.content.data.assignedTo"
+                           people-list = "vm.content.data.peopleListData"
+                           fns="vm.content.data.chatFns">
+    </quotesheet-modal-chat>
+</div>
+<div class="modal-footer cls-incomingcall-buttons">
+    <button class="btn btn-danger btn-md"
+            ng-click="closeModal()">
+        <i class="fa fa-remove"
+           style="margin-right: 10px;">
+        </i>
+        Cancel
+    </button>
+    <button class="btn btn-danger btn-md"
+            ng-click="vm.content.data.assign()">
+        <i class="fa fa-check"
+           style="margin-right: 10px;">
+        </i>
+        Assign
+    </button>
+</div>

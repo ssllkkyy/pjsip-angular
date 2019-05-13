@@ -1,0 +1,132 @@
+
+<div class="panel panel-default package-management">
+    <div class="panel-heading">
+        <h3>Package Management</h3>
+    </div>
+    <div class="panel-body bulleted">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="package-title">
+                    <strong>Current Package: </strong>{{user().package.package_title}}<br />
+                    <span ng-if="user().groupcode && user().groupcode.customer_group_code !== 'generic'"><strong>Group: </strong> {{user().groupcode.title}}<br /></span>
+                    <strong>Your Cost: </strong> {{showPackageCost(user().package) | currency }} / user
+                </div>
+                <button ng-click="showDescription=!showDescription" class="btn btn-default">
+                    {{showDescription ? 'Hide Description' : 'Show Description'}}
+                </button>
+                <div ng-if="showDescription" 
+                    class="package-body" 
+                    ng-bind-html="user().package.package_description">
+                </div>
+            </div>
+            <div class="col-sm-6 package-options">
+                <div class="upgrade-buttons">
+                    <button class="btn btn-danger btn-lg" ng-if="!isTopPackage() && !upgrading" ng-click="toggleUpgradeOptions()">Upgrade Package</button>
+                    <button class="btn btn-default btn-lg" ng-if="!isTopPackage() && upgrading" ng-click="toggleUpgradeOptions()">Cancel Upgrade</button>
+                </div>
+                <uib-accordion close-others="true">
+                    <div uib-accordion-group 
+                        ng-if="upgrading && pack.enabled==='true' && pack.level > user().package.level" 
+                        ng-repeat="pack in availPackages() | orderBy:'level'">
+                        <uib-accordion-heading>
+                            <div class="tableclass">
+                                <div class="tablecell">{{pack.package_title}}
+                                    {{showPackageCost(pack) | currency }}
+                                </div>
+                                <div class="tableclass">
+                                    <button class="btn btn-default pull-right">
+                                        Details
+                                    </button>
+                                    <button 
+                                        style="margin-right: 8px;"
+                                        class="btn btn-danger pull-right" 
+                                        ng-click="$event.stopPropagation();$event.preventDefault();choosePackage(pack)">
+                                        Choose {{pack.package_title}}
+                                    </button>
+                                </div>
+                            </div>
+                        </uib-accordion-heading>
+                        <div class="package-body" ng-bind-html="pack.package_description"></div>
+                    </div>
+                </uib-accordion>
+            </div>
+        </div>
+    </div>
+    <div class="panel-heading" style="border-top: 1px solid #ddd;">
+        <h3>Package Add-ons</h3>
+    </div>
+    <div class="panel-body ">
+        <div ng-if="loadingAddons"class="loading-info">
+            <i class="fa fa-spinner fa-spin fa-3x"></i><br />
+            <span>Loading Add-on Info<br />
+            Please Wait</span>
+        </div>
+        <div ng-if="!loadingAddons">
+            <div ng-if="domainAddons.length>0">
+                <h4>Your Active Add-ons</h4>
+                <p class="smalltext">NOTE: Please contact a Bridge specialist at <a href="mailto:bridge@kotter.net" target="_blank">bridge@kotter.net</a> if you would like to remove one of your add-ons.</p>
+                <table ng-if="domainAddons.length>0" class="table table-bordered table-striped cls-tab-call-history">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th style="width: 15%">Details</th>
+                            <th style="width: 10%">Unit Cost</th>
+                            <th style="width: 10%">Quantity</th>
+                            <th style="width: 15%">Total Monthly Cost</th>
+                            <th style="width: 15%">Date Added</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="addon in domainAddons | orderBy : 'created_at' : true">
+                            <td>{{addon.addon.title}}</td>
+                            <td>{{addon.addon.quantity}} {{addon.addon.units}}</td>
+                            <td>{{addon.cost | currency}}</td>
+                            <td>{{addon.quantity ? addon.quantity : 1}}</td>
+                            <td>{{(addon.cost * addon.quantity) | currency}}</td>
+                            <td>{{addon.created_at | toLocalTime | amDateFormat: 'MMM D, YYYY'}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br />
+            <h4>Available Add-ons</h4>
+            <table class="table table-bordered table-striped cls-tab-call-history">
+                <thead>
+                    <tr>
+                        <th style="width: 50%">Title</th>
+                        <th style="width: 15%">Details</th>
+                        <th style="width: 15%">Monthly Cost</th>
+                        <th style="width: 15%">Quantity To Add</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-if="availAddons().length === 0">
+                        <td colspan="5">There are no add-ons created yet.</td>
+                    </tr>
+                    <tr ng-if="availAddons().length>0 && addon.enabled && packageHasAccessToAddon(addon.type)" 
+                        ng-repeat="addon in availAddons() | orderBy:'title'">
+                        <td>{{addon.title}}</td>
+                        <td>{{addon.quantity}} {{addon.units}}</td>
+                        <td>{{addon.cost | currency}}</td>
+                        <td ng-init="addon.count = 1">
+                            <div class="input-group" style="margin-bottom: 0px;">
+                                <input type="number"
+                                    class="form-control"
+                                    style="width: 75%;"
+                                    ng-change="checkCount(addon.count)"
+                                    ng-model="addon.count">
+                            </div>
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-success" 
+                                ng-click="chooseAddon(addon)">Choose Add-on
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

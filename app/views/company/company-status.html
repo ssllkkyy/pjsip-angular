@@ -1,0 +1,231 @@
+<div class="table-head-container">
+    <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+        <thead>
+            <tr>
+                <th>Status Name</th>
+                <th>Status Description</th>
+                <th>Receive Calls</th>
+                <th>Timer</th>
+                <th>Status Enabled?</th>
+                <th>Icon</th>
+            </tr>
+        </thead>
+        <tbody uib-collapse="!showAddStatus">
+            <tr class="cls-table-comp-setting-status">
+                <td>
+                    <md-input-container style="padding: 0px !important;
+                                               margin: 0px !important;
+                                               height: 25px !important;
+                                               width: 100%;">
+                        <input type="text"
+                               ng-model="NEWstatus.statusName"
+                               maxlength="20">
+                    </md-input-container>
+                </td>
+                <td>
+                    <md-input-container style="padding: 0px !important;
+                                               margin: 0px !important;
+                                               height: 25px !important;
+                                               width: 100%;">
+                        <input type="text"
+                               ng-model="NEWstatus.description">
+                    </md-input-container>
+                </td>
+                <td style="text-align: center !important;">
+                    <md-switch class="md-primary"
+                               name="special"
+                               ng-model="NEWstatus.receiveCalls"
+                               required
+                               style="padding: 0px !important;
+                                      margin: 0px !important;
+                                      height: 25px !important;">
+                    </md-switch>
+                </td>
+                <td style="text-align: center !important;">
+                    <md-switch class="md-warn"
+                               name="special"
+                               ng-model="NEWstatus.startTimer"
+                               required
+                               style="padding: 0px !important;
+                                      margin: 0px !important;
+                                      height: 25px !important;">
+                    </md-switch>
+                </td>
+                <td style="text-align: center !important;">
+                    <md-checkbox name="tos"
+                                 ng-model="NEWstatus.active"
+                                 required
+                                 style="padding: 0px !important;
+                                       margin: 0px !important;
+                                       height: 25px !important;
+                                       text-align: center !important;">
+                    </md-checkbox>
+                </td>
+                <td>
+                    <md-input-container class="md-block"
+                                        flex-gt-sm
+                                        style="padding: 0px !important;
+                                               margin: 0px !important;
+                                               height: 25px !important;">
+                        <md-select ng-model="NEWstatus.statusIcon">
+                            <md-option ng-repeat="icons in statusSuggestedIcons"
+                                       value="{{icons.description}}">
+                                <i class="fa {{icons.description}} fa-2x"
+                                   style="color: {{icons.color}}">
+                                </i>
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </td>
+            </tr>
+        </tbody>
+        <tbody>
+            <tr ng-repeat="RSTstatus in domainsStatus"
+                ng-init="varIndexRecord = RSTstatus.statusUuid;
+                           varIndexRecord= false">
+                <td ng-click="varIndexRecord1=true">
+                    <form name="myform">
+                        <input type="hidden"
+                               ng-model="RSTstatus.statusUuid" />
+                        <strong ng-show="!varIndexRecord1"
+                                tooltip-placement="top"
+                                uib-tooltip="Edit Record">
+                            {{RSTstatus.statusName}}
+                        </strong>
+                        <md-input-container style="padding: 0px !important;
+                                                   margin: 0px !important;
+                                                   height: 25px !important;
+                                                   width: 100%;"
+                                            ng-show="varIndexRecord1">
+                            <input type="text"
+                                   name="statusname"
+                                   ng-model="RSTstatus.statusName"
+                                   ng-minlength="2"
+                                   maxlength="20"
+                                   required
+                                   ng-blur="!myform.statusname.$error.required ?
+                                         updDomainsStatus(RSTstatus) :
+                                         varIndexRecord1=true">
+                        </md-input-container>
+                        <small ng-show="myform.statusname.$error.required">
+                            Please enter something!
+                        </small>
+                    </form>
+                </td>
+                <td ng-click="varIndexRecord2=true">
+                    <form name="myform1">
+                        <span ng-show="!varIndexRecord2"
+                              tooltip-placement="top"
+                              uib-tooltip="Edit Record">
+                            {{RSTstatus.description}}
+                        </span>
+                        <md-input-container style="padding: 0px !important;
+                                                   margin: 0px !important;
+                                                   height: 25px !important;
+                                                   width: 100%;"
+                                            ng-show="varIndexRecord2">
+                            <input type="text" name="statusd"
+                                   ng-model="RSTstatus.description"
+                                   ng-minlength="2"
+                                   required
+                                   ng-blur="!myform1.statusd.$error.required
+                                         ? updDomainsStatus(RSTstatus) :
+                                         varIndexRecord2=true">
+                        </md-input-container>
+                        <small ng-show="myform1.statusd.$error.required">
+                            Please enter something!
+                        </small>
+                    </form>
+                </td>
+                <td style="text-align: center !important;">
+                    <md-switch class="md-primary"
+                               ng-model="RSTstatus.receiveCalls"
+                               ng-change="updDomainsStatus(RSTstatus)"
+                               name="special"
+                               required
+                               style="padding: 0px !important;
+                                      margin: 0px !important;
+                                      height: 25px !important;">
+                    </md-switch>
+                </td>
+                <td style="text-align: center !important;">
+                    <md-switch class="md-warn"
+                               ng-model="RSTstatus.startTimer"
+                               ng-disabled="true"
+                               name="special"
+                               required
+                               style="padding: 0px !important; margin: 0px !important; height: 25px !important;"
+                               uib-tooltip="Cannot edit Timer"
+                               tooltip-placement="top">
+                    </md-switch>
+                </td>
+                <td style="text-align: center !important;">
+                    <md-checkbox ng-model="RSTstatus.active"
+                                 ng-change="updDomainsStatus(RSTstatus)"
+                                 name="tos"
+                                 style="padding: 0px !important;
+                                           margin: 0px !important;
+                                           height: 25px !important;
+                                           text-align: center !important;">
+                    </md-checkbox>
+                </td>
+                <td style="text-align: center;">
+                    <span ng-show="!varIndexRecord3"
+                          ng-click="varIndexRecord3=true"
+                          tooltip-placement="top"
+                          uib-tooltip="Edit Record">
+                        <i class="fa {{RSTstatus.icon}} cls-color-blue-tkg"></i>
+                    </span>
+                    <md-input-container class="md-block"
+                                        flex-gt-sm
+                                        style="padding: 0px !important;
+                                               margin: 0px !important;
+                                               height: 25px !important;"
+                                        ng-show="varIndexRecord3">
+                        <md-select ng-model="RSTstatus.icon"
+                                   ng-change="updDomainsStatus(RSTstatus);
+                                             varIndexRecord3=false">
+                            <md-option ng-repeat="icons in statusSuggestedIcons"
+                                       value="{{icons.description}}"
+                                       class="statusAvailable"
+                                       ng-disabled="!icons.available">
+                                <i class="fa {{icons.description}} fa-2x"
+                                   ng-style="icons.available==true && {'cursor':'pointer'} ||
+                                          {'cursor':'no-drop'}">
+                                </i>
+                                &nbsp; {{icons.available ? 'Available':'Used'}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <button class="btn btn-primary"
+            ng-click="addStatus()"
+            ng-show="!showAddStatus"
+            tooltip-placement="top"
+            uib-tooltip="New Status"
+            style="margin-bottom: 20px;">
+        <i class="fa fa-address-card-o "></i>
+        Add Status
+    </button>
+    <button class="btn btn-success"
+            ng-click="insDomainsStatus(NEWstatus)"
+            ng-show="showAddStatus"
+            tooltip-placement="top"
+            uib-tooltip="Save New Status"
+            style="margin-bottom: 20px;">
+        <i class="fa fa-save"></i>
+        Save Status
+    </button>
+    <button class="btn btn-danger"
+            ng-click="cancelInsertStatus();"
+            ng-show="showAddStatus"
+            tooltip-placement="top"
+            uib-tooltip="Cancel"
+            style="margin-bottom: 20px; margin-left: 20px;">
+        <i class="fa fa-undo"></i>
+        Cancel Insert
+    </button>
+</div>

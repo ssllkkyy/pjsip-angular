@@ -1,0 +1,19 @@
+<div class="main-attendant-container">
+    <h3 class="container-title">
+        Create and Schedule Call Flow Actions
+    </h3>
+    <div class="container-body">
+        <attendant-action-selector
+            class="tableclass action-menu"
+            call-flow-schedule-model="callFlowScheduleModel">
+        </attendant-action-selector>
+        <attendant-action-panel
+            ng-if="callFlowScheduleModel"
+            call-flow-schedule-model="callFlowScheduleModel">
+        </attendant-action-panel>
+        <attendant-condition-summary
+            ng-if="scheduledActionsOnly.length"
+            scheduled-actions="scheduledActionsOnly">
+        </attendant-condition-summary>
+    </div>
+</div>

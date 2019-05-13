@@ -1,0 +1,24 @@
+<div class="call-parking-buttons-container">
+    <button class="btn btn-default parking-spot"
+            ng-click="triggerParkingSpot()">
+        <div class="parking-spot-content-container"
+            ng-if="!showIncomingCallThreeWay()">
+            <i class="fa fa-car free"></i>
+            <p>Park Call</p>
+        </div>
+        <div class="parking-spot-content-container" 
+            tooltip-placement="bottom"
+            uib-tooltip="Park current call and Accept incoming call"
+            ng-if="showIncomingCallThreeWay()">
+            <i class="fa fa-car free"></i>
+            <p>Park Call</p>
+        </div>
+    </button>
+    <button class="btn btn-default transfer-btn"
+            ng-click="startSelfTransfer()">
+        <div class="parking-spot-content-container">
+            <i class="fa fa-exchange"></i>
+            <p>Transfer To Device</p>
+        </div>
+    </button>
+</div>

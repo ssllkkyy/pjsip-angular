@@ -1,0 +1,132 @@
+<div class="no-access-container" ng-if="!packageHasAccess('cloudstorage')">
+    <div class="alert alert-warning centered no-access">
+        Your current Bridge <strong>{{user.package.package_title}}</strong> does not have access to <strong>{{showFeatureTitle('cloudstorage')}}</strong>.
+    </div>
+</div>
+<div ng-if="packageHasAccess('cloudstorage')" id="storeandshare-content-container">
+    <div id="main-storeandshare-container">
+            <div class="cloudstorageheader">
+                <div class="tablecell cloudtitle">
+                    <h3>Store & Share</h3>
+                </div>
+                <div class="tablecell cloud-search" ng-show="!showSearchBox">
+                    <div class="input-group">
+                        <span class="input-group-addon"
+                                title="search">
+                            <i class="fa fa-search"></i>
+                        </span>
+                        <input class="form-control"
+                                type="text"
+                                ng-enter="doCloudSearch(cloud.searchText)"
+                                ng-model="cloud.searchText"
+                                placeholder="Search"
+                                tooltip-placement="bottom"
+                                uib-tooltip="{{::tips.storeandshare.submit_search}}">
+                    </div>
+                </div>
+            </div>
+        <div class="fs-user-files">
+            <div class="row">
+                <div file-display-table
+                    search="showSearchBox"
+                    root="userRootFolder"
+                    uploader="uploader">
+                </div>
+            </div>
+        </div>
+        <a id="download_link"
+        style="display:none;"
+        download="foo.pdf">
+        </a>
+    </div>
+    <div id="storeandshare-sidebar-container"
+        ng-show="showSearchBox">
+        <div id="storeandshare-search-container">
+            <div id="storeandshare-search-header">
+                <div class="input-group">
+                    <span class="input-group-addon"
+                            title="search">
+                        <i class="fa fa-search"></i>
+                    </span>
+                    <input class="form-control"
+                            type="text"
+                            ng-enter="doCloudSearch(cloud.searchText)"
+                            ng-model="cloud.searchText"
+                            placeholder="Search"
+                            tooltip-placement="bottom"
+                            uib-tooltip="{{::tips.storeandshare.submit_search}}">
+                </div>
+            </div>
+            <div id="storeandshare-search-subheader">
+                <p class="title">
+                    Search Results:<br />
+                    {{cloud.filesFound.length}} File{{cloud.filesFound.length===1 ? '' : 's'}} Found & {{cloud.foldersFound.length}} Folder{{cloud.foldersFound.length===1 ? '' : 's'}} Found
+                </p>
+                <i class="fa fa-sign-out md-icon"
+                    ng-click="closeSearch()"
+                    tooltip-placement="bottom-right"
+                    uib-tooltip="{{::tips.storeandshare.close_search}}">
+                </i>
+            </div>
+            <div id="storeandshare-search-content">
+                <div ng-repeat="folder in cloud.foldersFound | orderBy: 'created_at':false">
+                    <div class="search-date-separator datedisplay">
+                        <hr class="separator__hr">
+                        <div class="separator__text">
+                            <span>
+                                {{folder.created_at | toLocalTime | amDateFormat:'ddd, MMM Do YYYY, h:mm a'}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="chatSearchItem">
+                        <div class="row">
+                            <div  class="col-sm-9">
+                                <div class="message-container clearfix">
+                                    <span class="cloud-item-name cloud-item-image-box">
+                                        <img class="cloud-flat-img cloud-{{getFolderType(folder)}}" src="/images/Folders/folder-48.png" >
+                                    </span>
+                                    <span class="cloud-item-name search-name">{{folder.folder_name}}</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-3"
+                                    ng-click="goToFolder(folder)"  >
+                                <span tooltip-placement="bottom-right"
+                                        uib-tooltip="{{::tips.storeandshare.jump_to_result}}">
+                                    <i class="fa fa-reply fa-2x"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div ng-repeat="file in cloud.filesFound | orderBy: 'created_at':false">
+                    <div class="search-date-separator datedisplay">
+                        <hr class="separator__hr">
+                        <div class="separator__text">
+                            <span>
+                                {{file.created_at | toLocalTime | amDateFormat:'ddd, MMM Do YYYY, h:mm a'}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="chatSearchItem">
+                        <div class="row">
+                            <div  class="col-sm-9">
+                                <div class="message-container clearfix">
+                                    <span class="cloud-item-name cloud-item-image-box"><img class="cloud-flat-img cloud-{{getFileType(file)}}" src="/images/Files/file-48.png"></span> 
+                                    <span class="cloud-item-name search-name">{{file.original_filename}}<br />
+                                    {{file.file_size}}</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-3"
+                                    ng-click="goToFile(file)"  >
+                                <span tooltip-placement="bottom-right"
+                                        uib-tooltip="{{::tips.storeandshare.jump_to_result}}">
+                                    <i class="fa fa-reply fa-2x"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

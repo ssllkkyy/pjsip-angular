@@ -1,0 +1,31 @@
+<div class="suggestion-list"
+     ng-style="styleObj">
+    <div class="suggestion-list-content">
+        <div class="suggestion-list-header">
+            Channels
+            <span class="pull-right light-font right-text">
+                <span class="pad-right-15">
+                    <i class="fa fa-long-arrow-up"></i>
+                    <i class="fa fa-long-arrow-down"></i>
+                    to navigate
+                </span>
+                <span class="pad-right-15">tab to select</span>
+                <span class="pad-right-15">esc to dismiss</span>
+            </span>
+        </div>
+        <div class="suggestion-list-items">
+            <div class="suggestion-list-mention member-mention"
+                 ng-class="{selectedperson: parentData.channels[parentData.selectedIndex].id === channel.id}"
+                 ng-repeat="channel in parentData.channels track by $index"
+                 ng-click="parentData.select($index)">
+                <span class="suggest-icon">
+                    <i class="fa fa-{{channel.type == 'P' ? 'lock' : 'globe'}} fa-lg"
+                       style="font-size: 18px; width: 25px; text-align: center;">
+                    </i>
+                </span>
+                <strong>#{{channel.name}}</strong>
+                <span>{{channel.display_name}}</span>
+            </div>
+        </div>
+    </div>
+</div>

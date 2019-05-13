@@ -1,0 +1,80 @@
+<div>
+    <div class="modal-header"
+         id="modal-screen-share">
+         <span class="fa-stack fa-2x cls-color-green-tkg">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-clock-o fa-stack-1x fa-inverse" style="color: white;"></i>
+        </span>
+         <span class="cls-header-modal">
+            {{vm.content.data.action}} Time
+        </span>
+        <button type="button"
+                ng-click="vm.content.data.closeAddEditRecord()"
+                class="close">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-body"
+         id="modal-body">
+         <label ng-if="vm.content.data.action == 'Add'">
+         	Time range will appear on your timeline.
+         </label>
+         <label ng-if="vm.content.data.action == 'Edit'">
+         	You can trim Activity time.
+         </label>
+         <div>
+            <span>
+            <h4>Date: {{vm.content.data.dateSel}}</h4>
+            </span>
+         </div>
+         <div>
+         	<table class="table tk-record">
+         		<thead>
+         			<th>Start Time</th>
+         			<th>End Time</th>
+         		</thead>
+         		<tbody ng-if="vm.content.data.action == 'Add'">
+         			<td>
+         				<div uib-timepicker ng-model="vm.content.data.time.start_stamp" hour-step="vm.content.data.hstep" minute-step="vm.content.data.mstep" show-meridian="vm.content.data.ismeridian"> </div>
+         				<div ng-if="!vm.content.data.time.start_stamp">Invalid Date</div>
+         			</td>
+         			<td>
+         				<div uib-timepicker ng-model="vm.content.data.time.end_stamp" hour-step="vm.content.data.hstep" minute-step="vm.content.data.mstep" show-meridian="vm.content.data.ismeridian"> </div>
+         				<div ng-if="!vm.content.data.time.end_stamp">Invalid Date</div>
+         			</td>
+         		</tbody>
+         		<tbody ng-if="vm.content.data.action == 'Edit'">
+         			<td>
+         				<div uib-timepicker ng-model="vm.content.data.record.start_stamp" hour-step="vm.content.data.hstep" minute-step="vm.content.data.mstep" show-meridian="vm.content.data.ismeridian"> </div>
+         				<div ng-if="!vm.content.data.record.start_stamp">Invalid Date</div>
+         			</td>
+         			<td>
+         				<div uib-timepicker ng-model="vm.content.data.record.end_stamp" hour-step="vm.content.data.hstep" minute-step="vm.content.data.mstep" show-meridian="vm.content.data.ismeridian"> </div>
+         				<div ng-if="!vm.content.data.record.end_stamp">Invalid Date</div>
+         			</td>
+         		</tbody>
+         	</table>
+
+         	
+         </div>
+
+    </div>
+    <div class="modal-footer cls-incomingcall-buttons">
+        <button class="btn btn-danger btn-md"
+                ng-click="vm.content.data.closeAddEditRecord()">
+            <i class="fa fa-remove"
+               style="margin-right: 10px;"></i>
+            Cancel
+        </button>
+        <button class="btn btn-primary btn-md"
+                ng-click="vm.content.data.addEditRecord(vm.content.data.time, vm.content.data, closeModal)" ng-disabled="!vm.content.data.time.start_stamp || !vm.content.data.time.end_stamp" ng-if="vm.content.data.action == 'Add'">
+            <i class="fa fa-save" style="margin-right: 10px;"></i>
+            Add time
+        </button>
+        <button class="btn btn-primary btn-md"
+                ng-click="vm.content.data.addEditRecord(vm.content.data.time, vm.content.data, closeModal)" ng-disabled="!vm.content.data.record.start_stamp || !vm.content.data.record.end_stamp" ng-if="vm.content.data.action == 'Edit'">
+            <i class="fa fa-save" style="margin-right: 10px;"></i>
+            Save Changes
+        </button>
+    </div>
+</div>

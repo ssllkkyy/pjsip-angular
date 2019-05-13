@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base href="/">
+    <meta charset="utf-8">
+    <title>Bridge</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicon.ico">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <!-- build:css(.) styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
+    <link rel="stylesheet" href="bower_components/angular-wizard/dist/angular-wizard.min.css" />
+    <link rel="stylesheet" href="bower_components/animate.css/animate.css" />
+    <link rel="stylesheet" href="bower_components/ng-material-datetimepicker/css/material-datetimepicker.css" />
+    <link rel="stylesheet" href="bower_components/mdPickers/dist/mdPickers.min.css" />
+    <link rel="stylesheet" href="bower_components/angular-material-data-table/dist/md-data-table.css" />
+    <link rel="stylesheet" href="bower_components/spectrum/spectrum.css" />
+    <link rel="stylesheet" href="bower_components/textAngular/dist/textAngular.css" />
+    <link rel="stylesheet" href="bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+    <link rel="stylesheet" href="bower_components/ng-dialog/css/ngDialog.css" />
+    <link rel="stylesheet" href="bower_components/ng-dialog/css/ngDialog-theme-default.css" />
+    <link rel="stylesheet" href="bower_components/angular-ui-select/dist/select.css" />
+    <link rel="stylesheet" href="bower_components/clusterize/clusterize.css" />
+    <link rel="stylesheet" href="bower_components/ngWig/dist/css/ng-wig.css" />
+    <!-- endbower -->
+    <link href="bower_components/ng-formio/css/formio.css" rel="stylesheet"  type="text/css">
+    <link href="bower_components/jquery-ui/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <!--<link href="bower_components/jScrollPane/style/jquery.jscrollpane.css" rel="stylesheet" type="text/css"/>-->
+    <link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css" />
+    <link href="bower_components/angularjs-slider/dist/rzslider.css" rel="stylesheet" type="text/css" />
+    <link href="bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css" rel="stylesheet" type="text/css" />
+    <link href="bower_components/bootstrap3-dialog/src/css/bootstrap-dialog.css" rel="stylesheet" />
+    <link href="bower_components/ng-tags-input/ng-tags-input.css" rel="stylesheet" type="text/css" />
+    <link href="bower_components/angular-wizard/dist/angular-wizard.css" rel="stylesheet" type="text/css" />
+    <link href="bower_components/font-awesome-animation/dist/font-awesome-animation.css" rel="stylesheet" type="text/css" />
+    <link href="bower_components/mdi/css/materialdesignicons.css" rel="stylesheet" type="text/css" />
+    <link href="bower_components/lightbox2/dist/css/lightbox.css" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css">
+    <!-- endbuild -->
+
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="styles/wdt/wdt-emoji-bundle.css" />
+    <link rel="stylesheet" href="styles/css/emoji-picker.css" />
+    <link rel="stylesheet" href="styles/css/variables.css">
+    <link rel="stylesheet" href="styles/css/layout.css">
+    <link rel="stylesheet" href="styles/css/leftbar.css">
+    <link rel="stylesheet" href="styles/css/main.css">
+    <link rel="stylesheet" href="styles/css/callsparked.css">
+    <link rel="stylesheet" href="styles/css/contactdetails.css">
+    <link rel="stylesheet" href="styles/css/conferencecall.css">
+    <link rel="stylesheet" href="styles/css/content.css">
+    <link rel="stylesheet" href="styles/css/attributes.css">
+    <link rel="stylesheet" href="styles/css/smsstyles.css" />
+    <link rel="stylesheet" href="styles/css/basicstyles.css" />
+    <link rel="stylesheet" href="styles/css/smsbubbles.css" />
+    <link rel="stylesheet" href="styles/css/angular-material-event-calendar.css" />
+    <link rel="stylesheet" href="styles/css/dialpad.css">
+    <link rel="stylesheet" href="styles/css/treeview.css">
+    <link rel="stylesheet" href="styles/css/videoplay.css">
+    <link rel="stylesheet" href="styles/css/header.css">
+    <link rel="stylesheet" href="styles/css/autoattendant.css">
+    <link rel="stylesheet" href="styles/css/ringattendant.css">
+    <link rel="stylesheet" href="styles/css/filetype.css">
+    <link rel="stylesheet" href="styles/libraries/ngFormBuilder.css"/>
+    <link rel="stylesheet" href="styles/libraries/formio.css">
+    <!-- endbuild -->
+    <!-- <script src='https://www.google.com/recaptcha/api.js'></script> -->
+</head>
+
+<body ng-app="symphonyApp" ng-controller="MainCtrl">
+    <!--[if lte IE 8]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <div id="main-container" ng-class="{'login-main' : onLoginPage}">
+        <div id="videoElements" style="height: 0px !important;" ng-show="!onLoginPage">
+            <video id="video-container" autoplay="autoplay" width="0" height="0"></video>
+        </div>
+        <div id="leftbar" ng-include="'views/leftbar.html'" ng-if="showLeftbar"></div>
+        <div id="right-container" ng-class="{'full-screen-right-container': fullScreenRightContainer, 'login-right' : onLoginPage, 'full-width-page' : fullWidthPage}">
+            <div id="header" ng-include="'views/header.html'" ng-if="showHeader"></div>
+            <div id="content-container" ng-class="{ 'padded-content-container': showContentPadding }" ng-view=""></div>
+        </div>
+    </div>
+    <div id="try-mobile" ng-include="'views/try-mobile.html'"></div>
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
+    <script>
+        ! function(A, n, g, u, l, a, r) {
+            A.GoogleAnalyticsObject = l, A[l] = A[l] || function() {
+                    (A[l].q = A[l].q || []).push(arguments)
+                }, A[l].l = +new Date, a = n.createElement(g),
+                r = n.getElementsByTagName(g)[0], a.src = u, r.parentNode.insertBefore(a, r)
+        }(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-XXXXX-X');
+        ga('send', 'pageview');
+    </script>
+
+    <!-- Load environment variables -->
+    <script src="scripts/env.js"></script>
+    <!-- pusher-js -->
+    <script src="//js.pusher.com/3.0/pusher.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+
+    <!-- build:js(.) scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/angular-aria/angular-aria.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="bower_components/angular-messages/angular-messages.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/angular-touch/angular-touch.js"></script>
+    <script src="bower_components/ng-file-upload/ng-file-upload.js"></script>
+    <script src="bower_components/marked/lib/marked.js"></script>
+    <script src="bower_components/angular-marked/dist/angular-marked.js"></script>
+    <script src="bower_components/moment/moment.js"></script>
+    <script src="bower_components/angular-moment/angular-moment.js"></script>
+    <script src="bower_components/angular-slugify/angular-slugify.js"></script>
+    <script src="bower_components/pusher-angular/lib/pusher-angular.js"></script>
+    <script src="bower_components/pusher-websocket-iso/dist/web/pusher.js"></script>
+    <script src="bower_components/angular-file-upload/dist/angular-file-upload.min.js"></script>
+    <script src="bower_components/angular-elastic/elastic.js"></script>
+    <script src="bower_components/randomcolor/randomColor.js"></script>
+    <script src="bower_components/angular-material/angular-material.js"></script>
+    <script src="bower_components/angular-wizard/dist/angular-wizard.min.js"></script>
+    <script src="bower_components/angular-audio/app/angular.audio.js"></script>
+    <script src="bower_components/angular-clipboard/angular-clipboard.js"></script>
+    <script src="bower_components/angular-bootstrap-contextmenu/contextMenu.js"></script>
+    <script src="bower_components/js-xlsx/dist/xlsx.core.min.js"></script>
+    <script src="bower_components/ngDraggable/ngDraggable.js"></script>
+    <script src="bower_components/ng-idle/angular-idle.js"></script>
+    <script src="bower_components/simple-web-notification/web-notification.js"></script>
+    <script src="bower_components/angular-web-notification/angular-web-notification.js"></script>
+    <script src="bower_components/angular-websocket/dist/angular-websocket.js"></script>
+    <script src="bower_components/angular-drag-and-drop-lists/angular-drag-and-drop-lists.js"></script>
+    <script src="bower_components/ng-material-datetimepicker/js/angular-material-datetimepicker.js"></script>
+    <script src="bower_components/mdPickers/dist/mdPickers.min.js"></script>
+    <script src="bower_components/angular-material-data-table/dist/md-data-table.js"></script>
+    <script src="bower_components/paste-image/dist/paste-image.min.js"></script>
+    <script src="bower_components/angular-payments/lib/angular-payments.js"></script>
+    <script src="bower_components/wavesurfer.js/dist/wavesurfer.js"></script>
+    <script src="bower_components/angular-bowser/src/angular-bowser.js"></script>
+    <script src="bower_components/spectrum/spectrum.js"></script>
+    <script src="bower_components/angular-spectrum-colorpicker/dist/angular-spectrum-colorpicker.min.js"></script>
+    <script src="bower_components/rangy/rangy-core.js"></script>
+    <script src="bower_components/rangy/rangy-classapplier.js"></script>
+    <script src="bower_components/rangy/rangy-highlighter.js"></script>
+    <script src="bower_components/rangy/rangy-selectionsaverestore.js"></script>
+    <script src="bower_components/rangy/rangy-serializer.js"></script>
+    <script src="bower_components/rangy/rangy-textrange.js"></script>
+    <script src="bower_components/textAngular/dist/textAngular.js"></script>
+    <script src="bower_components/textAngular/dist/textAngular-sanitize.js"></script>
+    <script src="bower_components/textAngular/dist/textAngularSetup.js"></script>
+    <script src="bower_components/moment-round/dist/moment-round.min.js"></script>
+    <script src="bower_components/angular-ui-mask/dist/mask.js"></script>
+    <script src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="bower_components/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.js"></script>
+    <script src="bower_components/moment-timezone/builds/moment-timezone-with-data-2012-2022.js"></script>
+    <script src="bower_components/ng-dialog/js/ngDialog.js"></script>
+    <script src="bower_components/bootstrap-ui-datetime-picker/dist/datetime-picker.js"></script>
+    <script src="bower_components/blob-polyfill/Blob.js"></script>
+    <script src="bower_components/file-saver.js/FileSaver.js"></script>
+    <script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.js"></script>
+    <script src="bower_components/angular-ui-ace/ui-ace.js"></script>
+    <script src="bower_components/angular-ui-select/dist/select.js"></script>
+    <script src="bower_components/angular-ckeditor/angular-ckeditor.js"></script>
+    <script src="bower_components/ng-formio/dist/formio.js"></script>
+    <script src="bower_components/clusterize/clusterize.js"></script>
+    <script src="bower_components/ng-csv/build/ng-csv.min.js"></script>
+    <script src="bower_components/ngWig/dist/ng-wig.js"></script>
+    <script src="bower_components/firebase/firebase.js"></script>
+    <script src="bower_components/angularfire/dist/angularfire.js"></script>
+    <script src="bower_components/ng-debounce/angular-debounce.js"></script>
+    <!-- endbower -->
+
+    
+
+    <script src="bower_components/angular-file-upload/dist/angular-file-upload.js"></script>
+    <script src="bower_components/ng-tags-input/ng-tags-input.js"></script>
+
+    <script src="bower_components/jquery-ui/jquery-ui.js"></script>
+    <script src="bower_components/angular-strap/dist/angular-strap.js"></script>
+    <script src="bower_components/angular-strap/dist/angular-strap.tpl.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/angular-bootstrap-switch/dist/angular-bootstrap-switch.js"></script>
+    <script src="bower_components/bootstrap3-dialog/src/js/bootstrap-dialog.js"></script>
+    <script src="bower_components/angularjs-slider/dist/rzslider.js"></script>
+    <script src="bower_components/bootstrap-switch/dist/js/bootstrap-switch.js"></script>
+    <script src="bower_components/satellizer/dist/satellizer.js"></script>
+    <script src="bower_components/angular-wizard/dist/angular-wizard.js"></script>
+    <script src="bower_components/angular-timer/dist/angular-timer.js"></script>
+    <script src="bower_components/humanize-duration/humanize-duration.js"></script>
+    <script src="bower_components/angular-js-xlsx/angular-js-xlsx.js"></script>
+    <script src="bower_components/angular-google-chart/ng-google-chart.js"></script>
+
+
+    <script src="bower_components/json3/lib/json3.js"></script>
+    <script src="bower_components/highlightjs/highlight.pack.js"></script>
+    <script src="bower_components/angular-highlightjs/angular-highlightjs.js"></script>
+    <script src="bower_components/lightbox2/dist/js/lightbox.js"></script>
+
+    <script src="bower_components/d3/d3.js"></script>
+    <script src="bower_components/nvd3/build/nv.d3.js"></script> 
+    <script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+
+    <!-- endbuild -->
+
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyA5xSMUQU9J6WXQMLnm3zZhi3L2eBjYoy8",
+            authDomain: "tkg-bridge.firebaseapp.com",
+            databaseURL: "https://tkg-bridge.firebaseio.com",
+            projectId: "tkg-bridge",
+            storageBucket: "",
+            messagingSenderId: "370688551319"
+        };
+        firebase.initializeApp(config);
+    </script>
+
+    <!-- Verto dependencies -->
+    <script src="scripts/verto/jquery.min.js"></script>
+    <script src="scripts/verto/jquery.json.min.js"></script>
+    <script src="scripts/verto/jquery.verto.js"></script>
+    <script src="scripts/verto/jquery.FSRTC.js"></script>
+    <script src="scripts/verto/jquery.jsonrpcclient.js"></script>
+    <script src="scripts/verto/md5.js"></script>
+    <!-- <script src="scripts/verto/main.js"></script> -->
+    <!-- Verto library -->
+
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="scripts/libraries/formio.js"></script>
+    <script src="scripts/libraries/ngFormBuilder.js"></script>
+    <script src="scripts/libraries/ui-bootstrap-tpls.js"></script>
+    <script src="scripts/constants.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/controllers/ctrlMain.js"></script>
+    <script src="scripts/controllers/ctrlChatPlus.js"></script>
+    <script src="scripts/controllers/ctrlCallHistory.js"></script>
+    <script src="scripts/controllers/ctrlCallCenter.js"></script>
+    <script src="scripts/controllers/ctrlReports.js"></script>
+    <script src="scripts/controllers/ctrlAdvFeatures.js"></script>
+    <script src="scripts/controllers/ctrlSettings.js"></script>
+    <script src="scripts/controllers/ctrlContactDetails.js"></script>
+    <script src="scripts/controllers/ctrlSms.js"></script>
+    <script src="scripts/controllers/ctrlLogin.js"></script>
+    <script src="scripts/controllers/ctrlPublic.js"></script>
+    <script src="scripts/controllers/ctrlScreenpop.js"></script>
+    <script src="scripts/controllers/ctrlBasic.js"></script>
+    <script src="scripts/controllers/ctrlModal.js"></script>
+    <script src="scripts/controllers/ctrlEmailEditor.js"></script>
+    <script src="scripts/controllers/ctrlFileSharing.js"></script>
+    <script src="scripts/controllers/ctrlCloudFile.js"></script>
+    <script src="scripts/controllers/ctrlPublicCloud.js"></script>
+    <script src="scripts/controllers/ctrlBluewave.js"></script>
+    <script src="scripts/controllers/ctrlPublicPlay.js"></script>
+    <script src="scripts/controllers/ctrlCallRecording.js"></script>
+    <script src="scripts/controllers/ctrlScreenSharing.js"></script>
+    <script src="scripts/controllers/ctrlCommunications.js"></script>
+    <script src="scripts/controllers/ctrlVideoConference.js"></script>
+    <script src="scripts/controllers/ctrlVisualVoiceMail.js"></script>
+    <script src="scripts/controllers/ctrlAutoDialing.js"></script>
+    <script src="scripts/controllers/ctrlFax.js"></script>
+    <script src="scripts/controllers/ctrlConferenceCall.js"></script>
+    <script src="scripts/controllers/ctrlCallRecording.js"></script>
+    <script src="scripts/controllers/ctrlNavBar.js"></script>
+    <script src="scripts/controllers/ctrlSupport.js"></script>
+    <script src="scripts/controllers/ctrlBilling.js"></script>
+    <script src="scripts/controllers/ctrlAutoAttendant.js"></script>
+    <script src="scripts/controllers/ctrlRingGroup.js"></script>
+    <script src="scripts/controllers/ctrlTimeKeeper.js"></script>
+    <script src="scripts/controllers/ctrlQuotesheets.js"></script>
+    <script src="scripts/controllers/ctrlBridgeAnalytics.js"></script>
+    <script src="scripts/controllers/ctrlCallsParked.js"></script>
+    <script src="scripts/directives/symphonyDirectives.js"></script>
+    <script src="scripts/directives/sms/smsDirectives.js"></script>
+    <script src="scripts/directives/billingDirectives.js"></script>
+    <script src="scripts/directives/contactsDirectives.js"></script>
+    <script src="scripts/directives/sms/send-sms-modal.js"></script>
+    <script src="scripts/directives/calls/call-parking-buttons.js"></script>
+    <script src="scripts/directives/validation/input-validator.js"></script>
+    <script src="scripts/directives/helpers/ng-visible.js"></script>
+    <script src="scripts/directives/helpers/maxlength-phone-input.js"></script>
+    <script src="scripts/directives/helpers/download-file.js"></script>
+    <script src="scripts/directives/audio/audio-selector.js"></script>
+    <script src="scripts/directives/audio/audio-play-btn.js"></script>
+    <script src="scripts/directives/audio/text-synthesizer.js"></script>
+    <script src="scripts/directives/autoAttendant/auto-attendant.js"></script>
+    <script src="scripts/directives/autoAttendant/auto-attendant-manage-table.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-did-select.js"></script>
+    <script src="scripts/directives/autoAttendant/ring-group-edit.js"></script>
+    <script src="scripts/directives/autoAttendant/ivr-edit.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-timeout-options.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-timeout-select.js"></script>
+    <script src="scripts/directives/autoAttendant/ivr-menu-options-table.js"></script>
+    <script src="scripts/directives/autoAttendant/voicemail-edit.js"></script>
+    <script src="scripts/directives/autoAttendant/voicemail-options-edit.js"></script>
+    <script src="scripts/directives/autoAttendant/announcement-edit.js"></script>
+    <script src="scripts/directives/autoAttendant/audio-recorder.js"></script>
+    <script src="scripts/directives/autoAttendant/extension-edit.js"></script>
+    <script src="scripts/directives/autoAttendant/external-did-edit.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-audio-selector.js"></script>
+    <script src="scripts/directives/autoAttendant/recording-selector.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-editor.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-details-form.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-accordion.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-action-panel.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-condition-summary.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-action-selector.js"></script>
+    <script src="scripts/directives/autoAttendant/action-editor.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-resource-table.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-condition-group.js"></script>
+    <script src="scripts/directives/autoAttendant/attendant-condition.js"></script>
+    <script src="scripts/directives/vidconf/rtc-page.js"></script>
+    <script src="scripts/directives/files/file-browse-btn.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/quotesheet-rater-config.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/quotes-history.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/quotesheet-modal-chat.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/quotesheet-settings.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/quote-editor.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/template-editor.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/template-manager.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/type-manager.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/question.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/quote-reports.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/entered-report.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/quote-stats-report.js"></script>
+    <script src="scripts/directives/quotesheetDirectives/quote-details-report.js"></script>
+    <script src="scripts/directives/contactAvatar.js"></script>
+    <script src="scripts/directives/two-axis-table/two-axis-table.js"></script>
+    <script src="scripts/directives/datepicker/datepicker.js"></script>
+    <script src="scripts/directives/scrollable-table/scrollable-table.js"></script>
+    <script src="scripts/directives/dashboard/dashboardList.js"></script>
+    <script src="scripts/directives/dashboard/dashboardTile.js"></script>
+    <script src="scripts/directives/statuses/statusDropdown.js"></script>
+    <script src="scripts/directives/statuses/companySetupStatusTab.js"></script>
+    <script src="scripts/services/statusService.js"></script>
+    <script src="scripts/directives/tkgsettings/groupCodes.js"></script>
+    <script src="scripts/directives/tkgsettings/packages.js"></script>
+    <script src="scripts/directives/tkgsettings/agencies.js"></script>
+    <script src="scripts/directives/tkgsettings/notices.js"></script>
+    <script src="scripts/directives/tkgsettings/managektpassword.js"></script>
+    <script src="scripts/directives/tkgsettings/billing.js"></script>
+    <script src="scripts/directives/tkgsettings/blueadmin.js"></script>
+    <script src="scripts/directives/integrations/partner-copy-text.js"></script>
+    <script src="scripts/directives/integrations/ams-activity-export.js"></script>
+    <script src="scripts/directives/integrations/qq-activity-export.js"></script>
+    <script src="scripts/directives/user-settings/screenpop-settings.js"></script>
+    <script src="scripts/directives/user-settings/integration-settings.js"></script>
+    <script src="scripts/directives/billingReports.js"></script>
+    <script src="scripts/directives/locations/locationSelector.js"></script>
+    <script src="scripts/directives/bridgeAnalytics/showDetail.js"></script>
+    <script src="scripts/filters/symphonyFilters.js"></script>
+    <script src="scripts/services/resourceFrameworkService.js"></script>
+    <script src="scripts/services/tooltipsService.js"></script>
+    <script src="scripts/services/focusService.js"></script>
+    <script src="scripts/services/newPusherService.js"></script>
+    <script src="scripts/services/notificationService.js"></script>
+    <script src="scripts/services/newChatService.js"></script>
+    <script src="scripts/services/chatService.js"></script>
+    <script src="scripts/services/tagService.js"></script>
+    <script src="scripts/services/recordingService.js"></script>
+    <script src="scripts/services/metaService.js"></script>
+    <script src="scripts/services/e911Service.js"></script>
+    <script src="scripts/services/userService.js"></script>
+    <script src="scripts/services/bridgeNoticeService.js"></script>
+    <script src="scripts/services/packageService.js"></script>
+    <script src="scripts/services/billingService.js"></script>
+    <script src="scripts/services/chatMessages.js"></script>
+    <script src="scripts/services/mmWebsocket.js"></script>
+    <script src="scripts/services/modalService.js"></script>
+    <script src="scripts/services/usefulTools.js"></script>
+    <script src="scripts/services/fileService.js"></script>
+    <script src="scripts/services/smsService.js"></script>
+    <script src="scripts/services/conferenceService.js"></script>
+    <script src="scripts/services/callHistoryService.js"></script>
+    <script src="scripts/services/chatApi.js"></script>
+    <script src="scripts/services/onescreenApi.js"></script>
+    <script src="scripts/services/callHistoryLoader.js"></script>
+    <script src="scripts/services/callStatisticsApi.js"></script>
+    <script src="scripts/services/smsApi.js"></script>
+    <script src="scripts/services/domainService.js"></script>
+    <script src="scripts/services/cloudStorage.js"></script>
+    <script src="scripts/services/contactGroupsService.js"></script>
+    <script src="scripts/services/permissionGroupsService.js"></script>
+    <script src="scripts/services/customerGroupCodeService.js"></script>
+    <script src="scripts/services/contactService.js"></script>
+    <script src="scripts/services/chatMacroService.js"></script>
+    <script src="scripts/services/audioLibraryService.js"></script>
+    <script src="scripts/services/callService.js"></script>
+    <script src="scripts/services/integrationService.js"></script>
+    <script src="scripts/services/greenboxService.js"></script>
+    <script src="scripts/services/emailService.js"></script>
+    <script src="scripts/services/musicOnHoldService.js"></script>
+    <script src="scripts/services/emulationService.js"></script>
+    <script src="scripts/services/videoConfService.js"></script>
+    <script src="scripts/services/permissionService.js"></script>
+    <script src="scripts/services/quoteSheetService.js"></script>
+    <script src="scripts/services/autoAttendantService.js"></script>
+    <script src="scripts/services/callFlowScheduleFactory.js"></script>
+    <script src="scripts/services/ivrMenuFactory.js"></script>
+    <script src="scripts/services/ivrMenuOptionFactory.js"></script>
+    <script src="scripts/services/uneditableArray.js"></script>
+    <script src="scripts/services/routeService.js"></script>
+    <script src="scripts/services/raterService.js"></script>
+    <script src="scripts/services/locationService.js"></script>
+    <script src="scripts/services/bridgeAnalyticsService.js"></script>
+    <!--<script src="scripts/angular-desktop-notification.js"></script>-->
+    <script src="scripts/angular-material-event-calendar.js"></script>
+    <script src="scripts/kotterAudioRecorder/dist/kotter-audio-recorder.js"></script>
+    <script src="scripts/angular-material-event-calendar.js"></script>
+    <script src="scripts/angular.audio.js"></script>
+    <script src="scripts/angular.audio.js"></script>
+    <script src="scripts/dtmf/compat.js"></script>
+    <script src="scripts/dtmf/tone.js"></script>
+    <script src="scripts/dtmf/band.js"></script>
+    <script src="scripts/dtmf/ear.js"></script>
+    <script src="scripts/dtmf/operator.js"></script>
+    <script src="scripts/services/srvDialer.js"></script>
+    <script src="scripts/RTCMultiConnection.js"></script>
+    <script src="scripts/editor/Blob.js"></script>
+    <script src="scripts/editor/fileSaver.js"></script>
+
+    <script src="scripts/wdt/emoji.min.js"></script>
+    <script src="scripts/wdt/wdt-emoji-bundle.js"></script>
+    <script src="scripts/emoji-picker.js"></script>
+    <script src="scripts/textAngular-dropdownToggle.js"></script>
+    <script src="scripts/verto/main.js"></script>
+    <!-- endbuild -->
+    
+    <!-- capture screen from any HTTPs domain! -->
+    <!-- <script src="https://cdn.webrtc-experiment.com:443/getScreenId.js"></script> -->
+    <script src="https://app-rsrc.getbee.io/plugin/BeePlugin.js"></script>
+
+    <script src="https://apis.google.com/js/client.js"></script>
+
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+        window.Tawk_API = window.Tawk_API || {};
+        var Tawk_LoadStart = new Date();
+        var startTawk = function() {
+            var s1 = document.createElement("script"),
+                s0 = document.getElementsByTagName("script")[0];
+            s1.async = true;
+            s1.src = 'https://embed.tawk.to/58a60f90bd8b9009f782eb80/default';
+            s1.charset = 'UTF-8';
+            s1.setAttribute('crossorigin', '*');
+            s0.parentNode.insertBefore(s1, s0);
+        };
+    </script>
+    <!--End of Tawk.to Script-->
+
+</body>
+</html>

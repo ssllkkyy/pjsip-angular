@@ -1,0 +1,131 @@
+<scrollable-table column-names="tableControls.columnNames"
+                  resource-length="filteredTemplatesLength()">
+    <table-body>
+        <table class="table table-bordered table-hover table-striped cls-tab-comp-setup-users">
+            <tbody>
+                <tr>
+                    <td style="text-align: center"
+                        colspan="2">
+                        My Templates
+                        <md-button class="md-primary md-raised pull-right"
+                            ng-click="emailQuoteSheetToTKG()"
+                            tooltip-placement="bottom-right"
+                            uib-tooltip="Send us your Quote Sheet. We will turn it into a template for your agency.">
+                            <i class="fa fa-envelope-o fa-lg"></i>
+                            Submit Quote Sheet
+                        </md-button>
+                        <md-button class="md-primary md-raised pull-right"
+                            ng-click="showHiddenTemplates();"
+                            tooltip-placement="bottom-right"
+                            uib-tooltip="Select hidden templates to display.">
+                            <i class="fa fa-eye fa-lg"></i>
+                            {{ showHidden ? "Hide" : "Show" }} Hidden Templates
+                        </md-button>
+                    </td>
+                </tr>
+                <tr ng-repeat="template in templates"
+                    ng-if="!template.hidden || showHidden">
+                    <td class="{{column.className}}-col"
+                        ng-show="!column.nonResourceCol"
+                        ng-repeat="column in tableControls.columnNames">
+                        <p> {{ template.description }} </p>
+                    </td>
+                    <td class="action-col">
+                        <md-button ng-click="deleteTemplate(template)"
+                                   class="md-raised">
+                            Delete
+                        </md-button>
+                        <md-button ng-click="manageTemplateLocations(template)"
+                                   class="md-raised">
+                            Manage Locations
+                        </md-button>
+                        <md-button ng-click="setEditingTemplate()(template)"
+                                   class="md-raised">
+                            Edit
+                        </md-button>
+                        <md-button ng-click="openCloneModal(template)"
+                                   class="md-raised">
+                            Clone
+                        </md-button>
+                        <md-button ng-click="toggleGlobalTemplateHide(template)"
+                                   ng-if="template.hidden && isKotterTech && template.global"
+                                   class="md-raised">
+                            Show
+                        </md-button>
+                        <md-button ng-click="toggleGlobalTemplateHide(template)"
+                                   ng-if="!template.hidden && isKotterTech && template.global"
+                                   class="md-raised">
+                            Hide
+                        </md-button>
+                    </td>
+                </tr>
+                <tr ng-if="!templates || templates.length === 0">
+                    <td class="">
+                        <p style="text-align: center;">
+                            Create a template to see something here!
+                        </p>
+                    </td>
+                </tr>
+
+
+                <tr ng-if="globalTemplates && globalTemplates.length > 0 && showHidden">
+                    <td style="text-align:center"
+                        colspan="2">
+                        Hidden Templates
+                    </td>
+                </tr>
+                <tr ng-repeat="template in globalTemplates"
+                    ng-if="template.hidden && showHidden">
+                    <td class="{{column.className}}-col"
+                        ng-show="!column.nonResourceCol"
+                        ng-repeat="column in tableControls.columnNames">
+                        <p>
+                            {{ template.description }}
+                        </p>
+                    </td>
+                    <td class="action-col">
+                        <md-button ng-click="toggleGlobalTemplateHide(template)"
+                                   ng-if="template.hidden"
+                                   class="md-raised">
+                            Show
+                        </md-button>
+                    </td>
+                </tr>
+
+                <tr ng-if="globalTemplates && globalTemplates.length > 0">
+                    <td style="text-align:center"
+                        colspan="2">
+                        Global Templates
+                    </td>
+                </tr>
+                <tr ng-repeat="template in globalTemplates"
+                    ng-if="!template.hidden">
+                    <td class="{{column.className}}-col"
+                        ng-show="!column.nonResourceCol"
+                        ng-repeat="column in tableControls.columnNames">
+                        <p>
+                            {{ template.description }}
+                        </p>
+                        
+                    </td>
+                    <td class="action-col">
+                        <md-button ng-click="openCloneModal(template)"
+                                   class="md-raised">
+                            Clone
+                        </md-button>
+                        <md-button ng-click="toggleGlobalTemplateHide(template)"
+                                   ng-if="template.hidden"
+                                   class="md-raised">
+                            Show
+                        </md-button>
+                        <md-button ng-click="toggleGlobalTemplateHide(template)"
+                                   ng-if="!template.hidden"
+                                   class="md-raised">
+                            Hide
+                        </md-button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </table-body>
+</scrollable-table>

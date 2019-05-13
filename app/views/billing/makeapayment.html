@@ -1,0 +1,59 @@
+<md-content class="package-content">
+    <h4>Apply Payment to {{domain.domain_description}}</h4>
+    <div class="alert alert-success" ng-if="message.success">
+        {{message.success}}
+    </div>
+    <div class="alert alert-danger" ng-if="message.error">
+        {{message.error}}
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            <div class="thumbnail">
+                <div class="caption">
+                    <div ng-if="invoice">
+                        <h4>Invoice #{{invoice.invoice_num}} Balance</h4>
+                        <h3>{{invoice.balance | currency}}</h3>
+                    </div>
+                    <div ng-if="!invoice">
+                        <h4>Account Balance</h4>
+                        <h3>{{activeAgency().billingSettings.account_balance | currency}}</h3>
+                    </div>
+                    
+                    <hr />
+                    <h4>Payment amount</h4>
+                    <div class="input-group" style="width: 60%;"> 
+                        <span class="input-group-addon" 
+                            title="payment amount">
+                            <i class="fa fa-dollar"></i>
+                        </span> 
+                        <input class="form-control" 
+                            currency-formatter-no-dollar
+                            ng-model="payment.amount" 
+                            type="text" 
+                            placeholder="payment amount">
+                    </div>
+
+                    <button class="btn btn-primary" 
+                        ng-click="submitPayment()" 
+                        ng-disabled="disableSubmit()">
+                        Submit Payment
+                    </button>
+                    <span ng-if="disableReason" class="smfont"><br />NOTE: {{disableReason}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h4>Select Payment Method</h4>
+                    <payment-methods 
+                        radios="true"
+                        domain="domain">
+                    </payment-methods>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</md-content>
+

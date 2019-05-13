@@ -1,0 +1,46 @@
+<div class="action-column">
+                            <div class="main-col">
+                                <md-input-container>
+                                    <label>Pick a Number</label>
+                                    <md-select ng-model="newIvr.currentAttendant.directory">
+                                        <md-option ng-repeat="directory in directoryOpts" ng-value="directory">
+                                            {{directory}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                            </div>
+                            <div class="main-col">
+                                <md-input-container>
+                                    <label>Enter a Description</label>
+                                    <input ng-model="newIvr.currentAttendant.description" /></md-input-container>
+                            </div>
+                            <div class="main-col">
+                                <md-input-container>
+                                    <label>Options</label>
+                                    <md-select ng-model="newIvr.currentAttendant.group">
+                                        <md-option ng-repeat="sendTo in sendToOpts" ng-value="sendTo.name" ng-click="selected(sendTo.name)">
+                                            {{sendTo.name}}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+
+                            </div>
+                            <div ng-class="sendClass" ng-if="newIvr.currentAttendant.group && newIvr.currentAttendant.group!=='Dial By Name'">
+                                <div class="" ng-if="newIvr.currentAttendant.group == 'Ring Group'">
+                                    <div ng-include="" src="'views/company/attendant/ring-group.html'"></div>
+                                </div>
+                                <div class="" ng-if="newIvr.currentAttendant.group === 'Individual Name'">
+                                    <div ng-include="" src="'views/company/attendant/individual-name.html'"></div>
+                                </div>
+                                <div class="" ng-if="newIvr.currentAttendant.group == 'Transfer to External Number'">
+                                    <md-input-container>
+                                        <label>Enter a Number</label>
+                                        <input md-input call-phone-input ng-paste="calls.handlePaste($event)" ng-model="newIvr.currentAttendant.items" />
+                                    </md-input-container>
+                                </div>
+                                <div class="" ng-if="newIvr.currentAttendant.group == 'Play Recording'">
+                                    <audio-selector category="'voicemail'" settings="settings">
+                                    </audio-selector>
+                                </div>
+                            </div>
+                            </div>

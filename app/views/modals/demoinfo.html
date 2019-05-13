@@ -1,0 +1,30 @@
+<div class="modal-header">
+    <span class="fa-stack fa-2x modal-icon">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>
+    </span>
+    <span class="cls-header-modal">Bridge Demo Info</span>
+    <button type="button" ng-click="vm.content.data.closeModal()" class="close"><i class="fa fa-times"></i></button>
+</div>
+<div class="modal-body" id="modal-body">
+    <div class="row demo-box" >
+        <div class="col-sm-12">
+
+            <h4>Info about Bridge Demo limits here ... </h4>
+            <ul>
+                <li>Contacts: {{vm.content.data.limits.contact}} personal contacts per user</li>
+                <li>Calling: {{vm.content.data.limits.call}} calls, {{vm.content.data.limits.calllength}} minutes per call</li>
+                <li>SMS: {{vm.content.data.limits.sms}} messages</li>
+                <li>Fax: {{vm.content.data.limits.fax}} messages</li>
+                <li>Video Calling: {{vm.content.data.limits.video}} minute conferences</li>
+                <li>Screen Sharing: {{vm.content.data.limits.video}} minute sessions</li>
+                <li>File Sharing: {{vm.content.data.limits.file}} files shared</li>
+                <li>Automated Marketing: {{vm.content.data.limits.campaign}} campaigns, {{vm.content.data.limits.campaign_contact}} contacts per campaign</li>
+            </ul>
+        </div>
+    </div>
+    
+</div>
+<div class="modal-footer cls-incomingcall-buttons">
+    <button class="btn btn-danger btn-md" ng-click="vm.content.data.closeModal()"><i class="fa fa-times" style="margin-right: 10px;"></i>Cancel</button>
+</div>
